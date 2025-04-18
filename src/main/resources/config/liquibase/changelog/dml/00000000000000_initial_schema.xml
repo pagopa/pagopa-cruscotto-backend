@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="00000000000001-dml" author="pagopaCruscotto" context="dml">
+         <loadData file="../../data/auth_group.csv"
+                  separator=";" relativeToChangelogFile="true"
+                  tableName="AUTH_GROUP" >
+            <column name="CO_ID" type="numeric"/>
+        </loadData>
+        <rollback>
+            delete from ${database.defaultSchemaName}.AUTH_GROUP;
+        </rollback>
+    </changeSet>
+
+    <changeSet id="00000000000002-dml" author="pagopaCruscotto" context="dml">
+        <loadData file="../../data/auth_user.csv"
+                  separator=";" relativeToChangelogFile="true"
+                  tableName="AUTH_USER" >
+            <column name="CO_ID" type="numeric"/>
+            <column name="CO_AUTH_GROUP_ID" type="numeric"/>
+            <column name="FL_ACTIVATED" type="boolean"/>
+            <column name="DT_CREATED_DATE" type="timestamp"/>
+        </loadData>
+        <rollback>
+            delete from ${database.defaultSchemaName}.AUTH_USER;
+        </rollback>
+    </changeSet>
+
+    <changeSet id="00000000000003-dml" author="pagopaCruscotto" context="dml">
+        <loadData file="../../data/auth_function.csv"
+                  separator=";" relativeToChangelogFile="true"
+                  tableName="AUTH_FUNCTION" >
+            <column name="CO_ID" type="numeric"/>
+        </loadData>
+        <rollback>
+            delete from ${database.defaultSchemaName}.AUTH_FUNCTION;
+        </rollback>
+    </changeSet>
+
+    <changeSet id="00000000000004-dml" author="pagopaCruscotto" context="dml">
+        <loadData file="../../data/auth_permission.csv"
+                  separator=";" relativeToChangelogFile="true"
+                  tableName="AUTH_PERMISSION" >
+            <column name="CO_ID" type="numeric"/>
+        </loadData>
+        <rollback>
+            delete from ${database.defaultSchemaName}.AUTH_PERMISSION;
+        </rollback>
+    </changeSet>
+
+    <changeSet id="00000000000005-dml" author="pagopaCruscotto" context="dml">
+        <loadData file="../../data/auth_fun_auth_perm.csv"
+                  separator=";" relativeToChangelogFile="true"
+                  tableName="AUTH_FUN_AUTH_PERM" >
+            <column name="CO_AUTH_PERMISSION_ID" type="numeric"/>
+            <column name="CO_AUTH_FUNCTION_ID" type="numeric"/>
+        </loadData>
+        <rollback>
+            delete from ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM;
+        </rollback>
+    </changeSet>
+
+    <changeSet id="0000000000006-dml" author="pagopaCruscotto" context="dml">
+        <loadData file="../../data/auth_group_auth_func.csv"
+                  separator=";" relativeToChangelogFile="true"
+                  tableName="AUTH_GROUP_AUTH_FUNC" >
+            <column name="CO_AUTH_FUNCTION_ID" type="numeric"/>
+            <column name="CO_AUTH_GROUP_ID" type="numeric"/>
+        </loadData>
+        <rollback>
+            delete from ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC;
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
