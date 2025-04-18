@@ -1,0 +1,27 @@
+CO_ID;TE_NOME;TE_MODULO;TE_DESCRIZIONE
+1;FUNZIONI_BASE;GTW;Funzioni necessarie per il corretto accesso e funzionamento
+2;SWAGGER;GTW;Elenco servizi rest
+9;ELENCO_UTENTI;GTW;Elenco utenti
+10;DETTAGLIO_UTENTE;GTW;Dettaglio utente
+11;CENSIMENTO_UTENTE;GTW;Censimento utente
+12;MODIFICA_UTENTE;GTW;Modifica utente
+13;CANCELLAZIONE_UTENTE;GTW;Cancellazione utente
+14;ELENCO_PERMESSI;GTW;Elenco permessi
+15;DETTAGLIO_PERMESSO;GTW;Dettaglio permesso
+16;CENSIMENTO_PERMESSO;GTW;Censimento permesso
+17;MODIFICA_PERMESSO;GTW;Modifica permesso
+18;CANCELLAZIONE_PERMESSO;GTW;Cancellazione permesso
+19;ELENCO_FUNZIONI;GTW;Elenco funzioni
+20;DETTAGLIO_FUNZIONE;GTW;Dettaglio funzione
+21;CENSIMENTO_FUNZIONE;GTW;Censimento funzione
+22;MODIFICA_FUNZIONE;GTW;Modifica funzione
+23;CANCELLAZIONE_FUNZIONE;GTW;Cancellazione funzione
+24;ELENCO_GRUPPI;GTW;Elenco gruppi
+25;DETTAGLIO_GRUPPO;GTW;Dettaglio gruppo
+26;CENSIMENTO_GRUPPO;GTW;Censimento gruppo
+27;MODIFICA_GRUPPO;GTW;Modifica gruppo
+28;CANCELLAZIONE_GRUPPO;GTW;Cancellazione gruppo
+3005;PASSWORD_EXPIRED;GTW;Password Scaduta
+1110;MODIFICA_ASSOCIAZIONE_FUNZIONE_PERMESSI;GTW;Modifica associazione dei permessi alle funzioni
+1121;MODIFICA_ASSOCIAZIONE_GRUPPO_FUNZIONI;GTW;Funzione associazione funzioni al gruppo
+1010;STRUMENTI_CONTROLLO;GTW;Strumenti di Controllo applicativo

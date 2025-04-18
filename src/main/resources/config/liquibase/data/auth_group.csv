@@ -1,0 +1,3 @@
+CO_ID;TE_NOME;TE_DESCRIZIONE
+1;ROLE_SUPER_ADMIN;Gruppo degli amministratori
+2;ROLE_PASSWORD_EXPIRED;Password Expired
