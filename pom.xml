@@ -20,7 +20,7 @@
 
   <properties>
     <maven.version>3.2.5</maven.version>
-    <java.version>17</java.version>
+    <java.version>21</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
@@ -73,7 +73,7 @@
     <spring.profiles.active>dev</spring.profiles.active>
     <springdoc-openapi-starter-webmvc-api.version>2.7.0</springdoc-openapi-starter-webmvc-api.version>
     <testng.version>7.10.2</testng.version>
-    <lombok.version>1.18.20</lombok.version>
+    <lombok.version>1.18.30</lombok.version>
   </properties>
 
   <dependencyManagement>
