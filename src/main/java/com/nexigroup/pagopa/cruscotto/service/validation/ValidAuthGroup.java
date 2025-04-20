@@ -1,4 +1,4 @@
-package com.nexigroup.pagopa.cruscotto.web.rest.validation;
+package com.nexigroup.pagopa.cruscotto.service.validation;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 @Target({ ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidAuthGroup {
-    String message() default "{com.nexigroup.pagopa.cruscotto.web.rest.validation.constraints.AuthGroup.message}";
+    String message() default "{com.nexigroup.pagopa.cruscotto.service.validation.constraints.AuthGroup.message}";
 
     Class<?>[] groups() default {};
 

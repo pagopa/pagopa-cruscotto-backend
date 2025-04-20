@@ -15,7 +15,7 @@ import com.nexigroup.pagopa.cruscotto.service.util.PasswordValidator;
 import com.nexigroup.pagopa.cruscotto.web.rest.errors.BadRequestAlertException;
 import com.nexigroup.pagopa.cruscotto.web.rest.errors.EmailAlreadyUsedException;
 import com.nexigroup.pagopa.cruscotto.web.rest.errors.LoginAlreadyUsedException;
-import com.nexigroup.pagopa.cruscotto.web.rest.validation.UserResourcePermissionValidator;
+import com.nexigroup.pagopa.cruscotto.service.validation.UserResourcePermissionValidator;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;

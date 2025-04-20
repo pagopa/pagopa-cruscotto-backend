@@ -1,7 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.service.bean;
 
 import com.nexigroup.pagopa.cruscotto.config.Constants;
-import com.nexigroup.pagopa.cruscotto.web.rest.validation.ValidAuthGroup;
+import com.nexigroup.pagopa.cruscotto.service.validation.ValidAuthGroup;
 import jakarta.validation.constraints.*;
 
 public class AuthUserCreateRequestBean {
