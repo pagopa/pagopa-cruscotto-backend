@@ -6,7 +6,7 @@ import com.nexigroup.pagopa.cruscotto.domain.AuthUser;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AuthenticationType;
 import com.nexigroup.pagopa.cruscotto.repository.AuthPermissionRepository;
 import com.nexigroup.pagopa.cruscotto.repository.AuthUserRepository;
-import com.nexigroup.pagopa.cruscotto.service.util.PasswordExpiredUtils;
+import com.nexigroup.pagopa.cruscotto.security.util.PasswordExpiredUtils;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;

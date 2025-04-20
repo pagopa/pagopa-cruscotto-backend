@@ -15,7 +15,7 @@ import com.nexigroup.pagopa.cruscotto.service.bean.PasswordChangeRequestBean;
 import com.nexigroup.pagopa.cruscotto.service.dto.AuthUserAccountDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.AuthUserDTO;
 import com.nexigroup.pagopa.cruscotto.service.util.CookieTranslateUtil;
-import com.nexigroup.pagopa.cruscotto.service.util.PasswordExpiredUtils;
+import com.nexigroup.pagopa.cruscotto.security.util.PasswordExpiredUtils;
 import com.nexigroup.pagopa.cruscotto.service.util.PasswordValidator;
 import com.nexigroup.pagopa.cruscotto.web.rest.errors.BadRequestAlertException;
 import com.nexigroup.pagopa.cruscotto.web.rest.errors.EmailAlreadyUsedException;

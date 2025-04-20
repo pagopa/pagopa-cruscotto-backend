@@ -1,4 +1,4 @@
-package com.nexigroup.pagopa.cruscotto.web.rest.validation;
+package com.nexigroup.pagopa.cruscotto.service.validation;
 
 import com.nexigroup.pagopa.cruscotto.service.AuthUserService;
 import org.slf4j.Logger;

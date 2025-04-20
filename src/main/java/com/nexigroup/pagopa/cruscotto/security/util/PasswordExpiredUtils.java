@@ -1,4 +1,4 @@
-package com.nexigroup.pagopa.cruscotto.service.util;
+package com.nexigroup.pagopa.cruscotto.security.util;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
