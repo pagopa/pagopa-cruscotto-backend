@@ -1,9 +1,13 @@
 package com.nexigroup.pagopa.cruscotto.security.jwt;
 
+import com.nexigroup.pagopa.cruscotto.config.CacheConfiguration;
 import com.nexigroup.pagopa.cruscotto.config.SecurityConfiguration;
 import com.nexigroup.pagopa.cruscotto.config.SecurityJwtConfiguration;
 import com.nexigroup.pagopa.cruscotto.config.WebConfigurer;
 import com.nexigroup.pagopa.cruscotto.management.SecurityMetersService;
+import com.nexigroup.pagopa.cruscotto.repository.AuthGroupRepository;
+import com.nexigroup.pagopa.cruscotto.repository.AuthPermissionRepository;
+import com.nexigroup.pagopa.cruscotto.security.GrantAuthoritiesLoad;
 import com.nexigroup.pagopa.cruscotto.web.rest.LoginController;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -23,10 +27,15 @@ import tech.jhipster.config.JHipsterProperties;
         JHipsterProperties.class,
         WebConfigurer.class,
         SecurityConfiguration.class,
+        CacheConfiguration.class,
         SecurityJwtConfiguration.class,
         SecurityMetersService.class,
         LoginController.class,
         JwtAuthenticationTestUtils.class,
+        TokenProvider.class,
+        GrantAuthoritiesLoad.class,
+        AuthGroupRepository.class,
+        AuthPermissionRepository.class
     }
 )
 public @interface AuthenticationIntegrationTest {
