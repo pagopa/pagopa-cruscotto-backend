@@ -44,7 +44,7 @@ public class DomainUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(final String login) {
         log.debug("Authenticating {}", login);
 
-        Optional<AuthUser> user = authUserRepository.findOneByLoginAndNotDeleted(login, AuthenticationType.FORM_LOGIN);
+        Optional<AuthUser> user = authUserRepository.findOneByLoginIgnoreCaseAndNotDeleted(login, AuthenticationType.FORM_LOGIN);
 
         AuthUser authUser = user.orElseThrow(() -> new UsernameNotFoundException("User " + login + " was not found"));
 

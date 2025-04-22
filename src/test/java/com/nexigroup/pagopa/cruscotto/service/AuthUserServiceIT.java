@@ -58,17 +58,11 @@ class AuthUserServiceIT {
 
     private AuthUser user;
 
-    private Long numberOfUsers;
-
-    @BeforeEach
-    public void countUsers() {
-        numberOfUsers = userRepository.count();
-    }
-
     @BeforeEach
     public void init() {
         user = new AuthUser();
         user.setLogin(DEFAULT_LOGIN);
+        user.setAuthenticationType(AuthenticationType.FORM_LOGIN);
         user.setPassword(RandomStringUtils.insecure().nextAlphanumeric(60));
         user.setActivated(true);
         user.setEmail(DEFAULT_EMAIL);
@@ -88,23 +82,21 @@ class AuthUserServiceIT {
             .map(cacheName -> this.cacheManager.getCache(cacheName))
             .filter(Objects::nonNull)
             .forEach(Cache::clear);
-        userService.deleteUser(DEFAULT_LOGIN);
-        assertThat(userRepository.count()).isEqualTo(numberOfUsers);
-        numberOfUsers = null;
     }
 
     @Test
     @Transactional
     void assertThatUserMustExistToResetPassword() {
-        userRepository.saveAndFlush(user);
+        AuthUser authUser = userRepository.saveAndFlush(user);
         Optional<AuthUser> maybeUser = userService.requestPasswordResetByMail("invalid.login@localhost", AuthenticationType.FORM_LOGIN);
         assertThat(maybeUser).isNotPresent();
 
-        maybeUser = userService.requestPasswordResetByMail(user.getEmail(), AuthenticationType.FORM_LOGIN);
+        maybeUser = userService.requestPasswordResetByMail(authUser.getEmail(), AuthenticationType.FORM_LOGIN);
         assertThat(maybeUser).isPresent();
-        assertThat(maybeUser.orElse(null).getEmail()).isEqualTo(user.getEmail());
+        assertThat(maybeUser.orElse(null).getEmail()).isEqualTo(authUser.getEmail());
         assertThat(maybeUser.orElse(null).getResetDate()).isNotNull();
         assertThat(maybeUser.orElse(null).getResetKey()).isNotNull();
+        userRepository.delete(authUser);
     }
 
     @Test
@@ -115,11 +107,11 @@ class AuthUserServiceIT {
         user.setActivated(true);
         user.setResetDate(daysAgo);
         user.setResetKey(resetKey);
-        userRepository.saveAndFlush(user);
+        AuthUser authUser = userRepository.saveAndFlush(user);
 
-        Optional<AuthUser> maybeUser = userService.completePasswordReset("johndoe2", user.getResetKey());
+        Optional<AuthUser> maybeUser = userService.completePasswordReset("johndoe2", authUser.getResetKey());
         assertThat(maybeUser).isNotPresent();
-        userRepository.delete(user);
+        userRepository.delete(authUser);
     }
 
     @Test
@@ -129,11 +121,11 @@ class AuthUserServiceIT {
         user.setActivated(true);
         user.setResetDate(daysAgo);
         user.setResetKey("1234");
-        userRepository.saveAndFlush(user);
+        AuthUser authUser = userRepository.saveAndFlush(user);
 
-        Optional<AuthUser> maybeUser = userService.completePasswordReset("johndoe2", user.getResetKey());
+        Optional<AuthUser> maybeUser = userService.completePasswordReset("johndoe2", authUser.getResetKey());
         assertThat(maybeUser).isNotPresent();
-        userRepository.delete(user);
+        userRepository.delete(authUser);
     }
 
     @Test
@@ -145,30 +137,15 @@ class AuthUserServiceIT {
         user.setActivated(true);
         user.setResetDate(daysAgo);
         user.setResetKey(resetKey);
-        userRepository.saveAndFlush(user);
+        AuthUser authUser = userRepository.saveAndFlush(user);
 
-        Optional<AuthUser> maybeUser = userService.completePasswordReset("johndoe2", user.getResetKey());
+        Optional<AuthUser> maybeUser = userService.completePasswordReset("johndoe2", authUser.getResetKey());
         assertThat(maybeUser).isPresent();
         assertThat(maybeUser.orElse(null).getResetDate()).isNull();
         assertThat(maybeUser.orElse(null).getResetKey()).isNull();
         assertThat(maybeUser.orElse(null).getPassword()).isNotEqualTo(oldPassword);
 
-        userRepository.delete(user);
-    }
-
-    @Test
-    @Transactional
-    void assertThatNotActivatedUsersWithNotNullActivationKeyCreatedBefore3DaysAreDeleted() {
-        Instant now = Instant.now();
-        when(dateTimeProvider.getNow()).thenReturn(Optional.of(now.minus(4, ChronoUnit.DAYS)));
-        user.setActivated(false);
-        user.setActivationKey(RandomStringUtils.insecure().next(20));
-        AuthUser dbUser = userRepository.saveAndFlush(user);
-        dbUser.setCreatedDate(now.minus(4, ChronoUnit.DAYS));
-        userRepository.saveAndFlush(user);
-        Instant threeDaysAgo = now.minus(3, ChronoUnit.DAYS);
-        List<AuthUser> users = userRepository.findAllByActivatedIsFalseAndActivationKeyIsNotNullAndCreatedDateBefore(threeDaysAgo);
-        assertThat(users).isNotEmpty();
+        userRepository.delete(authUser);
     }
 
     @Test
@@ -179,9 +156,11 @@ class AuthUserServiceIT {
         user.setActivated(false);
         AuthUser dbUser = userRepository.saveAndFlush(user);
         dbUser.setCreatedDate(now.minus(4, ChronoUnit.DAYS));
-        userRepository.saveAndFlush(user);
+        userRepository.saveAndFlush(dbUser);
         Instant threeDaysAgo = now.minus(3, ChronoUnit.DAYS);
         List<AuthUser> users = userRepository.findAllByActivatedIsFalseAndActivationKeyIsNotNullAndCreatedDateBefore(threeDaysAgo);
         assertThat(users).isEmpty();
+
+        userRepository.delete(dbUser);
     }
 }

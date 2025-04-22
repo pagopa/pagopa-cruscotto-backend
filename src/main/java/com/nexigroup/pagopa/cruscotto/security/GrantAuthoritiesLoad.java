@@ -6,11 +6,13 @@ import com.nexigroup.pagopa.cruscotto.repository.AuthGroupRepository;
 import com.nexigroup.pagopa.cruscotto.repository.AuthPermissionRepository;
 import java.util.*;
 import java.util.stream.Collectors;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
+
+import javax.cache.Cache;
+import javax.cache.CacheManager;
 
 @Component
 public class GrantAuthoritiesLoad {
@@ -33,14 +35,14 @@ public class GrantAuthoritiesLoad {
 
     public Collection<GrantedAuthority> load(Map<String, Object> claims, String subject, String iat, String typeLogin) {
         Collection<GrantedAuthority> grantedAuthorities = SecurityUtils.extractAuthorityFromClaims(claims);
-        Cache cache = cacheManager.getCache(AuthoritiesConstants.PRINCIPAL);
+        Cache<Object, Object> cache = cacheManager.getCache(AuthoritiesConstants.PRINCIPAL);
 
         String key = subject.concat("_").concat(iat).concat("_").concat(typeLogin);
 
         Set<GrantedAuthority> grantedAuthoritiesConverted = new HashSet<>();
 
         if (cache != null && cache.get(key) != null) {
-            grantedAuthoritiesConverted.addAll(cache.get(key, Collection.class));
+            grantedAuthoritiesConverted.addAll((Collection)cache.get(key));
         }
 
         if (grantedAuthoritiesConverted.isEmpty()) {
