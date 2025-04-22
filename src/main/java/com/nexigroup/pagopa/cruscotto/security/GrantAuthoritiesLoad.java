@@ -46,7 +46,7 @@ public class GrantAuthoritiesLoad {
         }
 
         if (grantedAuthoritiesConverted.isEmpty()) {
-            //carico su Hazelcast le Authorities dell'utente
+            //carico in cache le Authorities dell'utente
 
             GrantedAuthority groupAuthority = grantedAuthorities
                 .stream()
