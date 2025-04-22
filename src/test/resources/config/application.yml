@@ -28,11 +28,16 @@ spring:
         enabled: false
       enabled: false
   # Replace by 'prod, faker' to add the faker context and have sample data loaded in production
-  liquibase:
-    contexts: test
+  datasource:
+    url: jdbc:h2:mem:pagopa_cruscotto;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    name:
+    username:
+    password:
   jackson:
     serialization:
       write-durations-as-timestamps: false
+  liquibase:
+    contexts: test, ddl
   mail:
     host: localhost
   main:

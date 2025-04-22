@@ -10,7 +10,7 @@
 
         <addForeignKeyConstraint baseColumnNames="CO_ANAG_PARTNER_ID"
                                  baseTableName="ANAG_PLANNED_SHUTDOWN"
-                                 constraintName="FK_TB${project_name}_INST_TB${project_name}_PART"
+                                 constraintName="FK_TB${project_name}_INST_TB${project_name}_PART_01"
                                  referencedColumnNames="CO_ID"
                                  referencedTableName="ANAG_PARTNER"/>
 

@@ -8,16 +8,20 @@ import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
 import java.time.Duration;
 import java.util.Collection;
 import javax.cache.CacheManager;
+import javax.cache.Caching;
+import javax.cache.spi.CachingProvider;
+
 import org.ehcache.config.builders.*;
 import org.ehcache.jsr107.Eh107Configuration;
 import org.hibernate.cache.jcache.ConfigSettings;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.cache.JCacheManagerCustomizer;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernatePropertiesCustomizer;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.boot.info.GitProperties;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.concurrent.ConcurrentMapCache;
 import org.springframework.cache.interceptor.KeyGenerator;
+import org.springframework.cache.support.SimpleCacheManager;
 import org.springframework.context.annotation.*;
 import tech.jhipster.config.JHipsterProperties;
 import tech.jhipster.config.cache.PrefixedKeyGenerator;
@@ -56,19 +60,20 @@ public class CacheConfiguration {
     }
 
     @Bean
-    public HibernatePropertiesCustomizer hibernatePropertiesCustomizer(javax.cache.CacheManager cacheManager) {
-        return hibernateProperties -> hibernateProperties.put(ConfigSettings.CACHE_MANAGER, cacheManager);
+    public CacheManager cacheManager() {
+        CachingProvider cachingProvider = Caching.getCachingProvider();
+        CacheManager cacheManager = cachingProvider.getCacheManager();
+        createCache(cacheManager, AuthUser.class.getName());
+        createCache(cacheManager, AuthGroup.class.getName());
+        createCache(cacheManager, AuthFunction.class.getName());
+        createCache(cacheManager, AuthPermission.class.getName());
+        createCachePrincipal(cacheManager);
+        return cacheManager;
     }
 
     @Bean
-    public JCacheManagerCustomizer cacheManagerCustomizer() {
-        return cm -> {
-            createCache(cm, AuthUser.class.getName());
-            createCache(cm, AuthGroup.class.getName());
-            createCache(cm, AuthFunction.class.getName());
-            createCache(cm, AuthPermission.class.getName());
-            createCachePrincipal(cm);
-        };
+    public HibernatePropertiesCustomizer hibernatePropertiesCustomizer(javax.cache.CacheManager cacheManager) {
+        return hibernateProperties -> hibernateProperties.put(ConfigSettings.CACHE_MANAGER, cacheManager);
     }
 
     private void createCache(javax.cache.CacheManager cm, String cacheName) {

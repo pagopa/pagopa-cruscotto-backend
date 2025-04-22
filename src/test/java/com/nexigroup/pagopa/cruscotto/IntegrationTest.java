@@ -15,6 +15,5 @@ import org.springframework.boot.test.context.SpringBootTest;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @SpringBootTest(classes = { PagoPaCruscottoBackendApp.class, JacksonConfiguration.class, AsyncSyncConfiguration.class })
-@EmbeddedSQL
 public @interface IntegrationTest {
 }
