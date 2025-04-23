@@ -15,6 +15,7 @@ import org.ehcache.config.builders.*;
 import org.ehcache.jsr107.Eh107Configuration;
 import org.hibernate.cache.jcache.ConfigSettings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.cache.JCacheManagerCustomizer;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernatePropertiesCustomizer;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.boot.info.GitProperties;
@@ -60,15 +61,14 @@ public class CacheConfiguration {
     }
 
     @Bean
-    public CacheManager cacheManager() {
-        CachingProvider cachingProvider = Caching.getCachingProvider();
-        CacheManager cacheManager = cachingProvider.getCacheManager();
-        createCache(cacheManager, AuthUser.class.getName());
-        createCache(cacheManager, AuthGroup.class.getName());
-        createCache(cacheManager, AuthFunction.class.getName());
-        createCache(cacheManager, AuthPermission.class.getName());
-        createCachePrincipal(cacheManager);
-        return cacheManager;
+    public JCacheManagerCustomizer cacheManagerCustomizer() {
+        return cm -> {
+            createCache(cm, AuthUser.class.getName());
+            createCache(cm, AuthGroup.class.getName());
+            createCache(cm, AuthFunction.class.getName());
+            createCache(cm, AuthPermission.class.getName());
+            createCachePrincipal(cm);
+        };
     }
 
     @Bean

@@ -1,50 +1,44 @@
 package com.nexigroup.pagopa.cruscotto.config;
 
+import com.nexigroup.pagopa.cruscotto.job.client.PagoPaClient;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import java.util.Map;
 
 /**
  * Properties specific to PagoPa Cruscotto Backend.
  * <p>
  * Properties are configured in the {@code application.yml} file.
  */
+@Getter
 @ConfigurationProperties(prefix = "application", ignoreUnknownFields = true)
 public class ApplicationProperties {
 
     private final Liquibase liquibase = new Liquibase();
 
+    @Setter
     private boolean enableCsrf;
 
     private final Password password = new Password();
 
-    public Liquibase getLiquibase() {
-        return liquibase;
-    }
+    private final Job job = new Job();
 
-    public Password getPassword() {
-        return password;
-    }
+    private final Quartz quartz = new Quartz();
 
-    public boolean isEnableCsrf() {
-        return enableCsrf;
-    }
+    private final PagoPaClient pagoPaClient = new PagoPaClient();
 
-    public void setEnableCsrf(boolean enableCsrf) {
-        this.enableCsrf = enableCsrf;
-    }
-
+    @Setter
+    @Getter
     public static class Liquibase {
 
         private Boolean asyncStart = true;
 
-        public Boolean getAsyncStart() {
-            return asyncStart;
-        }
-
-        public void setAsyncStart(Boolean asyncStart) {
-            this.asyncStart = asyncStart;
-        }
     }
 
+    @Setter
+    @Getter
     public static class Password {
 
         private Integer dayPasswordExpired;
@@ -53,28 +47,41 @@ public class ApplicationProperties {
 
         private Integer hoursKeyResetPasswordExpired;
 
-        public Integer getDayPasswordExpired() {
-            return dayPasswordExpired;
-        }
+    }
 
-        public void setDayPasswordExpired(Integer dayPasswordExpired) {
-            this.dayPasswordExpired = dayPasswordExpired;
-        }
+    @Getter
+    @Setter
+    public static class Job
+    {
+        private LoadTaxonomyJob loadTaxonomyJob = new LoadTaxonomyJob();
+    }
 
-        public Integer getFailedLoginAttempts() {
-            return failedLoginAttempts;
-        }
+    @Getter
+    @Setter
+    public static class LoadTaxonomyJob {
 
-        public void setFailedLoginAttempts(Integer failedLoginAttempts) {
-            this.failedLoginAttempts = failedLoginAttempts;
-        }
+        private boolean enabled;
 
-        public Integer getHoursKeyResetPasswordExpired() {
-            return hoursKeyResetPasswordExpired;
-        }
+        private String cron;
+    }
 
-        public void setHoursKeyResetPasswordExpired(Integer hoursKeyResetPasswordExpired) {
-            this.hoursKeyResetPasswordExpired = hoursKeyResetPasswordExpired;
-        }
+    @Getter
+    @Setter
+    public static class Quartz
+    {
+        private Boolean exposeSchedulerInRepository;
+    }
+
+    @Setter
+    @Getter
+    public static class PagoPaClient {
+
+        private String proxyHost;
+
+        private Integer proxyPort;
+
+        private String host;
+
+        private Map<String, String> api;
     }
 }

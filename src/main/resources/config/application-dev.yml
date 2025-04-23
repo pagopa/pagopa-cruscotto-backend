@@ -10,6 +10,7 @@
 # http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 # ===================================================================
 
+
 logging:
   level:
     ROOT: DEBUG
@@ -27,7 +28,7 @@ management:
 spring:
   devtools:
     restart:
-      enabled: true
+      enabled: false
       additional-exclude: static/**
     livereload:
       enabled: false # we use Webpack dev server + BrowserSync for livereload
@@ -70,7 +71,17 @@ spring:
     cache-duration: PT1S # 1 second, see the ISO 8601 standard
   thymeleaf:
     cache: false
-
+  quartz:
+    properties:
+      org.quartz.jobStore.driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
+      org.quartz.jobStore.dataSource: cruscotto
+      org.quartz.dataSource.cruscotto.provider: hikaricp
+      org.quartz.dataSource.cruscotto.driver: org.postgresql.Driver
+      org.quartz.dataSource.cruscotto.URL: jdbc:postgresql://10.8.79.25:3306/qualification_dashboard
+      org.quartz.dataSource.cruscotto.user: qualification_dashboard
+      org.quartz.dataSource.cruscotto.password: qualification_dashboard
+      org.quartz.dataSource.cruscotto.validationQuery: select 1
+      org.quartz.dataSource.cruscotto.maxConnections: 10
 server:
   port: 8080
   # make sure requests the proxy uri instead of the server one
@@ -123,3 +134,15 @@ application:
     day-password-expired: 60
     failed-login-attempts: 4
     hours-key-reset-password-expired: 1
+  pago-pa-client:
+    proxy-host:
+    proxy-port:
+    host: https://api.platform.pagopa.it/
+    api:
+      taxonomy: taxonomy/service/v1/taxonomy
+  job:
+    load-taxonomy-job:
+      enabled: true
+      cron: 0 0/2 08-23 ? * MON,TUE,WED,THU,FRI *
+  liquibase:
+    async-start: true
