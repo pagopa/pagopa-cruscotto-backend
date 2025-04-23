@@ -58,16 +58,20 @@ public class LoadTaxonomyJob extends QuartzJobBean {
             LOGGER.info("Save {} rows taxonomy to database", response.size());
 
             response.forEach(taxonomy -> {
+                TaxonomyDTO taxonomyDTO = null;
                 try {
-                    TaxonomyDTO taxonomyDTO = new TaxonomyDTO();
+                    taxonomyDTO = new TaxonomyDTO();
                     taxonomyDTO.setTakingsIdentifier(taxonomy.get(TaxonomyField.TAKINGS_IDENTIFIER.field));
                     taxonomyDTO.setValidityStartDate(LocalDate.parse(taxonomy.get(TaxonomyField.VALIDITY_START_DATE.field), formatter));
                     taxonomyDTO.setValidityEndDate(LocalDate.parse(taxonomy.get(TaxonomyField.VALIDITY_END_DATE.field), formatter));
 
                     taxonomyService.save(taxonomyDTO);
                 } catch (RuntimeException e) {
-                  ko.incrementAndGet();
+                    ko.incrementAndGet();
+                    LOGGER.error("Error saving taxonomy {}", taxonomyDTO);
+                    LOGGER.error(e.getMessage(), e);
                 }
+
                 ok.incrementAndGet();
             });
 
