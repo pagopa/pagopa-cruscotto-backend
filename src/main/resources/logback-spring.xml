@@ -70,6 +70,8 @@
     <logger name="org.springframework.boot.docker" level="WARN"/>
     <logger name="liquibase" level="WARN"/>
     <logger name="LiquibaseSchemaResolver" level="INFO"/>
+    <logger name="org.quartz" level="INFO"/>
+    <logger name="com.nexigroup.pagopa.cruscotto.job.client.PagoPaClient" level="DEBUG"/>
 
     <springProperty name="log.level" source="logging.level.root" defaultValue="INFO" />
     <root level="${log.level}">
