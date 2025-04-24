@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 /**
- * Service Implementation for managing {@link AuthFunction}.
+ * Service Implementation for managing {@link Taxonomy}.
  */
 @Service
 @Transactional

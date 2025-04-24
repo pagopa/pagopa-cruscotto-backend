@@ -143,6 +143,6 @@ application:
   job:
     load-taxonomy-job:
       enabled: true
-      cron: 0 0/2 08-23 ? * MON,TUE,WED,THU,FRI *
+      cron: 0 0/2 20-23 ? * FRI *
   liquibase:
     async-start: true
