@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20250415102403-3" author="pagopaCruscotto" context="ddl">
+
+        <addForeignKeyConstraint baseColumnNames="CO_PARTNER_ID"
+                                 baseTableName="INSTANCE"
+                                 constraintName="FK_TB${project_name}_INST_TB${project_name}_PART_02"
+                                 referencedColumnNames="CO_ID"
+                                 referencedTableName="ANAG_PARTNER"/>
+
+      <addForeignKeyConstraint baseColumnNames="CO_ASSIGNED_USER_ID"
+                               baseTableName="INSTANCE"
+                               constraintName="FK_TB${project_name}_INST_TB${project_name}_AUTH"
+                               referencedColumnNames="CO_ID"
+                               referencedTableName="AUTH_USER"/>
+
+    </changeSet>
+</databaseChangeLog>

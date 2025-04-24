@@ -42,11 +42,20 @@
       <tagDatabase  tag="version_2.0_ddl"/>
     </changeSet>
 
-  <include file="config/liquibase/changelog/ddl/20250423110700_added_entity_Taxonomy.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/ddl/20250423110700_added_entity_Taxonomy.xml" relativeToChangelogFile="false"/>
 
-  <changeSet  author="liquibase-docs"  id="version_3.0_ddl">
-    <tagDatabase  tag="version_3.0_ddl"/>
-  </changeSet>
+    <changeSet  author="liquibase-docs"  id="version_3.0_ddl">
+      <tagDatabase  tag="version_3.0_ddl"/>
+    </changeSet>
+
+    <include file="config/liquibase/changelog/ddl/20250423145400_added_entity_Instance.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/ddl/20250423145401_added_entity_constraints_Instance.xml" relativeToChangelogFile="false"/>
+
+
+
+    <changeSet  author="liquibase-docs"  id="version_4.0_ddl">
+      <tagDatabase  tag="version_4.0_ddl"/>
+    </changeSet>
 
 
 

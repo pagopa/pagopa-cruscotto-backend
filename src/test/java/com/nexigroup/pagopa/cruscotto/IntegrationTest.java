@@ -1,7 +1,7 @@
 package com.nexigroup.pagopa.cruscotto;
 
 import com.nexigroup.pagopa.cruscotto.config.AsyncSyncConfiguration;
-import com.nexigroup.pagopa.cruscotto.config.EmbeddedSQL;
+
 import com.nexigroup.pagopa.cruscotto.config.JacksonConfiguration;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
