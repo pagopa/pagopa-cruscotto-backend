@@ -49,7 +49,6 @@ public class LoadTaxonomyJob extends QuartzJobBean {
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
 
     @Override
-    @Transactional
     protected void executeInternal(@NotNull JobExecutionContext context) throws JobExecutionException {
         LOGGER.info("Start load taxonomy from PagoPA");
 

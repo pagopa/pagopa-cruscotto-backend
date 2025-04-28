@@ -89,6 +89,8 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
         anagPlannedShutdownDTOS.forEach(anagPlannedShutdownDTO -> {
             AnagPartner partnerExample = new AnagPartner();
             partnerExample.setFiscalCode(anagPlannedShutdownDTO.getPartnerFiscalCode());
+            partnerExample.setCreatedDate(null);
+            partnerExample.setLastModifiedDate(null);
 
             AnagPartner partner = anagPartnerRepository.findOne(Example.of(partnerExample)).orElseGet(() -> {
                AnagPartner partnerSaved = new AnagPartner();
@@ -98,11 +100,15 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
 
             AnagStation stationExample = new AnagStation();
             stationExample.setName(anagPlannedShutdownDTO.getStationName());
+            stationExample.setCreatedDate(null);
+            stationExample.setLastModifiedDate(null);
 
 
             AnagStation station = anagStationRepository.findOne(Example.of(stationExample)).orElseGet(() -> {
                 AnagStation stationSaved = new AnagStation();
-                stationSaved.setName(anagPlannedShutdownDTO.getPartnerName());
+                stationSaved.setName(anagPlannedShutdownDTO.getStationName());
+                stationSaved.setAssociatedInstitutes(0);
+                stationSaved.setAnagPartner(partner);
                 return anagStationRepository.save(stationSaved);
             });
 
