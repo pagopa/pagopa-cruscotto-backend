@@ -1,6 +1,5 @@
 package com.nexigroup.pagopa.cruscotto.config;
 
-import com.nexigroup.pagopa.cruscotto.job.client.PagoPaClient;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -54,11 +53,22 @@ public class ApplicationProperties {
     public static class Job
     {
         private LoadTaxonomyJob loadTaxonomyJob = new LoadTaxonomyJob();
+
+        private LoadMaintenanceJob loadMaintenanceJob = new LoadMaintenanceJob();
     }
 
     @Getter
     @Setter
     public static class LoadTaxonomyJob {
+
+        private boolean enabled;
+
+        private String cron;
+    }
+
+    @Getter
+    @Setter
+    public static class LoadMaintenanceJob {
 
         private boolean enabled;
 
@@ -80,8 +90,19 @@ public class ApplicationProperties {
 
         private Integer proxyPort;
 
-        private String host;
+        private Api taxonomy;
 
-        private Map<String, String> api;
+        private Api maintenance;
+
+        @Setter
+        @Getter
+        public static class Api {
+
+            private String url;
+
+            private String apiKeyName;
+
+            private String apiKeyValue;
+        }
     }
 }

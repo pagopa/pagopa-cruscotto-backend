@@ -35,12 +35,10 @@ public class AnagPartner extends AbstractAuditingEntity<Long> implements Seriali
     @Column(name = "TE_FISCAL_CODE", length = 35, nullable = false)
     private String fiscalCode;
 
-    @NotNull
     @Size(min = 1, max = 256)
     @Column(name = "TE_NAME", length = 256, nullable = false)
     private String name;
 
-    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "TE_STATUS", nullable = false)
     private PartnerStatus status;

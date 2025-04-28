@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 
 /**
  * Service Implementation for managing {@link Taxonomy}.
@@ -48,6 +50,16 @@ public class TaxonomyServiceImpl implements TaxonomyService {
         taxonomy = taxonomyRepository.save(taxonomy);
 
         return taxonomyMapper.toDto(taxonomy);
+    }
+
+    /**
+     * Save all taxonomies.
+     *
+     * @param taxonomies the entities to save.
+     */
+    @Override
+    public void saveAll(List<TaxonomyDTO> taxonomies) {
+       taxonomyRepository.saveAll(taxonomyMapper.toEntity(taxonomies));
     }
 
     /**

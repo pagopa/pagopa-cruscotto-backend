@@ -33,6 +33,9 @@
       <column name="CO_ANAG_STATION_ID" type="bigint">
         <constraints nullable="false"/>
       </column>
+      <column name="CO_EXTERNAL_ID" type="bigint">
+        <constraints nullable="false"/>
+      </column>
       <column name="TE_CREATED_BY" type="varchar(50)">
         <constraints nullable="false"/>
       </column>

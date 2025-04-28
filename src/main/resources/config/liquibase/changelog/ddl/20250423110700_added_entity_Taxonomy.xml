@@ -7,7 +7,7 @@
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
   <changeSet id="20250423110700-1" author="pagopaCruscotto" context="ddl">
-    <createSequence sequenceName="SQ${project_name}_TAXO01" startValue="3000" cacheSize="20"/>
+    <createSequence sequenceName="SQ${project_name}_TAXO01" startValue="3000" cacheSize="50" incrementBy="50" cycle="true"/>
   </changeSet>
 
   <changeSet id="20250423110700-2" author="pagopaCruscotto" context="ddl">
@@ -19,10 +19,10 @@
         <constraints nullable="false"/>
       </column>
       <column name="DT_VALIDITY_START_DATE" type="date">
-        <constraints nullable="false"/>
+        <constraints nullable="true"/>
       </column>
       <column name="DT_VALIDITY_END_DATE" type="date">
-        <constraints nullable="false"/>
+        <constraints nullable="true"/>
       </column>
       <column name="TE_CREATED_BY" type="varchar(50)">
         <constraints nullable="false"/>

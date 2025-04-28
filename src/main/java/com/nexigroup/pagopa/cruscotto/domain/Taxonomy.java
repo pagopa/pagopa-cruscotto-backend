@@ -25,7 +25,7 @@ public class Taxonomy extends AbstractAuditingEntity<Long> implements Serializab
 
     @Id
     @Column(name = "CO_ID")
-    @SequenceGenerator(name = "SQDASH_TAXO01", sequenceName = "SQDASH_TAXO01", allocationSize = 1)
+    @SequenceGenerator(name = "SQDASH_TAXO01", sequenceName = "SQDASH_TAXO01")
     @GeneratedValue(generator = "SQDASH_TAXO01", strategy = GenerationType.SEQUENCE)
     private Long id;
 
@@ -34,12 +34,10 @@ public class Taxonomy extends AbstractAuditingEntity<Long> implements Serializab
     @Column(name = "TE_TAKINGS_IDENTIFIER", length = 12, nullable = false)
     private String takingsIdentifier;
 
-    @NotNull
-    @Column(name = "DT_VALIDITY_START_DATE", nullable = false)
+    @Column(name = "DT_VALIDITY_START_DATE")
     private LocalDate validityStartDate;
 
-    @NotNull
-    @Column(name = "DT_VALIDITY_END_DATE", nullable = false)
+    @Column(name = "DT_VALIDITY_END_DATE")
     private LocalDate validityEndDate;
 
     @Override

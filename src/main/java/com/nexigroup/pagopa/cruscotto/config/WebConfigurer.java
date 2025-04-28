@@ -49,9 +49,6 @@ public class WebConfigurer implements ServletContextInitializer {
             source.registerCorsConfiguration("/management/**", config);
             source.registerCorsConfiguration("/v3/api-docs", config);
             source.registerCorsConfiguration("/swagger-ui/**", config);
-            source.registerCorsConfiguration("/*/api/**", config);
-            source.registerCorsConfiguration("/services/*/api/**", config);
-            source.registerCorsConfiguration("/*/management/**", config);
         }
         return new CorsFilter(source);
     }

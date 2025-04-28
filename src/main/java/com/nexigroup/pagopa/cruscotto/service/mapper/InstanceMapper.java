@@ -8,7 +8,7 @@ import org.mapstruct.Mapping;
 /**
  * Mapper for the entity {@link Instance} and its DTO {@link InstanceDTO}.
  */
-@Mapper(componentModel = "spring", uses = { AuthUserMapper.class, PartnerMapper.class })
+@Mapper(componentModel = "spring", uses = { AuthUserMapper.class, AnagPartnerMapper.class })
 public interface InstanceMapper extends EntityMapper<InstanceDTO, Instance> {
 
     @Mapping(target = "createdBy", ignore = true)
