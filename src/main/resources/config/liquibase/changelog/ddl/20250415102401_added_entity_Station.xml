@@ -19,22 +19,22 @@
         <constraints nullable="false"/>
       </column>
       <column name="DT_ACTIVATION_DATE" type="date">
-        <constraints nullable="false"/>
+        <constraints nullable="true"/>
       </column>
       <column name="TE_TYPE_CONNECTION" type="varchar(35)">
-        <constraints nullable="false"/>
+        <constraints nullable="true"/>
       </column>
       <column name="TE_PRIMITIVE_VERSION" type="varchar(5)">
-        <constraints nullable="false"/>
+        <constraints nullable="true"/>
       </column>
       <column name="FL_PAYMENT_OPTION" type="boolean">
-        <constraints nullable="false"/>
+        <constraints nullable="true"/>
       </column>
       <column name="CO_ASSOCIATED_INSTITUTES" type="integer">
-        <constraints nullable="true" />
+        <constraints nullable="false" />
       </column>
       <column name="TE_STATUS" type="varchar(35)">
-        <constraints nullable="false"/>
+        <constraints nullable="true"/>
       </column>
       <column name="CO_ANAG_PARTNER_ID" type="bigint">
         <constraints nullable="false"/>

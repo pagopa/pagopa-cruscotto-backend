@@ -45,6 +45,13 @@ public class AnagPlannedShutdown extends AbstractAuditingEntity<Long> implements
     @Column(name = "DT_SHUTDOWN_END_DATE", nullable = false)
     private Instant shutdownEndDate;
 
+    @NotNull
+    @Column(name = "CO_YEAR")
+    private Long year;
+
+    @Column(name = "CO_EXTERNAL_ID")
+    private Long externalId;
+
     @JsonIgnore
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
@@ -56,6 +63,8 @@ public class AnagPlannedShutdown extends AbstractAuditingEntity<Long> implements
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CO_ANAG_STATION_ID", nullable = false)
     private AnagStation anagStation;
+
+
 
     @Override
     public boolean equals(Object o) {
@@ -75,24 +84,16 @@ public class AnagPlannedShutdown extends AbstractAuditingEntity<Long> implements
 
     @Override
     public String toString() {
-        return (
-            "AnagPlannedShutdown{" +
-            "id=" +
-            id +
-            ", typePlanned=" +
-            typePlanned +
-            ", standInd=" +
-            standInd +
-            ", shutdownStartDate=" +
-            shutdownStartDate +
-            ", shutdownEndDate=" +
-            shutdownEndDate +
-            ", anagPartner=" +
-            anagPartner +
-            ", anagStation=" +
-            anagStation +
-            "} " +
-            super.toString()
-        );
+        return "AnagPlannedShutdown{" +
+            "id=" + id +
+            ", typePlanned=" + typePlanned +
+            ", standInd=" + standInd +
+            ", shutdownStartDate=" + shutdownStartDate +
+            ", shutdownEndDate=" + shutdownEndDate +
+            ", year=" + year +
+            ", externalId=" + externalId +
+            ", anagPartner=" + anagPartner +
+            ", anagStation=" + anagStation +
+            "} " + super.toString();
     }
 }

@@ -1,8 +1,8 @@
-package com.nexigroup.pagopa.cruscotto.job.maintenance;
+package com.nexigroup.pagopa.cruscotto.job.plannedshutdown;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,7 +12,7 @@ import java.util.List;
 @Getter
 @Setter
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class StationMaintenanceResponse {
+public class StationPlannedShutdownResponse {
     private List<StationMaintenance> stationMaintenanceList;
 
 
@@ -20,17 +20,24 @@ public class StationMaintenanceResponse {
     @Getter
     @Setter
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-    private static class StationMaintenance {
+    protected static class StationMaintenance {
+
+        @NotNull
         private Long maintenanceId;
 
+        @NotNull
         private Date startDateTime;
 
+        @NotNull
         private Date endDateTime;
 
+        @NotNull
         private boolean standIn;
 
+        @NotNull
         private String stationCode;
 
+        @NotNull
         private String brokerCode;
 
         @Override

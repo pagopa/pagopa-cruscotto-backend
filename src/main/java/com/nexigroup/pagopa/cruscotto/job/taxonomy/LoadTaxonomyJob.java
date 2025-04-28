@@ -5,6 +5,7 @@ import com.nexigroup.pagopa.cruscotto.domain.enumeration.TaxonomyField;
 import com.nexigroup.pagopa.cruscotto.job.client.PagoPaClient;
 import com.nexigroup.pagopa.cruscotto.service.TaxonomyService;
 import com.nexigroup.pagopa.cruscotto.service.dto.TaxonomyDTO;
+import jakarta.transaction.Transactional;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -48,6 +49,7 @@ public class LoadTaxonomyJob extends QuartzJobBean {
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
 
     @Override
+    @Transactional
     protected void executeInternal(@NotNull JobExecutionContext context) throws JobExecutionException {
         LOGGER.info("Start load taxonomy from PagoPA");
 
@@ -62,7 +64,7 @@ public class LoadTaxonomyJob extends QuartzJobBean {
                 Validator validator = factory.getValidator();
 
                 response.forEach(taxonomy -> {
-                    TaxonomyDTO taxonomyDTO = null;
+                    TaxonomyDTO taxonomyDTO;
                     taxonomyDTO = new TaxonomyDTO();
                     taxonomyDTO.setTakingsIdentifier(taxonomy.get(TaxonomyField.TAKINGS_IDENTIFIER.field));
                     taxonomyDTO.setValidityStartDate(parseDate(taxonomy.get(TaxonomyField.VALIDITY_START_DATE.field), taxonomy.get(TaxonomyField.TAKINGS_IDENTIFIER.field)));
@@ -74,7 +76,7 @@ public class LoadTaxonomyJob extends QuartzJobBean {
                         taxonomyDTOS.add(taxonomyDTO);
                     } else {
                         LOGGER.error("Invalid taxonomy {}", taxonomyDTO);
-                        violations.forEach(violation -> LOGGER.error(violation.getMessage()));
+                        violations.forEach(violation -> LOGGER.error("{}: {}", violation.getPropertyPath(), violation.getMessage()));
                     }
                 });
             }

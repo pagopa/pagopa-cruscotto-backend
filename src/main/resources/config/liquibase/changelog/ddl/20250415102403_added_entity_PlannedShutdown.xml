@@ -33,8 +33,11 @@
       <column name="CO_ANAG_STATION_ID" type="bigint">
         <constraints nullable="false"/>
       </column>
-      <column name="CO_EXTERNAL_ID" type="bigint">
+      <column name="CO_YEAR" type="bigint">
         <constraints nullable="false"/>
+      </column>
+      <column name="CO_EXTERNAL_ID" type="bigint">
+        <constraints nullable="true"/>
       </column>
       <column name="TE_CREATED_BY" type="varchar(50)">
         <constraints nullable="false"/>

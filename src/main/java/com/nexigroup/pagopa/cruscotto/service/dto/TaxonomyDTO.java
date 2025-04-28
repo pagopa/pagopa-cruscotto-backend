@@ -38,4 +38,17 @@ public class TaxonomyDTO implements Serializable {
 
     private Instant lastModifiedDate;
 
+    @Override
+    public String toString() {
+        return "TaxonomyDTO{" +
+            "id=" + id +
+            ", takingsIdentifier='" + takingsIdentifier + '\'' +
+            ", validityStartDate=" + validityStartDate +
+            ", validityEndDate=" + validityEndDate +
+            ", createdBy='" + createdBy + '\'' +
+            ", createdDate=" + createdDate +
+            ", lastModifiedBy='" + lastModifiedBy + '\'' +
+            ", lastModifiedDate=" + lastModifiedDate +
+            '}';
+    }
 }
