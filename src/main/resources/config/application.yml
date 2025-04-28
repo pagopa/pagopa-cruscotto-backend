@@ -30,7 +30,6 @@ management:
         include:
           - configprops
           - env
-          - gateway
           - health
           - info
           - jhimetrics
@@ -92,24 +91,6 @@ management:
 spring:
   application:
     name: pagopaCruscottoBackend
-  cloud:
-    consul:
-      discovery:
-        healthCheckPath: /management/health
-        instanceId: pagopacruscottobackend:${spring.application.instance-id:${random.value}}
-        service-name: pagopacruscottobackend
-      config:
-        watch:
-          enabled: false
-    gateway:
-      mvc:
-        routes:
-          - id: pagopacruscottobackend_route
-            uri: lb://pagopacruscottobackend
-            predicates:
-              - Path=/services/pagopacruscottobackend/**
-            filters:
-              - StripPrefix=2
   docker:
     compose:
       enabled: true

@@ -1,8 +1,8 @@
-package com.nexigroup.pagopa.cruscotto.config.job;
+package com.nexigroup.pagopa.cruscotto.job.config;
 
 import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
 
-import com.nexigroup.pagopa.cruscotto.job.LoadTaxonomyJob;
+import com.nexigroup.pagopa.cruscotto.job.taxonomy.LoadTaxonomyJob;
 import org.quartz.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

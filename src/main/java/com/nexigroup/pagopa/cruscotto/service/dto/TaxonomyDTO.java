@@ -2,6 +2,7 @@ package com.nexigroup.pagopa.cruscotto.service.dto;
 
 
 import com.nexigroup.pagopa.cruscotto.domain.Taxonomy;
+import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,6 +23,7 @@ public class TaxonomyDTO implements Serializable {
 
     private Long id;
 
+    @NotNull
     private String takingsIdentifier;
 
     private LocalDate validityStartDate;
