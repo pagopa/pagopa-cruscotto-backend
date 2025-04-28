@@ -28,7 +28,7 @@ import java.util.List;
 
 
 /**
- * Service Implementation for managing {@link Instance}.
+ * Service Implementation for managing {@link AnagPartner}.
  */
 @Service
 @Transactional
@@ -50,7 +50,7 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
      */
     @Override
     public Page<AnagPartnerDTO> findAll(Pageable pageable) {
-        log.debug("Request to get all Instance");
+        log.debug("Request to get all AnagPartner");
 
         JPQLQuery<AnagPartner> jpql = queryBuilder.<AnagPartner>createQuery().from(QAnagPartner.anagPartner);
 

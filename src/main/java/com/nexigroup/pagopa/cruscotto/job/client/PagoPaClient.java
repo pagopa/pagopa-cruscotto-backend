@@ -1,7 +1,8 @@
 package com.nexigroup.pagopa.cruscotto.job.client;
 
-import com.nexigroup.pagopa.cruscotto.job.maintenance.StationMaintenanceResponse;
+import com.nexigroup.pagopa.cruscotto.job.plannedshutdown.StationPlannedShutdownResponse;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.net.URI;
 import java.util.List;
@@ -14,5 +15,5 @@ public interface PagoPaClient {
 
     @GetMapping
     @ApiKey(name = "application.pago-pa-client.maintenance.api-key-name", value = "application.pago-pa-client.maintenance.api-key-value")
-    StationMaintenanceResponse maintenance(URI baseUri);
+    StationPlannedShutdownResponse maintenance(URI baseUri, @RequestParam("year") Integer year);
 }

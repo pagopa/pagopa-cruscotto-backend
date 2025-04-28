@@ -1,16 +1,15 @@
 package com.nexigroup.pagopa.cruscotto.repository;
 
-import com.nexigroup.pagopa.cruscotto.domain.AnagPartner;
-import com.nexigroup.pagopa.cruscotto.domain.Instance;
+import com.nexigroup.pagopa.cruscotto.domain.AnagStation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.query.QueryByExampleExecutor;
 import org.springframework.stereotype.Repository;
 
 /**
- * Spring Data repository for the AnagPartner entity.
+ * Spring Data repository for the AnagStation entity.
  */
 @Repository
-public interface AnagPartnerRepository extends JpaRepository<AnagPartner, Long>, JpaSpecificationExecutor<AnagPartner>, QueryByExampleExecutor<AnagPartner> {
+public interface AnagStationRepository extends JpaRepository<AnagStation, Long>, JpaSpecificationExecutor<AnagStation>, QueryByExampleExecutor<AnagStation> {
 
 }

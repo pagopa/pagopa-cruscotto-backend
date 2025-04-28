@@ -7,5 +7,5 @@ public class JobConstant {
 
 	public static final String LOAD_TAXONOMY_JOB = "loadTaxonomyJob";
 
-    public static final String LOAD_MAINTENANCE_JOB = "loadMaintenanceJob";
+    public static final String LOAD_PLANNED_SHUTDOWN_JOB = "loadPlannedShutdownJob";
 }

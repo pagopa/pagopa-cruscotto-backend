@@ -36,31 +36,26 @@ public class AnagStation extends AbstractAuditingEntity<Long> implements Seriali
     @Column(name = "TE_NAME", length = 35, nullable = false)
     private String name;
 
-    @NotNull
-    @Column(name = "DT_ACTIVATION_DATE", nullable = false)
+    @Column(name = "DT_ACTIVATION_DATE")
     private LocalDate activationDate;
 
-    @NotNull
     @Size(min = 1, max = 35)
-    @Column(name = "TE_TYPE_CONNECTION", length = 35, nullable = false)
+    @Column(name = "TE_TYPE_CONNECTION", length = 35)
     private String typeConnection;
 
-    @NotNull
     @Size(min = 1, max = 5)
-    @Column(name = "TE_PRIMITIVE_VERSION", length = 5, nullable = false)
+    @Column(name = "TE_PRIMITIVE_VERSION", length = 5)
     private String primitiveVersion;
 
-    @NotNull
-    @Column(name = "FL_PAYMENT_OPTION", nullable = false)
+    @Column(name = "FL_PAYMENT_OPTION")
     private boolean paymentOption = false;
 
     @NotNull
     @Column(name = "CO_ASSOCIATED_INSTITUTES", nullable = false)
     private int associatedInstitutes;
 
-    @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "TE_STATUS", nullable = false)
+    @Column(name = "TE_STATUS")
     private StationStatus status;
 
     @JsonIgnore
