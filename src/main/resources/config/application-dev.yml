@@ -1,0 +1,132 @@
+# ===================================================================
+# Spring Boot configuration for the "dev" profile.
+#
+# This configuration overrides the application.yml file.
+# ===================================================================
+
+# ===================================================================
+# Standard Spring Boot properties.
+# Full reference is available at:
+# http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+# ===================================================================
+
+
+logging:
+  level:
+    ROOT: DEBUG
+    org.hibernate.SQL: DEBUG
+    com.nexigroup.pagopa.cruscotto: DEBUG
+    org.hibernate.stat: off
+    org.hibernate.engine.internal.StatisticalLoggingSessionEventListener: info
+
+spring:
+  devtools:
+    restart:
+      enabled: false
+      additional-exclude: static/**
+    livereload:
+      enabled: false # we use Webpack dev server + BrowserSync for livereload
+  jackson:
+    serialization:
+      indent-output: true
+  jpa:
+    properties:
+      hibernate:
+        generate_statistics: true
+#       jdbc:
+#         batch_size: 50
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:postgresql://10.8.79.25:3306/qualification_dashboard
+    username: qualification_dashboard
+    password: qualification_dashboard
+    hikari:
+      poolName: Hikari
+      auto-commit: false
+  liquibase:
+    # Remove 'faker' if you do not want the sample data to be loaded automatically
+    contexts: ddl, dml
+    enabled: false
+  mail:
+    host: localhost
+    port: 25
+    username:
+    password:
+  messages:
+    cache-duration: PT1S # 1 second, see the ISO 8601 standard
+  thymeleaf:
+    cache: false
+  quartz:
+    properties:
+      org.quartz.jobStore.driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
+      org.quartz.jobStore.dataSource: cruscotto
+      org.quartz.dataSource.cruscotto.provider: hikaricp
+      org.quartz.dataSource.cruscotto.driver: org.postgresql.Driver
+      org.quartz.dataSource.cruscotto.URL: jdbc:postgresql://10.8.79.25:3306/qualification_dashboard
+      org.quartz.dataSource.cruscotto.user: qualification_dashboard
+      org.quartz.dataSource.cruscotto.password: qualification_dashboard
+      org.quartz.dataSource.cruscotto.validationQuery: select 1
+      org.quartz.dataSource.cruscotto.maxConnections: 10
+server:
+  port: 8080
+  # make sure requests the proxy uri instead of the server one
+  forward-headers-strategy: native
+
+jhipster:
+  cache: # Cache configuration
+    ehcache: # Ehcache configuration
+      time-to-live-seconds: 3600 # By default objects stay 1 hour in the cache
+      max-entries: 100 # Number of objects in each cache entry
+  # CORS is only enabled by default with the "dev" profile
+  cors:
+    # Allow Ionic for JHipster by default (* no longer allowed in Spring Boot 2.4+)
+    allowed-origins: 'http://localhost:8100,https://localhost:8100'
+    # Enable CORS when running in GitHub Codespaces
+    allowed-origin-patterns: 'https://*.githubpreview.dev'
+    allowed-methods: '*'
+    allowed-headers: '*'
+    exposed-headers: 'Authorization,Link,X-Total-Count,X-${jhipster.clientApp.name}-alert,X-${jhipster.clientApp.name}-error,X-${jhipster.clientApp.name}-params'
+    allow-credentials: true
+    max-age: 1800
+  security:
+    authentication:
+      jwt:
+        # This token must be encoded using Base64 and be at least 256 bits long (you can type `openssl rand -base64 64` on your command line to generate a 512 bits one)
+        base64-secret: NTI0NDVjYmE1MTE2ZDdhMDc2MGZhMDNjNTQ0OGM1YmEwYzc5MjUyNjFmYzQ0YjliMDI3ODBjMTQwMjc0NDMxYTY4NTNlZjE2YjBlMTUyMjIyMjVmY2M4ODJjYzE3NTM3MjRkYzQzOWJiMjVlMGM4ZWQ1YTdjOThlNDFmNDc3NjA=
+        # Token is valid 24 hours
+        token-validity-in-seconds: 86400
+        token-validity-in-seconds-for-remember-me: 2592000
+  mail: # specific JHipster mail property, for standard properties see MailProperties
+    base-url: http://127.0.0.1:8080
+  logging:
+    use-json-format: false # By default, logs are not in Json format
+    logstash: # Forward logs to logstash over a socket, used by LoggingConfiguration
+      enabled: false
+      host: localhost
+      port: 5000
+      ring-buffer-size: 512
+
+application:
+  enable-csrf: false
+  password:
+    day-password-expired: 60
+    failed-login-attempts: 4
+    hours-key-reset-password-expired: 1
+  pago-pa-client:
+    proxy-host:
+    proxy-port:
+    taxonomy:
+      url: https://api.platform.pagopa.it/taxonomy/service/v1/taxonomy
+    maintenance:
+      url: https://api.dev.platform.pagopa.it/backoffice/helpdesk/v1/station-maintenances
+      api-key-name: ocp-apim-subscription-key
+      api-key-value: df10628ae8044fdfabd6bbbdc71bdc26
+  job:
+    load-taxonomy-job:
+      enabled: true
+      cron: 0 0/25 07-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
+    load-maintenance-job:
+      enabled: true
+      cron: 0 0/2 07-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
+  liquibase:
+    async-start: false

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+
+  <changeSet id="20250415102402-3" author="pagopaCruscotto" context="ddl">
+
+    <addForeignKeyConstraint baseColumnNames="CO_ANAG_PARTNER_ID"
+                             baseTableName="ANAG_INSTITUTION"
+                             constraintName="FK_TB${project_name}_INST_TB${project_name}_PART"
+                             referencedColumnNames="CO_ID"
+                             referencedTableName="ANAG_PARTNER"/>
+
+  </changeSet>
+
+  <changeSet id="20250415102402-4" author="pagopaCruscotto" context="ddl">
+
+    <addForeignKeyConstraint baseColumnNames="CO_ANAG_STATION_ID"
+                             baseTableName="ANAG_STATION_ANAG_INSTITUTION"
+                             constraintName="FK_TB${project_name}_STIN_TB${project_name}_STAT"
+                             referencedColumnNames="CO_ID"
+                             referencedTableName="ANAG_STATION"
+    />
+
+    <addForeignKeyConstraint baseColumnNames="CO_ANAG_INSTITUTION_ID"
+                             baseTableName="ANAG_STATION_ANAG_INSTITUTION"
+                             constraintName="FK_TB${project_name}_STIN_TB${project_name}_INST"
+                             referencedColumnNames="CO_ID"
+                             referencedTableName="ANAG_INSTITUTION"
+    />
+
+  </changeSet>
+
+</databaseChangeLog>
