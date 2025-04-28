@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+  <changeSet id="00000000000000-ddl" author="pagopaCruscotto" context="ddl">
+    <createSequence sequenceName="SQ${project_name}_SION01" startValue="4000" cacheSize="20"/>
+    <createSequence sequenceName="SQ${project_name}_TION02" startValue="4000" cacheSize="20"/>
+    <createSequence sequenceName="SQ${project_name}_ROUP03" startValue="4000" cacheSize="20"/>
+    <createSequence sequenceName="SQ${project_name}_USER06" startValue="4000" cacheSize="20"/>
+    <createSequence sequenceName="SQ${project_name}_EVNT07" startValue="4000" cacheSize="20"/>
+    <createSequence sequenceName="SQ${project_name}_USHI08" startValue="4000" cacheSize="20"/>
+    <createSequence sequenceName="SQ${project_name}_QUER13" startValue="4000" cacheSize="20"/>
+  </changeSet>
+
+
+  <changeSet id="00000000000001-ddl" author="pagopaCruscotto" context="ddl">
+    <createTable tableName="AUTH_USER">
+      <column name="CO_ID" type="bigint">
+        <constraints primaryKey="true" nullable="false" primaryKeyName="IP${project_name}_USER09"/>
+      </column>
+      <column name="TE_LOGIN" type="varchar(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TE_PASSWORD_HASH" type="varchar(60)"/>
+      <column name="NM_FIRST_NAME" type="varchar(50)"/>
+      <column name="NM_LAST_NAME" type="varchar(50)"/>
+      <column name="TE_EMAIL" type="varchar(191)"/>
+      <column name="TE_IMAGE_URL" type="varchar(256)"/>
+      <column name="FL_ACTIVATED" type="boolean" valueBoolean="false">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TE_LANG_KEY" type="varchar(10)"/>
+      <column name="TE_ACTIVATION_KEY" type="varchar(20)"/>
+      <column name="TE_RESET_KEY" type="varchar(20)"/>
+      <column name="TE_CREATED_BY" type="varchar(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DT_CREATED_DATE" type="datetime"/>
+      <column name="DT_RESET_DATE" type="timestamp">
+        <constraints nullable="true"/>
+      </column>
+      <column name="TE_LAST_MODIFIED_BY" type="varchar(50)"/>
+      <column name="DT_LAST_MODIFIED_DATE" type="timestamp"/>
+      <column name="CO_AUTH_GROUP_ID" type="bigint"/>
+
+      <column name="CO_FAILED_LOGIN_ATTEMPTS" type="integer">
+        <constraints nullable="true"/>
+      </column>
+
+      <column name="FL_BLOCKED" type="boolean" defaultValueBoolean="false">
+        <constraints nullable="false"/>
+      </column>
+
+      <column name="DT_LAST_PWD_CHANGE_DATE" type="timestamp">
+        <constraints nullable="true"/>
+      </column>
+
+      <column name="CO_PWD_EXPIRED_DAY" type="integer">
+        <constraints nullable="true"/>
+      </column>
+
+      <column name="DT_DELETED_DATE" type="timestamp">
+        <constraints nullable="true"/>
+      </column>
+
+      <column name="FL_DELETED" type="boolean" defaultValueBoolean="false">
+        <constraints nullable="true"/>
+      </column>
+      <column name="TE_AUTHENTICATION_TYPE" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <addNotNullConstraint columnName="TE_PASSWORD_HASH"
+                          columnDataType="varchar(60)"
+                          tableName="AUTH_USER"
+                          constraintName="NN_TE_PASSWORD_HASH"/>
+
+    <addUniqueConstraint tableName="AUTH_USER" constraintName="IU${project_name}_USER01"
+                         columnNames="TE_EMAIL, DT_DELETED_DATE, FL_DELETED"/>
+    <addUniqueConstraint tableName="AUTH_USER" constraintName="IU${project_name}_USER02"
+                         columnNames="TE_LOGIN, DT_DELETED_DATE, FL_DELETED"/>
+
+
+    <createTable tableName="AUTH_USER_HISTORY">
+      <column name="CO_ID" type="bigint">
+        <constraints primaryKey="true" nullable="false" primaryKeyName="IP${project_name}_TORY08"/>
+      </column>
+      <column name="CO_AUTH_USER_ID" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DT_DATA_MODIFICA" type="timestamp"/>
+
+      <column name="TE_PASSWORD_HASH" type="varchar(60)"/>
+    </createTable>
+
+    <addForeignKeyConstraint baseColumnNames="CO_AUTH_USER_ID"
+                             baseTableName="AUTH_USER_HISTORY"
+                             constraintName="FK_TB${project_name}_TORY_TB${project_name}_USER"
+                             referencedColumnNames="CO_ID"
+                             referencedTableName="AUTH_USER"/>
+
+
+  </changeSet>
+
+  <changeSet id="00000000000002-ddl" author="pagopaCruscotto" context="ddl">
+
+    <createTable tableName="AUTH_GROUP">
+      <column name="CO_ID" type="bigint">
+        <constraints primaryKey="true" nullable="false" primaryKeyName="IP${project_name}_ROUP04"/>
+      </column>
+      <column name="TE_NOME" type="varchar(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="TE_DESCRIZIONE" type="varchar(200)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="FL_LIVELLO_VISIBILITA" type="int" defaultValue="1">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="AUTH_FUNCTION">
+      <column name="CO_ID" type="bigint">
+        <constraints primaryKey="true" nullable="false" primaryKeyName="IP${project_name}_TION02"/>
+      </column>
+      <column name="TE_NOME" type="varchar(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="TE_MODULO" type="varchar(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="TE_DESCRIZIONE" type="varchar(200)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="AUTH_PERMISSION">
+      <column name="CO_ID" type="bigint">
+        <constraints primaryKey="true" nullable="false" primaryKeyName="IP${project_name}_SION01"/>
+      </column>
+      <column name="TE_NOME" type="varchar(100)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="TE_MODULO" type="varchar(50)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="AUTH_GROUP_AUTH_FUNC">
+      <column name="CO_AUTH_FUNCTION_ID" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_AUTH_GROUP_ID" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <addPrimaryKey constraintName="IP${project_name}_FUNC05" columnNames="CO_AUTH_GROUP_ID, CO_AUTH_FUNCTION_ID"
+                   tableName="AUTH_GROUP_AUTH_FUNC"/>
+
+    <createTable tableName="AUTH_FUN_AUTH_PERM">
+      <column name="CO_AUTH_PERMISSION_ID" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_AUTH_FUNCTION_ID" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <addPrimaryKey constraintName="IP${project_name}_PERM03" columnNames="CO_AUTH_FUNCTION_ID, CO_AUTH_PERMISSION_ID"
+                   tableName="AUTH_FUN_AUTH_PERM"/>
+
+    <addForeignKeyConstraint baseColumnNames="CO_AUTH_GROUP_ID"
+                             baseTableName="AUTH_GROUP_AUTH_FUNC"
+                             constraintName="FK_TB${project_name}_FUNC_TB${project_name}_ROUP"
+                             referencedColumnNames="CO_ID"
+                             referencedTableName="AUTH_GROUP"
+    />
+
+    <addForeignKeyConstraint baseColumnNames="CO_AUTH_FUNCTION_ID"
+                             baseTableName="AUTH_GROUP_AUTH_FUNC"
+                             constraintName="FK_TB${project_name}_FUNC_TB${project_name}_TION"
+                             referencedColumnNames="CO_ID"
+                             referencedTableName="AUTH_FUNCTION"
+    />
+
+    <addForeignKeyConstraint baseColumnNames="CO_AUTH_GROUP_ID"
+                             baseTableName="AUTH_USER"
+                             constraintName="FK_TB${project_name}_USER_TB${project_name}_ROUP"
+                             referencedColumnNames="CO_ID"
+                             referencedTableName="AUTH_GROUP"
+    />
+
+    <addForeignKeyConstraint baseColumnNames="CO_AUTH_FUNCTION_ID"
+                             baseTableName="AUTH_FUN_AUTH_PERM"
+                             constraintName="FK_TB${project_name}_PERM_TB${project_name}_TION"
+                             referencedColumnNames="CO_ID"
+                             referencedTableName="AUTH_FUNCTION"
+    />
+
+    <addForeignKeyConstraint baseColumnNames="CO_AUTH_PERMISSION_ID"
+                             baseTableName="AUTH_FUN_AUTH_PERM"
+                             constraintName="FK_TB${project_name}_PERM_TB${project_name}_SION"
+                             referencedColumnNames="CO_ID"
+                             referencedTableName="AUTH_PERMISSION"
+    />
+
+  </changeSet>
+
+
+  <changeSet id="00000000000004-ddl" author="pagopaCruscotto" context="ddl">
+    <createIndex indexName="IX${project_name}_USER04" tableName="AUTH_USER">
+      <column name="CO_AUTH_GROUP_ID"/>
+    </createIndex>
+
+    <modifySql dbms="oracle">
+      <append value=" ONLINE"/>
+    </modifySql>
+
+  </changeSet>
+
+  <changeSet id="00000000000005-ddl" author="pagopaCruscotto"  context="test">
+    <createSequence sequenceName="sequence_generator" startValue="1000" incrementBy="50"/>
+
+    <createTable tableName="jhi_date_time_wrapper">
+      <column name="id" type="BIGINT">
+        <constraints primaryKey="true" primaryKeyName="jhi_date_time_wrapperPK"/>
+      </column>
+      <column name="instant" type="timestamp"/>
+      <column name="local_date_time" type="timestamp"/>
+      <column name="offset_date_time" type="timestamp"/>
+      <column name="zoned_date_time" type="timestamp"/>
+      <column name="local_time" type="time"/>
+      <column name="offset_time" type="time"/>
+      <column name="local_date" type="date"/>
+    </createTable>
+  </changeSet>
+</databaseChangeLog>

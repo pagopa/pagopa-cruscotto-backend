@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+
+
+    <changeSet id="20250415102403-3" author="pagopaCruscotto" context="ddl">
+
+        <addForeignKeyConstraint baseColumnNames="CO_ANAG_PARTNER_ID"
+                                 baseTableName="ANAG_PLANNED_SHUTDOWN"
+                                 constraintName="FK_TB${project_name}_INST_TB${project_name}_PART_01"
+                                 referencedColumnNames="CO_ID"
+                                 referencedTableName="ANAG_PARTNER"/>
+
+      <addForeignKeyConstraint baseColumnNames="CO_ANAG_STATION_ID"
+                               baseTableName="ANAG_PLANNED_SHUTDOWN"
+                               constraintName="FK_TB${project_name}_INST_TB${project_name}_STAT"
+                               referencedColumnNames="CO_ID"
+                               referencedTableName="ANAG_STATION"/>
+
+    </changeSet>
+</databaseChangeLog>
