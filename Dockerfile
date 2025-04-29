@@ -8,7 +8,7 @@ RUN mvn clean package -Dmaven.test.skip=true
 
 FROM amazoncorretto:21.0.1-alpine3.18 as builder
 COPY --from=buildtime /build/target/*.jar application.jar
-RUN java -Djarmode=layertools -jar application.jar extract
+RUN java -Djarmode=layertools -jar -Dspring.profiles.active=prod application.jar extract
 
 
 FROM ghcr.io/pagopa/docker-base-springboot-openjdk17:latest
