@@ -1,9 +1,9 @@
 locals {
-  repo_name = "TODO" # TODO add the name of the repository
+  repo_name = "pagopa-cruscotto-backend"
 
-  display_name = "TODO" # TODO
-  description  = "TODO" # TODO
-  path  = "TODO" # TODO add your base path
+  display_name = "Cruscotto pagoPA backend service"
+  description = "Cruscotto pagoPA backend service"
+  path  = "smo/cruscotto"
 
   host         = "api.${var.apim_dns_zone_prefix}.${var.external_domain}"
   hostname     = var.hostname
