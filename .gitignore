@@ -164,3 +164,4 @@ replay_pid*
 __TEMP/*
 **/.terraform
 *.env
+**/charts/*

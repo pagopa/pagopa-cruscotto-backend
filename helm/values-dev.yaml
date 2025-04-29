@@ -9,16 +9,16 @@ microservice-chart:
   # https://github.com/Azure/azure-functions-host/blob/dev/src/WebJobs.Script.WebHost/Controllers/HostController.cs
   livenessProbe:
     httpGet:
-      path: /info
+      path: /management/info
       port: 8080
-    initialDelaySeconds: 60
+    initialDelaySeconds: 100
     failureThreshold: 6
     periodSeconds: 10
   readinessProbe:
     httpGet:
-      path: /info
+      path: /management/info
       port: 8080
-    initialDelaySeconds: 60
+    initialDelaySeconds: 100
     failureThreshold: 6
     periodSeconds: 10
   deployment:
@@ -46,10 +46,10 @@ microservice-chart:
   resources:
     requests:
       memory: "512Mi"
-      cpu: "0.25"
+      cpu: "0.40"
     limits:
       memory: "1024Mi"
-      cpu: "0.50"
+      cpu: "0.80"
   autoscaling:
     enable: true
     minReplica: 1
