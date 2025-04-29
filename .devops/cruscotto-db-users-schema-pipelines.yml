@@ -68,20 +68,20 @@ stages:
                 --querytext "
                 do \$\$
                 BEGIN
-                IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '$cruscotto_USERNAME') THEN
-                CREATE ROLE $cruscotto_USERNAME LOGIN PASSWORD '$(db-cruscotto-password)';
+                IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '$CRUSCOTTO_USERNAME') THEN
+                CREATE ROLE $CRUSCOTTO_USERNAME LOGIN PASSWORD '$(db-cruscotto-password)';
                 END IF;
 
-                GRANT ALL PRIVILEGES ON DATABASE $DATABASE_NAME TO $cruscotto_USERNAME;
+                GRANT ALL PRIVILEGES ON DATABASE $DATABASE_NAME TO $CRUSCOTTO_USERNAME;
 
-                GRANT $cruscotto_USERNAME to $ADMIN_USERNAME;
+                GRANT $CRUSCOTTO_USERNAME to $ADMIN_USERNAME;
                   
-                CREATE SCHEMA IF NOT EXISTS $cruscotto_SCHEMA AUTHORIZATION $cruscotto_USERNAME;
+                CREATE SCHEMA IF NOT EXISTS $CRUSCOTTO_SCHEMA AUTHORIZATION $CRUSCOTTO_USERNAME;
 
-                GRANT ALL ON SCHEMA $cruscotto_SCHEMA TO $cruscotto_USERNAME;
-                ALTER DEFAULT PRIVILEGES IN SCHEMA $cruscotto_SCHEMA grant all on tables to $cruscotto_USERNAME;
-                ALTER DEFAULT PRIVILEGES IN SCHEMA $cruscotto_SCHEMA grant all on sequences to $cruscotto_USERNAME;
-                ALTER DEFAULT PRIVILEGES IN SCHEMA $cruscotto_SCHEMA grant all on functions to $cruscotto_USERNAME;
+                GRANT ALL ON SCHEMA $CRUSCOTTO_SCHEMA TO $CRUSCOTTO_USERNAME;
+                ALTER DEFAULT PRIVILEGES IN SCHEMA $CRUSCOTTO_SCHEMA grant all on tables to $CRUSCOTTO_USERNAME;
+                ALTER DEFAULT PRIVILEGES IN SCHEMA $CRUSCOTTO_SCHEMA grant all on sequences to $CRUSCOTTO_USERNAME;
+                ALTER DEFAULT PRIVILEGES IN SCHEMA $CRUSCOTTO_SCHEMA grant all on functions to $CRUSCOTTO_USERNAME;
                 END
                 \$\$;
                 "
