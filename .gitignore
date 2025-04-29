@@ -161,3 +161,4 @@ coverage/
 ######################
 hs_err_pid*
 replay_pid*
+__TEMP/*
