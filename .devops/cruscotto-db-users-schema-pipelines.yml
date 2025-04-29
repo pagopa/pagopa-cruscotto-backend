@@ -22,19 +22,19 @@ variables:
   ${{ if eq(parameters.k8sEnv, 'dev') }}:
     DB_HOST: pagopa-d-itn-crusc8-flexible-postgresql
     AZURE_SERVICE_CONNECTION: '$(TF_AZURE_SERVICE_CONNECTION_PLAN_NAME_DEV)'
-    KEY_VAULT_NAME: 'pagopa-d-crusc8-kv'
+    KEY_VAULT_NAME: 'pagopa-d-itn-crusc8-kv'
     DATABASE_NAME: cruscotto
     poolImage: 'pagopa-dev-linux-infra'
   ${{ elseif eq(parameters.k8sEnv, 'uat') }}:
     DB_HOST: pagopa-u-itn-crusc8-flexible-postgresql
     AZURE_SERVICE_CONNECTION: '$(TF_AZURE_SERVICE_CONNECTION_PLAN_NAME_UAT)'
-    KEY_VAULT_NAME: 'pagopa-u-crusc8-kv'
+    KEY_VAULT_NAME: 'pagopa-u-itn-crusc8-kv'
     DATABASE_NAME: cruscotto
     poolImage: 'pagopa-uat-linux-infra'
   ${{ elseif eq(parameters.k8sEnv, 'prd') }}:
     DB_HOST: pagopa-p-itn-crusc8-flexible-postgresql
     AZURE_SERVICE_CONNECTION: '$(TF_AZURE_SERVICE_CONNECTION_PLAN_NAME_PROD)'
-    KEY_VAULT_NAME: 'pagopa-p-crusc8-kv'
+    KEY_VAULT_NAME: 'pagopa-p-itn-crusc8-kv'
     DATABASE_NAME: cruscotto
     poolImage: 'pagopa-prod-linux-infra'
   ADMIN_USERNAME: usrcrus8
