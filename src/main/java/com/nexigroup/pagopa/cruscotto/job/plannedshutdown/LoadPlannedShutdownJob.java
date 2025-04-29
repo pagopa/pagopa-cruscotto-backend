@@ -53,18 +53,25 @@ public class LoadPlannedShutdownJob extends QuartzJobBean {
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
 
     @Override
-    @Transactional
     protected void executeInternal(@NotNull JobExecutionContext context) throws JobExecutionException {
         LOGGER.info("Start load maintenance from PagoPA");
 
-        try {
-            int year = LocalDate.now().getYear();
+        int year = LocalDate.now().getYear();
 
+        saveDataForYear(year - 1);
+
+        saveDataForYear(year);
+
+		LOGGER.info("End");
+    }
+
+    public void saveDataForYear(int year) throws JobExecutionException {
+        try {
             LOGGER.info("Call PagoPA to get maintenance year {}", year);
 
             StationPlannedShutdownResponse response = callServiceMaintenance(new URI(applicationProperties.getPagoPaClient().getMaintenance().getUrl()), year);
 
-            List<AnagPlannedShutdownDTO> anagPlannedShutdownDTOS = validate(response.getStationMaintenanceList(), year);
+            List<AnagPlannedShutdownDTO> plannedShutdownDTOS = validate(response.getStationMaintenanceList(), year);
 
             Long rows = anagPlannedShutdownService.count(TypePlanned.PROGRAMMATO, year);
 
@@ -75,17 +82,14 @@ public class LoadPlannedShutdownJob extends QuartzJobBean {
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
 
-            anagPlannedShutdownService.saveAll(anagPlannedShutdownDTOS);
+            anagPlannedShutdownService.saveAll(plannedShutdownDTOS);
 
             stopWatch.stop();
 
-            LOGGER.info("Saved {} rows planned shutdown to database into {} seconds", anagPlannedShutdownDTOS.size(), stopWatch.getTime(TimeUnit.SECONDS));
-
+            LOGGER.info("Saved {} rows planned shutdown to database into {} seconds", plannedShutdownDTOS.size(), stopWatch.getTime(TimeUnit.SECONDS));
         } catch (URISyntaxException e) {
             throw new JobExecutionException(e);
         }
-
-		LOGGER.info("End");
     }
 
     private StationPlannedShutdownResponse callServiceMaintenance(URI uri, int year) {
