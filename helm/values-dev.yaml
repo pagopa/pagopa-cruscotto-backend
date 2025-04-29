@@ -72,8 +72,7 @@ microservice-chart:
     ENV_STATION_MAINTENANCES_URL: 'https://api.dev.platform.pagopa.it/backoffice/helpdesk/v1' # station-maintenances ...
     ENV_CACHE_URL: 'https://api.dev.platform.pagopa.it/api-config-cache/p/v1' # /cache/keys ...
     ENV_DATASOURCE_URL: 'jdbc:postgresql://pagopa-d-itn-crusc8-flexible-postgresql.postgres.database.azure.com:5432/cruscotto?sslmode=require&prepareThreshold=0&currentSchema=public'
-    # ENV_DATASOURCE_USERNAME: 'cruscotto'
-    ENV_DATASOURCE_USERNAME: 'usrcrus8'
+    ENV_DATASOURCE_USERNAME: 'cruscotto'
   envSecret:
     # https://portal.azure.com/?l=en.en-us#@pagopait.onmicrosoft.com/resource/subscriptions/bbe47ad4-08b3-4925-94c5-1278e5819b86/resourceGroups/pagopa-d-itn-crusc8-sec-rg/providers/Microsoft.KeyVault/vaults/pagopa-d-itn-crusc8-kv/secrets
     ENV_DATASOURCE_PASSWORD: 'db-cruscotto-password'
