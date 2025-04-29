@@ -1,7 +1,6 @@
 <policies>
   <inbound>
     <base />
-    <!-- https://weu<ENV>.crusc8.internal.<ENV>.platform.pagopa.it/pagopa-pagopa-cruscotto-backend-service/(.*) -->
     <set-backend-service base-url="https://${hostname}/pagopa-pagopa-cruscotto-backend-service" />
   </inbound>
   <outbound>
