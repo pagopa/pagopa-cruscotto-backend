@@ -6,14 +6,13 @@
     "termsOfService": "",
     "contact": {
       "name": "",
-      "url": "",
-      "email": ""
+      "url": ""
     },
     "license": {
       "name": "unlicensed",
       "url": ""
     },
-    "version": "0.0.1"
+    "version": "0.0.10"
   },
   "servers": [
     {
@@ -1322,7 +1321,6 @@
           "login": {
             "maxLength": 50,
             "minLength": 1,
-            "pattern": "^(?>[a-zA-Z0-9!$&*+=?^_`{|}~.-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*)|(?>[_.@A-Za-z0-9-]+)$",
             "type": "string"
           },
           "firstName": {
@@ -1536,7 +1534,6 @@
           "login": {
             "maxLength": 50,
             "minLength": 0,
-            "pattern": "^(?>[a-zA-Z0-9!$&*+=?^_`{|}~.-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*)|(?>[_.@A-Za-z0-9-]+)$",
             "type": "string"
           },
           "firstName": {
@@ -1667,7 +1664,6 @@
           "login": {
             "maxLength": 50,
             "minLength": 1,
-            "pattern": "^(?>[a-zA-Z0-9!$&*+=?^_`{|}~.-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*)|(?>[_.@A-Za-z0-9-]+)$",
             "type": "string"
           },
           "firstName": {
