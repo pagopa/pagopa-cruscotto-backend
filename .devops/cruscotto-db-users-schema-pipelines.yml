@@ -38,8 +38,8 @@ variables:
     DATABASE_NAME: cruscotto
     poolImage: 'pagopa-prod-linux-infra'
   ADMIN_USERNAME: usrcrus8
-  cruscotto_USERNAME: cruscotto
-  cruscotto_SCHEMA: cruscotto
+  CRUSCOTTO_USERNAME: cruscotto
+  CRUSCOTTO_SCHEMA: cruscotto
 
 stages:
   - stage: initialization_jobs
