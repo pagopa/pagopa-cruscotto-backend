@@ -68,8 +68,14 @@ microservice-chart:
     FUNCTIONS_WORKER_RUNTIME: "java"
     ENVIRONMENT: "dev"
   envSecret:
-    DB_USERNAME: 'db-administrator-login'
-    DB_PASSWORD: 'db-administrator-login-password'
+    ENV_DATASOURCE_URL: 'db-administrator-url'
+    ENV_DATASOURCE_USERNAME: 'db-administrator-login'
+    ENV_DATASOURCE_PASSWORD: 'db-administrator-login-password'
+    ENV_JWT_KEY: 'jwt-key'
+    ENV_TAXONOMY_URL: 'pagopa-taxonomy-url'
+    ENV_STATION_MAINTENANCES_URL: 'pagopa-station-maintenance-url'
+    ENV_STATION_MAINTENANCES_API_KEY_NAME: 'pagopa-station-maintenance-api-key-name'
+    ENV_STATION_MAINTENANCES_API_KEY_VALUE: 'pagopa-station-maintenance-api-key-value'
   keyvault:
     name: "pagopa-d-itn-crusc8-kv"
     tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
