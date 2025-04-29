@@ -15,8 +15,8 @@
       <column name="CO_ID" type="bigint">
         <constraints primaryKey="true" nullable="false" primaryKeyName="IP${project_name}_PART01"/>
       </column>
-      <column name="TE_FISCAL_CODE" type="varchar(35)">
-        <constraints nullable="false"/>
+      <column name="TE_FISCAL_CODE" type="varchar(35)" >
+        <constraints nullable="false" unique="true" uniqueConstraintName="UI${project_name}_PART01"/>
       </column>
       <column name="TE_NAME" type="varchar(256)">
         <constraints nullable="true"/>

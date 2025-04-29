@@ -10,7 +10,6 @@
 # http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 # ===================================================================
 
-
 logging:
   level:
     ROOT: DEBUG
@@ -33,8 +32,8 @@ spring:
     properties:
       hibernate:
         generate_statistics: true
-#       jdbc:
-#         batch_size: 50
+  #       jdbc:
+  #         batch_size: 50
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     url: jdbc:postgresql://10.8.79.25:3306/qualification_dashboard
@@ -126,6 +125,9 @@ application:
       enabled: true
       cron: 0 0/25 07-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
     load-maintenance-job:
+      enabled: true
+      cron: 0 0/2 07-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
+    load-registry-job:
       enabled: true
       cron: 0 0/2 07-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
   liquibase:
