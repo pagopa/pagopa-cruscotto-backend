@@ -1,0 +1,91 @@
+microservice-chart:
+  namespace: "crusc8"
+  nameOverride: ""
+  fullnameOverride: ""
+  image:
+    repository: ghcr.io/pagopa/pagopa-cruscotto-backend
+    tag: "0.0.5"
+    pullPolicy: Always
+  # https://github.com/Azure/azure-functions-host/blob/dev/src/WebJobs.Script.WebHost/Controllers/HostController.cs
+  livenessProbe:
+    httpGet:
+      path: /info
+      port: 8080
+    initialDelaySeconds: 60
+    failureThreshold: 6
+    periodSeconds: 10
+  readinessProbe:
+    httpGet:
+      path: /info
+      port: 8080
+    initialDelaySeconds: 60
+    failureThreshold: 6
+    periodSeconds: 10
+  deployment:
+    create: true
+  service:
+    create: true
+    type: ClusterIP
+    ports:
+      - 8080
+  ingress:
+    create: true
+    host: "weudev.crusc8.internal.dev.platform.pagopa.it"
+    path: /pagopa-pagopa-cruscotto-backend-service/(.*)
+    servicePort: 8080
+  serviceAccount:
+    create: false
+    annotations: {}
+    name: "crusc8-workload-identity"
+  podAnnotations: {}
+  podSecurityContext:
+    seccompProfile:
+      type: RuntimeDefault
+  securityContext:
+    allowPrivilegeEscalation: false
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "0.25"
+    limits:
+      memory: "1024Mi"
+      cpu: "0.50"
+  autoscaling:
+    enable: true
+    minReplica: 1
+    maxReplica: 1
+    pollingInterval: 10 # seconds
+    cooldownPeriod: 50 # seconds
+    triggers:
+      - type: cpu
+        metadata:
+          # Required
+          type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
+          value: "75"
+  envConfig:
+    ASPNETCORE_URLS: "http://*:8080"
+    WEBSITE_SITE_NAME: "pagopacruscottobackend" # required to show cloud role name in application insights
+    FUNCTIONS_WORKER_RUNTIME: "java"
+    ENVIRONMENT: "dev"
+  envSecret:
+    DB_USERNAME: 'db-administrator-login'
+    DB_PASSWORD: 'db-administrator-login-password'
+  keyvault:
+    name: "pagopa-d-itn-crusc8-kv"
+    tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
+  nodeSelector: {}
+  tolerations: []
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: node_type
+                operator: In
+                values:
+                  - user
+  canaryDelivery:
+    deployment:
+      image:
+        tag: "0.0.0"
+    create: false
