@@ -14,6 +14,16 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.TemporalField;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.time.StopWatch;
 import org.jetbrains.annotations.NotNull;
@@ -25,24 +35,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.time.temporal.TemporalField;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
-
 @Component
 @AllArgsConstructor
 @DisallowConcurrentExecution
 public class LoadPlannedShutdownJob extends QuartzJobBean {
 
-	private final static Logger LOGGER = LoggerFactory.getLogger(LoadPlannedShutdownJob.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LoadPlannedShutdownJob.class);
 
     private final PagoPaClient pagoPaClient;
 
@@ -62,14 +60,17 @@ public class LoadPlannedShutdownJob extends QuartzJobBean {
 
         saveDataForYear(year);
 
-		LOGGER.info("End");
+        LOGGER.info("End");
     }
 
     public void saveDataForYear(int year) throws JobExecutionException {
         try {
             LOGGER.info("Call PagoPA to get maintenance year {}", year);
 
-            StationPlannedShutdownResponse response = callServiceMaintenance(new URI(applicationProperties.getPagoPaClient().getMaintenance().getUrl()), year);
+            StationPlannedShutdownResponse response = callServiceMaintenance(
+                new URI(applicationProperties.getPagoPaClient().getMaintenance().getUrl()),
+                year
+            );
 
             List<AnagPlannedShutdownDTO> plannedShutdownDTOS = validate(response.getStationMaintenanceList(), year);
 
@@ -86,7 +87,11 @@ public class LoadPlannedShutdownJob extends QuartzJobBean {
 
             stopWatch.stop();
 
-            LOGGER.info("Saved {} rows planned shutdown to database into {} seconds", plannedShutdownDTOS.size(), stopWatch.getTime(TimeUnit.SECONDS));
+            LOGGER.info(
+                "Saved {} rows planned shutdown to database into {} seconds",
+                plannedShutdownDTOS.size(),
+                stopWatch.getTime(TimeUnit.SECONDS)
+            );
         } catch (URISyntaxException e) {
             throw new JobExecutionException(e);
         }
@@ -96,14 +101,16 @@ public class LoadPlannedShutdownJob extends QuartzJobBean {
         return pagoPaClient.maintenance(uri, year);
     }
 
-    private List<AnagPlannedShutdownDTO> validate(List<StationPlannedShutdownResponse.StationMaintenance> stationMaintenanceList, int year) {
+    private List<AnagPlannedShutdownDTO> validate(
+        List<StationPlannedShutdownResponse.StationMaintenance> stationMaintenanceList,
+        int year
+    ) {
         List<AnagPlannedShutdownDTO> plannedShutdownDTOS = new ArrayList<>();
 
         try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
             Validator validator = factory.getValidator();
 
             stationMaintenanceList.forEach(maintenance -> {
-
                 AnagPlannedShutdownDTO anagPlannedShutdownDTO;
                 anagPlannedShutdownDTO = new AnagPlannedShutdownDTO();
                 anagPlannedShutdownDTO.setTypePlanned(TypePlanned.PROGRAMMATO);
@@ -111,11 +118,15 @@ public class LoadPlannedShutdownJob extends QuartzJobBean {
                 anagPlannedShutdownDTO.setShutdownStartDate(maintenance.getStartDateTime().toInstant());
                 anagPlannedShutdownDTO.setShutdownEndDate(maintenance.getEndDateTime().toInstant());
                 anagPlannedShutdownDTO.setPartnerFiscalCode(maintenance.getBrokerCode());
+                anagPlannedShutdownDTO.setPartnerName(maintenance.getBrokerCode());
                 anagPlannedShutdownDTO.setExternalId(maintenance.getMaintenanceId());
                 anagPlannedShutdownDTO.setYear((long) year);
                 anagPlannedShutdownDTO.setStationName(maintenance.getStationCode());
 
-                Set<ConstraintViolation<AnagPlannedShutdownDTO>> violations = validator.validate(anagPlannedShutdownDTO, ValidationGroups.PlannedShutdownJob.class);
+                Set<ConstraintViolation<AnagPlannedShutdownDTO>> violations = validator.validate(
+                    anagPlannedShutdownDTO,
+                    ValidationGroups.PlannedShutdownJob.class
+                );
 
                 if (violations.isEmpty()) {
                     plannedShutdownDTOS.add(anagPlannedShutdownDTO);
