@@ -7,7 +7,7 @@
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
   <changeSet id="20250415102400-1" author="pagopaCruscotto" context="ddl">
-    <createSequence sequenceName="SQ${project_name}_PART01" startValue="3000" cacheSize="20"/>
+    <createSequence sequenceName="SQ${project_name}_PART01" startValue="3000" cacheSize="50" incrementBy="50"/>
   </changeSet>
 
   <changeSet id="20250415102400-2" author="pagopaCruscotto" context="ddl">
@@ -22,8 +22,12 @@
         <constraints nullable="true"/>
       </column>
       <column name="TE_STATUS" type="varchar(35)">
-        <constraints nullable="true"/>
+        <constraints nullable="false"/>
       </column>
+      <column name="FL_QUALIFIED" type="boolean" defaultValueBoolean="false">
+        <constraints nullable="false" />
+      </column>
+      <column name="DT_DEACTIVATION_DATE" type="date"/>
       <column name="TE_CREATED_BY" type="varchar(50)">
         <constraints nullable="false"/>
       </column>

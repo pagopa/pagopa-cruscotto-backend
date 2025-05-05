@@ -1,6 +1,6 @@
 package com.nexigroup.pagopa.cruscotto.config;
 
-import java.util.Map;
+import com.nexigroup.pagopa.cruscotto.job.cache.LoadRegistryJob;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -100,7 +100,9 @@ public class ApplicationProperties {
 
         private Api taxonomy;
 
-        private Api maintenance;
+        private Api backOffice;
+
+        private Api cache;
 
         @Setter
         @Getter
