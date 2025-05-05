@@ -1,13 +1,15 @@
 package com.nexigroup.pagopa.cruscotto.service.dto;
 
-
 import com.nexigroup.pagopa.cruscotto.domain.AnagPartner;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.PartnerStatus;
+import com.nexigroup.pagopa.cruscotto.service.validation.ValidationGroups;
+import jakarta.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.time.LocalDate;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.io.Serializable;
 /**
  * A DTO for the {@link AnagPartner} entity.
  */
@@ -20,10 +22,16 @@ public class AnagPartnerDTO implements Serializable {
 
     private Long id;
 
+    @NotNull(groups = { ValidationGroups.RegistryJob.class })
     private String fiscalCode;
 
+    @NotNull(groups = { ValidationGroups.RegistryJob.class })
     private String name;
 
+    @NotNull(groups = { ValidationGroups.RegistryJob.class })
     private PartnerStatus status;
 
+    private Boolean qualified = Boolean.FALSE;
+
+    private LocalDate deactivationDate;
 }

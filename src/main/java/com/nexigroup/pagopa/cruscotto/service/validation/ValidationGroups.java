@@ -1,11 +1,14 @@
 package com.nexigroup.pagopa.cruscotto.service.validation;
 
-
 import jakarta.validation.groups.Default;
 
 public class ValidationGroups {
-    private ValidationGroups() {
-    }
 
-    public interface PlannedShutdownJob extends Default {};
+    private ValidationGroups() {}
+
+    public interface PlannedShutdownJob extends Default {}
+
+    public interface RegistryJob extends Default {}
+
+    public interface StationJob extends Default {}
 }
