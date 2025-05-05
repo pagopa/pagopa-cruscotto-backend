@@ -86,16 +86,23 @@ application:
     proxy-host:
     proxy-port:
     taxonomy:
-      url: ${ENV_TAXONOMY_URL:http://localhost:8080/taxonomy}
-    maintenance:
-      url: ${ENV_STATION_MAINTENANCES_URL:http://localhost:8080/station-maintenances}
-      api-key-name: ${ENV_STATION_MAINTENANCES_API_KEY_NAME:api-key-name}
-      api-key-value: ${ENV_STATION_MAINTENANCES_API_KEY_VALUE:api-key-value}
+      url: ${ENV_TAXONOMY_URL:http://localhost:8080/taxonomy/v1}
+    back-office:
+      url: ${ENV_BACK_OFFICE_URL:http://localhost:8080/back-office/v1}
+      api-key-name: ${ENV_BACK_OFFICE_API_KEY_NAME:api-key-name}
+      api-key-value: ${ENV_BACK_OFFICE_API_KEY_VALUE:api-key-value}
+    cache:
+      url: ${ENV_CACHE_URL:http://localhost:8080/back-office/v1}
+      api-key-name: ${ENV_CACHE_API_KEY_NAME:api-key-name}
+      api-key-value: ${ENV_CACHE_API_KEY_VALUE:api-key-value}
   job:
     load-taxonomy-job:
       enabled: true
       cron: 0 0/30 07-8 ? * MON,TUE,WED,THU,FRI *
     load-maintenance-job:
+      enabled: true
+      cron: 0 0/30 07-8 ? * MON,TUE,WED,THU,FRI *
+    load-registry-job:
       enabled: true
       cron: 0 0/30 07-8 ? * MON,TUE,WED,THU,FRI *
   liquibase:

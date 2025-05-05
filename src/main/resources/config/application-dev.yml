@@ -10,7 +10,6 @@
 # http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 # ===================================================================
 
-
 logging:
   level:
     ROOT: DEBUG
@@ -18,6 +17,9 @@ logging:
     com.nexigroup.pagopa.cruscotto: DEBUG
     org.hibernate.stat: off
     org.hibernate.engine.internal.StatisticalLoggingSessionEventListener: info
+    org.springframework.orm.jpa: DEBUG
+    org.springframework.transaction: DEBUG
+    org.hibernate.engine.transaction.internal.TransactionImpl: DEBUG
 
 spring:
   devtools:
@@ -33,8 +35,8 @@ spring:
     properties:
       hibernate:
         generate_statistics: true
-#       jdbc:
-#         batch_size: 50
+  #       jdbc:
+  #         batch_size: 50
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     url: jdbc:postgresql://10.8.79.25:3306/qualification_dashboard
@@ -57,16 +59,18 @@ spring:
   thymeleaf:
     cache: false
   quartz:
-    properties:
-      org.quartz.jobStore.driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
-      org.quartz.jobStore.dataSource: cruscotto
-      org.quartz.dataSource.cruscotto.provider: hikaricp
-      org.quartz.dataSource.cruscotto.driver: org.postgresql.Driver
-      org.quartz.dataSource.cruscotto.URL: jdbc:postgresql://10.8.79.25:3306/qualification_dashboard
-      org.quartz.dataSource.cruscotto.user: qualification_dashboard
-      org.quartz.dataSource.cruscotto.password: qualification_dashboard
-      org.quartz.dataSource.cruscotto.validationQuery: select 1
-      org.quartz.dataSource.cruscotto.maxConnections: 10
+    job-store-type: memory
+#    properties:
+#      org.quartz.jobStore.class: org.quartz.impl.jdbcjobstore.JobStoreTX
+#      org.quartz.jobStore.isClustered: true
+#      org.quartz.jobStore.dataSource: cruscotto
+#      org.quartz.dataSource.cruscotto.provider: hikaricp
+#      org.quartz.dataSource.cruscotto.driver: org.postgresql.Driver
+#      org.quartz.dataSource.cruscotto.URL: jdbc:postgresql://10.8.79.25:3306/qualification_dashboard
+#      org.quartz.dataSource.cruscotto.user: qualification_dashboard
+#      org.quartz.dataSource.cruscotto.password: qualification_dashboard
+#      org.quartz.dataSource.cruscotto.validationQuery: select 1
+#      org.quartz.dataSource.cruscotto.maxConnections: 10
 server:
   port: 8080
   # make sure requests the proxy uri instead of the server one
@@ -116,17 +120,24 @@ application:
     proxy-host:
     proxy-port:
     taxonomy:
-      url: https://api.platform.pagopa.it/taxonomy/service/v1/taxonomy
-    maintenance:
-      url: https://api.dev.platform.pagopa.it/backoffice/helpdesk/v1/station-maintenances
+      url: https://api.platform.pagopa.it/taxonomy/service/v1
+    back-office:
+      url: https://api.dev.platform.pagopa.it/backoffice/helpdesk/v1
       api-key-name: ocp-apim-subscription-key
       api-key-value: df10628ae8044fdfabd6bbbdc71bdc26
+    cache:
+      url: https://api.dev.platform.pagopa.it/api-config-cache/p/v1
+      api-key-name: ocp-apim-subscription-key
+      api-key-value: 52f2f22cf8f94544baf9bfd2760f3dbd
   job:
     load-taxonomy-job:
       enabled: true
-      cron: 0 0/25 07-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
+      cron: 0 0/2 07-8 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
     load-maintenance-job:
       enabled: true
-      cron: 0 0/2 07-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
+      cron: 0 0/2 07-8 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
+    load-registry-job:
+      enabled: true
+      cron: 0 0/2 0-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
   liquibase:
     async-start: false

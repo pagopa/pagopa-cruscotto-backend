@@ -1,10 +1,11 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
-
 import com.nexigroup.pagopa.cruscotto.domain.AnagPartner;
 import com.nexigroup.pagopa.cruscotto.domain.AnagPlannedShutdown;
 import com.nexigroup.pagopa.cruscotto.domain.AnagStation;
 import com.nexigroup.pagopa.cruscotto.domain.QAnagPlannedShutdown;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.PartnerStatus;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.StationStatus;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.TypePlanned;
 import com.nexigroup.pagopa.cruscotto.repository.AnagPartnerRepository;
 import com.nexigroup.pagopa.cruscotto.repository.AnagPlannedShutdownRepository;
@@ -12,16 +13,13 @@ import com.nexigroup.pagopa.cruscotto.repository.AnagStationRepository;
 import com.nexigroup.pagopa.cruscotto.service.AnagPlannedShutdownService;
 import com.nexigroup.pagopa.cruscotto.service.dto.AnagPlannedShutdownDTO;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
+import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-
 
 /**
  * Service Implementation for managing {@link AnagPlannedShutdown}.
@@ -40,7 +38,12 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
 
     private final QueryBuilder queryBuilder;
 
-    public AnagPlannedShutdownServiceImpl(AnagPlannedShutdownRepository anagPlannedShutdownRepository, AnagPartnerRepository anagPartnerRepository, AnagStationRepository anagStationRepository, QueryBuilder queryBuilder) {
+    public AnagPlannedShutdownServiceImpl(
+        AnagPlannedShutdownRepository anagPlannedShutdownRepository,
+        AnagPartnerRepository anagPartnerRepository,
+        AnagStationRepository anagStationRepository,
+        QueryBuilder queryBuilder
+    ) {
         this.anagPlannedShutdownRepository = anagPlannedShutdownRepository;
         this.anagPartnerRepository = anagPartnerRepository;
         this.anagStationRepository = anagStationRepository;
@@ -72,11 +75,14 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
      */
     @Override
     public void delete(TypePlanned typePlanned, long year) {
-        queryBuilder.createQueryFactory().delete(QAnagPlannedShutdown.anagPlannedShutdown)
+        queryBuilder
+            .createQueryFactory()
+            .delete(QAnagPlannedShutdown.anagPlannedShutdown)
             .where(
-                QAnagPlannedShutdown.anagPlannedShutdown.typePlanned.eq(TypePlanned.PROGRAMMATO)
+                QAnagPlannedShutdown.anagPlannedShutdown.typePlanned
+                    .eq(TypePlanned.PROGRAMMATO)
                     .and(QAnagPlannedShutdown.anagPlannedShutdown.year.eq(year))
-                );
+            );
     }
 
     /**
@@ -92,26 +98,31 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
             partnerExample.setCreatedDate(null);
             partnerExample.setLastModifiedDate(null);
 
-            AnagPartner partner = anagPartnerRepository.findOne(Example.of(partnerExample)).orElseGet(() -> {
-               AnagPartner partnerSaved = new AnagPartner();
-                partnerSaved.setFiscalCode(anagPlannedShutdownDTO.getPartnerFiscalCode());
-               return anagPartnerRepository.save(partnerSaved);
-            });
+            AnagPartner partner = anagPartnerRepository
+                .findOne(Example.of(partnerExample))
+                .orElseGet(() -> {
+                    AnagPartner partnerSaved = new AnagPartner();
+                    partnerSaved.setFiscalCode(anagPlannedShutdownDTO.getPartnerFiscalCode());
+                    partnerSaved.setName(anagPlannedShutdownDTO.getPartnerName());
+                    partnerSaved.setStatus(PartnerStatus.NON_ATTIVO);
+                    return anagPartnerRepository.save(partnerSaved);
+                });
 
             AnagStation stationExample = new AnagStation();
             stationExample.setName(anagPlannedShutdownDTO.getStationName());
             stationExample.setCreatedDate(null);
             stationExample.setLastModifiedDate(null);
 
-
-            AnagStation station = anagStationRepository.findOne(Example.of(stationExample)).orElseGet(() -> {
-                AnagStation stationSaved = new AnagStation();
-                stationSaved.setName(anagPlannedShutdownDTO.getStationName());
-                stationSaved.setAssociatedInstitutes(0);
-                stationSaved.setAnagPartner(partner);
-                return anagStationRepository.save(stationSaved);
-            });
-
+            AnagStation station = anagStationRepository
+                .findOne(Example.of(stationExample))
+                .orElseGet(() -> {
+                    AnagStation stationSaved = new AnagStation();
+                    stationSaved.setName(anagPlannedShutdownDTO.getStationName());
+                    stationSaved.setAssociatedInstitutes(0);
+                    stationSaved.setAnagPartner(partner);
+                    stationSaved.setStatus(StationStatus.NON_ATTIVA);
+                    return anagStationRepository.save(stationSaved);
+                });
 
             AnagPlannedShutdown plannedShutdown = getAnagPlannedShutdown(anagPlannedShutdownDTO, partner, station);
 
@@ -119,7 +130,11 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
         });
     }
 
-    private static @NotNull AnagPlannedShutdown getAnagPlannedShutdown(AnagPlannedShutdownDTO anagPlannedShutdownDTO, AnagPartner partner, AnagStation station) {
+    private static @NotNull AnagPlannedShutdown getAnagPlannedShutdown(
+        AnagPlannedShutdownDTO anagPlannedShutdownDTO,
+        AnagPartner partner,
+        AnagStation station
+    ) {
         AnagPlannedShutdown plannedShutdown = new AnagPlannedShutdown();
         plannedShutdown.setTypePlanned(anagPlannedShutdownDTO.getTypePlanned());
         plannedShutdown.setStandInd(anagPlannedShutdownDTO.isStandInd());

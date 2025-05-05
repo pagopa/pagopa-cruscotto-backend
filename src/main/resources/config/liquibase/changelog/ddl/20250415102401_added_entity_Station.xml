@@ -15,8 +15,8 @@
       <column name="CO_ID" type="bigint">
         <constraints primaryKey="true" nullable="false" primaryKeyName="IP${project_name}_STAT01"/>
       </column>
-      <column name="TE_NAME" type="varchar(35)">
-        <constraints nullable="false"/>
+      <column name="TE_NAME" type="varchar(35)" >
+        <constraints nullable="false" unique="true" uniqueConstraintName="UI${project_name}_STAT01"/>
       </column>
       <column name="DT_ACTIVATION_DATE" type="date">
         <constraints nullable="true"/>
@@ -24,7 +24,7 @@
       <column name="TE_TYPE_CONNECTION" type="varchar(35)">
         <constraints nullable="true"/>
       </column>
-      <column name="TE_PRIMITIVE_VERSION" type="varchar(5)">
+      <column name="TE_PRIMITIVE_VERSION" type="int">
         <constraints nullable="true"/>
       </column>
       <column name="FL_PAYMENT_OPTION" type="boolean">
@@ -34,8 +34,9 @@
         <constraints nullable="false" />
       </column>
       <column name="TE_STATUS" type="varchar(35)">
-        <constraints nullable="true"/>
+        <constraints nullable="false"/>
       </column>
+      <column name="DT_DEACTIVATION_DATE" type="date"/>
       <column name="CO_ANAG_PARTNER_ID" type="bigint">
         <constraints nullable="false"/>
       </column>
