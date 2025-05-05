@@ -4,6 +4,8 @@ import com.nexigroup.pagopa.cruscotto.domain.AnagPartner;
 import com.nexigroup.pagopa.cruscotto.domain.AnagPlannedShutdown;
 import com.nexigroup.pagopa.cruscotto.domain.AnagStation;
 import com.nexigroup.pagopa.cruscotto.domain.QAnagPlannedShutdown;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.PartnerStatus;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.StationStatus;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.TypePlanned;
 import com.nexigroup.pagopa.cruscotto.repository.AnagPartnerRepository;
 import com.nexigroup.pagopa.cruscotto.repository.AnagPlannedShutdownRepository;
@@ -102,6 +104,7 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
                     AnagPartner partnerSaved = new AnagPartner();
                     partnerSaved.setFiscalCode(anagPlannedShutdownDTO.getPartnerFiscalCode());
                     partnerSaved.setName(anagPlannedShutdownDTO.getPartnerName());
+                    partnerSaved.setStatus(PartnerStatus.NON_ATTIVO);
                     return anagPartnerRepository.save(partnerSaved);
                 });
 
@@ -117,6 +120,7 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
                     stationSaved.setName(anagPlannedShutdownDTO.getStationName());
                     stationSaved.setAssociatedInstitutes(0);
                     stationSaved.setAnagPartner(partner);
+                    stationSaved.setStatus(StationStatus.NON_ATTIVA);
                     return anagStationRepository.save(stationSaved);
                 });
 

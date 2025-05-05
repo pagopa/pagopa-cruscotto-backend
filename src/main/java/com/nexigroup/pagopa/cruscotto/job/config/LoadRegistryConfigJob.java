@@ -1,7 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.job.config;
 
 import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
-import com.nexigroup.pagopa.cruscotto.job.registry.LoadRegistryJob;
+import com.nexigroup.pagopa.cruscotto.job.cache.LoadRegistryJob;
 import org.quartz.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,9 +10,9 @@ import org.springframework.context.annotation.Configuration;
 public class LoadRegistryConfigJob {
 
     @Bean
-    public Trigger loadRegistryJobTrigger(ApplicationProperties applicationProperties) {
+    public Trigger loadRegistryobTrigger(ApplicationProperties applicationProperties) {
         CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(
-            applicationProperties.getJob().getLoadTaxonomyJob().getCron()
+            applicationProperties.getJob().getLoadRegistryJob().getCron()
         ).withMisfireHandlingInstructionFireAndProceed();
 
         return TriggerBuilder.newTrigger()
