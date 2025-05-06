@@ -138,6 +138,9 @@ application:
       cron: 0 0/2 07-8 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
     load-registry-job:
       enabled: true
-      cron: 0 0/2 0-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
+      cron: 0 0/50 0-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
+    kpi-b2-job:
+      cron: 0 0/50 0-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
+      enabled: true
   liquibase:
     async-start: false
