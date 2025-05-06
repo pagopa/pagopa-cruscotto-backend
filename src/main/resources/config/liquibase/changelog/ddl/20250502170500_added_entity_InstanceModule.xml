@@ -22,11 +22,14 @@
       <column name="CO_MODULE_ID" type="bigint">
         <constraints nullable="false"/>
       </column>
-      <column name="DT_ANALISYS_DATE" type="datetime">
-        <constraints nullable="true"/>
-      </column>
       <column name="TE_ANALYSIS_TYPE" type="varchar(35)">
         <constraints nullable="false"/>
+      </column>
+      <column name="FL_ALLOW_MANUAL_OUTCOME" type="boolean">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DT_ANALISYS_DATE" type="datetime">
+        <constraints nullable="true"/>
       </column>
       <column name="TE_ANALYSIS_OUTCOME" type="varchar(20)">
         <constraints nullable="true"/>
@@ -36,9 +39,9 @@
       </column>
       <column name="TE_STATUS" type="varchar(35)">
         <constraints nullable="false"/>
-      </column>      
+      </column>
       <column name="CO_MANUAL_OUTCOME_USER_ID" type="bigint"/>
-      <column name="DT_MANUAL_OUTCOME_DATE" type="datetime"/>      
+      <column name="DT_MANUAL_OUTCOME_DATE" type="datetime"/>
       <column name="TE_CREATED_BY" type="varchar(50)">
         <constraints nullable="false"/>
       </column>
