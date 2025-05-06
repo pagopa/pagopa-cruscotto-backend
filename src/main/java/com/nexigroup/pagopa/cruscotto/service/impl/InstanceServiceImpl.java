@@ -154,7 +154,7 @@ public class InstanceServiceImpl implements InstanceService {
     /**
      * Save a new instance.
      *
-     * @param instanceToSave the entity to save.
+     * @param instanceToCreate the entity to save.
      * @return the persisted entity.
      */
     @Override
@@ -211,7 +211,7 @@ public class InstanceServiceImpl implements InstanceService {
     /**
      * Update a instance.
      *
-     * @param instanceDTO the entity to save.
+     * @param instanceToUpdate the entity to save.
      * @return the persisted entity.
      */
     @Override
@@ -299,5 +299,33 @@ public class InstanceServiceImpl implements InstanceService {
             .orElseThrow(() ->
                 new GenericServiceException(String.format("Instance with id %s not exist", id), INSTANCE, "instance.notExists")
             );
+    }
+
+    @Override
+    public List<InstanceDTO> findInstanceToCalculate(Integer limit) {
+        JPQLQuery<InstanceDTO> jpql = queryBuilder
+            .<Instance>createQuery()
+            .from(QInstance.instance)
+            .where(
+                QInstance.instance.status.eq(InstanceStatus.PIANIFICATA).and(QInstance.instance.predictedDateAnalysis.loe(LocalDate.now()))
+            )
+            .select(
+                Projections.fields(
+                    InstanceDTO.class,
+                    QInstance.instance.id.as("id"),
+                    QInstance.instance.instanceIdentification.as("instanceIdentification"),
+                    QInstance.instance.partner.id.as("partnerId"),
+                    QInstance.instance.partner.fiscalCode.as("partnerFiscalCode"),
+                    QInstance.instance.partner.name.as("partnerName"),
+                    QInstance.instance.applicationDate.as("applicationDate"),
+                    QInstance.instance.predictedDateAnalysis.as("predictedDateAnalysis"),
+                    QInstance.instance.analysisPeriodStartDate.as("analysisPeriodStartDate"),
+                    QInstance.instance.analysisPeriodEndDate.as("analysisPeriodEndDate")
+                )
+            )
+            .limit(limit)
+            .orderBy(new OrderSpecifier<>(Order.ASC, Expressions.stringPath("applicationDate")));
+
+        return jpql.fetch();
     }
 }
