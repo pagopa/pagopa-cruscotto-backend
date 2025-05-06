@@ -79,4 +79,17 @@
     <tagDatabase tag="version_2.0_dml"/>
   </changeSet>
 
+  <include file="changelog/ddl/20250506154500_added_entity_KpiConfiguration.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/ddl/20250506154501_added_entity_constraints_KpiConfiguration.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/ddl/20250506154600_added_entity_KpiB2Result.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/ddl/20250506154601_added_entity_constraints_KpiB2Result.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/ddl/20250506154700_added_entity_KpiB2DetailResult.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/ddl/20250506154701_added_entity_constraints_KpiB2DetailResult.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/ddl/20250506154800_added_entity_KpiB2AnalyticData.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/ddl/20250506154801_added_entity_constraints_KpiB2AnalyticData.xml" relativeToChangelogFile="true"/>
+
+  <changeSet author="liquibase-docs" id="version_7.0_ddl">
+    <tagDatabase tag="version_7.0_ddl"/>
+  </changeSet>
+
 </databaseChangeLog>
