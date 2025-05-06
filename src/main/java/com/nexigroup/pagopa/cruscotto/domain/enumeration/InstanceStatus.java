@@ -8,5 +8,5 @@ public enum InstanceStatus {
     BOZZA,
     PIANIFICATA,
     ESEGUITA,
-    CANCELLATA;
+    // CANCELLATA;
 }
