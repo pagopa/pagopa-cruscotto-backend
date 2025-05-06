@@ -1,15 +1,13 @@
 package com.nexigroup.pagopa.cruscotto.service.dto;
 
-
 import com.nexigroup.pagopa.cruscotto.domain.Instance;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.InstanceStatus;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * A DTO for the {@link Instance} entity.
@@ -26,6 +24,8 @@ public class InstanceDTO implements Serializable {
     private String instanceIdentification;
 
     private Long partnerId;
+
+    private String partnerFiscalCode;
 
     private String partnerName;
 
@@ -47,4 +47,44 @@ public class InstanceDTO implements Serializable {
 
     private Instant lastAnalysisDate;
 
+    @Override
+    public String toString() {
+        return (
+            "InstanceDTO{" +
+            "id=" +
+            id +
+            ", instanceIdentification='" +
+            instanceIdentification +
+            '\'' +
+            ", partnerId=" +
+            partnerId +
+            ", partnerFiscalCode='" +
+            partnerFiscalCode +
+            '\'' +
+            ", partnerName='" +
+            partnerName +
+            '\'' +
+            ", predictedDateAnalysis=" +
+            predictedDateAnalysis +
+            ", applicationDate=" +
+            applicationDate +
+            ", assignedUserId=" +
+            assignedUserId +
+            ", assignedFirstName='" +
+            assignedFirstName +
+            '\'' +
+            ", assignedLastName='" +
+            assignedLastName +
+            '\'' +
+            ", analysisPeriodStartDate=" +
+            analysisPeriodStartDate +
+            ", analysisPeriodEndDate=" +
+            analysisPeriodEndDate +
+            ", status=" +
+            status +
+            ", lastAnalysisDate=" +
+            lastAnalysisDate +
+            '}'
+        );
+    }
 }

@@ -93,6 +93,8 @@ public class ApplicationProperties {
         private boolean enabled;
 
         private String cron;
+
+        private int limit;
     }
 
     @Getter
