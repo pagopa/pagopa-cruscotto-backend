@@ -2,17 +2,30 @@ package com.nexigroup.pagopa.cruscotto.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.InstanceStatus;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.io.Serializable;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-
-import java.io.Serializable;
-import java.time.Instant;
-import java.time.LocalDate;
 
 /**
  * A Instance.
@@ -73,6 +86,19 @@ public class Instance extends AbstractAuditingEntity<Long> implements Serializab
     @Column(name = "DT_LAST_ANALISYS_DATE")
     private Instant lastAnalysisDate;
 
+    //    @ManyToMany
+    //    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    //    @JoinTable(
+    //        name = "INSTANCE_MODULE",
+    //        joinColumns = @JoinColumn(name = "CO_INSTANCE_ID", referencedColumnName = "CO_ID"),
+    //        inverseJoinColumns = @JoinColumn(name = "CO_MODULE_ID", referencedColumnName = "CO_ID")
+    //    )
+    //    private Set<Module> modules = new HashSet<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "instance", fetch = FetchType.LAZY)
+    private Set<InstanceModule> instanceModules = new HashSet<>();
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -91,17 +117,31 @@ public class Instance extends AbstractAuditingEntity<Long> implements Serializab
 
     @Override
     public String toString() {
-        return "Instance{" +
-            "id=" + id +
-            ", instanceIdentification='" + instanceIdentification + '\'' +
-            ", partner=" + partner +
-            ", predictedDateAnalysis=" + predictedDateAnalysis +
-            ", applicationDate=" + applicationDate +
-            ", assignedUser=" + assignedUser +
-            ", analysisPeriodStartDate=" + analysisPeriodStartDate +
-            ", analysisPeriodEndDate=" + analysisPeriodEndDate +
-            ", status=" + status +
-            ", lastAnalysisDate=" + lastAnalysisDate +
-            "} " + super.toString();
+        return (
+            "Instance{" +
+            "id=" +
+            id +
+            ", instanceIdentification='" +
+            instanceIdentification +
+            '\'' +
+            ", partner=" +
+            partner +
+            ", predictedDateAnalysis=" +
+            predictedDateAnalysis +
+            ", applicationDate=" +
+            applicationDate +
+            ", assignedUser=" +
+            assignedUser +
+            ", analysisPeriodStartDate=" +
+            analysisPeriodStartDate +
+            ", analysisPeriodEndDate=" +
+            analysisPeriodEndDate +
+            ", status=" +
+            status +
+            ", lastAnalysisDate=" +
+            lastAnalysisDate +
+            "} " +
+            super.toString()
+        );
     }
 }

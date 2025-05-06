@@ -3,10 +3,15 @@ package com.nexigroup.pagopa.cruscotto.service.impl;
 import com.nexigroup.pagopa.cruscotto.domain.AnagPartner;
 import com.nexigroup.pagopa.cruscotto.domain.AuthUser;
 import com.nexigroup.pagopa.cruscotto.domain.Instance;
+import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
+import com.nexigroup.pagopa.cruscotto.domain.Module;
 import com.nexigroup.pagopa.cruscotto.domain.QInstance;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.InstanceStatus;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleStatus;
 import com.nexigroup.pagopa.cruscotto.repository.AnagPartnerRepository;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
+import com.nexigroup.pagopa.cruscotto.repository.ModuleRepository;
+import com.nexigroup.pagopa.cruscotto.security.SecurityUtils;
 import com.nexigroup.pagopa.cruscotto.service.GenericServiceException;
 import com.nexigroup.pagopa.cruscotto.service.InstanceService;
 import com.nexigroup.pagopa.cruscotto.service.bean.InstanceRequestBean;
@@ -49,11 +54,15 @@ public class InstanceServiceImpl implements InstanceService {
 
     private static final String INSTANCE = "instance";
 
+    private static final String CURRENT_USER_LOGIN_NOT_FOUND = "Current user login not found";
+
     static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private final InstanceRepository instanceRepository;
 
     private final AnagPartnerRepository anagPartnerRepository;
+
+    private final ModuleRepository moduleRepository;
 
     private final InstanceMapper instanceMapper;
 
@@ -64,12 +73,14 @@ public class InstanceServiceImpl implements InstanceService {
     public InstanceServiceImpl(
         InstanceRepository instanceRepository,
         AnagPartnerRepository anagPartnerRepository,
+        ModuleRepository moduleRepository,
         InstanceMapper instanceMapper,
         QueryBuilder queryBuilder,
         UserUtils userUtils
     ) {
         this.instanceRepository = instanceRepository;
         this.anagPartnerRepository = anagPartnerRepository;
+        this.moduleRepository = moduleRepository;
         this.instanceMapper = instanceMapper;
         this.queryBuilder = queryBuilder;
         this.userUtils = userUtils;
@@ -143,7 +154,7 @@ public class InstanceServiceImpl implements InstanceService {
     /**
      * Save a new instance.
      *
-     * @param instanceToCreate the entity to save.
+     * @param instanceToSave the entity to save.
      * @return the persisted entity.
      */
     @Override
@@ -182,6 +193,16 @@ public class InstanceServiceImpl implements InstanceService {
         instance.setApplicationDate(now.toInstant());
         instance.setAssignedUser(loggedUser);
 
+        List<Module> modules = moduleRepository.findAllByStatus(ModuleStatus.ATTIVO);
+
+        for (Module module : modules) {
+            InstanceModule instanceModule = new InstanceModule();
+            instanceModule.setInstance(instance);
+            instanceModule.setModule(module);
+            instanceModule.setAnalysisType(module.getAnalysisType());
+            instanceModule.setStatus(module.getStatus());
+        }
+
         instance = instanceRepository.save(instance);
 
         return instanceMapper.toDto(instance);
@@ -190,7 +211,7 @@ public class InstanceServiceImpl implements InstanceService {
     /**
      * Update a instance.
      *
-     * @param instanceToUpdate the entity to save.
+     * @param instanceDTO the entity to save.
      * @return the persisted entity.
      */
     @Override
@@ -199,7 +220,7 @@ public class InstanceServiceImpl implements InstanceService {
             .filter(Optional::isPresent)
             .map(Optional::get)
             .map(instance -> {
-                if (instance.getStatus().equals(InstanceStatus.ESEGUITA) || instance.getStatus().equals(InstanceStatus.CANCELLATA)) {
+                if (!instance.getStatus().equals(InstanceStatus.BOZZA) && !instance.getStatus().equals(InstanceStatus.PIANIFICATA)) {
                     throw new GenericServiceException(
                         String.format(
                             "Instance with id %s cannot be updated because it is not in %s status",
@@ -210,6 +231,10 @@ public class InstanceServiceImpl implements InstanceService {
                         "instance.cannotBeUpdated"
                     );
                 }
+
+                String loginUtenteLoggato = SecurityUtils.getCurrentUserLogin()
+                    .orElseThrow(() -> new RuntimeException(CURRENT_USER_LOGIN_NOT_FOUND));
+
                 AnagPartner partner = anagPartnerRepository
                     .findById(Long.valueOf(instanceToUpdate.getPartnerId()))
                     .orElseThrow(() ->
@@ -223,6 +248,10 @@ public class InstanceServiceImpl implements InstanceService {
                 instance.setPredictedDateAnalysis(LocalDate.parse(instanceToUpdate.getPredictedDateAnalysis(), formatter));
                 instance.setAnalysisPeriodStartDate(LocalDate.parse(instanceToUpdate.getAnalysisPeriodStartDate(), formatter));
                 instance.setAnalysisPeriodEndDate(LocalDate.parse(instanceToUpdate.getAnalysisPeriodEndDate(), formatter));
+
+                instanceRepository.save(instance);
+
+                log.info("Updating of instance with id {} by user {}", instanceToUpdate.getPartnerId(), loginUtenteLoggato);
 
                 return instance;
             })
@@ -242,7 +271,7 @@ public class InstanceServiceImpl implements InstanceService {
             .filter(Optional::isPresent)
             .map(Optional::get)
             .map(instance -> {
-                if (instance.getStatus().equals(InstanceStatus.ESEGUITA) || instance.getStatus().equals(InstanceStatus.CANCELLATA)) {
+                if (!instance.getStatus().equals(InstanceStatus.BOZZA) && !instance.getStatus().equals(InstanceStatus.PIANIFICATA)) {
                     throw new GenericServiceException(
                         String.format("Instance with id %s cannot be deleted because it is not in %s status", id, instance.getStatus()),
                         INSTANCE,
@@ -250,46 +279,25 @@ public class InstanceServiceImpl implements InstanceService {
                     );
                 }
 
-                if (instance.getStatus().equals(InstanceStatus.BOZZA)) {
-                    log.debug("Physical deleting of instance with id {} in status", id, instance.getStatus());
-                    instanceRepository.deleteById(id);
-                } else {
-                    log.debug("Logical deleting of instance with id {} in status", id, instance.getStatus());
-                    instance.setStatus(InstanceStatus.CANCELLATA);
-                }
+                //	if(instance.getStatus().equals(InstanceStatus.BOZZA)) {
+                //		log.debug("Physical deleting of instance with id {} in status", id, instance.getStatus());
+
+                String loginUtenteLoggato = SecurityUtils.getCurrentUserLogin()
+                    .orElseThrow(() -> new RuntimeException(CURRENT_USER_LOGIN_NOT_FOUND));
+
+                instanceRepository.deleteById(id);
+
+                log.info("Physical deleting of instance with id {} by user {}", id, loginUtenteLoggato);
+                //	}
+                //		     		else {
+                //		     			log.debug("Logical deleting of instance with id {} in status", id, instance.getStatus());
+                //		     			instance.setStatus(InstanceStatus.CANCELLATA);
+                //		     		}
 
                 return instance;
             })
             .orElseThrow(() ->
                 new GenericServiceException(String.format("Instance with id %s not exist", id), INSTANCE, "instance.notExists")
             );
-    }
-
-    @Override
-    public List<InstanceDTO> findInstanceToCalculate(Integer limit) {
-        JPQLQuery<InstanceDTO> jpql = queryBuilder
-            .<Instance>createQuery()
-            .from(QInstance.instance)
-            .where(
-                QInstance.instance.status.eq(InstanceStatus.PIANIFICATA).and(QInstance.instance.predictedDateAnalysis.loe(LocalDate.now()))
-            )
-            .select(
-                Projections.fields(
-                    InstanceDTO.class,
-                    QInstance.instance.id.as("id"),
-                    QInstance.instance.instanceIdentification.as("instanceIdentification"),
-                    QInstance.instance.partner.id.as("partnerId"),
-                    QInstance.instance.partner.fiscalCode.as("partnerFiscalCode"),
-                    QInstance.instance.partner.name.as("partnerName"),
-                    QInstance.instance.applicationDate.as("applicationDate"),
-                    QInstance.instance.predictedDateAnalysis.as("predictedDateAnalysis"),
-                    QInstance.instance.analysisPeriodStartDate.as("analysisPeriodStartDate"),
-                    QInstance.instance.analysisPeriodEndDate.as("analysisPeriodEndDate")
-                )
-            )
-            .limit(limit)
-            .orderBy(new OrderSpecifier<>(Order.ASC, Expressions.stringPath("applicationDate")));
-
-        return jpql.fetch();
     }
 }
