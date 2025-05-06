@@ -33,9 +33,7 @@ public class ModuleDTO implements Serializable {
 
     private AnalysisType analysisType;
 
-    private boolean allowManualOutcome;    
+    private Boolean allowManualOutcome;    
 
     private ModuleStatus status;
-
-    private Set<Instance> instances = new HashSet<>();
 }
