@@ -22,6 +22,9 @@
       <column name="CO_MODULE_ID" type="bigint">
         <constraints nullable="false"/>
       </column>
+      <column name="TE_MODULE_CODE" type="varchar(50)">
+        <constraints nullable="false"/>
+      </column>      
       <column name="TE_ANALYSIS_TYPE" type="varchar(35)">
         <constraints nullable="false"/>
       </column>

@@ -1,6 +1,5 @@
 package com.nexigroup.pagopa.cruscotto.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleStatus;
 import jakarta.persistence.Column;
@@ -17,8 +16,6 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Cache;
@@ -74,14 +71,6 @@ public class Module extends AbstractAuditingEntity<Long> implements Serializable
     @Enumerated(EnumType.STRING)
     @Column(name = "TE_STATUS", nullable = false)
     private ModuleStatus status;
-
-    //    @ManyToMany(mappedBy = "modules")
-    //    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-    //    @JsonIgnore
-    //    private Set<Instance> instances = new HashSet<>();
-    @JsonIgnore
-    @OneToMany(mappedBy = "module", fetch = FetchType.LAZY)
-    private Set<InstanceModule> instanceModules = new HashSet<>();
 
     @Override
     public boolean equals(Object o) {

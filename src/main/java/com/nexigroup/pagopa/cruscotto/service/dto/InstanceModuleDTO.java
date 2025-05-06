@@ -3,7 +3,6 @@ package com.nexigroup.pagopa.cruscotto.service.dto;
 import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisOutcome;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisType;
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.ManualOutcome;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleStatus;
 import java.io.Serializable;
 import java.time.Instant;
@@ -28,13 +27,17 @@ public class InstanceModuleDTO implements Serializable {
 
     private Long moduleId;
 
-    private Instant analysisDate;
+    private String moduleCode;
 
     private AnalysisType analysisType;
 
+    private Boolean allowManualOutcome;
+
+    private Instant analysisDate;
+
     private AnalysisOutcome analysisOutcome;
 
-    private ManualOutcome manualOutcome;
+    private AnalysisOutcome manualOutcome;
 
     private ModuleStatus status;
 
