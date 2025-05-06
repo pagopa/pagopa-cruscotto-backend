@@ -7,6 +7,6 @@ package com.nexigroup.pagopa.cruscotto.domain.enumeration;
 public enum InstanceStatus {
     BOZZA,
     PIANIFICATA,
-    ESEGUITA,
-    CANCELLATA;
+    ESEGUITA;
+   // CANCELLATA;
 }
