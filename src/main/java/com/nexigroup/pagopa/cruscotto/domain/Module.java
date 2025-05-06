@@ -5,23 +5,18 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleStatus;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -71,20 +66,12 @@ public class Module extends AbstractAuditingEntity<Long> implements Serializable
     
     @NotNull
     @Column(name = "FL_ALLOW_MANUAL_OUTCOME", nullable = false)
-    private boolean allowManualOutcome;    
+    private boolean allowManualOutcome;
     
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "TE_STATUS", nullable = false)
     private ModuleStatus status;
-    
-//    @ManyToMany(mappedBy = "modules")
-//    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-//    @JsonIgnore
-//    private Set<Instance> instances = new HashSet<>();
-    @JsonIgnore
-    @OneToMany(mappedBy = "module", fetch = FetchType.LAZY)
-    private Set<InstanceModule> instanceModules = new HashSet<>();    
     
 
     @Override

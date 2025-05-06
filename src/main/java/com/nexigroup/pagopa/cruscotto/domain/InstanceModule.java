@@ -8,7 +8,6 @@ import org.hibernate.annotations.DynamicUpdate;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisOutcome;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisType;
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.ManualOutcome;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleStatus;
 
 import java.io.Serializable;
@@ -27,6 +26,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -62,13 +62,22 @@ public class InstanceModule extends AbstractAuditingEntity<Long> implements Seri
     @JoinColumn(name = "CO_MODULE_ID", nullable = false)
     private Module module;
     
-    @Column(name = "DT_ANALISYS_DATE")
-    private Instant analysisDate;
+    @NotNull
+    @Size(min = 1, max = 50)
+    @Column(name = "TE_MODULE_CODE", length = 50, nullable = false)
+    private String moduleCode;    
     
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "TE_ANALYSIS_TYPE", nullable = false)
     private AnalysisType analysisType;
+    
+    @NotNull
+    @Column(name = "FL_ALLOW_MANUAL_OUTCOME", nullable = false)
+    private boolean allowManualOutcome;
+    
+    @Column(name = "DT_ANALISYS_DATE")
+    private Instant analysisDate;
     
     @Enumerated(EnumType.STRING)
     @Column(name = "TE_ANALYSIS_OUTCOME")
@@ -76,7 +85,7 @@ public class InstanceModule extends AbstractAuditingEntity<Long> implements Seri
     
     @Enumerated(EnumType.STRING)
     @Column(name = "TE_MANUAL_OUTCOME")
-    private ManualOutcome manualOutcome;
+    private AnalysisOutcome manualOutcome;
     
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -85,9 +94,26 @@ public class InstanceModule extends AbstractAuditingEntity<Long> implements Seri
     
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CO_ASSIGNED_USER_ID", nullable = true)
-    private AuthUser assignedUser;    
+    @JoinColumn(name = "CO_MANUAL_OUTCOME_USER_ID", nullable = true)
+    private AuthUser manualOutcomeUser;    
     
     @Column(name = "DT_MANUAL_OUTCOME_DATE")
     private Instant manualOutcomeDate;
+    
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof InstanceModule)) {
+            return false;
+        }
+        return id != null && id.equals(((InstanceModule) o).id);
+    }
+
+    @Override
+    public int hashCode() {
+        return 31;
+    }
 }
