@@ -1,24 +1,5 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
-
-import com.nexigroup.pagopa.cruscotto.domain.AuthFunction;
-import com.nexigroup.pagopa.cruscotto.domain.Instance;
-import com.nexigroup.pagopa.cruscotto.domain.QAuthFunction;
-import com.nexigroup.pagopa.cruscotto.domain.QInstance;
-import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
-import com.nexigroup.pagopa.cruscotto.service.InstanceService;
-import com.nexigroup.pagopa.cruscotto.service.dto.AuthFunctionDTO;
-import com.nexigroup.pagopa.cruscotto.service.dto.InstanceDTO;
-import com.nexigroup.pagopa.cruscotto.service.filter.InstanceFilter;
-import com.nexigroup.pagopa.cruscotto.service.mapper.InstanceMapper;
-import com.nexigroup.pagopa.cruscotto.service.qdsl.QdslUtility;
-import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
-import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.Order;
-import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.jpa.JPQLQuery;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,8 +10,35 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import com.nexigroup.pagopa.cruscotto.domain.AnagPartner;
+import com.nexigroup.pagopa.cruscotto.domain.AuthUser;
+import com.nexigroup.pagopa.cruscotto.domain.Instance;
+import com.nexigroup.pagopa.cruscotto.domain.QInstance;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.InstanceStatus;
+import com.nexigroup.pagopa.cruscotto.repository.AnagPartnerRepository;
+import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
+import com.nexigroup.pagopa.cruscotto.service.GenericServiceException;
+import com.nexigroup.pagopa.cruscotto.service.InstanceService;
+import com.nexigroup.pagopa.cruscotto.service.bean.InstanceRequestBean;
+import com.nexigroup.pagopa.cruscotto.service.dto.InstanceDTO;
+import com.nexigroup.pagopa.cruscotto.service.filter.InstanceFilter;
+import com.nexigroup.pagopa.cruscotto.service.mapper.InstanceMapper;
+import com.nexigroup.pagopa.cruscotto.service.qdsl.QdslUtility;
+import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
+import com.nexigroup.pagopa.cruscotto.service.util.UserUtils;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.JPQLQuery;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Service Implementation for managing {@link Instance}.
@@ -40,17 +48,29 @@ import java.util.List;
 public class InstanceServiceImpl implements InstanceService {
 
     private final Logger log = LoggerFactory.getLogger(InstanceServiceImpl.class);
+    
+    private static final String INSTANCE = "instance";
+    
+    static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private final InstanceRepository instanceRepository;
+    
+    private final AnagPartnerRepository anagPartnerRepository;
 
     private final InstanceMapper instanceMapper;
 
     private final QueryBuilder queryBuilder;
+    
+    private final UserUtils userUtils;
+    
 
-    public InstanceServiceImpl(InstanceRepository instanceRepository, InstanceMapper instanceMapper, QueryBuilder queryBuilder) {
+    public InstanceServiceImpl(InstanceRepository instanceRepository, AnagPartnerRepository anagPartnerRepository,
+    						   InstanceMapper instanceMapper, QueryBuilder queryBuilder, UserUtils userUtils) {
         this.instanceRepository = instanceRepository;
+        this.anagPartnerRepository = anagPartnerRepository;
         this.instanceMapper = instanceMapper;
         this.queryBuilder = queryBuilder;
+        this.userUtils = userUtils;
     }
 
     /**
@@ -112,4 +132,111 @@ public class InstanceServiceImpl implements InstanceService {
 
         return new PageImpl<>(list, pageable, size);
     }
+    
+	@Override
+	public Optional<InstanceDTO> findOne(Long id) {
+		return instanceRepository.findById(id)
+								 .map(instanceMapper::toDto);
+	}
+	
+    /**
+     * Save a new instance.
+     *
+     * @param instanceToSave the entity to save.
+     * @return the persisted entity.
+     */
+    @Override
+    public InstanceDTO saveNew(InstanceRequestBean instanceToCreate) {
+    	
+    	StringBuilder instanceIdentification = new StringBuilder();
+    	
+    	AuthUser loggedUser = userUtils.getLoggedUser();
+       
+    	AnagPartner partner = anagPartnerRepository.findById(Long.valueOf(instanceToCreate.getPartnerId()))
+    						 					   .orElseThrow(() -> new GenericServiceException(String.format("Partner with id %s not exist", instanceToCreate.getPartnerId()),
+    						 							   							 			  INSTANCE, "instance.partnerNotExists"));
+    	
+    	ZonedDateTime now = ZonedDateTime.now(ZoneId.systemDefault());
+    	
+    	instanceIdentification.append("INST-")
+    						  .append(partner.getFiscalCode())
+    						  .append("-")
+    						  .append(now.format(DateTimeFormatter.ofPattern("yyyyMMdd")))
+    						  .append("-")
+    						  .append(now.format(DateTimeFormatter.ofPattern("HHmmssSSS")));
+    	
+    	Instance instance = new Instance();
+    	instance.setInstanceIdentification(instanceIdentification.toString());
+    	instance.setPartner(partner);
+    	instance.setPredictedDateAnalysis(LocalDate.parse(instanceToCreate.getPredictedDateAnalysis(), formatter));
+    	instance.setAnalysisPeriodStartDate(LocalDate.parse(instanceToCreate.getAnalysisPeriodStartDate(), formatter));
+    	instance.setAnalysisPeriodEndDate(LocalDate.parse(instanceToCreate.getAnalysisPeriodEndDate(), formatter));
+    	instance.setStatus(InstanceStatus.BOZZA);
+    	instance.setApplicationDate(now.toInstant());
+    	instance.setAssignedUser(loggedUser);
+
+    	instance = instanceRepository.save(instance);
+
+        return instanceMapper.toDto(instance);
+    }
+
+    /**
+     * Update a instance.
+     *
+     * @param instanceDTO the entity to save.
+     * @return the persisted entity.
+     */
+    @Override
+    public InstanceDTO update(InstanceRequestBean instanceToUpdate) {
+        
+    	return Optional.of(instanceRepository.findById(instanceToUpdate.getId()))
+			           .filter(Optional::isPresent)
+			           .map(Optional::get)
+			           .map(instance -> {
+			        	   if(instance.getStatus().equals(InstanceStatus.ESEGUITA) ||
+					    	  instance.getStatus().equals(InstanceStatus.CANCELLATA)) {
+					     			throw new GenericServiceException(String.format("Instance with id %s cannot be updated because it is not in %s status", instanceToUpdate.getId(), instance.getStatus()),
+					     							   				  INSTANCE, "instance.cannotBeUpdated");
+					   	}	
+			        	   AnagPartner partner = anagPartnerRepository.findById(Long.valueOf(instanceToUpdate.getPartnerId()))
+			 					   									  .orElseThrow(() -> new GenericServiceException(String.format("Partner with id %s not exist", instanceToUpdate.getPartnerId()),
+		 							   							 			  										 INSTANCE, "instance.partnerNotExists"));
+			        	   instance.setPartner(partner);
+			        	   instance.setPredictedDateAnalysis(LocalDate.parse(instanceToUpdate.getPredictedDateAnalysis(), formatter));
+			        	   instance.setAnalysisPeriodStartDate(LocalDate.parse(instanceToUpdate.getAnalysisPeriodStartDate(), formatter));
+			        	   instance.setAnalysisPeriodEndDate(LocalDate.parse(instanceToUpdate.getAnalysisPeriodEndDate(), formatter));
+			
+			        	   return instance;
+			            })
+			            .map(instanceMapper::toDto)
+			            .orElseThrow(() -> new GenericServiceException(String.format("Instance with id %s not exist", instanceToUpdate.getId()),
+			 							   							   INSTANCE, "instance.notExists"));
+    }
+    
+    @Override
+    public void delete(Long id) {
+    	Optional.of(instanceRepository.findById(id))
+		      	.filter(Optional::isPresent)
+		    	.map(Optional::get)
+		     	.map(instance -> {
+		     		if(instance.getStatus().equals(InstanceStatus.ESEGUITA) ||
+		     		   instance.getStatus().equals(InstanceStatus.CANCELLATA)) {
+		     			throw new GenericServiceException(String.format("Instance with id %s cannot be deleted because it is not in %s status", id, instance.getStatus()),
+		     							   				  INSTANCE, "instance.cannotBeDeleted");
+		     		}
+		     		
+		     		if(instance.getStatus().equals(InstanceStatus.BOZZA)) {
+		     			log.debug("Physical deleting of instance with id {} in status", id, instance.getStatus());
+		     			instanceRepository.deleteById(id);
+		     		}
+		     		else {
+		     			log.debug("Logical deleting of instance with id {} in status", id, instance.getStatus());
+		     			instance.setStatus(InstanceStatus.CANCELLATA);
+		     		}		     	
+	
+		     		return instance;
+		     	})
+	            .orElseThrow(() -> new GenericServiceException(String.format("Instance with id %s not exist", id),
+	            											   INSTANCE, "instance.notExists"));    
+    }    
 }
