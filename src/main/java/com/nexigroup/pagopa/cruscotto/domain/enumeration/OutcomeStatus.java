@@ -6,4 +6,6 @@ package com.nexigroup.pagopa.cruscotto.domain.enumeration;
 public enum OutcomeStatus {
     OK,
     KO,
+    RUNNING,
+    STANDBY,
 }
