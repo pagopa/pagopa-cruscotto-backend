@@ -13,10 +13,15 @@ import org.springframework.transaction.annotation.Transactional;
 import com.nexigroup.pagopa.cruscotto.domain.AnagPartner;
 import com.nexigroup.pagopa.cruscotto.domain.AuthUser;
 import com.nexigroup.pagopa.cruscotto.domain.Instance;
+import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
+import com.nexigroup.pagopa.cruscotto.domain.Module;
 import com.nexigroup.pagopa.cruscotto.domain.QInstance;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.InstanceStatus;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleStatus;
 import com.nexigroup.pagopa.cruscotto.repository.AnagPartnerRepository;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
+import com.nexigroup.pagopa.cruscotto.repository.ModuleRepository;
+import com.nexigroup.pagopa.cruscotto.security.SecurityUtils;
 import com.nexigroup.pagopa.cruscotto.service.GenericServiceException;
 import com.nexigroup.pagopa.cruscotto.service.InstanceService;
 import com.nexigroup.pagopa.cruscotto.service.bean.InstanceRequestBean;
@@ -51,11 +56,15 @@ public class InstanceServiceImpl implements InstanceService {
     
     private static final String INSTANCE = "instance";
     
+    private static final String CURRENT_USER_LOGIN_NOT_FOUND = "Current user login not found";
+    
     static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private final InstanceRepository instanceRepository;
     
     private final AnagPartnerRepository anagPartnerRepository;
+    
+    private final ModuleRepository moduleRepository;
 
     private final InstanceMapper instanceMapper;
 
@@ -65,9 +74,11 @@ public class InstanceServiceImpl implements InstanceService {
     
 
     public InstanceServiceImpl(InstanceRepository instanceRepository, AnagPartnerRepository anagPartnerRepository,
-    						   InstanceMapper instanceMapper, QueryBuilder queryBuilder, UserUtils userUtils) {
+    						   ModuleRepository moduleRepository, InstanceMapper instanceMapper,
+    						   QueryBuilder queryBuilder, UserUtils userUtils) {
         this.instanceRepository = instanceRepository;
         this.anagPartnerRepository = anagPartnerRepository;
+        this.moduleRepository = moduleRepository;
         this.instanceMapper = instanceMapper;
         this.queryBuilder = queryBuilder;
         this.userUtils = userUtils;
@@ -174,7 +185,17 @@ public class InstanceServiceImpl implements InstanceService {
     	instance.setStatus(InstanceStatus.BOZZA);
     	instance.setApplicationDate(now.toInstant());
     	instance.setAssignedUser(loggedUser);
-
+    	
+    	List<Module> modules = moduleRepository.findAllByStatus(ModuleStatus.ATTIVO);
+    	
+    	for (Module module : modules) {
+    		InstanceModule instanceModule = new InstanceModule();
+    		instanceModule.setInstance(instance);
+    		instanceModule.setModule(module);
+    		instanceModule.setAnalysisType(module.getAnalysisType());
+    		instanceModule.setStatus(module.getStatus());    		
+		}
+    	
     	instance = instanceRepository.save(instance);
 
         return instanceMapper.toDto(instance);
@@ -193,19 +214,27 @@ public class InstanceServiceImpl implements InstanceService {
 			           .filter(Optional::isPresent)
 			           .map(Optional::get)
 			           .map(instance -> {
-			        	   if(instance.getStatus().equals(InstanceStatus.ESEGUITA) ||
-					    	  instance.getStatus().equals(InstanceStatus.CANCELLATA)) {
+			        	   if(!instance.getStatus().equals(InstanceStatus.BOZZA) &&
+							  !instance.getStatus().equals(InstanceStatus.PIANIFICATA)){
 					     			throw new GenericServiceException(String.format("Instance with id %s cannot be updated because it is not in %s status", instanceToUpdate.getId(), instance.getStatus()),
 					     							   				  INSTANCE, "instance.cannotBeUpdated");
-					   	}	
+					       }
+			        	   
+			        	   String loginUtenteLoggato = SecurityUtils.getCurrentUserLogin()
+	 																.orElseThrow(() -> new RuntimeException(CURRENT_USER_LOGIN_NOT_FOUND));
+			        	   
 			        	   AnagPartner partner = anagPartnerRepository.findById(Long.valueOf(instanceToUpdate.getPartnerId()))
 			 					   									  .orElseThrow(() -> new GenericServiceException(String.format("Partner with id %s not exist", instanceToUpdate.getPartnerId()),
 		 							   							 			  										 INSTANCE, "instance.partnerNotExists"));
 			        	   instance.setPartner(partner);
 			        	   instance.setPredictedDateAnalysis(LocalDate.parse(instanceToUpdate.getPredictedDateAnalysis(), formatter));
 			        	   instance.setAnalysisPeriodStartDate(LocalDate.parse(instanceToUpdate.getAnalysisPeriodStartDate(), formatter));
-			        	   instance.setAnalysisPeriodEndDate(LocalDate.parse(instanceToUpdate.getAnalysisPeriodEndDate(), formatter));
-			
+			        	   instance.setAnalysisPeriodEndDate(LocalDate.parse(instanceToUpdate.getAnalysisPeriodEndDate(), formatter));			        	
+			        	   
+			        	   instanceRepository.save(instance);
+			        	   
+			        	   log.info("Updating of instance with id {} by user {}", instanceToUpdate.getPartnerId(), loginUtenteLoggato);
+			        	   
 			        	   return instance;
 			            })
 			            .map(instanceMapper::toDto)
@@ -219,20 +248,26 @@ public class InstanceServiceImpl implements InstanceService {
 		      	.filter(Optional::isPresent)
 		    	.map(Optional::get)
 		     	.map(instance -> {
-		     		if(instance.getStatus().equals(InstanceStatus.ESEGUITA) ||
-		     		   instance.getStatus().equals(InstanceStatus.CANCELLATA)) {
+		     		if(!instance.getStatus().equals(InstanceStatus.BOZZA) &&
+		     		   !instance.getStatus().equals(InstanceStatus.PIANIFICATA)) {
 		     			throw new GenericServiceException(String.format("Instance with id %s cannot be deleted because it is not in %s status", id, instance.getStatus()),
 		     							   				  INSTANCE, "instance.cannotBeDeleted");
 		     		}
 		     		
-		     		if(instance.getStatus().equals(InstanceStatus.BOZZA)) {
-		     			log.debug("Physical deleting of instance with id {} in status", id, instance.getStatus());
-		     			instanceRepository.deleteById(id);
-		     		}
-		     		else {
-		     			log.debug("Logical deleting of instance with id {} in status", id, instance.getStatus());
-		     			instance.setStatus(InstanceStatus.CANCELLATA);
-		     		}		     	
+		     	//	if(instance.getStatus().equals(InstanceStatus.BOZZA)) {
+		     	//		log.debug("Physical deleting of instance with id {} in status", id, instance.getStatus());
+		     		
+		            String loginUtenteLoggato = SecurityUtils.getCurrentUserLogin()
+		                    							 	 .orElseThrow(() -> new RuntimeException(CURRENT_USER_LOGIN_NOT_FOUND));
+		     				
+		     		instanceRepository.deleteById(id);
+		     		
+		     		log.info("Physical deleting of instance with id {} by user {}", id, loginUtenteLoggato);
+		     	//	}
+//		     		else {
+//		     			log.debug("Logical deleting of instance with id {} in status", id, instance.getStatus());
+//		     			instance.setStatus(InstanceStatus.CANCELLATA);
+//		     		}		     	
 	
 		     		return instance;
 		     	})
