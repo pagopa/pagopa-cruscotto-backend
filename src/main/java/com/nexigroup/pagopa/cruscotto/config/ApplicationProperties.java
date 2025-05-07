@@ -1,6 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.config;
 
 import com.nexigroup.pagopa.cruscotto.job.cache.LoadRegistryJob;
+import com.nexigroup.pagopa.cruscotto.job.kpi.b2.KpiB2Job;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -54,6 +55,8 @@ public class ApplicationProperties {
         private LoadMaintenanceJob loadMaintenanceJob = new LoadMaintenanceJob();
 
         private LoadRegistryJob loadRegistryJob = new LoadRegistryJob();
+
+        private KpiB2Job kpiB2Job = new KpiB2Job();
     }
 
     @Getter
@@ -81,6 +84,17 @@ public class ApplicationProperties {
         private boolean enabled;
 
         private String cron;
+    }
+
+    @Getter
+    @Setter
+    public static class KpiB2Job {
+
+        private boolean enabled;
+
+        private String cron;
+
+        private int limit;
     }
 
     @Getter

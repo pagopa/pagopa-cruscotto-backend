@@ -284,5 +284,33 @@ public class InstanceServiceImpl implements InstanceService {
 			      	   .map(instanceMapper::toDto)
 			      	   .orElseThrow(() -> new GenericServiceException(String.format("Instance with id %s not exist", id),
 	            											   		  INSTANCE, "instance.notExists"));    
+    }
+    
+    @Override
+    public List<InstanceDTO> findInstanceToCalculate(Integer limit) {
+        JPQLQuery<InstanceDTO> jpql = queryBuilder
+            .<Instance>createQuery()
+            .from(QInstance.instance)
+            .where(
+                QInstance.instance.status.eq(InstanceStatus.PIANIFICATA).and(QInstance.instance.predictedDateAnalysis.loe(LocalDate.now()))
+            )
+            .select(
+                Projections.fields(
+                    InstanceDTO.class,
+                    QInstance.instance.id.as("id"),
+                    QInstance.instance.instanceIdentification.as("instanceIdentification"),
+                    QInstance.instance.partner.id.as("partnerId"),
+                    QInstance.instance.partner.fiscalCode.as("partnerFiscalCode"),
+                    QInstance.instance.partner.name.as("partnerName"),
+                    QInstance.instance.applicationDate.as("applicationDate"),
+                    QInstance.instance.predictedDateAnalysis.as("predictedDateAnalysis"),
+                    QInstance.instance.analysisPeriodStartDate.as("analysisPeriodStartDate"),
+                    QInstance.instance.analysisPeriodEndDate.as("analysisPeriodEndDate")
+                )
+            )
+            .limit(limit)
+            .orderBy(new OrderSpecifier<>(Order.ASC, Expressions.stringPath("applicationDate")));
+
+        return jpql.fetch();
     }    
 }

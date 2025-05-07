@@ -27,6 +27,8 @@ public class InstanceDTO implements Serializable {
 
     private Long partnerId;
 
+    private String partnerFiscalCode;
+
     private String partnerName;
 
     private LocalDate predictedDateAnalysis;
@@ -47,4 +49,44 @@ public class InstanceDTO implements Serializable {
 
     private Instant lastAnalysisDate;
 
+    @Override
+    public String toString() {
+        return (
+            "InstanceDTO{" +
+            "id=" +
+            id +
+            ", instanceIdentification='" +
+            instanceIdentification +
+            '\'' +
+            ", partnerId=" +
+            partnerId +
+            ", partnerFiscalCode='" +
+            partnerFiscalCode +
+            '\'' +
+            ", partnerName='" +
+            partnerName +
+            '\'' +
+            ", predictedDateAnalysis=" +
+            predictedDateAnalysis +
+            ", applicationDate=" +
+            applicationDate +
+            ", assignedUserId=" +
+            assignedUserId +
+            ", assignedFirstName='" +
+            assignedFirstName +
+            '\'' +
+            ", assignedLastName='" +
+            assignedLastName +
+            '\'' +
+            ", analysisPeriodStartDate=" +
+            analysisPeriodStartDate +
+            ", analysisPeriodEndDate=" +
+            analysisPeriodEndDate +
+            ", status=" +
+            status +
+            ", lastAnalysisDate=" +
+            lastAnalysisDate +
+            '}'
+        );
+    }
 }
