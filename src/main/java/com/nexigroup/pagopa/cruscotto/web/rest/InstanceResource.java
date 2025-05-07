@@ -74,7 +74,7 @@ public class InstanceResource {
         InstanceDTO result = instanceService.saveNew(instance);
         
         return ResponseEntity.created(new URI("/api/instances/" + result.getId()))
-        					 .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+        					 .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getInstanceIdentification()))
         					 .body(result);
     }
 
@@ -99,7 +99,7 @@ public class InstanceResource {
         InstanceDTO result = instanceService.update(instance);
         
         return ResponseEntity.ok()
-        					 .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+        					 .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, result.getInstanceIdentification()))
         					 .body(result);
     }
 
@@ -143,9 +143,9 @@ public class InstanceResource {
     //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_DELETE_FUNCTION + "\")")
     public ResponseEntity<Void> deleteInstance(@PathVariable Long id) {
         log.debug("REST request to delete Instance : {}", id);
-        instanceService.delete(id);
+        InstanceDTO result = instanceService.delete(id);
         return ResponseEntity.noContent()
-        					 .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+        					 .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, result.getInstanceIdentification()))
         					 .build();
     }
 }

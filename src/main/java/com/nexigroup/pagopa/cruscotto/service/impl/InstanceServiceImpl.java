@@ -16,6 +16,8 @@ import com.nexigroup.pagopa.cruscotto.domain.Instance;
 import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
 import com.nexigroup.pagopa.cruscotto.domain.Module;
 import com.nexigroup.pagopa.cruscotto.domain.QInstance;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisOutcome;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.InstanceStatus;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleStatus;
 import com.nexigroup.pagopa.cruscotto.repository.AnagPartnerRepository;
@@ -42,8 +44,10 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Service Implementation for managing {@link Instance}.
@@ -186,17 +190,31 @@ public class InstanceServiceImpl implements InstanceService {
     	instance.setApplicationDate(now.toInstant());
     	instance.setAssignedUser(loggedUser);
     	
+    	Set<InstanceModule> instanceModules = new HashSet<>();
     	List<Module> modules = moduleRepository.findAllByStatus(ModuleStatus.ATTIVO);
     	
     	for (Module module : modules) {
     		InstanceModule instanceModule = new InstanceModule();
     		instanceModule.setInstance(instance);
     		instanceModule.setModule(module);
+    		instanceModule.setModuleCode(module.getCode());
     		instanceModule.setAnalysisType(module.getAnalysisType());
-    		instanceModule.setStatus(module.getStatus());    		
+    		instanceModule.setStatus(module.getStatus());
+    		instanceModule.setAllowManualOutcome(module.isAllowManualOutcome());
+    		
+    		if (module.getAnalysisType().equals(AnalysisType.AUTOMATICA)) {
+    			instanceModule.setAnalysisOutcome(AnalysisOutcome.STANDBY);
+			} else if (module.getAnalysisType().equals(AnalysisType.MANUALE)){
+				instanceModule.setManualOutcome(AnalysisOutcome.STANDBY);
+			}
+    		
+    		instanceModules.add(instanceModule);
 		}
     	
+    	instance.setInstanceModules(instanceModules);    	
     	instance = instanceRepository.save(instance);
+    	
+    	log.info("Creation of instance with identification {} by user {}", instance.getInstanceIdentification(), loggedUser.getLogin());
 
         return instanceMapper.toDto(instance);
     }
@@ -233,7 +251,7 @@ public class InstanceServiceImpl implements InstanceService {
 			        	   
 			        	   instanceRepository.save(instance);
 			        	   
-			        	   log.info("Updating of instance with id {} by user {}", instanceToUpdate.getPartnerId(), loginUtenteLoggato);
+			        	   log.info("Updating of instance with identification {} by user {}", instance.getInstanceIdentification(), loginUtenteLoggato);
 			        	   
 			        	   return instance;
 			            })
@@ -243,35 +261,28 @@ public class InstanceServiceImpl implements InstanceService {
     }
     
     @Override
-    public void delete(Long id) {
-    	Optional.of(instanceRepository.findById(id))
-		      	.filter(Optional::isPresent)
-		    	.map(Optional::get)
-		     	.map(instance -> {
-		     		if(!instance.getStatus().equals(InstanceStatus.BOZZA) &&
-		     		   !instance.getStatus().equals(InstanceStatus.PIANIFICATA)) {
-		     			throw new GenericServiceException(String.format("Instance with id %s cannot be deleted because it is not in %s status", id, instance.getStatus()),
-		     							   				  INSTANCE, "instance.cannotBeDeleted");
-		     		}
-		     		
-		     	//	if(instance.getStatus().equals(InstanceStatus.BOZZA)) {
-		     	//		log.debug("Physical deleting of instance with id {} in status", id, instance.getStatus());
-		     		
-		            String loginUtenteLoggato = SecurityUtils.getCurrentUserLogin()
-		                    							 	 .orElseThrow(() -> new RuntimeException(CURRENT_USER_LOGIN_NOT_FOUND));
-		     				
-		     		instanceRepository.deleteById(id);
-		     		
-		     		log.info("Physical deleting of instance with id {} by user {}", id, loginUtenteLoggato);
-		     	//	}
-//		     		else {
-//		     			log.debug("Logical deleting of instance with id {} in status", id, instance.getStatus());
-//		     			instance.setStatus(InstanceStatus.CANCELLATA);
-//		     		}		     	
+    public InstanceDTO delete(Long id) {
+    	return Optional.of(instanceRepository.findById(id))
+			      	   .filter(Optional::isPresent)
+			      	   .map(Optional::get)
+			      	   .map(instance -> {
+			      		   if(!instance.getStatus().equals(InstanceStatus.BOZZA) &&
+			      			  !instance.getStatus().equals(InstanceStatus.PIANIFICATA)) {
+			      			   throw new GenericServiceException(String.format("Instance with id %s cannot be deleted because it is not in %s status", id, instance.getStatus()),
+			     							   				  	 INSTANCE, "instance.cannotBeDeleted");
+			      		   }
 	
-		     		return instance;
-		     	})
-	            .orElseThrow(() -> new GenericServiceException(String.format("Instance with id %s not exist", id),
-	            											   INSTANCE, "instance.notExists"));    
+			      		   String loginUtenteLoggato = SecurityUtils.getCurrentUserLogin()
+			      				   									.orElseThrow(() -> new RuntimeException(CURRENT_USER_LOGIN_NOT_FOUND));
+			     				
+			      		   instanceRepository.deleteById(id);
+			     		
+			      		   log.info("Physical deleting of instance with identification {} by user {}", instance.getInstanceIdentification(), loginUtenteLoggato);
+	
+			      		   return instance;
+			      	   })
+			      	   .map(instanceMapper::toDto)
+			      	   .orElseThrow(() -> new GenericServiceException(String.format("Instance with id %s not exist", id),
+	            											   		  INSTANCE, "instance.notExists"));    
     }    
 }
