@@ -9,6 +9,7 @@ import com.nexigroup.pagopa.cruscotto.service.bean.InstanceRequestBean;
 import com.nexigroup.pagopa.cruscotto.service.dto.InstanceDTO;
 import com.nexigroup.pagopa.cruscotto.service.filter.InstanceFilter;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -32,4 +33,6 @@ public interface InstanceService {
     InstanceDTO update(InstanceRequestBean instance);
     
     InstanceDTO delete(Long id);
+
+    List<InstanceDTO> findInstanceToCalculate(Integer limit);
 }

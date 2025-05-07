@@ -22,6 +22,7 @@ public interface InstanceMapper extends EntityMapper<InstanceDTO, Instance> {
 
     @Mapping(source = "partner.id", target = "partnerId")
     @Mapping(source = "partner.name", target = "partnerName")
+    @Mapping(source = "partner.fiscalCode", target = "partnerFiscalCode")
     @Mapping(source = "assignedUser.id", target = "assignedUserId")
     @Mapping(source = "assignedUser.firstName", target = "assignedFirstName")
     @Mapping(source = "assignedUser.lastName", target = "assignedLastName")

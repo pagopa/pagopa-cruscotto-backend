@@ -55,6 +55,13 @@
       <tagDatabase tag="version_4.0_ddl"/>
     </changeSet>
     
+  <include file="changelog/ddl/20250505112400_added_entity_PagoPaRecordedTimeout.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/ddl/20250505113100_added_entity_PagoPaTaxonomyAggregatePosition.xml" relativeToChangelogFile="true"/>
+
+  <changeSet author="liquibase-docs" id="version_5.0_ddl">
+    <tagDatabase tag="version_5.0_ddl"/>
+  </changeSet>
+
 	<include file="changelog/ddl/20250502170000_added_entity_Module.xml" relativeToChangelogFile="true"/>
     <include file="changelog/ddl/20250502170500_added_entity_InstanceModule.xml" relativeToChangelogFile="true"/>
     <include file="changelog/ddl/20250502170501_added_entity_constraints_InstanceModule.xml" relativeToChangelogFile="true"/>
@@ -68,5 +75,29 @@
     <changeSet author="liquibase-docs" id="version_2.0_dml">
       <tagDatabase tag="version_2.0_dml"/>
     </changeSet>	
+
+  <include file="changelog/ddl/20250506154500_added_entity_KpiConfiguration.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/ddl/20250506154501_added_entity_constraints_KpiConfiguration.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/ddl/20250506154600_added_entity_KpiB2Result.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/ddl/20250506154601_added_entity_constraints_KpiB2Result.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/ddl/20250506154700_added_entity_KpiB2DetailResult.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/ddl/20250506154701_added_entity_constraints_KpiB2DetailResult.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/ddl/20250506154800_added_entity_KpiB2AnalyticData.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/ddl/20250506154801_added_entity_constraints_KpiB2AnalyticData.xml" relativeToChangelogFile="true"/>
+
+  <changeSet author="liquibase-docs" id="version_7.0_ddl">
+    <tagDatabase tag="version_7.0_ddl"/>
+  </changeSet>
+
+  <include file="changelog/ddl/20250507101500_added_entity_KpiA1Result.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/ddl/20250507101501_added_entity_constraints_KpiA1Result.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/ddl/20250507105500_added_entity_KpiA1DetailResult.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/ddl/20250507105501_added_entity_constraints_KpiA1DetailResult.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/ddl/20250507110700_added_entity_KpiA1AnalyticData.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/ddl/20250507110701_added_entity_constraints_KpiA1AnalyticData.xml" relativeToChangelogFile="true"/>
+
+  <changeSet author="liquibase-docs" id="version_8.0_ddl">
+    <tagDatabase tag="version_8.0_ddl"/>
+  </changeSet>
 
 </databaseChangeLog>
