@@ -6,6 +6,8 @@ import com.nexigroup.pagopa.cruscotto.domain.Instance;
 import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
 import com.nexigroup.pagopa.cruscotto.domain.Module;
 import com.nexigroup.pagopa.cruscotto.domain.QInstance;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisOutcome;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.InstanceStatus;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleStatus;
 import com.nexigroup.pagopa.cruscotto.repository.AnagPartnerRepository;
@@ -31,16 +33,27 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -193,17 +206,31 @@ public class InstanceServiceImpl implements InstanceService {
         instance.setApplicationDate(now.toInstant());
         instance.setAssignedUser(loggedUser);
 
+        Set<InstanceModule> instanceModules = new HashSet<>();
         List<Module> modules = moduleRepository.findAllByStatus(ModuleStatus.ATTIVO);
 
         for (Module module : modules) {
             InstanceModule instanceModule = new InstanceModule();
             instanceModule.setInstance(instance);
             instanceModule.setModule(module);
+            instanceModule.setModuleCode(module.getCode());
             instanceModule.setAnalysisType(module.getAnalysisType());
             instanceModule.setStatus(module.getStatus());
+            instanceModule.setAllowManualOutcome(module.isAllowManualOutcome());
+
+            if (module.getAnalysisType().equals(AnalysisType.AUTOMATICA)) {
+                instanceModule.setAnalysisOutcome(AnalysisOutcome.STANDBY);
+            } else if (module.getAnalysisType().equals(AnalysisType.MANUALE)) {
+                instanceModule.setManualOutcome(AnalysisOutcome.STANDBY);
+            }
+
+            instanceModules.add(instanceModule);
         }
 
+        instance.setInstanceModules(instanceModules);
         instance = instanceRepository.save(instance);
+
+        log.info("Creation of instance with identification {} by user {}", instance.getInstanceIdentification(), loggedUser.getLogin());
 
         return instanceMapper.toDto(instance);
     }
@@ -251,7 +278,11 @@ public class InstanceServiceImpl implements InstanceService {
 
                 instanceRepository.save(instance);
 
-                log.info("Updating of instance with id {} by user {}", instanceToUpdate.getPartnerId(), loginUtenteLoggato);
+                log.info(
+                    "Updating of instance with identification {} by user {}",
+                    instance.getInstanceIdentification(),
+                    loginUtenteLoggato
+                );
 
                 return instance;
             })
@@ -266,8 +297,8 @@ public class InstanceServiceImpl implements InstanceService {
     }
 
     @Override
-    public void delete(Long id) {
-        Optional.of(instanceRepository.findById(id))
+    public InstanceDTO delete(Long id) {
+        return Optional.of(instanceRepository.findById(id))
             .filter(Optional::isPresent)
             .map(Optional::get)
             .map(instance -> {
@@ -279,23 +310,20 @@ public class InstanceServiceImpl implements InstanceService {
                     );
                 }
 
-                //	if(instance.getStatus().equals(InstanceStatus.BOZZA)) {
-                //		log.debug("Physical deleting of instance with id {} in status", id, instance.getStatus());
-
                 String loginUtenteLoggato = SecurityUtils.getCurrentUserLogin()
                     .orElseThrow(() -> new RuntimeException(CURRENT_USER_LOGIN_NOT_FOUND));
 
                 instanceRepository.deleteById(id);
 
-                log.info("Physical deleting of instance with id {} by user {}", id, loginUtenteLoggato);
-                //	}
-                //		     		else {
-                //		     			log.debug("Logical deleting of instance with id {} in status", id, instance.getStatus());
-                //		     			instance.setStatus(InstanceStatus.CANCELLATA);
-                //		     		}
+                log.info(
+                    "Physical deleting of instance with identification {} by user {}",
+                    instance.getInstanceIdentification(),
+                    loginUtenteLoggato
+                );
 
                 return instance;
             })
+            .map(instanceMapper::toDto)
             .orElseThrow(() ->
                 new GenericServiceException(String.format("Instance with id %s not exist", id), INSTANCE, "instance.notExists")
             );

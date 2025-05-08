@@ -2,6 +2,7 @@ package com.nexigroup.pagopa.cruscotto.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.InstanceStatus;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -86,17 +87,8 @@ public class Instance extends AbstractAuditingEntity<Long> implements Serializab
     @Column(name = "DT_LAST_ANALISYS_DATE")
     private Instant lastAnalysisDate;
 
-    //    @ManyToMany
-    //    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-    //    @JoinTable(
-    //        name = "INSTANCE_MODULE",
-    //        joinColumns = @JoinColumn(name = "CO_INSTANCE_ID", referencedColumnName = "CO_ID"),
-    //        inverseJoinColumns = @JoinColumn(name = "CO_MODULE_ID", referencedColumnName = "CO_ID")
-    //    )
-    //    private Set<Module> modules = new HashSet<>();
-
     @JsonIgnore
-    @OneToMany(mappedBy = "instance", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "instance", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<InstanceModule> instanceModules = new HashSet<>();
 
     @Override
