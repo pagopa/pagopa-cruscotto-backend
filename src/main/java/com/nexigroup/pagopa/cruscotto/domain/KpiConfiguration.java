@@ -1,17 +1,10 @@
 package com.nexigroup.pagopa.cruscotto.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.*;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
 
 /**
  * A KpiConfiguration.
@@ -51,6 +44,9 @@ public class KpiConfiguration implements Serializable {
     @Column(name = "CO_TOLLERANCE")
     private Double tollerance;
 
+    @Column(name = "CO_AVERAGE_TIME_LIMIT")
+    private Double averageTimeLimit;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "TE_EVALUATION_TYPE")
     private EvaluationType evaluationType;
@@ -82,6 +78,8 @@ public class KpiConfiguration implements Serializable {
             eligibilityThreshold +
             ", tollerance=" +
             tollerance +
+            ", averageTimeLimit=" +
+            averageTimeLimit +
             ", evaluationType=" +
             evaluationType +
             '}'
