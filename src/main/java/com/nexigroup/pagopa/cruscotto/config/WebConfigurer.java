@@ -39,17 +39,19 @@ public class WebConfigurer implements ServletContextInitializer {
         LOG.info("Web application fully configured");
     }
 
-    @Bean
-    public CorsFilter corsFilter() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = jHipsterProperties.getCors();
-        if (!CollectionUtils.isEmpty(config.getAllowedOrigins()) || !CollectionUtils.isEmpty(config.getAllowedOriginPatterns())) {
-            LOG.debug("Registering CORS filter");
-            source.registerCorsConfiguration("/api/**", config);
-            source.registerCorsConfiguration("/management/**", config);
-            source.registerCorsConfiguration("/v3/api-docs", config);
-            source.registerCorsConfiguration("/swagger-ui/**", config);
-        }
-        return new CorsFilter(source);
-    }
+    // Disable TODO see here https://github.com/pagopa/pagopa-cruscotto-backend/blob/319f7a562009c52348bef27a7f7af58e1445a49a/infra/policy/_base_policy.xml#L2
+
+    // @Bean
+    // public CorsFilter corsFilter() {
+    //     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    //     CorsConfiguration config = jHipsterProperties.getCors();
+    //     if (!CollectionUtils.isEmpty(config.getAllowedOrigins()) || !CollectionUtils.isEmpty(config.getAllowedOriginPatterns())) {
+    //         LOG.debug("Registering CORS filter");
+    //         source.registerCorsConfiguration("/api/**", config);
+    //         source.registerCorsConfiguration("/management/**", config);
+    //         source.registerCorsConfiguration("/v3/api-docs", config);
+    //         source.registerCorsConfiguration("/swagger-ui/**", config);
+    //     }
+    //     return new CorsFilter(source);
+    // }
 }
