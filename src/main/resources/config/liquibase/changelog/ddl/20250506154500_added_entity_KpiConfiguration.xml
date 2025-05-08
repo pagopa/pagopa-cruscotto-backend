@@ -31,6 +31,9 @@
       <column name="CO_TOLLERANCE" type="double">
         <constraints nullable="true"/>
       </column>
+      <column name="CO_AVERAGE_TIME_LIMIT" type="double">
+        <constraints nullable="true"/>
+      </column>
       <column name="TE_EVALUATION_TYPE" type="varchar(50)">
         <constraints nullable="true"/>
       </column>

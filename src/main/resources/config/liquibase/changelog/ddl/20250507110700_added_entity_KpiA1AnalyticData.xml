@@ -7,14 +7,14 @@
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
 
-  <changeSet id="20250506154600-1" author="pagopaCruscotto" context="ddl">
-    <createSequence sequenceName="SQ${project_name}_KPIB2RES01" startValue="3000" cacheSize="20"/>
+  <changeSet id="20250507110700-1" author="pagopaCruscotto" context="ddl">
+    <createSequence sequenceName="SQ${project_name}_KPIA1ANADATA01" startValue="3000" cacheSize="20"/>
   </changeSet>
 
-  <changeSet id="20250506154600-2" author="pagopaCruscotto" context="ddl">
-    <createTable tableName="KPI_B2_RESULT">
+  <changeSet id="20250507110700-2" author="pagopaCruscotto" context="ddl">
+    <createTable tableName="KPI_A1_ANALYTIC_DATA">
  	    <column name="CO_ID" type="bigint">
-        <constraints primaryKey="true" nullable="false" primaryKeyName="IP${project_name}_KPIB2RES"/>
+        <constraints primaryKey="true" nullable="false" primaryKeyName="IP${project_name}_KPIA1ANADATA"/>
       </column>
       <column name="CO_INSTANCE_ID" type="bigint">
         <constraints nullable="false"/>
@@ -25,30 +25,36 @@
       <column name="DT_ANALISYS_DATE" type="datetime">
         <constraints nullable="false"/>
       </column>
-      <column name="FL_EXCLUDE_PLANNED_SHUTDOWN" type="boolean">
+      <column name="CO_STATION_ID" type="bigint">
         <constraints nullable="false"/>
       </column>
-      <column name="FL_EXCLUDE_UNPLANNED_SHUTDOWN" type="boolean">
+      <column name="TE_METHOD" type="varchar(255)">
         <constraints nullable="false"/>
       </column>
-      <column name="CO_ELIGIBILITY_THRESHOLD" type="double">
+      <column name="DT_EVALUATION_DATE" type="date">
         <constraints nullable="false"/>
       </column>
-      <column name="CO_TOLLERANCE" type="double">
+      <column name="CO_TOT_REQ" type="bigint">
         <constraints nullable="false"/>
       </column>
-      <column name="CO_AVERAGE_TIME_LIMIT" type="double">
+      <column name="CO_REQ_OK" type="bigint">
         <constraints nullable="false"/>
       </column>
-      <column name="TE_EVALUATION_TYPE" type="varchar(50)">
+      <column name="CO_REQ_TIMEOUT" type="bigint">
         <constraints nullable="false"/>
       </column>
-      <column name="TE_OUTCOME" type="varchar(10)">
+      <column name="CO_AVG_TIME" type="double">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_TIMEOUT_PERCENTAGE" type="double">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_KPI_A1_DETAIL_RESULT_ID" type="bigint">
         <constraints nullable="false"/>
       </column>
     </createTable>
     <rollback>
-      DROP TABLE ${database.defaultSchemaName}.KPI_B2_RESULT CASCADE CONSTRAINTS;
+      DROP TABLE ${database.defaultSchemaName}.KPI_A1_ANALYTIC_DATA CASCADE CONSTRAINTS;
     </rollback>
   </changeSet>
 
