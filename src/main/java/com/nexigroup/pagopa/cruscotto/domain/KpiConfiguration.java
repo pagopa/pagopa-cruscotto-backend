@@ -1,10 +1,17 @@
 package com.nexigroup.pagopa.cruscotto.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 /**
  * A KpiConfiguration.

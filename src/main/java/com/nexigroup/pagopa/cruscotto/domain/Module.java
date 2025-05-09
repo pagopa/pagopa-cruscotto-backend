@@ -49,7 +49,7 @@ public class Module extends AbstractAuditingEntity<Long> implements Serializable
     private String code;
 
     @NotNull
-    @Size(min = 1, max = 35)
+    @Size(min = 1, max = 256)
     @Column(name = "TE_NAME", length = 256, nullable = false)
     private String name;
 

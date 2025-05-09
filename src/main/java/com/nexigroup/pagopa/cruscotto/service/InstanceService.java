@@ -1,6 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.service;
 
 import com.nexigroup.pagopa.cruscotto.domain.Instance;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.service.bean.InstanceRequestBean;
 import com.nexigroup.pagopa.cruscotto.service.dto.InstanceDTO;
 import com.nexigroup.pagopa.cruscotto.service.filter.InstanceFilter;
@@ -30,5 +31,5 @@ public interface InstanceService {
 
     InstanceDTO delete(Long id);
 
-    List<InstanceDTO> findInstanceToCalculate(Integer limit);
+    List<InstanceDTO> findInstanceToCalculate(ModuleCode moduleCode, Integer limit);
 }
