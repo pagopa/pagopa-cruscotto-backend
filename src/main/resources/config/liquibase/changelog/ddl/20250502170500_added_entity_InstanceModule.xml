@@ -34,7 +34,7 @@
       <column name="DT_ANALISYS_DATE" type="datetime">
         <constraints nullable="true"/>
       </column>
-      <column name="TE_ANALYSIS_OUTCOME" type="varchar(20)">
+      <column name="TE_AUTOMATIC_OUTCOME" type="varchar(20)">
         <constraints nullable="true"/>
       </column>
       <column name="TE_MANUAL_OUTCOME" type="varchar(20)">
