@@ -33,6 +33,8 @@ public interface InstanceService {
     InstanceDTO update(InstanceRequestBean instance);
     
     InstanceDTO delete(Long id);
+    
+    InstanceDTO updateStatus(Long id);
 
     List<InstanceDTO> findInstanceToCalculate(Integer limit);
 }
