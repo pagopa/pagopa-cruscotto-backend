@@ -77,8 +77,8 @@ public class InstanceModule extends AbstractAuditingEntity<Long> implements Seri
     private Instant analysisDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "TE_ANALYSIS_OUTCOME")
-    private AnalysisOutcome analysisOutcome;
+    @Column(name = "TE_AUTOMATIC_OUTCOME")
+    private AnalysisOutcome automaticOutcome;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "TE_MANUAL_OUTCOME")

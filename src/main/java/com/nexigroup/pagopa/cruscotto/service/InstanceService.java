@@ -31,5 +31,7 @@ public interface InstanceService {
 
     InstanceDTO delete(Long id);
 
+    InstanceDTO updateStatus(Long id);
+
     List<InstanceDTO> findInstanceToCalculate(ModuleCode moduleCode, Integer limit);
 }

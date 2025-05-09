@@ -35,7 +35,7 @@ public class InstanceModuleDTO implements Serializable {
 
     private Instant analysisDate;
 
-    private AnalysisOutcome analysisOutcome;
+    private AnalysisOutcome automaticOutcome;
 
     private AnalysisOutcome manualOutcome;
 
@@ -44,4 +44,35 @@ public class InstanceModuleDTO implements Serializable {
     private Long assignedUserId;
 
     private Instant manualOutcomeDate;
+
+    @Override
+    public String toString() {
+        return (
+            "InstanceModuleDTO [id=" +
+            id +
+            ", instanceId=" +
+            instanceId +
+            ", moduleId=" +
+            moduleId +
+            ", moduleCode=" +
+            moduleCode +
+            ", analysisType=" +
+            analysisType +
+            ", allowManualOutcome=" +
+            allowManualOutcome +
+            ", analysisDate=" +
+            analysisDate +
+            ", automaticOutcome=" +
+            automaticOutcome +
+            ", manualOutcome=" +
+            manualOutcome +
+            ", status=" +
+            status +
+            ", assignedUserId=" +
+            assignedUserId +
+            ", manualOutcomeDate=" +
+            manualOutcomeDate +
+            "]"
+        );
+    }
 }

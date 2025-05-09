@@ -144,4 +144,16 @@ public class InstanceResource {
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, result.getInstanceIdentification()))
             .build();
     }
+
+    @PutMapping("/instances/update-status")
+    //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_ADMIN_INSTANCE + "\")")
+    public ResponseEntity<Void> updateInstanceStatus(@PathVariable Long id) {
+        log.debug("REST request to update status od instance {}: ", id);
+
+        InstanceDTO result = instanceService.updateStatus(id);
+
+        return ResponseEntity.ok()
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, result.getInstanceIdentification()))
+            .build();
+    }
 }

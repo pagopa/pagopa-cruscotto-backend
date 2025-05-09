@@ -31,22 +31,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -212,7 +203,7 @@ public class InstanceServiceImpl implements InstanceService {
             instanceModule.setAllowManualOutcome(module.isAllowManualOutcome());
 
             if (module.getAnalysisType().equals(AnalysisType.AUTOMATICA)) {
-                instanceModule.setAnalysisOutcome(AnalysisOutcome.STANDBY);
+                instanceModule.setAutomaticOutcome(AnalysisOutcome.STANDBY);
             } else if (module.getAnalysisType().equals(AnalysisType.MANUALE)) {
                 instanceModule.setManualOutcome(AnalysisOutcome.STANDBY);
             }
@@ -243,7 +234,7 @@ public class InstanceServiceImpl implements InstanceService {
                 if (!instance.getStatus().equals(InstanceStatus.BOZZA) && !instance.getStatus().equals(InstanceStatus.PIANIFICATA)) {
                     throw new GenericServiceException(
                         String.format(
-                            "Instance with id %s cannot be updated because it is not in %s status",
+                            "Instance with id %s cannot be updated because it is in %s status",
                             instanceToUpdate.getId(),
                             instance.getStatus()
                         ),
@@ -297,7 +288,7 @@ public class InstanceServiceImpl implements InstanceService {
             .map(instance -> {
                 if (!instance.getStatus().equals(InstanceStatus.BOZZA) && !instance.getStatus().equals(InstanceStatus.PIANIFICATA)) {
                     throw new GenericServiceException(
-                        String.format("Instance with id %s cannot be deleted because it is not in %s status", id, instance.getStatus()),
+                        String.format("Instance with id %s cannot be deleted because it is in %s status", id, instance.getStatus()),
                         INSTANCE,
                         "instance.cannotBeDeleted"
                     );
@@ -355,5 +346,45 @@ public class InstanceServiceImpl implements InstanceService {
             .orderBy(new OrderSpecifier<>(Order.ASC, Expressions.stringPath("applicationDate")));
 
         return jpql.fetch();
+    }
+
+    @Override
+    public InstanceDTO updateStatus(Long id) {
+        return Optional.of(instanceRepository.findById(id))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .map(instance -> {
+                if (!instance.getStatus().equals(InstanceStatus.BOZZA) && !instance.getStatus().equals(InstanceStatus.PIANIFICATA)) {
+                    throw new GenericServiceException(
+                        String.format(
+                            "Cannot be updated status of instance with id %s because it is in %s status",
+                            id,
+                            instance.getStatus()
+                        ),
+                        INSTANCE,
+                        "instance.cannotBeUpdated"
+                    );
+                }
+
+                String loginUtenteLoggato = SecurityUtils.getCurrentUserLogin()
+                    .orElseThrow(() -> new RuntimeException(CURRENT_USER_LOGIN_NOT_FOUND));
+
+                instance.setStatus(instance.getStatus().equals(InstanceStatus.BOZZA) ? InstanceStatus.PIANIFICATA : InstanceStatus.BOZZA);
+
+                instanceRepository.save(instance);
+
+                log.info(
+                    "Updating status of instance with identifier {} in {} by user {}",
+                    instance.getInstanceIdentification(),
+                    loginUtenteLoggato,
+                    instance.getStatus()
+                );
+
+                return instance;
+            })
+            .map(instanceMapper::toDto)
+            .orElseThrow(() ->
+                new GenericServiceException(String.format("Instance with id %s not exist", id), INSTANCE, "instance.notExists")
+            );
     }
 }
