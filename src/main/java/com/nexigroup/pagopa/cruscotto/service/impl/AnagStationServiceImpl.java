@@ -1,18 +1,15 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
-import com.nexigroup.pagopa.cruscotto.domain.AnagPartner;
-import com.nexigroup.pagopa.cruscotto.domain.AnagStation;
-import com.nexigroup.pagopa.cruscotto.domain.QAnagPartner;
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.PartnerStatus;
+import com.nexigroup.pagopa.cruscotto.domain.*;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.StationStatus;
 import com.nexigroup.pagopa.cruscotto.repository.AnagPartnerRepository;
 import com.nexigroup.pagopa.cruscotto.repository.AnagStationRepository;
-import com.nexigroup.pagopa.cruscotto.service.AnagPartnerService;
 import com.nexigroup.pagopa.cruscotto.service.AnagStationService;
-import com.nexigroup.pagopa.cruscotto.service.dto.AnagPartnerDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.AnagStationDTO;
+import com.nexigroup.pagopa.cruscotto.service.filter.StationFilter;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QdslUtility;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
@@ -21,6 +18,8 @@ import com.querydsl.jpa.JPQLQuery;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,12 +40,16 @@ public class AnagStationServiceImpl implements AnagStationService {
 
     private final AnagPartnerRepository anagPartnerRepository;
 
+    private final QueryBuilder queryBuilder;
+
     @Value("${spring.jpa.properties.hibernate.jdbc.batch_size:100}")
     private String batchSize;
 
-    public AnagStationServiceImpl(AnagStationRepository anagStationRepository, AnagPartnerRepository anagPartnerRepository) {
+    public AnagStationServiceImpl(AnagStationRepository anagStationRepository, AnagPartnerRepository anagPartnerRepository,
+                                  QueryBuilder queryBuilder)  {
         this.anagStationRepository = anagStationRepository;
         this.anagPartnerRepository = anagPartnerRepository;
+        this.queryBuilder = queryBuilder;
     }
 
     @Override
@@ -90,5 +93,56 @@ public class AnagStationServiceImpl implements AnagStationService {
                 anagStationRepository.flush();
             }
         });
+    }
+
+    @Override
+    public Page<AnagStationDTO> findAll(StationFilter filter, Pageable pageable) {
+        log.debug("Request to get all Stations by filter: {}", filter);
+
+        BooleanBuilder builder = new BooleanBuilder();
+
+        if (StringUtils.isNotBlank(filter.getPartnerId())) {
+            builder.and(QAnagStation.anagStation.anagPartner.id.eq(Long.valueOf(filter.getPartnerId())));
+        }
+
+        JPQLQuery<AnagStation> jpql = queryBuilder.<AnagStation>createQuery().from(QAnagStation.anagStation).where(builder);
+
+        long size = jpql.fetchCount();
+
+        JPQLQuery<AnagStationDTO> jpqlSelected = jpql.select(
+            Projections.fields(
+                AnagStationDTO.class,
+                QAnagStation.anagStation.id.as("id"),
+                QAnagStation.anagStation.name.as("name"),
+                QAnagStation.anagStation.activationDate.as("activationDate"),
+                QAnagStation.anagStation.anagPartner.id.as("partnerId"),
+                QAnagStation.anagStation.anagPartner.fiscalCode.as("partnerFiscalCode"),
+                QAnagStation.anagStation.anagPartner.name.as("partnerName"),
+                QAnagStation.anagStation.typeConnection.as("typeConnection"),
+                QAnagStation.anagStation.primitiveVersion.as("primitiveVersion"),
+                QAnagStation.anagStation.paymentOption.as("paymentOption"),
+                QAnagStation.anagStation.status.as("status"),
+                QAnagStation.anagStation.deactivationDate.as("deactivationDate")
+                )
+        );
+
+        jpqlSelected.offset(pageable.getOffset());
+        jpqlSelected.limit(pageable.getPageSize());
+
+        pageable
+            .getSortOr(Sort.by(Sort.Direction.ASC, "id"))
+            .forEach(order -> {
+                jpqlSelected.orderBy(
+                    new OrderSpecifier<>(
+                        order.isAscending() ? Order.ASC : Order.DESC,
+                        Expressions.stringPath(order.getProperty()),
+                        QdslUtility.toQueryDslNullHandling(order.getNullHandling())
+                    )
+                );
+            });
+
+        List<AnagStationDTO> list = jpqlSelected.fetch();
+
+        return new PageImpl<>(list, pageable, size);
     }
 }
