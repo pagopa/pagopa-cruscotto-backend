@@ -3,6 +3,7 @@ package com.nexigroup.pagopa.cruscotto.service.impl;
 import com.nexigroup.pagopa.cruscotto.domain.AnagPartner;
 import com.nexigroup.pagopa.cruscotto.domain.AnagStation;
 import com.nexigroup.pagopa.cruscotto.domain.QAnagPartner;
+import com.nexigroup.pagopa.cruscotto.domain.QAnagStation;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.PartnerStatus;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.StationStatus;
 import com.nexigroup.pagopa.cruscotto.repository.AnagPartnerRepository;
@@ -41,12 +42,19 @@ public class AnagStationServiceImpl implements AnagStationService {
 
     private final AnagPartnerRepository anagPartnerRepository;
 
+    private final QueryBuilder queryBuilder;
+
     @Value("${spring.jpa.properties.hibernate.jdbc.batch_size:100}")
     private String batchSize;
 
-    public AnagStationServiceImpl(AnagStationRepository anagStationRepository, AnagPartnerRepository anagPartnerRepository) {
+    public AnagStationServiceImpl(
+        AnagStationRepository anagStationRepository,
+        AnagPartnerRepository anagPartnerRepository,
+        QueryBuilder queryBuilder
+    ) {
         this.anagStationRepository = anagStationRepository;
         this.anagPartnerRepository = anagPartnerRepository;
+        this.queryBuilder = queryBuilder;
     }
 
     @Override
@@ -90,5 +98,40 @@ public class AnagStationServiceImpl implements AnagStationService {
                 anagStationRepository.flush();
             }
         });
+    }
+
+    @Override
+    public long findIdByNameOrCreate(String name, long idPartner) {
+        Long id = queryBuilder
+            .<AnagStationDTO>createQuery()
+            .from(QAnagStation.anagStation)
+            .leftJoin(QAnagPartner.anagPartner)
+            .on(QAnagStation.anagStation.anagPartner.id.eq(QAnagPartner.anagPartner.id))
+            .where(QAnagStation.anagStation.name.eq(name).and(QAnagStation.anagStation.anagPartner.id.eq(idPartner)))
+            .select(QAnagStation.anagStation.id)
+            .fetchOne();
+
+        if (id == null) {
+            AnagPartner partnerExample = new AnagPartner();
+            partnerExample.setId(idPartner);
+            partnerExample.setCreatedDate(null);
+            partnerExample.setLastModifiedDate(null);
+            partnerExample.setQualified(null);
+
+            AnagPartner anagPartner = anagPartnerRepository
+                .findOne(Example.of(partnerExample))
+                .orElseThrow(() -> new NullPointerException("Partner not found"));
+
+            AnagStation anagStation = new AnagStation();
+            anagStation.setName(name);
+            anagStation.setAnagPartner(anagPartner);
+            anagStation.setStatus(StationStatus.NON_ATTIVA);
+            anagStation.setAssociatedInstitutes(0);
+
+            anagStation = anagStationRepository.save(anagStation);
+
+            id = anagStation.getId();
+        }
+        return id;
     }
 }

@@ -1,15 +1,8 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
-import com.nexigroup.pagopa.cruscotto.domain.AnagPartner;
-import com.nexigroup.pagopa.cruscotto.domain.AuthUser;
-import com.nexigroup.pagopa.cruscotto.domain.Instance;
-import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
+import com.nexigroup.pagopa.cruscotto.domain.*;
 import com.nexigroup.pagopa.cruscotto.domain.Module;
-import com.nexigroup.pagopa.cruscotto.domain.QInstance;
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisOutcome;
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisType;
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.InstanceStatus;
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleStatus;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.*;
 import com.nexigroup.pagopa.cruscotto.repository.AnagPartnerRepository;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
 import com.nexigroup.pagopa.cruscotto.repository.ModuleRepository;
@@ -330,12 +323,19 @@ public class InstanceServiceImpl implements InstanceService {
     }
 
     @Override
-    public List<InstanceDTO> findInstanceToCalculate(Integer limit) {
+    public List<InstanceDTO> findInstanceToCalculate(ModuleCode moduleCode, Integer limit) {
         JPQLQuery<InstanceDTO> jpql = queryBuilder
             .<Instance>createQuery()
             .from(QInstance.instance)
+            .leftJoin(QInstance.instance.instanceModules, QInstanceModule.instanceModule)
             .where(
-                QInstance.instance.status.eq(InstanceStatus.PIANIFICATA).and(QInstance.instance.predictedDateAnalysis.loe(LocalDate.now()))
+                QInstance.instance.status
+                    .eq(InstanceStatus.PIANIFICATA)
+                    .and(QInstance.instance.predictedDateAnalysis.loe(LocalDate.now()))
+                    .and(QInstanceModule.instanceModule.moduleCode.eq(moduleCode.code))
+                    .and(QInstanceModule.instanceModule.analysisType.eq(AnalysisType.AUTOMATICA))
+                    .and(QInstanceModule.instanceModule.status.eq(ModuleStatus.ATTIVO))
+                    .and(QInstanceModule.instanceModule.analysisDate.isNull())
             )
             .select(
                 Projections.fields(
