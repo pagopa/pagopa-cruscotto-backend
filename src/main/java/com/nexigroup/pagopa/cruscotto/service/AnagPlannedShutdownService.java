@@ -3,6 +3,7 @@ package com.nexigroup.pagopa.cruscotto.service;
 
 import com.nexigroup.pagopa.cruscotto.domain.AnagPartner;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.TypePlanned;
+import com.nexigroup.pagopa.cruscotto.service.bean.ShutdownRequestBean;
 import com.nexigroup.pagopa.cruscotto.service.dto.AnagPlannedShutdownDTO;
 import com.nexigroup.pagopa.cruscotto.service.filter.AnagPlannedShutdownFilter;
 import org.springframework.data.domain.Page;
@@ -64,4 +65,20 @@ public interface AnagPlannedShutdownService {
      * @return the selected shutdown.
      */
     Optional<AnagPlannedShutdownDTO> findOne(Long id);
+
+    /**
+     * Save a new shutdown.
+     *
+     * @param shutdownToCreate the shutdown to be saved.
+     * @return the saved shutdown.
+     */
+    AnagPlannedShutdownDTO saveNew(ShutdownRequestBean shutdownToCreate);
+
+    /**
+     * Update a shutdown.
+     *
+     * @param shutdownToUpdate the entity to save.
+     * @return the persisted entity.
+     */
+    AnagPlannedShutdownDTO update(ShutdownRequestBean shutdownToUpdate);
 }
