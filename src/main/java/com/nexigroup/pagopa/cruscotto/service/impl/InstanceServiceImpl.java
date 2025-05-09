@@ -333,10 +333,9 @@ public class InstanceServiceImpl implements InstanceService {
 			        	   
 			        	   instanceRepository.save(instance);
 		     		
-		      	   		   log.info("Updating status of instance with identifier {} in {} by user {}", instance.getInstanceIdentification(), 
-		      	   				   																	   loginUtenteLoggato,
-		      	   				   																	   instance.getStatus());
-
+		      	   		   log.info("Updating status of instance with identifier {} in {} by user {}", instance.getInstanceIdentification(),
+		      	   				   																	   instance.getStatus(),
+		      	   				   																	   loginUtenteLoggato);
 		      	   		   return instance;
 		      	   })
 		      	   .map(instanceMapper::toDto)

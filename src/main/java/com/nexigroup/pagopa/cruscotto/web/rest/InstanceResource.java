@@ -149,7 +149,7 @@ public class InstanceResource {
         					 .build();
     }
     
-    @PutMapping("/instances/update-status")
+    @PutMapping("/instances/update-status/{id}")
     //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_ADMIN_INSTANCE + "\")")
     public ResponseEntity<Void> updateInstanceStatus(@PathVariable Long id) {
         log.debug("REST request to update status od instance {}: ", id);
