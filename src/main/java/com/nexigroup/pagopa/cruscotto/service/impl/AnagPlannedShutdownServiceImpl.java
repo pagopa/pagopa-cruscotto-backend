@@ -14,6 +14,7 @@ import com.querydsl.core.types.Projections;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -142,7 +143,7 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
         QAnagPlannedShutdown anagPlannedShutdown = QAnagPlannedShutdown.anagPlannedShutdown;
 
         LocalDateTime startDateTime = startDate.atStartOfDay();
-        LocalDateTime endDateTime = endDate.atTime(23, 59, 59, 999999999);
+        LocalDateTime endDateTime = endDate.atTime(23, 59, 59, 0);
 
         LOGGER.info(startDateTime.toString());
         LOGGER.info(endDateTime.toString());
@@ -169,14 +170,14 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
                     .and(anagPlannedShutdown.typePlanned.eq(typePlanned))
                     .and(
                         anagPlannedShutdown.shutdownStartDate.between(
-                            startDateTime.atZone(ZoneId.systemDefault()).toInstant(),
-                            endDateTime.atZone(ZoneId.systemDefault()).toInstant()
+                            startDateTime.toInstant(ZoneOffset.UTC),
+                            endDateTime.toInstant(ZoneOffset.UTC)
                         )
                     )
                     .and(
                         anagPlannedShutdown.shutdownEndDate.between(
-                            startDateTime.atZone(ZoneId.systemDefault()).toInstant(),
-                            endDateTime.atZone(ZoneId.systemDefault()).toInstant()
+                            startDateTime.toInstant(ZoneOffset.UTC),
+                            endDateTime.toInstant(ZoneOffset.UTC)
                         )
                     )
             )
