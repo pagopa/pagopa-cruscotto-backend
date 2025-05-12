@@ -1,6 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.service;
 
 import com.nexigroup.pagopa.cruscotto.domain.PagoPaRecordedTimeout;
+import com.nexigroup.pagopa.cruscotto.service.dto.PagoPaRecordedTimeoutDTO;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -18,4 +19,19 @@ public interface PagoPaRecordedTimeoutService {
      * @return the map contains Station and list method.
      */
     Map<String, List<String>> findAllStationAndMethodIntoPeriodForPartner(String fiscalCodePartner, LocalDate startDate, LocalDate endDate);
+
+    Long sumRecordIntoPeriodForPartnerStationAndMethod(
+        String fiscalCodePartner,
+        String station,
+        String method,
+        LocalDate startDate,
+        LocalDate endDate
+    );
+
+    List<PagoPaRecordedTimeoutDTO> findAllRecordIntoDayForPartnerStationAndMethod(
+        String fiscalCodePartner,
+        String station,
+        String method,
+        LocalDate day
+    );
 }
