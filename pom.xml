@@ -38,9 +38,6 @@
     <git-commit-id-maven-plugin.version>9.0.1</git-commit-id-maven-plugin.version>
     <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
     <jhipster-framework.version>8.9.0</jhipster-framework.version>
-    <jib-maven-plugin.architecture>amd64</jib-maven-plugin.architecture>
-    <jib-maven-plugin.image>eclipse-temurin:17-jre-focal</jib-maven-plugin.image>
-    <jib-maven-plugin.version>3.4.4</jib-maven-plugin.version>
     <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
     <liquibase-plugin.password/>
     <liquibase-plugin.url/>
@@ -72,6 +69,7 @@
     <spring.profiles.active>dev</spring.profiles.active>
     <springdoc-openapi-starter-webmvc-api.version>2.7.0</springdoc-openapi-starter-webmvc-api.version>
     <lombok.version>1.18.30</lombok.version>
+    <p6spy.version>1.11.0</p6spy.version>
   </properties>
 
   <dependencyManagement>
@@ -360,11 +358,16 @@
       <artifactId>json</artifactId>
       <version>20250107</version>
     </dependency>
-	<dependency>
-	  <groupId>commons-beanutils</groupId>
-	  <artifactId>commons-beanutils</artifactId>
-	  <version>1.10.0</version>
-	</dependency>    
+	  <dependency>
+      <groupId>commons-beanutils</groupId>
+      <artifactId>commons-beanutils</artifactId>
+      <version>1.10.0</version>
+	  </dependency>
+    <dependency>
+      <groupId>com.github.gavlyukovskiy</groupId>
+      <artifactId>p6spy-spring-boot-starter</artifactId>
+      <version>${p6spy.version}</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -420,10 +423,6 @@
       <plugin>
         <groupId>com.diffplug.spotless</groupId>
         <artifactId>spotless-maven-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>com.google.cloud.tools</groupId>
-        <artifactId>jib-maven-plugin</artifactId>
       </plugin>
       <plugin>
         <groupId>io.gatling</groupId>
@@ -495,6 +494,11 @@
               <path>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-configuration-processor</artifactId>
+              </path>
+              <path>
+                <groupId>jakarta.persistence</groupId>
+                <artifactId>jakarta.persistence-api</artifactId>
+                <version>3.1.0</version>
               </path>
               <path>
                 <groupId>org.mapstruct</groupId>
@@ -695,63 +699,6 @@
           </executions>
         </plugin>
         <plugin>
-          <groupId>com.google.cloud.tools</groupId>
-          <artifactId>jib-maven-plugin</artifactId>
-          <version>${jib-maven-plugin.version}</version>
-          <configuration>
-            <from>
-              <image>${jib-maven-plugin.image}</image>
-              <platforms>
-                <platform>
-                  <architecture>${jib-maven-plugin.architecture}</architecture>
-                  <os>linux</os>
-                </platform>
-              </platforms>
-            </from>
-            <to>
-              <image>pagopacruscottobackend:latest</image>
-            </to>
-            <container>
-              <entrypoint>
-                <shell>bash</shell>
-                <option>-c</option>
-                <arg>/entrypoint.sh</arg>
-              </entrypoint>
-              <ports>
-                <port>8080</port>
-              </ports>
-              <environment>
-                <SPRING_OUTPUT_ANSI_ENABLED>ALWAYS</SPRING_OUTPUT_ANSI_ENABLED>
-                <JHIPSTER_SLEEP>0</JHIPSTER_SLEEP>
-              </environment>
-              <creationTime>USE_CURRENT_TIMESTAMP</creationTime>
-              <user>1000</user>
-            </container>
-            <extraDirectories>
-              <paths>src/main/docker/jib</paths>
-              <permissions>
-                <permission>
-                  <file>/entrypoint.sh</file>
-                  <mode>755</mode>
-                </permission>
-              </permissions>
-            </extraDirectories>
-            <pluginExtensions>
-              <pluginExtension>
-                <implementation>com.google.cloud.tools.jib.maven.extension.springboot.JibSpringBootExtension
-                </implementation>
-              </pluginExtension>
-            </pluginExtensions>
-          </configuration>
-          <dependencies>
-            <dependency>
-              <groupId>com.google.cloud.tools</groupId>
-              <artifactId>jib-spring-boot-extension-maven</artifactId>
-              <version>0.1.0</version>
-            </dependency>
-          </dependencies>
-        </plugin>
-        <plugin>
           <groupId>io.gatling</groupId>
           <artifactId>gatling-maven-plugin</artifactId>
           <version>${gatling-maven-plugin.version}</version>
@@ -928,19 +875,6 @@
         <dependency>
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-devtools</artifactId>
-          <optional>true</optional>
-        </dependency>
-      </dependencies>
-    </profile>
-    <profile>
-      <id>docker-compose</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>org.springframework.boot</groupId>
-          <artifactId>spring-boot-docker-compose</artifactId>
           <optional>true</optional>
         </dependency>
       </dependencies>
