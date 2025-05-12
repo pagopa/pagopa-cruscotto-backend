@@ -90,10 +90,10 @@ public class SecurityConfiguration {
                     .authenticationEntryPoint(new CustomBearerTokenAuthenticationEntryPoint())
                     .accessDeniedHandler(new CustomOAuth2AccessDeniedHandler())
             )
-            .oauth2ResourceServer(oauth2 ->
-                oauth2
-                    .jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder).jwtAuthenticationConverter(jwtGrantedAuthorityConverter))
-                    .bearerTokenResolver(bearerTokenResolver())
+            .oauth2ResourceServer(
+                oauth2 ->
+                    oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder).jwtAuthenticationConverter(jwtGrantedAuthorityConverter))
+                //                    .bearerTokenResolver(bearerTokenResolver())
             );
 
         return http.build();
@@ -103,25 +103,24 @@ public class SecurityConfiguration {
     MvcRequestMatcher.Builder mvc(HandlerMappingIntrospector introspector) {
         return new MvcRequestMatcher.Builder(introspector);
     }
-
-    public BearerTokenResolver bearerTokenResolver() {
-        return new BearerTokenResolver() {
-            @Override
-            public String resolve(HttpServletRequest request) {
-                LOGGER.debug("Resolve token for request {}", request.getRequestURI());
-                String token = null;
-                Cookie[] cookies = request.getCookies();
-                if (cookies != null) {
-                    Cookie cookie = Arrays.stream(cookies)
-                        .filter(c -> Constants.OIDC_ACCESS_TOKEN.equals(c.getName()))
-                        .findAny()
-                        .orElse(null);
-                    if (cookie != null) {
-                        token = cookie.getValue();
-                    }
-                }
-                return token;
-            }
-        };
-    }
+    //    public BearerTokenResolver bearerTokenResolver() {
+    //        return new BearerTokenResolver() {
+    //            @Override
+    //            public String resolve(HttpServletRequest request) {
+    //                LOGGER.debug("Resolve token for request {}", request.getRequestURI());
+    //                String token = null;
+    //                Cookie[] cookies = request.getCookies();
+    //                if (cookies != null) {
+    //                    Cookie cookie = Arrays.stream(cookies)
+    //                        .filter(c -> Constants.OIDC_ACCESS_TOKEN.equals(c.getName()))
+    //                        .findAny()
+    //                        .orElse(null);
+    //                    if (cookie != null) {
+    //                        token = cookie.getValue();
+    //                    }
+    //                }
+    //                return token;
+    //            }
+    //        };
+    //    }
 }

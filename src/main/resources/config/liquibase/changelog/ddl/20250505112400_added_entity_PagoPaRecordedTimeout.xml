@@ -15,10 +15,10 @@
       <column name="METHOD" type="varchar(35)">
         <constraints nullable="false"/>
       </column>
-      <column name="START_DATE" type="datetime">
+      <column name="START_DATE" type="TIMESTAMP WITHOUT TIME ZONE">
         <constraints nullable="false"/>
       </column>
-      <column name="END_DATE" type="datetime">
+      <column name="END_DATE" type="TIMESTAMP WITHOUT TIME ZONE">
         <constraints nullable="false"/>
       </column>
       <column name="TOT_REQ" type="bigint">
