@@ -9,13 +9,13 @@ import com.nexigroup.pagopa.cruscotto.repository.AuthUserRepository;
 import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
 import com.nexigroup.pagopa.cruscotto.security.SecurityUtils;
 import com.nexigroup.pagopa.cruscotto.security.helper.CookieHelper;
+import com.nexigroup.pagopa.cruscotto.security.util.PasswordExpiredUtils;
 import com.nexigroup.pagopa.cruscotto.service.AuthUserService;
 import com.nexigroup.pagopa.cruscotto.service.MailService;
 import com.nexigroup.pagopa.cruscotto.service.bean.PasswordChangeRequestBean;
 import com.nexigroup.pagopa.cruscotto.service.dto.AuthUserAccountDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.AuthUserDTO;
 import com.nexigroup.pagopa.cruscotto.service.util.CookieTranslateUtil;
-import com.nexigroup.pagopa.cruscotto.security.util.PasswordExpiredUtils;
 import com.nexigroup.pagopa.cruscotto.service.util.PasswordValidator;
 import com.nexigroup.pagopa.cruscotto.web.rest.errors.BadRequestAlertException;
 import com.nexigroup.pagopa.cruscotto.web.rest.errors.EmailAlreadyUsedException;
@@ -188,7 +188,7 @@ public class AccountResource {
      */
     @PostMapping(path = "/account/change-password")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_MODIFICA_PASSWORD + "\")")
-    public void changePassword(HttpServletResponse response, @Valid @RequestBody PasswordChangeRequestBean passwordChangeRequestBean) {
+    public void changePassword(@Valid @RequestBody PasswordChangeRequestBean passwordChangeRequestBean) {
         AuthenticationType authenticationType = SecurityUtils.getAuthenticationTypeUserLogin()
             .orElseThrow(() -> new RuntimeException("Authentication Type not found"));
 
@@ -210,10 +210,6 @@ public class AccountResource {
         passwordValidator.check(userLogin, passwordChangeRequestBean.getNewPassword(), authUser.getFirstName(), authUser.getLastName());
 
         authUserService.changePassword(passwordChangeRequestBean.getCurrentPassword(), passwordChangeRequestBean.getNewPassword());
-
-        Cookie token = CookieHelper.generateExpiredCookie(Constants.OIDC_ACCESS_TOKEN);
-
-        response.addCookie(token);
     }
 
     /**

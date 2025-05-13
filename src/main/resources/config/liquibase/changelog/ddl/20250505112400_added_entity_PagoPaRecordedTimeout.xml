@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+  <changeSet id="20250505112400-1" author="pagopaCruscotto" context="ddl">
+    <createTable tableName="PAGOPA_RECORDED_TIMEOUT">
+      <column name="CF_PARTNER" type="varchar(35)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="STATION" type="varchar(35)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="METHOD" type="varchar(35)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="START_DATE" type="TIMESTAMP WITHOUT TIME ZONE">
+        <constraints nullable="false"/>
+      </column>
+      <column name="END_DATE" type="TIMESTAMP WITHOUT TIME ZONE">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TOT_REQ" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="REQ_OK" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="AVG_TIME" type="double">
+        <constraints nullable="false"/>
+      </column>
+      <column name="REQ_TIMEOUT" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <rollback>
+      DROP TABLE ${database.defaultSchemaName}.PAGOPA_RECORDED_TIMEOUT CASCADE CONSTRAINTS;
+    </rollback>
+  </changeSet>
+</databaseChangeLog>

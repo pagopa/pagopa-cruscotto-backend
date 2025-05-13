@@ -1,22 +1,20 @@
 package com.nexigroup.pagopa.cruscotto.service;
 
-
 import com.nexigroup.pagopa.cruscotto.domain.AnagPartner;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.TypePlanned;
 import com.nexigroup.pagopa.cruscotto.service.bean.ShutdownRequestBean;
 import com.nexigroup.pagopa.cruscotto.service.dto.AnagPlannedShutdownDTO;
 import com.nexigroup.pagopa.cruscotto.service.filter.AnagPlannedShutdownFilter;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /**
  * Service Interface for managing {@link AnagPartner}.
  */
 public interface AnagPlannedShutdownService {
-
     /**
      * Count all the plannedShutdowns by type planned and year.
      *
@@ -40,7 +38,6 @@ public interface AnagPlannedShutdownService {
      * @param id the year.
      */
     void delete(Long id);
-
 
     /**
      * Save all planned shutdown.
@@ -81,4 +78,12 @@ public interface AnagPlannedShutdownService {
      * @return the persisted entity.
      */
     AnagPlannedShutdownDTO update(ShutdownRequestBean shutdownToUpdate);
+
+    List<AnagPlannedShutdownDTO> findAllByTypePlannedIntoPeriod(
+        Long partnerId,
+        Long stationId,
+        TypePlanned typePlanned,
+        LocalDate startDate,
+        LocalDate endDate
+    );
 }

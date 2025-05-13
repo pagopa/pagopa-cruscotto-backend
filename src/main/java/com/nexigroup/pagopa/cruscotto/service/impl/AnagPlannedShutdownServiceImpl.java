@@ -15,12 +15,6 @@ import com.nexigroup.pagopa.cruscotto.service.filter.AnagPlannedShutdownFilter;
 import com.nexigroup.pagopa.cruscotto.service.mapper.AnagPlannedShutdownMapper;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QdslUtility;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
-
-import java.time.*;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Optional;
-
 import com.nexigroup.pagopa.cruscotto.service.util.UserUtils;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
@@ -28,6 +22,10 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPQLQuery;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -35,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 
 /**
  * Service Implementation for managing {@link AnagPlannedShutdown}.
@@ -46,7 +43,7 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
 
     private static final String ANAG_PLANNED_SHUTODOWN = "shutdown";
 
-    private final Logger log = LoggerFactory.getLogger(AnagPlannedShutdownServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AnagPlannedShutdownServiceImpl.class);
 
     static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
@@ -95,7 +92,10 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
             builder.and(QAnagPlannedShutdown.anagPlannedShutdown.anagPartner.id.eq(Long.valueOf(filter.getPartnerId())));
         }
 
-        JPQLQuery<AnagPlannedShutdown> jpql = queryBuilder.<AnagPlannedShutdown>createQuery().from(QAnagPlannedShutdown.anagPlannedShutdown).where(builder);
+        JPQLQuery<AnagPlannedShutdown> jpql = queryBuilder
+            .<AnagPlannedShutdown>createQuery()
+            .from(QAnagPlannedShutdown.anagPlannedShutdown)
+            .where(builder);
 
         long size = jpql.fetchCount();
 
@@ -145,8 +145,7 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
      */
     @Override
     public Optional<AnagPlannedShutdownDTO> findOne(Long id) {
-        return anagPlannedShutdownRepository.findById(id)
-            .map(shutdownMapper::toDto);
+        return anagPlannedShutdownRepository.findById(id).map(shutdownMapper::toDto);
     }
 
     /**
@@ -157,18 +156,29 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
      */
     @Override
     public AnagPlannedShutdownDTO saveNew(ShutdownRequestBean shutdownToCreate) {
-
         AuthUser loggedUser = userUtils.getLoggedUser();
 
         ZonedDateTime now = ZonedDateTime.now(ZoneId.systemDefault());
 
-        AnagPartner partner = anagPartnerRepository.findById(Long.valueOf(shutdownToCreate.getPartnerId()))
-            .orElseThrow(() -> new GenericServiceException(String.format("Partner with id %s not exist", shutdownToCreate.getPartnerId()),
-                ANAG_PLANNED_SHUTODOWN, "shutdown.partnerNotExists"));
+        AnagPartner partner = anagPartnerRepository
+            .findById(Long.valueOf(shutdownToCreate.getPartnerId()))
+            .orElseThrow(() ->
+                new GenericServiceException(
+                    String.format("Partner with id %s not exist", shutdownToCreate.getPartnerId()),
+                    ANAG_PLANNED_SHUTODOWN,
+                    "shutdown.partnerNotExists"
+                )
+            );
 
-        AnagStation station = anagStationRepository.findById(Long.valueOf(shutdownToCreate.getStationId()))
-            .orElseThrow(() -> new GenericServiceException(String.format("Station with id %s not exist", shutdownToCreate.getStationId()),
-                ANAG_PLANNED_SHUTODOWN, "shutdown.partnerNotExists"));
+        AnagStation station = anagStationRepository
+            .findById(Long.valueOf(shutdownToCreate.getStationId()))
+            .orElseThrow(() ->
+                new GenericServiceException(
+                    String.format("Station with id %s not exist", shutdownToCreate.getStationId()),
+                    ANAG_PLANNED_SHUTODOWN,
+                    "shutdown.partnerNotExists"
+                )
+            );
 
         AnagPlannedShutdown shutdown = new AnagPlannedShutdown();
         shutdown.setTypePlanned(TypePlanned.NON_PROGRAMMATO);
@@ -182,7 +192,7 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
         shutdown.setShutdownEndDate(endInstant);
         shutdown.setStandInd(true);
         shutdown.setCreatedBy(loggedUser.getLogin());
-        shutdown.setYear((long)now.getYear());
+        shutdown.setYear((long) now.getYear());
         AnagPlannedShutdown anagPlannedShutdown = anagPlannedShutdownRepository.save(shutdown);
         return shutdownMapper.toDto(anagPlannedShutdown);
     }
@@ -228,16 +238,28 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
             .filter(Optional::isPresent)
             .map(Optional::get)
             .map(anagPlannedShutdown -> {
-                if(anagPlannedShutdown.getTypePlanned().equals(TypePlanned.PROGRAMMATO)) {
-                    throw new GenericServiceException(String.format("Shutdown with id %s cannot be deleted because it is of %s type", id, anagPlannedShutdown.getTypePlanned().name()),
-                        ANAG_PLANNED_SHUTODOWN, "shutdown.cannotBeDeleted");
+                if (anagPlannedShutdown.getTypePlanned().equals(TypePlanned.PROGRAMMATO)) {
+                    throw new GenericServiceException(
+                        String.format(
+                            "Shutdown with id %s cannot be deleted because it is of %s type",
+                            id,
+                            anagPlannedShutdown.getTypePlanned().name()
+                        ),
+                        ANAG_PLANNED_SHUTODOWN,
+                        "shutdown.cannotBeDeleted"
+                    );
                 }
                 anagPlannedShutdownRepository.deleteById(id);
                 log.debug("Logical deleting of shutdown with id {}", id);
                 return anagPlannedShutdown;
             })
-            .orElseThrow(() -> new GenericServiceException(String.format("Shutdown with id %s not exist", id),
-                ANAG_PLANNED_SHUTODOWN, "shutdown.notExists"));
+            .orElseThrow(() ->
+                new GenericServiceException(
+                    String.format("Shutdown with id %s not exist", id),
+                    ANAG_PLANNED_SHUTODOWN,
+                    "shutdown.notExists"
+                )
+            );
     }
 
     /**
@@ -293,23 +315,41 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
      */
     @Override
     public AnagPlannedShutdownDTO update(ShutdownRequestBean shutdownToUpdate) {
-
         return Optional.of(anagPlannedShutdownRepository.findById(shutdownToUpdate.getId()))
             .filter(Optional::isPresent)
             .map(Optional::get)
             .map(shutdown -> {
-                if(shutdown.getTypePlanned().equals(TypePlanned.PROGRAMMATO)) {
-                    throw new GenericServiceException(String.format("Shutdown with id %s cannot be updated because it is of %s type", shutdownToUpdate.getId(), shutdown.getTypePlanned()),
-                        ANAG_PLANNED_SHUTODOWN, "shutdown.cannotBeUpdated");
+                if (shutdown.getTypePlanned().equals(TypePlanned.PROGRAMMATO)) {
+                    throw new GenericServiceException(
+                        String.format(
+                            "Shutdown with id %s cannot be updated because it is of %s type",
+                            shutdownToUpdate.getId(),
+                            shutdown.getTypePlanned()
+                        ),
+                        ANAG_PLANNED_SHUTODOWN,
+                        "shutdown.cannotBeUpdated"
+                    );
                 }
-                AnagPartner partner = anagPartnerRepository.findById(Long.valueOf(shutdownToUpdate.getPartnerId()))
-                    .orElseThrow(() -> new GenericServiceException(String.format("Partner with id %s not exist", shutdownToUpdate.getPartnerId()),
-                        ANAG_PLANNED_SHUTODOWN, "shutdown.partnerNotExists"));
+                AnagPartner partner = anagPartnerRepository
+                    .findById(Long.valueOf(shutdownToUpdate.getPartnerId()))
+                    .orElseThrow(() ->
+                        new GenericServiceException(
+                            String.format("Partner with id %s not exist", shutdownToUpdate.getPartnerId()),
+                            ANAG_PLANNED_SHUTODOWN,
+                            "shutdown.partnerNotExists"
+                        )
+                    );
                 shutdown.setAnagPartner(partner);
 
-                AnagStation station = anagStationRepository.findById(Long.valueOf(shutdownToUpdate.getStationId()))
-                    .orElseThrow(() -> new GenericServiceException(String.format("Station with id %s not exist", shutdownToUpdate.getStationId()),
-                        ANAG_PLANNED_SHUTODOWN, "shutdown.stationNotExists"));
+                AnagStation station = anagStationRepository
+                    .findById(Long.valueOf(shutdownToUpdate.getStationId()))
+                    .orElseThrow(() ->
+                        new GenericServiceException(
+                            String.format("Station with id %s not exist", shutdownToUpdate.getStationId()),
+                            ANAG_PLANNED_SHUTODOWN,
+                            "shutdown.stationNotExists"
+                        )
+                    );
                 shutdown.setAnagStation(station);
 
                 LocalDate localStartDate = LocalDate.parse(shutdownToUpdate.getShutdownStartDate(), formatter);
@@ -322,8 +362,65 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
                 return shutdown;
             })
             .map(shutdownMapper::toDto)
-            .orElseThrow(() -> new GenericServiceException(String.format("Shutdown with id %s not exist", shutdownToUpdate.getId()),
-                ANAG_PLANNED_SHUTODOWN, "shutdown.notExists"));
+            .orElseThrow(() ->
+                new GenericServiceException(
+                    String.format("Shutdown with id %s not exist", shutdownToUpdate.getId()),
+                    ANAG_PLANNED_SHUTODOWN,
+                    "shutdown.notExists"
+                )
+            );
+    }
+
+    @Override
+    public List<AnagPlannedShutdownDTO> findAllByTypePlannedIntoPeriod(
+        Long partnerId,
+        Long stationId,
+        TypePlanned typePlanned,
+        LocalDate startDate,
+        LocalDate endDate
+    ) {
+        QAnagPlannedShutdown anagPlannedShutdown = QAnagPlannedShutdown.anagPlannedShutdown;
+
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.atTime(23, 59, 59, 0);
+
+        LOGGER.info(startDateTime.toString());
+        LOGGER.info(endDateTime.toString());
+
+        return queryBuilder
+            .createQueryFactory()
+            .select(
+                Projections.fields(
+                    AnagPlannedShutdownDTO.class,
+                    anagPlannedShutdown.id.as("id"),
+                    anagPlannedShutdown.typePlanned.as("typePlanned"),
+                    anagPlannedShutdown.standInd.as("standInd"),
+                    anagPlannedShutdown.shutdownStartDate.as("shutdownStartDate"),
+                    anagPlannedShutdown.shutdownEndDate.as("shutdownEndDate"),
+                    anagPlannedShutdown.year.as("year"),
+                    anagPlannedShutdown.externalId.as("externalId")
+                )
+            )
+            .from(anagPlannedShutdown)
+            .where(
+                anagPlannedShutdown.anagPartner.id
+                    .eq(partnerId)
+                    .and(anagPlannedShutdown.anagStation.id.eq(stationId))
+                    .and(anagPlannedShutdown.typePlanned.eq(typePlanned))
+                    .and(
+                        anagPlannedShutdown.shutdownStartDate.between(
+                            startDateTime.toInstant(ZoneOffset.UTC),
+                            endDateTime.toInstant(ZoneOffset.UTC)
+                        )
+                    )
+                    .and(
+                        anagPlannedShutdown.shutdownEndDate.between(
+                            startDateTime.toInstant(ZoneOffset.UTC),
+                            endDateTime.toInstant(ZoneOffset.UTC)
+                        )
+                    )
+            )
+            .fetch();
     }
 
     private static @NotNull AnagPlannedShutdown getAnagPlannedShutdown(

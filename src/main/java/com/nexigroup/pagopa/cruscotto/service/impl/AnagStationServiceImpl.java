@@ -18,7 +18,6 @@ import com.querydsl.jpa.JPQLQuery;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,8 +44,11 @@ public class AnagStationServiceImpl implements AnagStationService {
     @Value("${spring.jpa.properties.hibernate.jdbc.batch_size:100}")
     private String batchSize;
 
-    public AnagStationServiceImpl(AnagStationRepository anagStationRepository, AnagPartnerRepository anagPartnerRepository,
-                                  QueryBuilder queryBuilder)  {
+    public AnagStationServiceImpl(
+        AnagStationRepository anagStationRepository,
+        AnagPartnerRepository anagPartnerRepository,
+        QueryBuilder queryBuilder
+    ) {
         this.anagStationRepository = anagStationRepository;
         this.anagPartnerRepository = anagPartnerRepository;
         this.queryBuilder = queryBuilder;
@@ -96,6 +98,41 @@ public class AnagStationServiceImpl implements AnagStationService {
     }
 
     @Override
+    public long findIdByNameOrCreate(String name, long idPartner) {
+        Long id = queryBuilder
+            .<AnagStationDTO>createQuery()
+            .from(QAnagStation.anagStation)
+            .leftJoin(QAnagPartner.anagPartner)
+            .on(QAnagStation.anagStation.anagPartner.id.eq(QAnagPartner.anagPartner.id))
+            .where(QAnagStation.anagStation.name.eq(name).and(QAnagStation.anagStation.anagPartner.id.eq(idPartner)))
+            .select(QAnagStation.anagStation.id)
+            .fetchOne();
+
+        if (id == null) {
+            AnagPartner partnerExample = new AnagPartner();
+            partnerExample.setId(idPartner);
+            partnerExample.setCreatedDate(null);
+            partnerExample.setLastModifiedDate(null);
+            partnerExample.setQualified(null);
+
+            AnagPartner anagPartner = anagPartnerRepository
+                .findOne(Example.of(partnerExample))
+                .orElseThrow(() -> new NullPointerException("Partner not found"));
+
+            AnagStation anagStation = new AnagStation();
+            anagStation.setName(name);
+            anagStation.setAnagPartner(anagPartner);
+            anagStation.setStatus(StationStatus.NON_ATTIVA);
+            anagStation.setAssociatedInstitutes(0);
+
+            anagStation = anagStationRepository.save(anagStation);
+
+            id = anagStation.getId();
+        }
+        return id;
+    }
+
+    @Override
     public Page<AnagStationDTO> findAll(StationFilter filter, Pageable pageable) {
         log.debug("Request to get all Stations by filter: {}", filter);
 
@@ -123,7 +160,7 @@ public class AnagStationServiceImpl implements AnagStationService {
                 QAnagStation.anagStation.paymentOption.as("paymentOption"),
                 QAnagStation.anagStation.status.as("status"),
                 QAnagStation.anagStation.deactivationDate.as("deactivationDate")
-                )
+            )
         );
 
         jpqlSelected.offset(pageable.getOffset());
