@@ -43,20 +43,20 @@ variables:
 
 stages:
   - stage: initialization_jobs
-    displayName: "Init ${{ parameters.k8sEnv }}"
+    displayName: 'Init ${{ parameters.k8sEnv }}'
     jobs:
       - job: initialization
         pool: $(poolImage)
-        displayName: "Schemas creation job"
+        displayName: 'Schemas creation job'
         steps:
           - task: AzureKeyVault@2
-            displayName: "Get secrets"
+            displayName: 'Get secrets'
             inputs:
               azureSubscription: $(AZURE_SERVICE_CONNECTION)
               keyVaultName: $(KEY_VAULT_NAME)
               secretsFilter: 'db-administrator-login-password,db-cruscotto-password'
           - task: AzureCLI@2
-            displayName: "create all schemas"
+            displayName: 'create all schemas'
             inputs:
               azureSubscription: $(AZURE_SERVICE_CONNECTION)
               scriptLocation: inlineScript

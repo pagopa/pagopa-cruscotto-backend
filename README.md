@@ -10,7 +10,6 @@ This application is configured for Service Discovery and Configuration with Cons
 
 API - See the [OpenApi 3 here](https://editor-next.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pagopa-cruscotto-backend/main/openapi/openapi.json)
 
-
 ## Project Structure
 
 Node is required for generation and recommended for development. `package.json` is always generated for a better development experience with prettier, commit hooks, scripts and so on.

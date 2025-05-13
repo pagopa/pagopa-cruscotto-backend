@@ -54,9 +54,9 @@ public class LogoutResource {
         //                .getConfigurationMetadata().get("end_session_endpoint").toString();
         //        }
 
-        Cookie token = CookieHelper.generateExpiredCookie(Constants.OIDC_ACCESS_TOKEN);
+        //        Cookie token = CookieHelper.generateExpiredCookie(Constants.OIDC_ACCESS_TOKEN);
 
-        response.addCookie(token);
+        //        response.addCookie(token);
 
         Map<String, String> logoutDetails = new HashMap<>();
         logoutDetails.put("logoutUrl", logoutUrl);

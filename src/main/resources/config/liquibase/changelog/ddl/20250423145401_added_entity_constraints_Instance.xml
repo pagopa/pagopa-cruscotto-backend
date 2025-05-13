@@ -6,11 +6,11 @@
 
     <changeSet id="20250415102403-3" author="pagopaCruscotto" context="ddl">
 
-        <addForeignKeyConstraint baseColumnNames="CO_PARTNER_ID"
-                                 baseTableName="INSTANCE"
-                                 constraintName="FK_TB${project_name}_INST_TB${project_name}_PART_02"
-                                 referencedColumnNames="CO_ID"
-                                 referencedTableName="ANAG_PARTNER"/>
+	  <addForeignKeyConstraint baseColumnNames="CO_PARTNER_ID"
+                               baseTableName="INSTANCE"
+                               constraintName="FK_TB${project_name}_INST_TB${project_name}_PART_02"
+                               referencedColumnNames="CO_ID"
+                               referencedTableName="ANAG_PARTNER"/>
 
       <addForeignKeyConstraint baseColumnNames="CO_ASSIGNED_USER_ID"
                                baseTableName="INSTANCE"
@@ -19,4 +19,5 @@
                                referencedTableName="AUTH_USER"/>
 
     </changeSet>
+    
 </databaseChangeLog>
