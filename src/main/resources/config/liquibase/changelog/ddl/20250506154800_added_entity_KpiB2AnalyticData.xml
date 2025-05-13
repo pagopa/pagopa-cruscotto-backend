@@ -22,7 +22,7 @@
       <column name="CO_INSTANCE_MODULE_ID" type="bigint">
         <constraints nullable="false"/>
       </column>
-      <column name="DT_ANALISYS_DATE" type="datetime">
+      <column name="DT_ANALISYS_DATE" type="date">
         <constraints nullable="false"/>
       </column>
       <column name="CO_STATION_ID" type="bigint">
@@ -44,18 +44,6 @@
         <constraints nullable="false"/>
       </column>
       <column name="CO_AVG_TIME" type="double">
-        <constraints nullable="false"/>
-      </column>
-      <column name="MONTH_WEIGHT" type="double">
-        <constraints nullable="false"/>
-      </column>
-      <column name="TOTAL_WEIGHT" type="double">
-        <constraints nullable="false"/>
-      </column>
-      <column name="MONTH_WEIGHT_OVERTIME" type="double">
-        <constraints nullable="false"/>
-      </column>
-      <column name="TOTAL_WEIGHT_OVERTIME" type="double">
         <constraints nullable="false"/>
       </column>
       <column name="CO_KPI_B2_DETAIL_RESULT_ID" type="bigint">

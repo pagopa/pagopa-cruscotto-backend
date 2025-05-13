@@ -1,31 +1,17 @@
 package com.nexigroup.pagopa.cruscotto.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
-
-import java.io.Serializable;
-import java.util.Objects;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * A KpiConfiguration.
@@ -64,7 +50,7 @@ public class KpiConfiguration implements Serializable {
 
     @Column(name = "CO_TOLLERANCE")
     private Double tollerance;
-    
+
     @Column(name = "CO_AVERAGE_TIME_LIMIT")
     private Double averageTimeLimit;
 
@@ -72,7 +58,6 @@ public class KpiConfiguration implements Serializable {
     @Column(name = "TE_EVALUATION_TYPE")
     private EvaluationType evaluationType;
 
-    
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof KpiConfiguration that)) return false;
@@ -101,7 +86,7 @@ public class KpiConfiguration implements Serializable {
             ", tollerance=" +
             tollerance +
             ", averageTimeLimit=" +
-            averageTimeLimit +            
+            averageTimeLimit +
             ", evaluationType=" +
             evaluationType +
             '}'

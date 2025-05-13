@@ -54,7 +54,7 @@
     <changeSet author="liquibase-docs" id="version_4.0_ddl">
       <tagDatabase tag="version_4.0_ddl"/>
     </changeSet>
-    
+
   <include file="changelog/ddl/20250505112400_added_entity_PagoPaRecordedTimeout.xml" relativeToChangelogFile="true"/>
   <include file="changelog/ddl/20250505113100_added_entity_PagoPaTaxonomyAggregatePosition.xml" relativeToChangelogFile="true"/>
 
@@ -65,16 +65,16 @@
 	<include file="changelog/ddl/20250502170000_added_entity_Module.xml" relativeToChangelogFile="true"/>
     <include file="changelog/ddl/20250502170500_added_entity_InstanceModule.xml" relativeToChangelogFile="true"/>
     <include file="changelog/ddl/20250502170501_added_entity_constraints_InstanceModule.xml" relativeToChangelogFile="true"/>
-    
+
     <changeSet author="liquibase-docs" id="version_6.0_ddl">
       <tagDatabase tag="version_6.0_ddl"/>
     </changeSet>
-    
+
 	<include file="changelog/dml/20250502170000_added_entity_Module.xml" relativeToChangelogFile="true"/>
-	
+
     <changeSet author="liquibase-docs" id="version_2.0_dml">
       <tagDatabase tag="version_2.0_dml"/>
-    </changeSet>	
+    </changeSet>
 
   <include file="changelog/ddl/20250506154500_added_entity_KpiConfiguration.xml" relativeToChangelogFile="true"/>
   <include file="changelog/ddl/20250506154501_added_entity_constraints_KpiConfiguration.xml" relativeToChangelogFile="true"/>

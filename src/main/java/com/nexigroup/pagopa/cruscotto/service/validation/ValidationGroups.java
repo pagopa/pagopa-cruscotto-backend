@@ -11,4 +11,6 @@ public class ValidationGroups {
     public interface RegistryJob extends Default {}
 
     public interface StationJob extends Default {}
+
+    public interface KpiB2Job extends Default {}
 }
