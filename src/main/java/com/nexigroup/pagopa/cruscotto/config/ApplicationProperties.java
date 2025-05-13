@@ -1,10 +1,10 @@
 package com.nexigroup.pagopa.cruscotto.config;
 
+import com.nexigroup.pagopa.cruscotto.job.cache.LoadRegistryJob;
+import com.nexigroup.pagopa.cruscotto.job.kpi.b2.KpiB2Job;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-
-import java.util.Map;
 
 /**
  * Properties specific to PagoPa Cruscotto Backend.
@@ -33,7 +33,6 @@ public class ApplicationProperties {
     public static class Liquibase {
 
         private Boolean asyncStart = true;
-
     }
 
     @Setter
@@ -45,16 +44,19 @@ public class ApplicationProperties {
         private Integer failedLoginAttempts;
 
         private Integer hoursKeyResetPasswordExpired;
-
     }
 
     @Getter
     @Setter
-    public static class Job
-    {
+    public static class Job {
+
         private LoadTaxonomyJob loadTaxonomyJob = new LoadTaxonomyJob();
 
         private LoadMaintenanceJob loadMaintenanceJob = new LoadMaintenanceJob();
+
+        private LoadRegistryJob loadRegistryJob = new LoadRegistryJob();
+
+        private KpiB2Job kpiB2Job = new KpiB2Job();
     }
 
     @Getter
@@ -77,8 +79,28 @@ public class ApplicationProperties {
 
     @Getter
     @Setter
-    public static class Quartz
-    {
+    public static class LoadRegistryJob {
+
+        private boolean enabled;
+
+        private String cron;
+    }
+
+    @Getter
+    @Setter
+    public static class KpiB2Job {
+
+        private boolean enabled;
+
+        private String cron;
+
+        private int limit;
+    }
+
+    @Getter
+    @Setter
+    public static class Quartz {
+
         private Boolean exposeSchedulerInRepository;
     }
 
@@ -92,7 +114,9 @@ public class ApplicationProperties {
 
         private Api taxonomy;
 
-        private Api maintenance;
+        private Api backOffice;
+
+        private Api cache;
 
         @Setter
         @Getter

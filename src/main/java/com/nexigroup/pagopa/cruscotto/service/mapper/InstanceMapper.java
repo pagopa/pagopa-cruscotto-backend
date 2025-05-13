@@ -10,7 +10,6 @@ import org.mapstruct.Mapping;
  */
 @Mapper(componentModel = "spring", uses = { AuthUserMapper.class, AnagPartnerMapper.class })
 public interface InstanceMapper extends EntityMapper<InstanceDTO, Instance> {
-
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "createdDate", ignore = true)
     @Mapping(target = "lastModifiedBy", ignore = true)
@@ -19,9 +18,9 @@ public interface InstanceMapper extends EntityMapper<InstanceDTO, Instance> {
     @Mapping(source = "assignedUserId", target = "assignedUser")
     Instance toEntity(InstanceDTO instanceDTO);
 
-
     @Mapping(source = "partner.id", target = "partnerId")
     @Mapping(source = "partner.name", target = "partnerName")
+    @Mapping(source = "partner.fiscalCode", target = "partnerFiscalCode")
     @Mapping(source = "assignedUser.id", target = "assignedUserId")
     @Mapping(source = "assignedUser.firstName", target = "assignedFirstName")
     @Mapping(source = "assignedUser.lastName", target = "assignedLastName")
