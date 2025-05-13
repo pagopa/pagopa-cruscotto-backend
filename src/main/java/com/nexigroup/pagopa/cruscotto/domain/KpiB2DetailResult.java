@@ -52,7 +52,7 @@ public class KpiB2DetailResult implements Serializable {
 
     @NotNull
     @Column(name = "DT_ANALISYS_DATE", nullable = false)
-    private Instant analysisDate;
+    private LocalDate analysisDate;
 
     @JsonIgnore
     @NotNull
@@ -96,7 +96,7 @@ public class KpiB2DetailResult implements Serializable {
     private OutcomeStatus outcome;
 
     @JsonIgnore
-    @NotNull
+    //    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CO_KPI_B2_RESULT_ID", nullable = false)
     private KpiB2Result kpiB2Result;
