@@ -13,13 +13,12 @@
 logging:
   level:
     ROOT: DEBUG
-    org.hibernate.SQL: DEBUG
-    com.nexigroup.pagopa.cruscotto: DEBUG
-    org.hibernate.stat: off
-    org.hibernate.engine.internal.StatisticalLoggingSessionEventListener: info
-    org.springframework.orm.jpa: DEBUG
-    org.springframework.transaction: DEBUG
-    org.hibernate.engine.transaction.internal.TransactionImpl: DEBUG
+    com.nexigroup.pagopa.cruscotto: INFO
+#    org.hibernate.stat: off
+#    org.hibernate.engine.internal.StatisticalLoggingSessionEventListener: info
+#    org.springframework.orm.jpa: DEBUG
+#    org.springframework.transaction: DEBUG
+#    org.hibernate.engine.transaction.internal.TransactionImpl: DEBUG
 
 spring:
   devtools:
@@ -34,7 +33,7 @@ spring:
   jpa:
     properties:
       hibernate:
-        generate_statistics: true
+        generate_statistics: false
   #       jdbc:
   #         batch_size: 50
   datasource:
@@ -48,7 +47,7 @@ spring:
   liquibase:
     # Remove 'faker' if you do not want the sample data to be loaded automatically
     contexts: ddl, dml
-    enabled: true
+    enabled: false
   mail:
     host: localhost
     port: 25
@@ -83,10 +82,8 @@ jhipster:
       max-entries: 100 # Number of objects in each cache entry
   # CORS is only enabled by default with the "dev" profile
   cors:
-    # Allow Ionic for JHipster by default (* no longer allowed in Spring Boot 2.4+)
-    allowed-origins: 'http://localhost:8100,https://localhost:8100'
-    # Enable CORS when running in GitHub Codespaces
-    allowed-origin-patterns: 'https://*.githubpreview.dev'
+    allowed-origins: '*'
+    allowed-origin-patterns: '*'
     allowed-methods: '*'
     allowed-headers: '*'
     exposed-headers: 'Authorization,Link,X-Total-Count,X-${jhipster.clientApp.name}-alert,X-${jhipster.clientApp.name}-error,X-${jhipster.clientApp.name}-params'
@@ -132,12 +129,22 @@ application:
   job:
     load-taxonomy-job:
       enabled: true
-      cron: 0 0/2 07-8 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
+      cron: 0 0/50 07-8 ? * SAT *
     load-maintenance-job:
       enabled: true
-      cron: 0 0/2 07-8 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
+      cron: 0 0/50 07-8 ? * SAT *
     load-registry-job:
       enabled: true
+      cron: 0 0/50 0-23 ? * SAT *
+    kpi-b2-job:
+      enabled: true
       cron: 0 0/2 0-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
+      limit: 20
   liquibase:
     async-start: false
+
+decorator:
+  datasource:
+    p6spy:
+      multiline: true
+      logging: slf4j

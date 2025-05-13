@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 public class LoadRegistryConfigJob {
 
     @Bean
-    public Trigger loadRegistryobTrigger(ApplicationProperties applicationProperties) {
+    public Trigger loadRegistryJobTrigger(ApplicationProperties applicationProperties) {
         CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(
             applicationProperties.getJob().getLoadRegistryJob().getCron()
         ).withMisfireHandlingInstructionFireAndProceed();

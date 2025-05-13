@@ -2,9 +2,8 @@ package com.nexigroup.pagopa.cruscotto.service;
 
 import com.nexigroup.pagopa.cruscotto.domain.AnagStation;
 import com.nexigroup.pagopa.cruscotto.service.dto.AnagStationDTO;
-import java.util.List;
-
 import com.nexigroup.pagopa.cruscotto.service.filter.StationFilter;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -27,4 +26,12 @@ public interface AnagStationService {
      * @return the list of stations.
      */
     Page<AnagStationDTO> findAll(StationFilter filter, Pageable pageable);
+
+    /**
+     * Get id station by name.
+     *
+     * @param name the name.
+     * @return the id.
+     */
+    long findIdByNameOrCreate(String name, long idPartner);
 }

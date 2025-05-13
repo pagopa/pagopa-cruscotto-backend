@@ -16,11 +16,6 @@ logging:
     com.nexigroup.pagopa.cruscotto: INFO
 
 spring:
-  devtools:
-    restart:
-      enabled: false
-    livereload:
-      enabled: false
   jackson:
     serialization:
       indent-output: true
@@ -105,5 +100,14 @@ application:
     load-registry-job:
       enabled: true
       cron: 0 0/30 07-8 ? * MON,TUE,WED,THU,FRI *
+    kpi-b2-job:
+      enabled: true
+      cron: 0 0/30 14-16 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
+      limit: 20
   liquibase:
     async-start: false
+
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: false
