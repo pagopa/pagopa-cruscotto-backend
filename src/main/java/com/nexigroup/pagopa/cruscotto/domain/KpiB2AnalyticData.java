@@ -50,7 +50,7 @@ public class KpiB2AnalyticData implements Serializable {
 
     @NotNull
     @Column(name = "DT_ANALISYS_DATE", nullable = false)
-    private Instant analysisDate;
+    private LocalDate analysisDate;
 
     @JsonIgnore
     @NotNull
@@ -83,27 +83,11 @@ public class KpiB2AnalyticData implements Serializable {
     @Column(name = "CO_AVG_TIME", nullable = false)
     private Double avgTime;
 
-    @NotNull
-    @Column(name = "MONTH_WEIGHT", nullable = false)
-    private Double monthWeight;
-
-    @NotNull
-    @Column(name = "TOTAL_WEIGHT", nullable = false)
-    private Double totalWeight;
-
-    @NotNull
-    @Column(name = "MONTH_WEIGHT_OVERTIME", nullable = false)
-    private Double monthWeightOvertime;
-
-    @NotNull
-    @Column(name = "TOTAL_WEIGHT_OVERTIME", nullable = false)
-    private Double totalWeightOvertime;
-
     @JsonIgnore
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CO_KPI_B2_DETAIL_RESULT_ID", nullable = false)
-    private KpiB2Result kpiB2DetailResult;
+    private KpiB2DetailResult kpiB2DetailResult;
 
     @Override
     public boolean equals(Object o) {
@@ -146,14 +130,6 @@ public class KpiB2AnalyticData implements Serializable {
             reqTimeout +
             ", avgTime=" +
             avgTime +
-            ", monthWeight=" +
-            monthWeight +
-            ", totalWeight=" +
-            totalWeight +
-            ", monthWeightOvertime=" +
-            monthWeightOvertime +
-            ", totalWeightOvertime=" +
-            totalWeightOvertime +
             ", kpiB2DetailResult=" +
             kpiB2DetailResult +
             '}'

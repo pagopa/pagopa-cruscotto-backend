@@ -1,17 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.domain;
 
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.InstanceStatus;
-
-import java.io.Serializable;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -28,8 +18,15 @@ import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.io.Serializable;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * A Instance.
@@ -89,12 +86,11 @@ public class Instance extends AbstractAuditingEntity<Long> implements Serializab
 
     @Column(name = "DT_LAST_ANALISYS_DATE")
     private Instant lastAnalysisDate;
-    
+
     @JsonIgnore
     @OneToMany(mappedBy = "instance", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<InstanceModule> instanceModules = new HashSet<>();
 
-    
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -113,17 +109,31 @@ public class Instance extends AbstractAuditingEntity<Long> implements Serializab
 
     @Override
     public String toString() {
-        return "Instance{" +
-            "id=" + id +
-            ", instanceIdentification='" + instanceIdentification + '\'' +
-            ", partner=" + partner +
-            ", predictedDateAnalysis=" + predictedDateAnalysis +
-            ", applicationDate=" + applicationDate +
-            ", assignedUser=" + assignedUser +
-            ", analysisPeriodStartDate=" + analysisPeriodStartDate +
-            ", analysisPeriodEndDate=" + analysisPeriodEndDate +
-            ", status=" + status +
-            ", lastAnalysisDate=" + lastAnalysisDate +
-            "} " + super.toString();
+        return (
+            "Instance{" +
+            "id=" +
+            id +
+            ", instanceIdentification='" +
+            instanceIdentification +
+            '\'' +
+            ", partner=" +
+            partner +
+            ", predictedDateAnalysis=" +
+            predictedDateAnalysis +
+            ", applicationDate=" +
+            applicationDate +
+            ", assignedUser=" +
+            assignedUser +
+            ", analysisPeriodStartDate=" +
+            analysisPeriodStartDate +
+            ", analysisPeriodEndDate=" +
+            analysisPeriodEndDate +
+            ", status=" +
+            status +
+            ", lastAnalysisDate=" +
+            lastAnalysisDate +
+            "} " +
+            super.toString()
+        );
     }
 }

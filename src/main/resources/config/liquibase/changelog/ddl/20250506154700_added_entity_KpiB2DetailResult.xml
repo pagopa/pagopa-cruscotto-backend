@@ -22,7 +22,7 @@
       <column name="CO_INSTANCE_MODULE_ID" type="bigint">
         <constraints nullable="false"/>
       </column>
-      <column name="DT_ANALISYS_DATE" type="datetime">
+      <column name="DT_ANALISYS_DATE" type="date">
         <constraints nullable="false"/>
       </column>
       <column name="CO_STATION_ID" type="bigint">

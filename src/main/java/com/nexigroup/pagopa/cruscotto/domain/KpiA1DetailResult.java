@@ -1,20 +1,8 @@
 package com.nexigroup.pagopa.cruscotto.domain;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
-
-import java.io.Serializable;
-import java.time.Instant;
-import java.time.LocalDate;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -29,8 +17,17 @@ import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.io.Serializable;
+import java.time.Instant;
+import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 /**
  * A KpiA1DetailResult.
@@ -45,9 +42,9 @@ import lombok.Setter;
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class KpiA1DetailResult implements Serializable {
 
-	private static final long serialVersionUID = 1569798052441179251L;
+    private static final long serialVersionUID = 1569798052441179251L;
 
-	@Id
+    @Id
     @Column(name = "CO_ID")
     @SequenceGenerator(name = "SQDASH_KPIA1DETRES01", sequenceName = "SQDASH_KPIA1DETRES01", allocationSize = 1)
     @GeneratedValue(generator = "SQDASH_KPIA1DETRES01", strategy = GenerationType.SEQUENCE)
@@ -130,14 +127,38 @@ public class KpiA1DetailResult implements Serializable {
         return new HashCodeBuilder(17, 37).append(id).toHashCode();
     }
 
-	@Override
-	public String toString() {
-		return "KpiA1DetailResult [id=" + id + ", instance=" + instance + ", instanceModule=" + instanceModule
-				+ ", analysisDate=" + analysisDate + ", station=" + station + ", method=" + method + ", evaluationType="
-				+ evaluationType + ", evaluationStartDate=" + evaluationStartDate + ", evaluationEndDate="
-				+ evaluationEndDate + ", totReq=" + totReq + ", reqTimeout=" + reqTimeout + ", timeoutPercentage="
-				+ timeoutPercentage + ", outcome=" + outcome + ", kpiA1Result=" + kpiA1Result + "]";
-	}
-
-   
+    @Override
+    public String toString() {
+        return (
+            "KpiA1DetailResult [id=" +
+            id +
+            ", instance=" +
+            instance +
+            ", instanceModule=" +
+            instanceModule +
+            ", analysisDate=" +
+            analysisDate +
+            ", station=" +
+            station +
+            ", method=" +
+            method +
+            ", evaluationType=" +
+            evaluationType +
+            ", evaluationStartDate=" +
+            evaluationStartDate +
+            ", evaluationEndDate=" +
+            evaluationEndDate +
+            ", totReq=" +
+            totReq +
+            ", reqTimeout=" +
+            reqTimeout +
+            ", timeoutPercentage=" +
+            timeoutPercentage +
+            ", outcome=" +
+            outcome +
+            ", kpiA1Result=" +
+            kpiA1Result +
+            "]"
+        );
+    }
 }

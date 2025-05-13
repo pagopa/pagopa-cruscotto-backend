@@ -1,18 +1,6 @@
 package com.nexigroup.pagopa.cruscotto.domain;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import java.io.Serializable;
-import java.time.Instant;
-import java.time.LocalDate;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -25,8 +13,17 @@ import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.io.Serializable;
+import java.time.Instant;
+import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 /**
  * A KpiA1AnalyticData.
@@ -41,9 +38,9 @@ import lombok.Setter;
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class KpiA1AnalyticData implements Serializable {
 
-	private static final long serialVersionUID = 7810237102590802078L;
+    private static final long serialVersionUID = 7810237102590802078L;
 
-	@Id
+    @Id
     @Column(name = "CO_ID")
     @SequenceGenerator(name = "SQDASH_KPIA1ANADATA01", sequenceName = "SQDASH_KPIA1ANADATA01", allocationSize = 1)
     @GeneratedValue(generator = "SQDASH_KPIA1ANADATA01", strategy = GenerationType.SEQUENCE)
@@ -105,7 +102,6 @@ public class KpiA1AnalyticData implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CO_KPI_A1_DETAIL_RESULT_ID", nullable = false)
     private KpiA1Result kpiA1DetailResult;
-    
 
     @Override
     public boolean equals(Object o) {
@@ -122,11 +118,35 @@ public class KpiA1AnalyticData implements Serializable {
     }
 
     @Override
-	public String toString() {
-		return "KpiA1AnalyticData [id=" + id + ", instance=" + instance + ", instanceModule=" + instanceModule
-				+ ", analysisDate=" + analysisDate + ", station=" + station + ", method=" + method + ", evaluationDate="
-				+ evaluationDate + ", totReq=" + totReq + ", reqOk=" + reqOk + ", reqTimeout=" + reqTimeout
-				+ ", avgTime=" + avgTime + ", timeoutPercentage=" + timeoutPercentage + ", kpiA1DetailResult="
-				+ kpiA1DetailResult + "]";
-	}
+    public String toString() {
+        return (
+            "KpiA1AnalyticData [id=" +
+            id +
+            ", instance=" +
+            instance +
+            ", instanceModule=" +
+            instanceModule +
+            ", analysisDate=" +
+            analysisDate +
+            ", station=" +
+            station +
+            ", method=" +
+            method +
+            ", evaluationDate=" +
+            evaluationDate +
+            ", totReq=" +
+            totReq +
+            ", reqOk=" +
+            reqOk +
+            ", reqTimeout=" +
+            reqTimeout +
+            ", avgTime=" +
+            avgTime +
+            ", timeoutPercentage=" +
+            timeoutPercentage +
+            ", kpiA1DetailResult=" +
+            kpiA1DetailResult +
+            "]"
+        );
+    }
 }
