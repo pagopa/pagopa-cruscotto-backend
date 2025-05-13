@@ -32,7 +32,7 @@ module "api_v1" {
   api_management_name   = local.apim.name
   resource_group_name   = local.apim.rg
   product_ids           = [local.apim.product_id]
-  subscription_required = true
+  subscription_required = false # via JWT
 
   version_set_id = azurerm_api_management_api_version_set.api_version_set.id
   api_version    = "v1"
