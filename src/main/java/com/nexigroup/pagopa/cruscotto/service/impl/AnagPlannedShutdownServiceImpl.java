@@ -84,7 +84,7 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
      */
     @Override
     public Page<AnagPlannedShutdownDTO> findAll(AnagPlannedShutdownFilter filter, Pageable pageable) {
-        log.debug("Request to get all shutdowns by filter: {}", filter);
+        LOGGER.debug("Request to get all shutdowns by filter: {}", filter);
 
         BooleanBuilder builder = new BooleanBuilder();
 
@@ -250,7 +250,7 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
                     );
                 }
                 anagPlannedShutdownRepository.deleteById(id);
-                log.debug("Logical deleting of shutdown with id {}", id);
+                LOGGER.debug("Logical deleting of shutdown with id {}", id);
                 return anagPlannedShutdown;
             })
             .orElseThrow(() ->
