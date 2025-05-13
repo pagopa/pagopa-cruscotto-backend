@@ -1,5 +1,12 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Example;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.nexigroup.pagopa.cruscotto.domain.AnagPartner;
 import com.nexigroup.pagopa.cruscotto.domain.AnagPlannedShutdown;
 import com.nexigroup.pagopa.cruscotto.domain.AnagStation;
@@ -13,13 +20,12 @@ import com.nexigroup.pagopa.cruscotto.repository.AnagStationRepository;
 import com.nexigroup.pagopa.cruscotto.service.AnagPlannedShutdownService;
 import com.nexigroup.pagopa.cruscotto.service.dto.AnagPlannedShutdownDTO;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
+import com.querydsl.core.types.Projections;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
-import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Example;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service Implementation for managing {@link AnagPlannedShutdown}.
@@ -28,7 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownService {
 
-    private final Logger log = LoggerFactory.getLogger(AnagPlannedShutdownServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AnagPlannedShutdownServiceImpl.class);
 
     private final AnagPlannedShutdownRepository anagPlannedShutdownRepository;
 
@@ -128,6 +134,58 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
 
             anagPlannedShutdownRepository.save(plannedShutdown);
         });
+    }
+
+    @Override
+    public List<AnagPlannedShutdownDTO> findAllByTypePlannedIntoPeriod(
+        Long partnerId,
+        Long stationId,
+        TypePlanned typePlanned,
+        LocalDate startDate,
+        LocalDate endDate
+    ) {
+        QAnagPlannedShutdown anagPlannedShutdown = QAnagPlannedShutdown.anagPlannedShutdown;
+
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.atTime(23, 59, 59, 0);
+
+        LOGGER.info(startDateTime.toString());
+        LOGGER.info(endDateTime.toString());
+
+        return queryBuilder
+            .createQueryFactory()
+            .select(
+                Projections.fields(
+                    AnagPlannedShutdownDTO.class,
+                    anagPlannedShutdown.id.as("id"),
+                    anagPlannedShutdown.typePlanned.as("typePlanned"),
+                    anagPlannedShutdown.standInd.as("standInd"),
+                    anagPlannedShutdown.shutdownStartDate.as("shutdownStartDate"),
+                    anagPlannedShutdown.shutdownEndDate.as("shutdownEndDate"),
+                    anagPlannedShutdown.year.as("year"),
+                    anagPlannedShutdown.externalId.as("externalId")
+                )
+            )
+            .from(anagPlannedShutdown)
+            .where(
+                anagPlannedShutdown.anagPartner.id
+                    .eq(partnerId)
+                    .and(anagPlannedShutdown.anagStation.id.eq(stationId))
+                    .and(anagPlannedShutdown.typePlanned.eq(typePlanned))
+                    .and(
+                        anagPlannedShutdown.shutdownStartDate.between(
+                            startDateTime.atZone(ZoneId.systemDefault()).toInstant(),
+                            endDateTime.atZone(ZoneId.systemDefault()).toInstant()
+                        )
+                    )
+                    .and(
+                        anagPlannedShutdown.shutdownEndDate.between(
+                            startDateTime.atZone(ZoneId.systemDefault()).toInstant(),
+                            endDateTime.atZone(ZoneId.systemDefault()).toInstant()
+                        )
+                    )
+            )
+            .fetch();
     }
 
     private static @NotNull AnagPlannedShutdown getAnagPlannedShutdown(

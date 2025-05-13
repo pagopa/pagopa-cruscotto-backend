@@ -13,13 +13,12 @@
 logging:
   level:
     ROOT: DEBUG
-    org.hibernate.SQL: DEBUG
-    com.nexigroup.pagopa.cruscotto: DEBUG
-    org.hibernate.stat: off
-    org.hibernate.engine.internal.StatisticalLoggingSessionEventListener: info
-    org.springframework.orm.jpa: DEBUG
-    org.springframework.transaction: DEBUG
-    org.hibernate.engine.transaction.internal.TransactionImpl: DEBUG
+    com.nexigroup.pagopa.cruscotto: INFO
+#    org.hibernate.stat: off
+#    org.hibernate.engine.internal.StatisticalLoggingSessionEventListener: info
+#    org.springframework.orm.jpa: DEBUG
+#    org.springframework.transaction: DEBUG
+#    org.hibernate.engine.transaction.internal.TransactionImpl: DEBUG
 
 spring:
   devtools:
@@ -34,7 +33,7 @@ spring:
   jpa:
     properties:
       hibernate:
-        generate_statistics: true
+        generate_statistics: false
   #       jdbc:
   #         batch_size: 50
   datasource:
@@ -48,7 +47,7 @@ spring:
   liquibase:
     # Remove 'faker' if you do not want the sample data to be loaded automatically
     contexts: ddl, dml
-    enabled: true
+    enabled: false
   mail:
     host: localhost
     port: 25
@@ -145,3 +144,9 @@ application:
       limit: 20
   liquibase:
     async-start: false
+	
+decorator:
+  datasource:
+    p6spy:
+      multiline: true
+      logging: slf4j
