@@ -16,9 +16,11 @@ import com.nexigroup.pagopa.cruscotto.domain.Instance;
 import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
 import com.nexigroup.pagopa.cruscotto.domain.Module;
 import com.nexigroup.pagopa.cruscotto.domain.QInstance;
+import com.nexigroup.pagopa.cruscotto.domain.QInstanceModule;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisOutcome;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.InstanceStatus;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleStatus;
 import com.nexigroup.pagopa.cruscotto.repository.AnagPartnerRepository;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
@@ -150,14 +152,13 @@ public class InstanceServiceImpl implements InstanceService {
     
 	@Override
 	public Optional<InstanceDTO> findOne(Long id) {
-		return instanceRepository.findById(id)
-								 .map(instanceMapper::toDto);
+        return instanceRepository.findById(id).map(instanceMapper::toDto);
 	}
 	
     /**
      * Save a new instance.
      *
-     * @param instanceToSave the entity to save.
+     * @param instanceToCreate the entity to save.
      * @return the persisted entity.
      */
     @Override
@@ -222,7 +223,7 @@ public class InstanceServiceImpl implements InstanceService {
     /**
      * Update a instance.
      *
-     * @param instanceDTO the entity to save.
+     * @param instanceToUpdate the entity to save.
      * @return the persisted entity.
      */
     @Override
@@ -287,12 +288,19 @@ public class InstanceServiceImpl implements InstanceService {
     }
     
     @Override
-    public List<InstanceDTO> findInstanceToCalculate(Integer limit) {
+    public List<InstanceDTO> findInstanceToCalculate(ModuleCode moduleCode, Integer limit) {
         JPQLQuery<InstanceDTO> jpql = queryBuilder
             .<Instance>createQuery()
             .from(QInstance.instance)
+            .leftJoin(QInstance.instance.instanceModules, QInstanceModule.instanceModule)
             .where(
-                QInstance.instance.status.eq(InstanceStatus.PIANIFICATA).and(QInstance.instance.predictedDateAnalysis.loe(LocalDate.now()))
+                QInstance.instance.status
+                    .eq(InstanceStatus.PIANIFICATA)
+                    .and(QInstance.instance.predictedDateAnalysis.loe(LocalDate.now()))
+                    .and(QInstanceModule.instanceModule.moduleCode.eq(moduleCode.code))
+                    .and(QInstanceModule.instanceModule.analysisType.eq(AnalysisType.AUTOMATICA))
+                    .and(QInstanceModule.instanceModule.status.eq(ModuleStatus.ATTIVO))
+                    .and(QInstanceModule.instanceModule.analysisDate.isNull())
             )
             .select(
                 Projections.fields(
