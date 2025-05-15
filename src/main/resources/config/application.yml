@@ -111,6 +111,7 @@ spring:
   jpa:
     open-in-view: false
     properties:
+      hibernate.jdbc.time_zone: Europe/Rome
       hibernate.timezone.default_storage: NORMALIZE
       hibernate.type.preferred_instant_jdbc_type: TIMESTAMP
       hibernate.id.new_generator_mappings: true
