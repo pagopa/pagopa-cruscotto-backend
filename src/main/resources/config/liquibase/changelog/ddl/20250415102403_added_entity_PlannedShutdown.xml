@@ -50,5 +50,16 @@
       DROP TABLE ${database.defaultSchemaName}.ANAG_PLANNED_SHUTDOWN CASCADE CONSTRAINTS;
     </rollback>
   </changeSet>
+  
+  <changeSet id="20250415102403-3" author="pagopaCruscotto" context="ddl">
+    <createIndex indexName="IX${project_name}_PLSH01" 
+				 tableName="ANAG_PLANNED_SHUTDOWN">
+      <column name="DT_SHUTDOWN_START_DATE"/>
+      <column name="DT_SHUTDOWN_END_DATE"/>
+	  <column name="CO_ANAG_STATION_ID"/>
+	  <column name="CO_ANAG_PARTNER_ID"/>
+	  <column name="TE_TYPE_PLANNED"/>	  
+    </createIndex>
+  </changeSet>  
 
 </databaseChangeLog>
