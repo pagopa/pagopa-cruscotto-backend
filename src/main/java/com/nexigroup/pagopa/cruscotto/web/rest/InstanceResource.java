@@ -6,6 +6,7 @@ import com.nexigroup.pagopa.cruscotto.service.bean.InstanceRequestBean;
 import com.nexigroup.pagopa.cruscotto.service.dto.InstanceDTO;
 import com.nexigroup.pagopa.cruscotto.service.filter.InstanceFilter;
 import com.nexigroup.pagopa.cruscotto.web.rest.errors.BadRequestAlertException;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -108,7 +110,10 @@ public class InstanceResource {
      */
     @GetMapping("/instances")
     //    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_LIST_FUNCTION + "\")")
-    public ResponseEntity<List<InstanceDTO>> getAllInstances(@Valid InstanceFilter filter, Pageable pageable) {
+    public ResponseEntity<List<InstanceDTO>> getAllInstances(
+        @Parameter(description = "Filtro", required = false) @Valid @ParameterObject InstanceFilter filter,
+        @Parameter(description = "Pageable", required = true) @ParameterObject Pageable pageable
+    ) {
         log.debug("REST request to get Instances by filter: {}", filter);
         Page<InstanceDTO> page = instanceService.findAll(filter, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);

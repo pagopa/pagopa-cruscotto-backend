@@ -58,18 +58,16 @@ spring:
   thymeleaf:
     cache: false
   quartz:
-    job-store-type: memory
-#    properties:
-#      org.quartz.jobStore.class: org.quartz.impl.jdbcjobstore.JobStoreTX
-#      org.quartz.jobStore.isClustered: true
-#      org.quartz.jobStore.dataSource: cruscotto
-#      org.quartz.dataSource.cruscotto.provider: hikaricp
-#      org.quartz.dataSource.cruscotto.driver: org.postgresql.Driver
-#      org.quartz.dataSource.cruscotto.URL: jdbc:postgresql://10.8.79.25:3306/qualification_dashboard
-#      org.quartz.dataSource.cruscotto.user: qualification_dashboard
-#      org.quartz.dataSource.cruscotto.password: qualification_dashboard
-#      org.quartz.dataSource.cruscotto.validationQuery: select 1
-#      org.quartz.dataSource.cruscotto.maxConnections: 10
+    properties:
+      org.quartz.jobStore.driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
+      org.quartz.jobStore.dataSource: cruscotto
+      org.quartz.dataSource.cruscotto.provider: hikaricp
+      org.quartz.dataSource.cruscotto.driver: org.postgresql.Driver
+      org.quartz.dataSource.cruscotto.URL: jdbc:postgresql://10.8.79.25:3306/qualification_dashboard
+      org.quartz.dataSource.cruscotto.user: qualification_dashboard
+      org.quartz.dataSource.cruscotto.password: qualification_dashboard
+      org.quartz.dataSource.cruscotto.validationQuery: select 1
+      org.quartz.dataSource.cruscotto.maxConnections: 10
 server:
   port: 8080
   # make sure requests the proxy uri instead of the server one
