@@ -45,8 +45,6 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AnagPlannedShutdownServiceImpl.class);
 
-    static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
     private final AnagPlannedShutdownRepository anagPlannedShutdownRepository;
 
     private final AnagPartnerRepository anagPartnerRepository;
@@ -59,7 +57,9 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
 
     private final UserUtils userUtils;
 
-    public AnagPlannedShutdownServiceImpl(
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+
+   public AnagPlannedShutdownServiceImpl(
         AnagPlannedShutdownRepository anagPlannedShutdownRepository,
         AnagPartnerRepository anagPartnerRepository,
         AnagStationRepository anagStationRepository,
@@ -158,6 +158,8 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
     public AnagPlannedShutdownDTO saveNew(ShutdownRequestBean shutdownToCreate) {
         AuthUser loggedUser = userUtils.getLoggedUser();
 
+        ZoneId zoneId = ZoneId.systemDefault();
+
         ZonedDateTime now = ZonedDateTime.now(ZoneId.systemDefault());
 
         AnagPartner partner = anagPartnerRepository
@@ -184,11 +186,11 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
         shutdown.setTypePlanned(TypePlanned.NON_PROGRAMMATO);
         shutdown.setAnagPartner(partner);
         shutdown.setAnagStation(station);
-        LocalDate localStartDate = LocalDate.parse(shutdownToCreate.getShutdownStartDate(), formatter);
-        Instant startInstant = localStartDate.atStartOfDay(ZoneOffset.UTC).toInstant();
+        LocalDateTime startDateTime = LocalDateTime.parse(shutdownToCreate.getShutdownStartDate(), formatter);
+        Instant startInstant = startDateTime.atZone(zoneId).toInstant();
         shutdown.setShutdownStartDate(startInstant);
-        LocalDate localEndDate = LocalDate.parse(shutdownToCreate.getShutdownEndDate(), formatter);
-        Instant endInstant = localEndDate.atStartOfDay(ZoneOffset.UTC).toInstant();
+        LocalDateTime endDateTime = LocalDateTime.parse(shutdownToCreate.getShutdownEndDate(), formatter);
+        Instant endInstant = endDateTime.atZone(zoneId).toInstant();
         shutdown.setShutdownEndDate(endInstant);
         shutdown.setStandInd(true);
         shutdown.setCreatedBy(loggedUser.getLogin());
@@ -315,6 +317,9 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
      */
     @Override
     public AnagPlannedShutdownDTO update(ShutdownRequestBean shutdownToUpdate) {
+
+        ZoneId zoneId = ZoneId.systemDefault();
+
         return Optional.of(anagPlannedShutdownRepository.findById(shutdownToUpdate.getId()))
             .filter(Optional::isPresent)
             .map(Optional::get)
@@ -351,14 +356,13 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
                         )
                     );
                 shutdown.setAnagStation(station);
-
-                LocalDate localStartDate = LocalDate.parse(shutdownToUpdate.getShutdownStartDate(), formatter);
-                Instant startInstant = localStartDate.atStartOfDay(ZoneOffset.UTC).toInstant();
+                LocalDateTime startDateTime = LocalDateTime.parse(shutdownToUpdate.getShutdownStartDate(), formatter);
+                Instant startInstant = startDateTime.atZone(zoneId).toInstant();
                 shutdown.setShutdownStartDate(startInstant);
-                LocalDate localEndDate = LocalDate.parse(shutdownToUpdate.getShutdownEndDate(), formatter);
-                Instant endInstant = localEndDate.atStartOfDay(ZoneOffset.UTC).toInstant();
+                LocalDateTime endDateTime = LocalDateTime.parse(shutdownToUpdate.getShutdownEndDate(), formatter);
+                Instant endInstant = endDateTime.atZone(zoneId).toInstant();
                 shutdown.setShutdownEndDate(endInstant);
-
+                shutdown.setShutdownEndDate(endInstant);
                 return shutdown;
             })
             .map(shutdownMapper::toDto)
