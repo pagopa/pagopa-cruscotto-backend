@@ -12,10 +12,11 @@ import com.nexigroup.pagopa.cruscotto.service.bean.AuthUserCreateRequestBean;
 import com.nexigroup.pagopa.cruscotto.service.bean.AuthUserUpdateRequestBean;
 import com.nexigroup.pagopa.cruscotto.service.dto.AuthUserDTO;
 import com.nexigroup.pagopa.cruscotto.service.util.PasswordValidator;
+import com.nexigroup.pagopa.cruscotto.service.validation.UserResourcePermissionValidator;
 import com.nexigroup.pagopa.cruscotto.web.rest.errors.BadRequestAlertException;
 import com.nexigroup.pagopa.cruscotto.web.rest.errors.EmailAlreadyUsedException;
 import com.nexigroup.pagopa.cruscotto.web.rest.errors.LoginAlreadyUsedException;
-import com.nexigroup.pagopa.cruscotto.service.validation.UserResourcePermissionValidator;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -24,6 +25,7 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -321,7 +323,9 @@ public class AuthUserResource {
      */
     @GetMapping("/auth-users")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_ADMIN_LIST_USER + "\")")
-    public ResponseEntity<List<AuthUserDTO>> getAllAuthUsers(Pageable pageable) {
+    public ResponseEntity<List<AuthUserDTO>> getAllAuthUsers(
+        @Parameter(description = "Pageable", required = true) @ParameterObject Pageable pageable
+    ) {
         final Page<AuthUserDTO> page = authUserService.getAllManagedUsers(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
