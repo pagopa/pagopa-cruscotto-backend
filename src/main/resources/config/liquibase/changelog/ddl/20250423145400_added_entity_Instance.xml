@@ -53,5 +53,13 @@
       DROP TABLE ${database.defaultSchemaName}.INSTANCE CASCADE CONSTRAINTS;
     </rollback>
   </changeSet>
+  
+  <changeSet id="20250423145400-3" author="pagopaCruscotto" context="ddl">
+    <createIndex indexName="IX${project_name}_INST01" 
+				 tableName="INSTANCE">
+      <column name="DT_PREDICTED_DATE_ANALYSIS"/>
+      <column name="TE_STATUS"/>
+    </createIndex>
+  </changeSet>    
 
 </databaseChangeLog>
