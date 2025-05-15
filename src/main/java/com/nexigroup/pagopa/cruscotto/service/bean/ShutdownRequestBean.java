@@ -11,7 +11,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-@ValidRangeDate(minDate = "shutdownStartDate", maxDate = "shutdownEndDate", pattern = "dd/MM/yyyy", field = "FIELD@shutdownPeriodStartDateEndDate")
+@ValidRangeDate(minDate = "shutdownStartDate", maxDate = "shutdownEndDate", pattern = "yyyy-MM-dd HH:mm:ss", field = "FIELD@shutdownPeriodStartDateEndDate")
 public class ShutdownRequestBean {
 
     private Long id;
@@ -21,11 +21,11 @@ public class ShutdownRequestBean {
     private String partnerId;
 
     @NotBlank
-    @Pattern(regexp = "(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[012])/[0-9]{4}")
+    @Pattern(regexp = "(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[012])-[0-9]{4} ([01][0-9]|2[0-3]):[0-5][0-9]:00")
     private String shutdownStartDate;
 
     @NotBlank
-    @Pattern(regexp = "(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[012])/[0-9]{4}")
+    @Pattern(regexp = "(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[012])-[0-9]{4} ([01][0-9]|2[0-3]):[0-5][0-9]:00")
     private String shutdownEndDate;
 
     @NotBlank
