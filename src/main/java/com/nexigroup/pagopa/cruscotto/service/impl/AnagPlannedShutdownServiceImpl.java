@@ -1,6 +1,16 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
-import com.nexigroup.pagopa.cruscotto.domain.*;
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Example;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.nexigroup.pagopa.cruscotto.domain.AnagPartner;
+import com.nexigroup.pagopa.cruscotto.domain.AnagPlannedShutdown;
+import com.nexigroup.pagopa.cruscotto.domain.AnagStation;
+import com.nexigroup.pagopa.cruscotto.domain.QAnagPlannedShutdown;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.PartnerStatus;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.StationStatus;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.TypePlanned;
@@ -11,17 +21,11 @@ import com.nexigroup.pagopa.cruscotto.service.AnagPlannedShutdownService;
 import com.nexigroup.pagopa.cruscotto.service.dto.AnagPlannedShutdownDTO;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import com.querydsl.core.types.Projections;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.List;
-import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Example;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service Implementation for managing {@link AnagPlannedShutdown}.
@@ -170,15 +174,12 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
                     .and(anagPlannedShutdown.typePlanned.eq(typePlanned))
                     .and(
                         anagPlannedShutdown.shutdownStartDate.between(
-                            startDateTime.toInstant(ZoneOffset.UTC),
-                            endDateTime.toInstant(ZoneOffset.UTC)
-                        )
-                    )
-                    .and(
-                        anagPlannedShutdown.shutdownEndDate.between(
-                            startDateTime.toInstant(ZoneOffset.UTC),
-                            endDateTime.toInstant(ZoneOffset.UTC)
-                        )
+                            startDateTime.atZone(ZoneOffset.systemDefault()).toInstant(),
+                            endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()
+                        ).or(anagPlannedShutdown.shutdownEndDate.between(
+                            startDateTime.atZone(ZoneOffset.systemDefault()).toInstant(),
+                            endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()
+                        ))
                     )
             )
             .fetch();
