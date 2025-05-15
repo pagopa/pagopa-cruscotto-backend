@@ -6,6 +6,7 @@ import com.nexigroup.pagopa.cruscotto.service.AuthPermissionService;
 import com.nexigroup.pagopa.cruscotto.service.dto.AuthPermissionDTO;
 import com.nexigroup.pagopa.cruscotto.service.filter.AuthPermissionFilter;
 import com.nexigroup.pagopa.cruscotto.web.rest.errors.BadRequestAlertException;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -100,7 +102,10 @@ public class AuthPermissionResource {
      */
     @GetMapping("/auth-permissions")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_ADMIN_LIST_PERMISSION + "\")")
-    public ResponseEntity<List<AuthPermissionDTO>> getAllAuthPermissions(@Valid AuthPermissionFilter filter, Pageable pageable) {
+    public ResponseEntity<List<AuthPermissionDTO>> getAllAuthPermissions(
+        @Parameter(description = "Filtro", required = false) @Valid @ParameterObject AuthPermissionFilter filter,
+        @Parameter(description = "Pageable", required = true) @ParameterObject Pageable pageable
+    ) {
         log.debug("REST request to get AuthPermissions by criteria: {}", filter);
         Page<AuthPermissionDTO> page = authPermissionService.findAll(filter, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
