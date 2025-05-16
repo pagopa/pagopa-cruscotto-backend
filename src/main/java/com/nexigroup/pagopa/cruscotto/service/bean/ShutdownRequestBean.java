@@ -1,5 +1,6 @@
 package com.nexigroup.pagopa.cruscotto.service.bean;
 
+import com.nexigroup.pagopa.cruscotto.service.validation.FutureOrPresent;
 import com.nexigroup.pagopa.cruscotto.service.validation.ValidRangeDate;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
@@ -11,7 +12,9 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-@ValidRangeDate(minDate = "shutdownStartDate", maxDate = "shutdownEndDate", pattern = "yyyy-MM-dd HH:mm:ss", field = "FIELD@shutdownPeriodStartDateEndDate")
+@ValidRangeDate(minDate = "shutdownStartDate", maxDate = "shutdownEndDate", pattern = "dd-MM-yyyy HH:mm:ss", field = "FIELD@shutdownPeriodStartDateEndDate")
+@FutureOrPresent.List({@FutureOrPresent(date = "shutdownStartDate", pattern = "dd-MM-yyyy HH:mm:ss", present = false, field = "FIELD@shutdownStartDate"),
+                       @FutureOrPresent(date = "shutdownEndDate", pattern = "dd-MM-yyyy HH:mm:ss", present = false, field = "FIELD@shutdownEndDate")})
 public class ShutdownRequestBean {
 
     private Long id;
