@@ -1,8 +1,27 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
-import com.nexigroup.pagopa.cruscotto.domain.*;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.nexigroup.pagopa.cruscotto.domain.AnagPartner;
+import com.nexigroup.pagopa.cruscotto.domain.AuthUser;
+import com.nexigroup.pagopa.cruscotto.domain.Instance;
+import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
 import com.nexigroup.pagopa.cruscotto.domain.Module;
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.*;
+import com.nexigroup.pagopa.cruscotto.domain.QInstance;
+import com.nexigroup.pagopa.cruscotto.domain.QInstanceModule;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisOutcome;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisType;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.InstanceStatus;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleStatus;
 import com.nexigroup.pagopa.cruscotto.repository.AnagPartnerRepository;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
 import com.nexigroup.pagopa.cruscotto.repository.ModuleRepository;
@@ -22,6 +41,7 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPQLQuery;
+
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -30,15 +50,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service Implementation for managing {@link Instance}.
@@ -326,7 +337,7 @@ public class InstanceServiceImpl implements InstanceService {
                     .and(QInstanceModule.instanceModule.moduleCode.eq(moduleCode.code))
                     .and(QInstanceModule.instanceModule.analysisType.eq(AnalysisType.AUTOMATICA))
                     .and(QInstanceModule.instanceModule.status.eq(ModuleStatus.ATTIVO))
-                    .and(QInstanceModule.instanceModule.analysisDate.isNull())
+                    .and(QInstanceModule.instanceModule.automaticOutcomeDate.isNull())
             )
             .select(
                 Projections.fields(
