@@ -24,7 +24,7 @@ import com.querydsl.core.types.Projections;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.List;
 
 /**
@@ -174,15 +174,12 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
                     .and(anagPlannedShutdown.typePlanned.eq(typePlanned))
                     .and(
                         anagPlannedShutdown.shutdownStartDate.between(
-                            startDateTime.atZone(ZoneId.systemDefault()).toInstant(),
-                            endDateTime.atZone(ZoneId.systemDefault()).toInstant()
-                        )
-                    )
-                    .and(
-                        anagPlannedShutdown.shutdownEndDate.between(
-                            startDateTime.atZone(ZoneId.systemDefault()).toInstant(),
-                            endDateTime.atZone(ZoneId.systemDefault()).toInstant()
-                        )
+                            startDateTime.atZone(ZoneOffset.systemDefault()).toInstant(),
+                            endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()
+                        ).or(anagPlannedShutdown.shutdownEndDate.between(
+                            startDateTime.atZone(ZoneOffset.systemDefault()).toInstant(),
+                            endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()
+                        ))
                     )
             )
             .fetch();

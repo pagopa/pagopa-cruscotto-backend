@@ -12,7 +12,7 @@ import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 
 import java.io.Serializable;
-import java.time.Instant;
+import java.time.LocalDate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -64,7 +64,7 @@ public class KpiB2Result implements Serializable {
 
     @NotNull
     @Column(name = "DT_ANALISYS_DATE", nullable = false)
-    private Instant analysisDate;
+    private LocalDate analysisDate;
 
     @NotNull
     @Column(name = "FL_EXCLUDE_PLANNED_SHUTDOWN", nullable = false)
@@ -81,10 +81,10 @@ public class KpiB2Result implements Serializable {
     @NotNull
     @Column(name = "CO_TOLLERANCE", nullable = false)
     private Double tollerance;
-    
+
     @NotNull
     @Column(name = "CO_AVERAGE_TIME_LIMIT", nullable = false)
-    private Double averageTimeLimit;    
+    private Double averageTimeLimit;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -131,7 +131,7 @@ public class KpiB2Result implements Serializable {
             ", tollerance=" +
             tollerance +
             ", averageTimeLimit=" +
-            averageTimeLimit +            
+            averageTimeLimit +
             ", evaluationType=" +
             evaluationType +
             ", outcome=" +

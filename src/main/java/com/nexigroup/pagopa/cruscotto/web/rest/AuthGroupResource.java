@@ -9,6 +9,8 @@ import com.nexigroup.pagopa.cruscotto.service.dto.AuthFunctionDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.AuthGroupDTO;
 import com.nexigroup.pagopa.cruscotto.service.filter.AuthGroupFilter;
 import com.nexigroup.pagopa.cruscotto.web.rest.errors.BadRequestAlertException;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -18,6 +20,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -106,7 +109,10 @@ public class AuthGroupResource {
      */
     @GetMapping("/auth-groups")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_LIST_GROUP + "\")")
-    public ResponseEntity<List<AuthGroupDTO>> getAllAuthGroups(@Valid AuthGroupFilter filter, Pageable pageable) {
+    public ResponseEntity<List<AuthGroupDTO>> getAllAuthGroups(
+        @Parameter(description = "Filter", required = false) @Valid @ParameterObject AuthGroupFilter filter,
+        @Parameter(description = "Pageable", required = true) @ParameterObject Pageable pageable
+    ) {
         log.info("REST request to get AuthGroups by filter: {}", filter);
         Page<AuthGroupDTO> page = authGroupService.findAll(filter, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);

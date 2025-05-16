@@ -8,6 +8,7 @@ import com.nexigroup.pagopa.cruscotto.service.dto.AuthFunctionDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.AuthPermissionDTO;
 import com.nexigroup.pagopa.cruscotto.service.filter.AuthFunctionFilter;
 import com.nexigroup.pagopa.cruscotto.web.rest.errors.BadRequestAlertException;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -17,6 +18,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -108,7 +110,10 @@ public class AuthFunctionResource {
      */
     @GetMapping("/auth-functions")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_LIST_FUNCTION + "\")")
-    public ResponseEntity<List<AuthFunctionDTO>> getAllAuthFunctions(@Valid AuthFunctionFilter filter, Pageable pageable) {
+    public ResponseEntity<List<AuthFunctionDTO>> getAllAuthFunctions(
+        @Parameter(description = "Filter", required = false) @Valid @ParameterObject AuthFunctionFilter filter,
+        @Parameter(description = "Pageable", required = true) @ParameterObject Pageable pageable
+    ) {
         log.debug("REST request to get AuthFunctions by filter: {}", filter);
         Page<AuthFunctionDTO> page = authFunctionService.findAll(filter, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);

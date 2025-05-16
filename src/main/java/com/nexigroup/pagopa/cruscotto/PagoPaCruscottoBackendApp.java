@@ -8,6 +8,7 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.TimeZone;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,11 +91,13 @@ public class PagoPaCruscottoBackendApp {
 
             ----------------------------------------------------------
             \tApplication '{}' is running! Access URLs:
+            \tTimezone: \t{}
             \tLocal: \t\t{}://localhost:{}{}
             \tExternal: \t{}://{}:{}{}
             \tProfile(s): \t{}
             ----------------------------------------------------------""",
             applicationName,
+            TimeZone.getDefault().getDisplayName(),
             protocol,
             serverPort,
             contextPath,

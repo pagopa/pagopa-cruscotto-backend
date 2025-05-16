@@ -31,10 +31,10 @@
       <column name="FL_ALLOW_MANUAL_OUTCOME" type="boolean">
         <constraints nullable="false"/>
       </column>
-      <column name="DT_ANALISYS_DATE" type="datetime">
-        <constraints nullable="true"/>
-      </column>
       <column name="TE_AUTOMATIC_OUTCOME" type="varchar(20)">
+        <constraints nullable="true"/>
+      </column>      
+      <column name="DT_AUTOMATIC_OUTCOME_DATE" type="datetime">
         <constraints nullable="true"/>
       </column>
       <column name="TE_MANUAL_OUTCOME" type="varchar(20)">
@@ -56,5 +56,20 @@
       DROP TABLE ${database.defaultSchemaName}.INSTANCE_MODULE CASCADE CONSTRAINTS;
     </rollback>
   </changeSet>
+  
+  <changeSet id="20250502170500-3" author="pagopaCruscotto" context="ddl">
+    <createIndex indexName="IX${project_name}_ISMO01" 
+				 tableName="INSTANCE_MODULE">
+      <column name="TE_MODULE_CODE"/>
+      <column name="TE_ANALYSIS_TYPE"/>
+      <column name="TE_STATUS"/>
+    </createIndex>
+    
+    <createIndex indexName="IX${project_name}_ISMO02" 
+				 tableName="INSTANCE_MODULE">
+      <column name="CO_INSTANCE_ID"/>
+      <column name="CO_MODULE_ID"/>
+    </createIndex>    
+  </changeSet>   
   
 </databaseChangeLog>
