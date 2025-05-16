@@ -52,5 +52,12 @@
       DROP TABLE ${database.defaultSchemaName}.ANAG_PARTNER CASCADE CONSTRAINTS;
     </rollback>
   </changeSet>
+  
+  <changeSet id="20250415102401-3" author="pagopaCruscotto" context="ddl">
+    <createIndex indexName="IX${project_name}_STAT01" 
+				 tableName="ANAG_STATION">
+      <column name="TE_NAME"/>
+    </createIndex>
+  </changeSet>   
 
 </databaseChangeLog>
