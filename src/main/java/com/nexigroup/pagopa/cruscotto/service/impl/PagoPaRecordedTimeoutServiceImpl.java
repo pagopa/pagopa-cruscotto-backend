@@ -1,21 +1,28 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
-import com.nexigroup.pagopa.cruscotto.domain.*;
-import com.nexigroup.pagopa.cruscotto.service.PagoPaRecordedTimeoutService;
-import com.nexigroup.pagopa.cruscotto.service.dto.PagoPaRecordedTimeoutDTO;
-import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
-import com.querydsl.core.Tuple;
-import com.querydsl.core.types.Projections;
-import java.beans.Expression;
-import java.time.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.nexigroup.pagopa.cruscotto.domain.PagoPaRecordedTimeout;
+import com.nexigroup.pagopa.cruscotto.domain.QPagoPaRecordedTimeout;
+import com.nexigroup.pagopa.cruscotto.service.PagoPaRecordedTimeoutService;
+import com.nexigroup.pagopa.cruscotto.service.dto.PagoPaRecordedTimeoutDTO;
+import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
+import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.Expressions;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Service Implementation for managing {@link PagoPaRecordedTimeout}.
@@ -58,8 +65,8 @@ public class PagoPaRecordedTimeoutServiceImpl implements PagoPaRecordedTimeoutSe
             .where(
                 qPagoPaRecordedTimeout.cfPartner
                     .eq(fiscalCodePartner)
-                    .and(qPagoPaRecordedTimeout.startDate.goe(startDateTime.toInstant(ZoneOffset.UTC)))
-                    .and(qPagoPaRecordedTimeout.endDate.loe(endDateTime.toInstant(ZoneOffset.UTC)))
+                    .and(qPagoPaRecordedTimeout.startDate.goe(startDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
+                    .and(qPagoPaRecordedTimeout.endDate.loe(endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
             )
             .groupBy(qPagoPaRecordedTimeout.station, qPagoPaRecordedTimeout.method)
             .orderBy(qPagoPaRecordedTimeout.station.asc(), qPagoPaRecordedTimeout.method.asc())
@@ -101,8 +108,8 @@ public class PagoPaRecordedTimeoutServiceImpl implements PagoPaRecordedTimeoutSe
                     .eq(fiscalCodePartner)
                     .and(qPagoPaRecordedTimeout.station.eq(station))
                     .and(qPagoPaRecordedTimeout.method.eq(method))
-                    .and(qPagoPaRecordedTimeout.startDate.goe(startDateTime.toInstant(ZoneOffset.UTC)))
-                    .and(qPagoPaRecordedTimeout.startDate.loe(endDateTime.toInstant(ZoneOffset.UTC)))
+                    .and(qPagoPaRecordedTimeout.startDate.goe(startDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
+                    .and(qPagoPaRecordedTimeout.startDate.loe(endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
             )
             .fetchOne();
     }
@@ -145,9 +152,10 @@ public class PagoPaRecordedTimeoutServiceImpl implements PagoPaRecordedTimeoutSe
                     .eq(fiscalCodePartner)
                     .and(qPagoPaRecordedTimeout.station.eq(station))
                     .and(qPagoPaRecordedTimeout.method.eq(method))
-                    .and(qPagoPaRecordedTimeout.startDate.goe(startDateTime.toInstant(ZoneOffset.UTC)))
-                    .and(qPagoPaRecordedTimeout.startDate.loe(endDateTime.toInstant(ZoneOffset.UTC)))
+                    .and(qPagoPaRecordedTimeout.startDate.goe(startDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
+                    .and(qPagoPaRecordedTimeout.startDate.loe(endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
             )
+            .orderBy(new OrderSpecifier<>(Order.ASC, Expressions.stringPath("startDate")))
             .fetch();
     }
 }

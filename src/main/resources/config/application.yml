@@ -91,11 +91,6 @@ management:
 spring:
   application:
     name: pagopaCruscottoBackend
-  docker:
-    compose:
-      enabled: true
-      lifecycle-management: start-only
-      file: src/main/docker/services.yml
   profiles:
     # The commented value for `active` can be replaced with valid Spring profiles to load.
     # Otherwise, it will be filled in by maven when building the JAR file
@@ -116,7 +111,7 @@ spring:
   jpa:
     open-in-view: false
     properties:
-      hibernate.jdbc.time_zone: UTC
+      hibernate.jdbc.time_zone: Europe/Rome
       hibernate.timezone.default_storage: NORMALIZE
       hibernate.type.preferred_instant_jdbc_type: TIMESTAMP
       hibernate.id.new_generator_mappings: true
@@ -143,14 +138,19 @@ spring:
     problemdetails:
       enabled: true
   quartz:
+    job-store-type: jdbc
+    jdbc:
+      initialize-schema: never
     properties:
       org.quartz.scheduler.instanceName: PagoPaCruscottoScheduler
       org.quartz.scheduler.instanceId: AUTO
       org.quartz.threadPool.threadCount: 10
+      org.quartz.jobStore.class: org.quartz.impl.jdbcjobstore.JobStoreTX
+      org.quartz.jobStore.isClustered: true
       org.quartz.plugin.shutdownHook.class: org.quartz.plugins.management.ShutdownHookPlugin
       org.quartz.plugin.shutdownHook.cleanShutdown: true
       org.quartz.scheduler.batchTriggerAcquisitionMaxCount: 6
-      #      org.quartz.jobStore.acquireTriggersWithinLock: true
+      org.quartz.jobStore.acquireTriggersWithinLock: true
       org.quartz.plugin.triggerHistory.class: 'org.quartz.plugins.history.LoggingTriggerHistoryPlugin'
       org.quartz.plugin.triggerHistory.triggerFiredMessage: 'Trigger [{1}.{0}] fired job [{6}.{5}] scheduled at: {2, date, dd-MM-yyyy HH:mm:ss.SSS}, next scheduled at: {3, date, dd-MM-yyyy HH:mm:ss.SSS}'
       org.quartz.plugin.triggerHistory.triggerCompleteMessage: 'Trigger [{1}.{0}] completed firing job [{6}.{5}] with resulting trigger instruction code: {9}. Next scheduled at: {3, date, dd-MM-yyyy HH:mm:ss.SSS}'

@@ -1,15 +1,13 @@
 package com.nexigroup.pagopa.cruscotto.service.dto;
 
-
 import com.nexigroup.pagopa.cruscotto.domain.Instance;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.InstanceStatus;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * A DTO for the {@link Instance} entity.

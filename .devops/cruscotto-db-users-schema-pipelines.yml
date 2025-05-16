@@ -22,41 +22,41 @@ variables:
   ${{ if eq(parameters.k8sEnv, 'dev') }}:
     DB_HOST: pagopa-d-itn-crusc8-flexible-postgresql
     AZURE_SERVICE_CONNECTION: '$(TF_AZURE_SERVICE_CONNECTION_PLAN_NAME_DEV)'
-    KEY_VAULT_NAME: 'pagopa-d-crusc8-kv'
+    KEY_VAULT_NAME: 'pagopa-d-itn-crusc8-kv'
     DATABASE_NAME: cruscotto
     poolImage: 'pagopa-dev-linux-infra'
   ${{ elseif eq(parameters.k8sEnv, 'uat') }}:
     DB_HOST: pagopa-u-itn-crusc8-flexible-postgresql
     AZURE_SERVICE_CONNECTION: '$(TF_AZURE_SERVICE_CONNECTION_PLAN_NAME_UAT)'
-    KEY_VAULT_NAME: 'pagopa-u-crusc8-kv'
+    KEY_VAULT_NAME: 'pagopa-u-itn-crusc8-kv'
     DATABASE_NAME: cruscotto
     poolImage: 'pagopa-uat-linux-infra'
   ${{ elseif eq(parameters.k8sEnv, 'prd') }}:
     DB_HOST: pagopa-p-itn-crusc8-flexible-postgresql
     AZURE_SERVICE_CONNECTION: '$(TF_AZURE_SERVICE_CONNECTION_PLAN_NAME_PROD)'
-    KEY_VAULT_NAME: 'pagopa-p-crusc8-kv'
+    KEY_VAULT_NAME: 'pagopa-p-itn-crusc8-kv'
     DATABASE_NAME: cruscotto
     poolImage: 'pagopa-prod-linux-infra'
   ADMIN_USERNAME: usrcrus8
-  cruscotto_USERNAME: cruscotto
-  cruscotto_SCHEMA: cruscotto
+  CRUSCOTTO_USERNAME: cruscotto
+  CRUSCOTTO_SCHEMA: cruscotto
 
 stages:
   - stage: initialization_jobs
-    displayName: "Init ${{ parameters.k8sEnv }}"
+    displayName: 'Init ${{ parameters.k8sEnv }}'
     jobs:
       - job: initialization
         pool: $(poolImage)
-        displayName: "Schemas creation job"
+        displayName: 'Schemas creation job'
         steps:
           - task: AzureKeyVault@2
-            displayName: "Get secrets"
+            displayName: 'Get secrets'
             inputs:
               azureSubscription: $(AZURE_SERVICE_CONNECTION)
               keyVaultName: $(KEY_VAULT_NAME)
               secretsFilter: 'db-administrator-login-password,db-cruscotto-password'
           - task: AzureCLI@2
-            displayName: "create all schemas"
+            displayName: 'create all schemas'
             inputs:
               azureSubscription: $(AZURE_SERVICE_CONNECTION)
               scriptLocation: inlineScript
@@ -68,20 +68,20 @@ stages:
                 --querytext "
                 do \$\$
                 BEGIN
-                IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '$cruscotto_USERNAME') THEN
-                CREATE ROLE $cruscotto_USERNAME LOGIN PASSWORD '$(db-cruscotto-password)';
+                IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '$CRUSCOTTO_USERNAME') THEN
+                CREATE ROLE $CRUSCOTTO_USERNAME LOGIN PASSWORD '$(db-cruscotto-password)';
                 END IF;
 
-                GRANT ALL PRIVILEGES ON DATABASE $DATABASE_NAME TO $cruscotto_USERNAME;
+                GRANT ALL PRIVILEGES ON DATABASE $DATABASE_NAME TO $CRUSCOTTO_USERNAME;
 
-                GRANT $cruscotto_USERNAME to $ADMIN_USERNAME;
+                GRANT $CRUSCOTTO_USERNAME to $ADMIN_USERNAME;
                   
-                CREATE SCHEMA IF NOT EXISTS $cruscotto_SCHEMA AUTHORIZATION $cruscotto_USERNAME;
+                CREATE SCHEMA IF NOT EXISTS $CRUSCOTTO_SCHEMA AUTHORIZATION $CRUSCOTTO_USERNAME;
 
-                GRANT ALL ON SCHEMA $cruscotto_SCHEMA TO $cruscotto_USERNAME;
-                ALTER DEFAULT PRIVILEGES IN SCHEMA $cruscotto_SCHEMA grant all on tables to $cruscotto_USERNAME;
-                ALTER DEFAULT PRIVILEGES IN SCHEMA $cruscotto_SCHEMA grant all on sequences to $cruscotto_USERNAME;
-                ALTER DEFAULT PRIVILEGES IN SCHEMA $cruscotto_SCHEMA grant all on functions to $cruscotto_USERNAME;
+                GRANT ALL ON SCHEMA $CRUSCOTTO_SCHEMA TO $CRUSCOTTO_USERNAME;
+                ALTER DEFAULT PRIVILEGES IN SCHEMA $CRUSCOTTO_SCHEMA grant all on tables to $CRUSCOTTO_USERNAME;
+                ALTER DEFAULT PRIVILEGES IN SCHEMA $CRUSCOTTO_SCHEMA grant all on sequences to $CRUSCOTTO_USERNAME;
+                ALTER DEFAULT PRIVILEGES IN SCHEMA $CRUSCOTTO_SCHEMA grant all on functions to $CRUSCOTTO_USERNAME;
                 END
                 \$\$;
                 "

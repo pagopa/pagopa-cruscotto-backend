@@ -42,14 +42,14 @@ import lombok.Setter;
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class InstanceModule extends AbstractAuditingEntity<Long> implements Serializable {
 
-	private static final long serialVersionUID = -6261959579283430859L;
+    private static final long serialVersionUID = -6261959579283430859L;
 
-	@Id
+    @Id
     @Column(name = "CO_ID")
     @SequenceGenerator(name = "SQDASH_ISMO01", sequenceName = "SQDASH_ISMO01", allocationSize = 1)
     @GeneratedValue(generator = "SQDASH_ISMO01", strategy = GenerationType.SEQUENCE)
     private Long id;
-	
+
     @JsonIgnore
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
@@ -61,46 +61,45 @@ public class InstanceModule extends AbstractAuditingEntity<Long> implements Seri
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CO_MODULE_ID", nullable = false)
     private Module module;
-    
+
     @NotNull
     @Size(min = 1, max = 50)
     @Column(name = "TE_MODULE_CODE", length = 50, nullable = false)
-    private String moduleCode;    
-    
+    private String moduleCode;
+
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "TE_ANALYSIS_TYPE", nullable = false)
     private AnalysisType analysisType;
-    
+
     @NotNull
     @Column(name = "FL_ALLOW_MANUAL_OUTCOME", nullable = false)
     private boolean allowManualOutcome;
-    
-    @Column(name = "DT_ANALISYS_DATE")
-    private Instant analysisDate;
-    
+
     @Enumerated(EnumType.STRING)
     @Column(name = "TE_AUTOMATIC_OUTCOME")
     private AnalysisOutcome automaticOutcome;
     
+    @Column(name = "DT_AUTOMATIC_OUTCOME_DATE")
+    private Instant automaticOutcomeDate;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "TE_MANUAL_OUTCOME")
     private AnalysisOutcome manualOutcome;
-    
+
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "TE_STATUS", nullable = false)
     private ModuleStatus status;
-    
+
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CO_MANUAL_OUTCOME_USER_ID", nullable = true)
-    private AuthUser manualOutcomeUser;    
-    
+    private AuthUser manualOutcomeUser;
+
     @Column(name = "DT_MANUAL_OUTCOME_DATE")
     private Instant manualOutcomeDate;
-    
-    
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

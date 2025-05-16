@@ -22,6 +22,10 @@ spring:
     name:
     username:
     password:
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate.jdbc.time_zone: Europe/Berlin
   jackson:
     serialization:
       write-durations-as-timestamps: false
@@ -52,6 +56,24 @@ spring:
         size: 20
   thymeleaf:
     mode: HTML
+  quartz:
+    job-store-type: memory
+    properties:
+      org.quartz.scheduler.instanceName: PagoPaCruscottoScheduler
+      org.quartz.scheduler.instanceId: AUTO
+      org.quartz.threadPool.threadCount: 10
+      org.quartz.plugin.shutdownHook.class: org.quartz.plugins.management.ShutdownHookPlugin
+      org.quartz.plugin.shutdownHook.cleanShutdown: true
+      org.quartz.scheduler.batchTriggerAcquisitionMaxCount: 6
+      org.quartz.plugin.triggerHistory.class: 'org.quartz.plugins.history.LoggingTriggerHistoryPlugin'
+      org.quartz.plugin.triggerHistory.triggerFiredMessage: 'Trigger [{1}.{0}] fired job [{6}.{5}] scheduled at: {2, date, dd-MM-yyyy HH:mm:ss.SSS}, next scheduled at: {3, date, dd-MM-yyyy HH:mm:ss.SSS}'
+      org.quartz.plugin.triggerHistory.triggerCompleteMessage: 'Trigger [{1}.{0}] completed firing job [{6}.{5}] with resulting trigger instruction code: {9}. Next scheduled at: {3, date, dd-MM-yyyy HH:mm:ss.SSS}'
+      org.quartz.plugin.triggerHistory.triggerMisfiredMessage: 'Trigger [{1}.{0}] misfired job [{6}.{5}]. Should have fired at: {3, date, dd-MM-yyyy HH:mm:ss.SSS}'
+      org.quartz.plugin.jobHistory.class: 'org.quartz.plugins.history.LoggingJobHistoryPlugin'
+      org.quartz.plugin.jobHistory.jobToBeFiredMessage: 'Job [{1}.{0}] to be fired by trigger [{4}.{3}], re-fire: {7}'
+      org.quartz.plugin.jobHistory.jobSuccessMessage: 'Job [{1}.{0}] execution complete and reports: {8}'
+      org.quartz.plugin.jobHistory.jobFailedMessage: 'Job [{1}.{0}] execution failed with exception: {8}'
+      org.quartz.plugin.jobHistory.jobWasVetoedMessage: 'Job [{1}.{0}] was vetoed. It was to be fired by trigger [{4}.{3}] at: {2, date, dd-MM-yyyy HH:mm:ss.SSS}'
 
 server:
   port: 10344
@@ -99,3 +121,46 @@ management:
   health:
     mail:
       enabled: false
+
+application:
+  enable-csrf: false
+  quartz:
+    expose-scheduler-in-repository: false
+  password:
+    day-password-expired: 60
+    failed-login-attempts: 4
+    hours-key-reset-password-expired: 1
+  pago-pa-client:
+    proxy-host:
+    proxy-port:
+    taxonomy:
+      url: https://api.platform.pagopa.it/taxonomy/service/v1
+    back-office:
+      url: https://api.dev.platform.pagopa.it/backoffice/helpdesk/v1
+      api-key-name: ocp-apim-subscription-key
+      api-key-value: df10628ae8044fdfabd6bbbdc71bdc26
+    cache:
+      url: https://api.dev.platform.pagopa.it/api-config-cache/p/v1
+      api-key-name: ocp-apim-subscription-key
+      api-key-value: 52f2f22cf8f94544baf9bfd2760f3dbd
+  job:
+    load-taxonomy-job:
+      enabled: true
+      cron: 0 0/50 07-8 ? * SAT *
+    load-maintenance-job:
+      enabled: true
+      cron: 0 0/50 07-8 ? * SAT *
+    load-registry-job:
+      enabled: true
+      cron: 0 0/50 0-23 ? * SAT *
+    kpi-b2-job:
+      enabled: true
+      cron: 0 0/2 0-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
+      limit: 20
+  liquibase:
+    async-start: false
+
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: false
