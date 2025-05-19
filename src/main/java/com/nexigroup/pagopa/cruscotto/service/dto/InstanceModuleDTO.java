@@ -33,9 +33,9 @@ public class InstanceModuleDTO implements Serializable {
 
     private Boolean allowManualOutcome;
 
-    private Instant analysisDate;
-
     private AnalysisOutcome automaticOutcome;
+
+    private Instant automaticOutcomeDate;
 
     private AnalysisOutcome manualOutcome;
 
@@ -60,8 +60,8 @@ public class InstanceModuleDTO implements Serializable {
             analysisType +
             ", allowManualOutcome=" +
             allowManualOutcome +
-            ", analysisDate=" +
-            analysisDate +
+            ", automaticOutcomeDate=" +
+            automaticOutcomeDate +
             ", automaticOutcome=" +
             automaticOutcome +
             ", manualOutcome=" +

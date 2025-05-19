@@ -38,4 +38,16 @@
       DROP TABLE ${database.defaultSchemaName}.PAGOPA_RECORDED_TIMEOUT CASCADE CONSTRAINTS;
     </rollback>
   </changeSet>
+  
+  <changeSet id="20250505112400-2" author="pagopaCruscotto" context="ddl">
+    <createIndex indexName="IX${project_name}_PGPARECTMOUT01" 
+				 tableName="PAGOPA_RECORDED_TIMEOUT">
+      <column name="START_DATE"/>
+      <column name="END_DATE"/>
+	  <column name="CF_PARTNER"/>
+	  <column name="STATION"/>
+	  <column name="METHOD"/>
+    </createIndex>
+  </changeSet>
+    
 </databaseChangeLog>
