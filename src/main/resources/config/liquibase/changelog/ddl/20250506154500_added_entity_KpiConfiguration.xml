@@ -42,5 +42,15 @@
       DROP TABLE ${database.defaultSchemaName}.KPI_CONFIGURATION CASCADE CONSTRAINTS;
     </rollback>
   </changeSet>
+  
+
+  <changeSet id="20250506154500-3" author="pagopaCruscotto" context="ddl">
+    <createIndex indexName="UI${project_name}_KPICONF01" 
+				 tableName="KPI_CONFIGURATION" 
+				 unique="true">
+      <column name="CO_MODULE_ID"/>
+    </createIndex>
+  </changeSet>
+  
 
 </databaseChangeLog>

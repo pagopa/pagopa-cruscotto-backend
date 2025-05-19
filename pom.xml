@@ -6,7 +6,7 @@
 
   <groupId>com.nexigroup.pagopa.cruscotto</groupId>
   <artifactId>pagopa-cruscotto-backend</artifactId>
-  <version>0.0.15</version>
+  <version>0.2.3</version>
   <packaging>jar</packaging>
   <name>PagoPa Cruscotto Backend</name>
   <description>PagoPa Cruscotto Backend</description>
@@ -367,6 +367,11 @@
       <groupId>com.github.gavlyukovskiy</groupId>
       <artifactId>p6spy-spring-boot-starter</artifactId>
       <version>${p6spy.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.cronutils</groupId>
+      <artifactId>cron-utils</artifactId>
+      <version>9.2.0</version>
     </dependency>
   </dependencies>
 

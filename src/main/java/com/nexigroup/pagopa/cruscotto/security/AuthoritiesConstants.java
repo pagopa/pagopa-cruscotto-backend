@@ -283,7 +283,7 @@ public final class AuthoritiesConstants {
 
     public static final String FLC_LIST_ISTITUTI_ABILITATI = "FLC.LIST_ISTITUTI_ABILITATI"; //
 
-    public static final String FLC_JOBS = "FLC.JOBS"; //
+    public static final String JOBS = "GTW.JOBS"; //
 
     public static final String FLC_LIST_ENTI = "FLC.LIST_ENTI"; //
 

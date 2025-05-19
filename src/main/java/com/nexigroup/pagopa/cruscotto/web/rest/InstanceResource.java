@@ -1,11 +1,12 @@
 package com.nexigroup.pagopa.cruscotto.web.rest;
 
-import com.nexigroup.pagopa.cruscotto.domain.Instance;
 import com.nexigroup.pagopa.cruscotto.service.InstanceService;
 import com.nexigroup.pagopa.cruscotto.service.bean.InstanceRequestBean;
 import com.nexigroup.pagopa.cruscotto.service.dto.InstanceDTO;
 import com.nexigroup.pagopa.cruscotto.service.filter.InstanceFilter;
+import com.nexigroup.pagopa.cruscotto.service.validation.InstanceRequestValidator;
 import com.nexigroup.pagopa.cruscotto.web.rest.errors.BadRequestAlertException;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,7 +34,7 @@ import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
 
 /**
- * REST controller for managing {@link Instance}.
+ * REST controller for managing {@link 'Instance'}.
  */
 @RestController
 @RequestMapping("/api")
@@ -54,7 +56,7 @@ public class InstanceResource {
     /**
      * {@code POST  /instances} : Create a new instances.
      *
-     * @param instanceDTO the instanceDTO to create.
+     * @param 'instanceDTO' the instanceDTO to create.
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new instanceDTO, or with status {@code 400 (Bad Request)} if the instance has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
@@ -67,6 +69,8 @@ public class InstanceResource {
             throw new BadRequestAlertException("A new instance cannot already have an ID", ENTITY_NAME, "idexists");
         }
 
+        InstanceRequestValidator.adjustAnalysisPeriodDates(instance);
+
         InstanceDTO result = instanceService.saveNew(instance);
 
         return ResponseEntity.created(new URI("/api/instances/" + result.getId()))
@@ -77,7 +81,7 @@ public class InstanceResource {
     /**
      * {@code PUT  /instances} : Updates an existing instance.
      *
-     * @param instanceDTO the instanceDTO to update.
+     * @param 'instanceDTO' the instanceDTO to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated instanceDTO,
      * or with status {@code 400 (Bad Request)} if the instanceDTO is not valid,
      * or with status {@code 500 (Internal Server Error)} if the instanceDTO couldn't be updated.
@@ -91,6 +95,8 @@ public class InstanceResource {
         if (instance.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
+
+        InstanceRequestValidator.adjustAnalysisPeriodDates(instance);
 
         InstanceDTO result = instanceService.update(instance);
 
@@ -108,7 +114,10 @@ public class InstanceResource {
      */
     @GetMapping("/instances")
     //    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_LIST_FUNCTION + "\")")
-    public ResponseEntity<List<InstanceDTO>> getAllInstances(@Valid InstanceFilter filter, Pageable pageable) {
+    public ResponseEntity<List<InstanceDTO>> getAllInstances(
+        @Parameter(description = "Filtro", required = false) @Valid @ParameterObject InstanceFilter filter,
+        @Parameter(description = "Pageable", required = true) @ParameterObject Pageable pageable
+    ) {
         log.debug("REST request to get Instances by filter: {}", filter);
         Page<InstanceDTO> page = instanceService.findAll(filter, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);

@@ -1,6 +1,9 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
-import com.nexigroup.pagopa.cruscotto.domain.*;
+import com.nexigroup.pagopa.cruscotto.domain.AnagPartner;
+import com.nexigroup.pagopa.cruscotto.domain.AnagPlannedShutdown;
+import com.nexigroup.pagopa.cruscotto.domain.AnagStation;
+import com.nexigroup.pagopa.cruscotto.domain.QAnagPlannedShutdown;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.PartnerStatus;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.StationStatus;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.TypePlanned;
@@ -23,6 +26,9 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPQLQuery;
 import java.time.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
@@ -31,6 +37,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.*;
+import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,7 +66,7 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 
-   public AnagPlannedShutdownServiceImpl(
+    public AnagPlannedShutdownServiceImpl(
         AnagPlannedShutdownRepository anagPlannedShutdownRepository,
         AnagPartnerRepository anagPartnerRepository,
         AnagStationRepository anagStationRepository,
@@ -317,7 +324,6 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
      */
     @Override
     public AnagPlannedShutdownDTO update(ShutdownRequestBean shutdownToUpdate) {
-
         ZoneId zoneId = ZoneId.systemDefault();
 
         return Optional.of(anagPlannedShutdownRepository.findById(shutdownToUpdate.getId()))
@@ -412,16 +418,17 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
                     .and(anagPlannedShutdown.anagStation.id.eq(stationId))
                     .and(anagPlannedShutdown.typePlanned.eq(typePlanned))
                     .and(
-                        anagPlannedShutdown.shutdownStartDate.between(
-                            startDateTime.toInstant(ZoneOffset.UTC),
-                            endDateTime.toInstant(ZoneOffset.UTC)
-                        )
-                    )
-                    .and(
-                        anagPlannedShutdown.shutdownEndDate.between(
-                            startDateTime.toInstant(ZoneOffset.UTC),
-                            endDateTime.toInstant(ZoneOffset.UTC)
-                        )
+                        anagPlannedShutdown.shutdownStartDate
+                            .between(
+                                startDateTime.atZone(ZoneOffset.systemDefault()).toInstant(),
+                                endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()
+                            )
+                            .or(
+                                anagPlannedShutdown.shutdownEndDate.between(
+                                    startDateTime.atZone(ZoneOffset.systemDefault()).toInstant(),
+                                    endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()
+                                )
+                            )
                     )
             )
             .fetch();
