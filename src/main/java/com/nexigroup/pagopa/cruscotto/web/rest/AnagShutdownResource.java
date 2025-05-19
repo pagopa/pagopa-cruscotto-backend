@@ -6,9 +6,15 @@ import com.nexigroup.pagopa.cruscotto.service.bean.ShutdownRequestBean;
 import com.nexigroup.pagopa.cruscotto.service.dto.AnagPlannedShutdownDTO;
 import com.nexigroup.pagopa.cruscotto.service.filter.AnagPlannedShutdownFilter;
 import com.nexigroup.pagopa.cruscotto.web.rest.errors.BadRequestAlertException;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,11 +25,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * REST controller for managing {@link AnagPlannedShutdown}.
@@ -39,7 +40,6 @@ public class AnagShutdownResource {
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
-
     private final AnagPlannedShutdownService anagPlannedShutdownService;
 
     public AnagShutdownResource(AnagPlannedShutdownService anagPlannedShutdownService) {
@@ -53,8 +53,11 @@ public class AnagShutdownResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of shutdowns in body.
      */
     @GetMapping("/shutdowns")
-//    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_LIST_FUNCTION + "\")")
-    public ResponseEntity<List<AnagPlannedShutdownDTO>> getAllShutdowns(@Valid AnagPlannedShutdownFilter filter, Pageable pageable) {
+    //    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_LIST_FUNCTION + "\")")
+    public ResponseEntity<List<AnagPlannedShutdownDTO>> getAllShutdowns(
+        @Parameter(description = "Filter", required = false) @Valid @ParameterObject AnagPlannedShutdownFilter filter,
+        @Parameter(description = "Pageable", required = true) @ParameterObject Pageable pageable
+    ) {
         log.debug("REST request to get Shutdown");
         Page<AnagPlannedShutdownDTO> page = anagPlannedShutdownService.findAll(filter, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
@@ -85,7 +88,8 @@ public class AnagShutdownResource {
      */
     @PostMapping("/shutdowns")
     //  @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_ADMIN_INSTANCE + "\")")
-    public ResponseEntity<AnagPlannedShutdownDTO> createAShutdown(@Valid @RequestBody ShutdownRequestBean shutdownRequestBean) throws URISyntaxException {
+    public ResponseEntity<AnagPlannedShutdownDTO> createAShutdown(@Valid @RequestBody ShutdownRequestBean shutdownRequestBean)
+        throws URISyntaxException {
         log.debug("REST request to save Shutdown : {}", shutdownRequestBean);
 
         if (shutdownRequestBean.getId() != null) {
@@ -110,7 +114,8 @@ public class AnagShutdownResource {
      */
     @PutMapping("/shutdowns")
     //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_ADMIN_INSTANCE + "\")")
-    public ResponseEntity<AnagPlannedShutdownDTO> updateShutdown(@Valid @RequestBody ShutdownRequestBean shutdownRequestBean) throws URISyntaxException {
+    public ResponseEntity<AnagPlannedShutdownDTO> updateShutdown(@Valid @RequestBody ShutdownRequestBean shutdownRequestBean)
+        throws URISyntaxException {
         log.debug("REST request to update Shutdown : {}", shutdownRequestBean);
 
         if (shutdownRequestBean.getId() == null) {
@@ -123,8 +128,6 @@ public class AnagShutdownResource {
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
-
-
 
     /**
      * {@code DELETE  /shutdowns/:id} : delete the "id" shutdown.
@@ -141,5 +144,4 @@ public class AnagShutdownResource {
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
     }
-
 }
