@@ -5,6 +5,8 @@ import com.nexigroup.pagopa.cruscotto.domain.enumeration.InstanceStatus;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Set;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -47,6 +49,8 @@ public class InstanceDTO implements Serializable {
 
     private Instant lastAnalysisDate;
 
+    private Set<InstanceModuleDTO> instanceModules;
+
     @Override
     public String toString() {
         return (
@@ -84,6 +88,8 @@ public class InstanceDTO implements Serializable {
             status +
             ", lastAnalysisDate=" +
             lastAnalysisDate +
+            ", instanceModules=" +
+            instanceModules +
             '}'
         );
     }
