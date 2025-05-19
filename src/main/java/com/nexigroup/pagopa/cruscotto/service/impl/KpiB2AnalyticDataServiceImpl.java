@@ -1,11 +1,5 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
-import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.nexigroup.pagopa.cruscotto.domain.AnagStation;
 import com.nexigroup.pagopa.cruscotto.domain.Instance;
 import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
@@ -19,8 +13,12 @@ import com.nexigroup.pagopa.cruscotto.repository.KpiB2DetailResultRepository;
 import com.nexigroup.pagopa.cruscotto.service.KpiB2AnalyticDataService;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2AnalyticDataDTO;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
-
 import java.util.List;
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service Implementation for managing {@link KpiB2AnalyticData}.
@@ -42,7 +40,6 @@ public class KpiB2AnalyticDataServiceImpl implements KpiB2AnalyticDataService {
     private final KpiB2DetailResultRepository kpiB2DetailResultRepository;
 
     private final QueryBuilder queryBuilder;
-    
 
     public KpiB2AnalyticDataServiceImpl(
         AnagStationRepository anagStationRepository,
@@ -119,8 +116,8 @@ public class KpiB2AnalyticDataServiceImpl implements KpiB2AnalyticDataService {
         return kpiB2AnalyticData;
     }
 
-	@Override
-	public int deleteAllByInstanceModule(long instanceModuleId) {
-		return kpiB2AnalyticDataRepository.deleteAllByInstanceModuleId(instanceModuleId);	
-	}
+    @Override
+    public int deleteAllByInstanceModule(long instanceModuleId) {
+        return kpiB2AnalyticDataRepository.deleteAllByInstanceModuleId(instanceModuleId);
+    }
 }
