@@ -3,7 +3,6 @@ package com.nexigroup.pagopa.cruscotto.service;
 import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.service.dto.InstanceModuleDTO;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -14,7 +13,7 @@ public interface InstanceModuleService {
 
     void updateAutomaticOutcome(Long instanceModuleId, OutcomeStatus automaticOutcome);
 
-    void delete(Long id);
+    Optional<InstanceModule> findById(Long id);
 
-    List<InstanceModuleDTO> findAll();
+    Optional<InstanceModuleDTO> findInstanceModuleDTOById(Long id);
 }
