@@ -14,7 +14,6 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
-import java.time.Instant;
 import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
@@ -60,7 +59,7 @@ public class KpiA1AnalyticData implements Serializable {
 
     @NotNull
     @Column(name = "DT_ANALISYS_DATE", nullable = false)
-    private Instant analysisDate;
+    private LocalDate analysisDate;
 
     @JsonIgnore
     @NotNull
@@ -86,16 +85,12 @@ public class KpiA1AnalyticData implements Serializable {
     private Long reqOk;
 
     @NotNull
-    @Column(name = "CO_REQ_TIMEOUT", nullable = false)
-    private Long reqTimeout;
+    @Column(name = "CO_REQ_TIMEOUT_REAL", nullable = false)
+    private Long reqTimeoutReal;
 
     @NotNull
-    @Column(name = "CO_AVG_TIME", nullable = false)
-    private Double avgTime;
-
-    @NotNull
-    @Column(name = "CO_TIMEOUT_PERCENTAGE", nullable = false)
-    private Double timeoutPercentage;
+    @Column(name = "CO_REQ_TIMEOUT_VALID", nullable = false)
+    private Long reqTimeoutValid;
 
     @JsonIgnore
     @NotNull
@@ -119,34 +114,19 @@ public class KpiA1AnalyticData implements Serializable {
 
     @Override
     public String toString() {
-        return (
-            "KpiA1AnalyticData [id=" +
-            id +
-            ", instance=" +
-            instance +
-            ", instanceModule=" +
-            instanceModule +
-            ", analysisDate=" +
-            analysisDate +
-            ", station=" +
-            station +
-            ", method=" +
-            method +
-            ", evaluationDate=" +
-            evaluationDate +
-            ", totReq=" +
-            totReq +
-            ", reqOk=" +
-            reqOk +
-            ", reqTimeout=" +
-            reqTimeout +
-            ", avgTime=" +
-            avgTime +
-            ", timeoutPercentage=" +
-            timeoutPercentage +
-            ", kpiA1DetailResult=" +
-            kpiA1DetailResult +
-            "]"
-        );
+        return "KpiA1AnalyticData{" +
+            "id=" + id +
+            ", instance=" + instance +
+            ", instanceModule=" + instanceModule +
+            ", analysisDate=" + analysisDate +
+            ", station=" + station +
+            ", method='" + method + '\'' +
+            ", evaluationDate=" + evaluationDate +
+            ", totReq=" + totReq +
+            ", reqOk=" + reqOk +
+            ", reqTimeoutReal=" + reqTimeoutReal +
+            ", reqTimeoutValid=" + reqTimeoutValid +
+            ", kpiA1DetailResult=" + kpiA1DetailResult +
+            '}';
     }
 }
