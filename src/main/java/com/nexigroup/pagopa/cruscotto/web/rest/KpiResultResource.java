@@ -21,9 +21,9 @@ import java.util.Optional;
  */
 @RestController
 @RequestMapping("/api")
-public class KpiResource {
+public class KpiResultResource {
 
-    private final Logger log = LoggerFactory.getLogger(KpiResource.class);
+    private final Logger log = LoggerFactory.getLogger(KpiResultResource.class);
 
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
@@ -34,7 +34,7 @@ public class KpiResource {
 
     private final KpiB2ResultService kpiB2ResultService;
 
-    public KpiResource(KpiA1ResultService kpiA1ResultService, KpiB2ResultService kpiB2ResultService, KpiA2ResultService kpiA2ResultService) {
+    public KpiResultResource(KpiA1ResultService kpiA1ResultService, KpiB2ResultService kpiB2ResultService, KpiA2ResultService kpiA2ResultService) {
         this.kpiA1ResultService = kpiA1ResultService;
         this.kpiB2ResultService = kpiB2ResultService;
         this.kpiA2ResultService = kpiA2ResultService;
