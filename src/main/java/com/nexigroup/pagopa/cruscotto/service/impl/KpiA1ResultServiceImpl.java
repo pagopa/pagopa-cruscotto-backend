@@ -84,6 +84,8 @@ public class KpiA1ResultServiceImpl implements KpiA1ResultService {
 
     private static @NotNull KpiA1ResultDTO getKpiA1ResultDTO(KpiA1Result kpiA1Result) {
         KpiA1ResultDTO kpiA1ResultDTO = new KpiA1ResultDTO();
+        kpiA1ResultDTO.setId(kpiA1Result.getId());
+        kpiA1ResultDTO.setInstanceModuleId((kpiA1Result.getInstanceModule().getId()));
         kpiA1ResultDTO.setAnalysisDate(kpiA1Result.getAnalysisDate());
         kpiA1ResultDTO.setExcludePlannedShutdown(kpiA1Result.getExcludePlannedShutdown());
         kpiA1ResultDTO.setExcludeUnplannedShutdown(kpiA1Result.getExcludeUnplannedShutdown());

@@ -72,11 +72,7 @@ public class KpiA2ResultServiceImpl implements KpiA2ResultService {
         kpiA2Result.setInstance(instance);
         kpiA2Result.setInstanceModule(instanceModule);
         kpiA2Result.setAnalysisDate(kpiA2ResultDTO.getAnalysisDate());
-        kpiA2Result.setExcludePlannedShutdown(kpiA2ResultDTO.getExcludePlannedShutdown());
-        kpiA2Result.setExcludeUnplannedShutdown(kpiA2ResultDTO.getExcludeUnplannedShutdown());
-        kpiA2Result.setEligibilityThreshold(kpiA2ResultDTO.getEligibilityThreshold());
         kpiA2Result.setTollerance(kpiA2ResultDTO.getTollerance());
-        kpiA2Result.setEvaluationType(kpiA2ResultDTO.getEvaluationType());
         kpiA2Result.setOutcome(kpiA2ResultDTO.getOutcome());
 
         return kpiA2Result;
@@ -84,12 +80,10 @@ public class KpiA2ResultServiceImpl implements KpiA2ResultService {
 
     private static @NotNull KpiA2ResultDTO getKpiA2ResultDTO(KpiA2Result kpiA2Result) {
         KpiA2ResultDTO kpiA2ResultDTO = new KpiA2ResultDTO();
+        kpiA2ResultDTO.setId(kpiA2Result.getId());
+        kpiA2ResultDTO.setInstanceModuleId((kpiA2Result.getInstanceModule().getId()));
         kpiA2ResultDTO.setAnalysisDate(kpiA2Result.getAnalysisDate());
-        kpiA2ResultDTO.setExcludePlannedShutdown(kpiA2Result.getExcludePlannedShutdown());
-        kpiA2ResultDTO.setExcludeUnplannedShutdown(kpiA2Result.getExcludeUnplannedShutdown());
-        kpiA2ResultDTO.setEligibilityThreshold(kpiA2Result.getEligibilityThreshold());
         kpiA2ResultDTO.setTollerance(kpiA2Result.getTollerance());
-        kpiA2ResultDTO.setEvaluationType(kpiA2Result.getEvaluationType());
         kpiA2ResultDTO.setOutcome(kpiA2Result.getOutcome());
         return kpiA2ResultDTO;
     }
