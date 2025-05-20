@@ -91,7 +91,7 @@ public class KpiB2ResultServiceImpl implements KpiB2ResultService {
 
 	@Override
 	public void updateKpiB2ResultOutcome(long id, OutcomeStatus outcomeStatus) {
-		LOGGER.debug("Request to get all AnagPartner");
+		LOGGER.debug("Request to update KpiB2Result {} outcome status to {}", id, outcomeStatus);
 
 		JPAUpdateClause jpql = queryBuilder.updateQuery(QKpiB2Result.kpiB2Result);
 		

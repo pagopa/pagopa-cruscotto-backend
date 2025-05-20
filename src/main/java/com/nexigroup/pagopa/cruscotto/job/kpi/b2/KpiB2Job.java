@@ -190,11 +190,6 @@ public class KpiB2Job extends QuartzJobBean {
                                     instanceDTO.getAnalysisPeriodStartDate(),
                                     instanceDTO.getAnalysisPeriodEndDate()
                                 );
-                                
-                                // Non serve
-                                // Se escludere da tutto o fermi estrarre la sum per i fermi e poi sottrarla dalla totRecordInstance
-                                // se data inizio fermo è < data inizio analisi prendere data inizio analisi
-                                // se data fine fermo è > data fine analisi prendere data fine analisi
 
                                 LOGGER.info("Tot Record Instance {}", totRecordInstance);
                                 AtomicReference<Month> prevMonth = new AtomicReference<>();
