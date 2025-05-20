@@ -97,6 +97,43 @@ public class InstanceModuleServiceImpl implements InstanceModuleService {
         instanceModuleRepository.save(instanceModule);
     }
 
+    @Override
+    public Optional<InstanceModule> findById(Long id) {
+        return instanceModuleRepository.findById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<InstanceModuleDTO> findInstanceModuleDTOById(Long id) {
+        JPQLQuery<InstanceModule> jpql = queryBuilder
+            .<InstanceModule>createQuery()
+            .from(QInstanceModule.instanceModule)
+            .leftJoin(QInstanceModule.instanceModule.manualOutcomeUser)
+            .where(QInstanceModule.instanceModule.id.eq(id));
+
+        return Optional.ofNullable(
+            jpql
+                .select(
+                    Projections.fields(
+                        InstanceModuleDTO.class,
+                        QInstanceModule.instanceModule.id.as("id"),
+                        QInstanceModule.instanceModule.moduleCode.as("moduleCode"),
+                        QInstanceModule.instanceModule.analysisType.as("analysisType"),
+                        QInstanceModule.instanceModule.allowManualOutcome.as("allowManualOutcome"),
+                        QInstanceModule.instanceModule.automaticOutcomeDate.as("automaticOutcomeDate"),
+                        QInstanceModule.instanceModule.automaticOutcome.as("automaticOutcome"),
+                        QInstanceModule.instanceModule.manualOutcome.as("manualOutcome"),
+                        QInstanceModule.instanceModule.manualOutcomeDate.as("manualOutcomeDate"),
+                        QInstanceModule.instanceModule.status.as("status"),
+                        QInstanceModule.instanceModule.manualOutcomeUser.id.as("assignedUserId"),
+                        QInstanceModule.instanceModule.manualOutcomeUser.firstName.as("assignedUserFirstName"),
+                        QInstanceModule.instanceModule.manualOutcomeUser.lastName.as("assignedUserLastName")
+                    )
+                )
+                .fetchOne()
+        );
+    }
+
     private static @NotNull KpiB2DetailResult getKpiB2DetailResult(
         KpiB2DetailResultDTO kpiB2DetailResultDTO,
         Instance instance,

@@ -1,6 +1,6 @@
 package com.nexigroup.pagopa.cruscotto.repository;
 
-import com.nexigroup.pagopa.cruscotto.domain.KpiB2DetailResult;
+import com.nexigroup.pagopa.cruscotto.domain.KpiA2DetailResult;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -14,12 +14,12 @@ import java.util.List;
  * Spring Data repository for the KpiB2DetailResult entity.
  */
 @Repository
-public interface KpiB2DetailResultRepository extends JpaRepository<KpiB2DetailResult, Long>, JpaSpecificationExecutor<KpiB2DetailResult> {
+public interface KpiA2DetailResultRepository extends JpaRepository<KpiA2DetailResult, Long>, JpaSpecificationExecutor<KpiA2DetailResult> {
 
     @Modifying
-    @Query("DELETE KpiB2DetailResult kpiB2DetailResult WHERE kpiB2DetailResult.instanceModule.id = :instanceModuleId")
+    @Query("DELETE KpiA2DetailResult kpiA2DetailResult WHERE kpiA2DetailResult.instanceModule.id = :instanceModuleId")
     int deleteAllByInstanceModuleId(@Param("instanceModuleId") Long instanceModuleId);
 
-    @Query("SELECT b FROM KpiB2DetailResult b WHERE b.instanceModule.id = :instanceModuleId")
-    List<KpiB2DetailResult> selectByInstanceModuleId(@Param("instanceModuleId") Long instanceModuleId);
+    @Query("SELECT a FROM KpiA2DetailResult a WHERE a.instanceModule.id = :instanceModuleId")
+    List<KpiA2DetailResult> selectByInstanceModuleId(@Param("instanceModuleId") Long instanceModuleId);
 }
