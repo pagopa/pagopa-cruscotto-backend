@@ -22,28 +22,28 @@ public class KpiA2ResultDTO implements Serializable {
 
     private Long id;
 
-    @NotNull(groups = { ValidationGroups.KpiA1Job.class })
+    @NotNull(groups = { ValidationGroups.KpiA2Job.class })
     private Instance instance;
 
-    @NotNull(groups = { ValidationGroups.KpiA1Job.class })
+    @NotNull(groups = { ValidationGroups.KpiA2Job.class })
     private Long instanceId;
 
-    @NotNull(groups = { ValidationGroups.KpiA1Job.class })
+    @NotNull(groups = { ValidationGroups.KpiA2Job.class })
     private InstanceModule instanceModule;
 
-    @NotNull(groups = { ValidationGroups.KpiA1Job.class })
+    @NotNull(groups = { ValidationGroups.KpiA2Job.class })
     private Long instanceModuleId;
 
-    @NotNull(groups = { ValidationGroups.KpiA1Job.class })
+    @NotNull(groups = { ValidationGroups.KpiA2Job.class })
     private Instant analysisDate;
 
-    @NotNull(groups = { ValidationGroups.KpiA1Job.class })
+    @NotNull(groups = { ValidationGroups.KpiA2Job.class })
     private Double tollerance;
 
-    @NotNull(groups = { ValidationGroups.KpiA1Job.class })
+    @NotNull(groups = { ValidationGroups.KpiA2Job.class })
     private EvaluationType evaluationType;
 
-    @NotNull(groups = { ValidationGroups.KpiA1Job.class })
+    @NotNull(groups = { ValidationGroups.KpiA2Job.class })
     private OutcomeStatus outcome;
 
     @Override
