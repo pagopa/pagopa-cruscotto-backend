@@ -49,8 +49,8 @@ public class KpiDetailResultResource {
     //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_DETAIL_FUNCTION + "\")")
     public ResponseEntity<List<KpiA1DetailResultDTO>> getKpiA1DetailResults(@PathVariable Long moduleId) {
         log.debug("REST request to get kpi detail results of instanceModule : {} of type a1", moduleId);
-        List<KpiA1DetailResultDTO> kpiA1Results = kpiA1DetailResultService.findByInstanceModuleId(moduleId);
-        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(kpiA1Results));
+        List<KpiA1DetailResultDTO> kpiA1DetailResults = kpiA1DetailResultService.findByInstanceModuleId(moduleId);
+        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(kpiA1DetailResults));
     }
 
     /**
