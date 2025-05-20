@@ -15,4 +15,6 @@ public class ValidationGroups {
     public interface KpiB2Job extends Default {}
 
     public interface KpiA1Job extends Default {}
+
+    public interface KpiA2Job extends Default {}
 }
