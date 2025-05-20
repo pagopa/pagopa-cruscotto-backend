@@ -55,25 +55,8 @@ public class KpiA2Result implements Serializable {
     private Instant analysisDate;
 
     @NotNull
-    @Column(name = "FL_EXCLUDE_PLANNED_SHUTDOWN", nullable = false)
-    private Boolean excludePlannedShutdown;
-
-    @NotNull
-    @Column(name = "FL_EXCLUDE_UNPLANNED_SHUTDOWN", nullable = false)
-    private Boolean excludeUnplannedShutdown;
-
-    @NotNull
-    @Column(name = "CO_ELIGIBILITY_THRESHOLD", nullable = false)
-    private Double eligibilityThreshold;
-
-    @NotNull
     @Column(name = "CO_TOLLERANCE", nullable = false)
     private Double tollerance;
-
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    @Column(name = "TE_EVALUATION_TYPE", nullable = false)
-    private EvaluationType evaluationType;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -96,29 +79,13 @@ public class KpiA2Result implements Serializable {
 
     @Override
     public String toString() {
-        return (
-            "Kpi2Result{" +
-            "id=" +
-            id +
-            ", instance=" +
-            instance +
-            ", instanceModule=" +
-            instanceModule +
-            ", analysisDate=" +
-            analysisDate +
-            ", excludePlannedShutdown=" +
-            excludePlannedShutdown +
-            ", excludeUnplannedShutdown=" +
-            excludeUnplannedShutdown +
-            ", eligibilityThreshold=" +
-            eligibilityThreshold +
-            ", tollerance=" +
-            tollerance +
-            ", evaluationType=" +
-            evaluationType +
-            ", outcome=" +
-            outcome +
-            '}'
-        );
+        return "KpiA2Result{" +
+            "id=" + id +
+            ", instance=" + instance +
+            ", instanceModule=" + instanceModule +
+            ", analysisDate=" + analysisDate +
+            ", tollerance=" + tollerance +
+            ", outcome=" + outcome +
+            '}';
     }
 }

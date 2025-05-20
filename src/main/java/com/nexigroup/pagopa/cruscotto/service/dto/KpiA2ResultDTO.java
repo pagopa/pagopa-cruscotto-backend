@@ -38,15 +38,6 @@ public class KpiA2ResultDTO implements Serializable {
     private Instant analysisDate;
 
     @NotNull(groups = { ValidationGroups.KpiA1Job.class })
-    private Boolean excludePlannedShutdown;
-
-    @NotNull(groups = { ValidationGroups.KpiA1Job.class })
-    private Boolean excludeUnplannedShutdown;
-
-    @NotNull(groups = { ValidationGroups.KpiA1Job.class })
-    private Double eligibilityThreshold;
-
-    @NotNull(groups = { ValidationGroups.KpiA1Job.class })
     private Double tollerance;
 
     @NotNull(groups = { ValidationGroups.KpiA1Job.class })
@@ -62,9 +53,6 @@ public class KpiA2ResultDTO implements Serializable {
             ", instance=" + instance +
             ", instanceModule=" + instanceModule +
             ", analysisDate=" + analysisDate +
-            ", excludePlannedShutdown=" + excludePlannedShutdown +
-            ", excludeUnplannedShutdown=" + excludeUnplannedShutdown +
-            ", eligibilityThreshold=" + eligibilityThreshold +
             ", tollerance=" + tollerance +
             ", evaluationType=" + evaluationType +
             ", outcome=" + outcome +

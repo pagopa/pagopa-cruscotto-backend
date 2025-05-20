@@ -94,6 +94,8 @@ public class KpiB2ResultServiceImpl implements KpiB2ResultService {
 
     private static @NotNull KpiB2ResultDTO getKpiB2ResultDTO(KpiB2Result kpiB2Result) {
         KpiB2ResultDTO kpiB2ResultDTO = new KpiB2ResultDTO();
+        kpiB2ResultDTO.setId(kpiB2Result.getId());
+        kpiB2ResultDTO.setInstanceModuleId((kpiB2Result.getInstanceModule().getId()));
         kpiB2ResultDTO.setAnalysisDate(kpiB2Result.getAnalysisDate());
         kpiB2ResultDTO.setExcludePlannedShutdown(kpiB2Result.getExcludePlannedShutdown());
         kpiB2ResultDTO.setExcludeUnplannedShutdown(kpiB2Result.getExcludeUnplannedShutdown());

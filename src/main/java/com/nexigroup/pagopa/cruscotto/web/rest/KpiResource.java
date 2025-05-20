@@ -43,7 +43,7 @@ public class KpiResource {
     /**
      * {@code GET  /kpi-results/a1/module/{moduleId}} : get the kpiA1ResultDTOs associated to the "id" instanceModule of type A1.
      *
-     * @param id the id of the instanceModuleDTO the kpi results to retrieve are associated to
+     * @param moduleId the id of the instanceModuleDTO the kpi results to retrieve are associated to
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the KpiA1ResultDTOs, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("kpi-results/a1/module/{moduleId}")
@@ -57,7 +57,7 @@ public class KpiResource {
     /**
      * {@code GET  /kpi-results/a2/module/{moduleId}} : get the kpiA2ResultDTOs associated to the "id" instanceModule of type A2.
      *
-     * @param id the id of the instanceModuleDTO the kpi results to retrieve are associated to
+     * @param moduleId the id of the instanceModuleDTO the kpi results to retrieve are associated to
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the KpiA2ResultDTOs, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("kpi-results/a2/module/{moduleId}")
@@ -71,7 +71,7 @@ public class KpiResource {
     /**
      * {@code GET  /kpi-results/b2/module/{moduleId}} : get the kpiB2ResultDTOs associated to the "id" instanceModule of type B2.
      *
-     * @param id the id of the instanceModuleDTO the kpi results to retrieve are associated to
+     * @param moduleId the id of the instanceModuleDTO the kpi results to retrieve are associated to
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the KpiB2ResultDTOs, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("kpi-results/b2/module/{moduleId}")
