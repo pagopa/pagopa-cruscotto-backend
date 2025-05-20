@@ -1,10 +1,6 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
-import com.nexigroup.pagopa.cruscotto.domain.AnagStation;
-import com.nexigroup.pagopa.cruscotto.domain.Instance;
-import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
-import com.nexigroup.pagopa.cruscotto.domain.KpiB2DetailResult;
-import com.nexigroup.pagopa.cruscotto.domain.QInstanceModule;
+import com.nexigroup.pagopa.cruscotto.domain.*;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisOutcome;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceModuleRepository;
@@ -15,7 +11,6 @@ import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPQLQuery;
 import java.time.Instant;
-import java.util.List;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -91,11 +86,40 @@ public class InstanceModuleServiceImpl implements InstanceModuleService {
     }
 
     @Override
-    public void delete(Long id) {}
+    public Optional<InstanceModule> findById(Long id) {
+        return instanceModuleRepository.findById(id);
+    }
 
     @Override
-    public List<InstanceModuleDTO> findAll() {
-        return List.of();
+    @Transactional(readOnly = true)
+    public Optional<InstanceModuleDTO> findInstanceModuleDTOById(Long id) {
+        JPQLQuery<InstanceModule> jpql = queryBuilder
+            .<InstanceModule>createQuery()
+            .from(QInstanceModule.instanceModule)
+            .leftJoin(QInstanceModule.instanceModule.manualOutcomeUser)
+            .where(QInstanceModule.instanceModule.id.eq(id));
+
+        return Optional.ofNullable(
+            jpql
+                .select(
+                    Projections.fields(
+                        InstanceModuleDTO.class,
+                        QInstanceModule.instanceModule.id.as("id"),
+                        QInstanceModule.instanceModule.moduleCode.as("moduleCode"),
+                        QInstanceModule.instanceModule.analysisType.as("analysisType"),
+                        QInstanceModule.instanceModule.allowManualOutcome.as("allowManualOutcome"),
+                        QInstanceModule.instanceModule.automaticOutcomeDate.as("automaticOutcomeDate"),
+                        QInstanceModule.instanceModule.automaticOutcome.as("automaticOutcome"),
+                        QInstanceModule.instanceModule.manualOutcome.as("manualOutcome"),
+                        QInstanceModule.instanceModule.manualOutcomeDate.as("manualOutcomeDate"),
+                        QInstanceModule.instanceModule.status.as("status"),
+                        QInstanceModule.instanceModule.manualOutcomeUser.id.as("assignedUserId"),
+                        QInstanceModule.instanceModule.manualOutcomeUser.firstName.as("assignedUserFirstName"),
+                        QInstanceModule.instanceModule.manualOutcomeUser.lastName.as("assignedUserLastName")
+                    )
+                )
+                .fetchOne()
+        );
     }
 
     private static @NotNull KpiB2DetailResult getKpiB2DetailResult(
