@@ -17,15 +17,13 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * REST controller for managing {@link 'Instance'}.
+ * REST controller for managing {@link 'KpiA1Result, KpiA2Result, KpiB2Result'}.
  */
 @RestController
 @RequestMapping("/api")
 public class KpiResource {
 
     private final Logger log = LoggerFactory.getLogger(KpiResource.class);
-
-    private static final String ENTITY_NAME = "instance";
 
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
@@ -50,9 +48,9 @@ public class KpiResource {
      */
     @GetMapping("kpi-results/a1/module/{moduleId}")
     //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_DETAIL_FUNCTION + "\")")
-    public ResponseEntity<List<KpiA1ResultDTO>> getKpiA1Results(@PathVariable Long id) {
-        log.debug("REST request to get kpi results of instanceModule : {} of type a1", id);
-        List<KpiA1ResultDTO> kpiA1Results = kpiA1ResultService.findByInstanceModuleId(id);
+    public ResponseEntity<List<KpiA1ResultDTO>> getKpiA1Results(@PathVariable Long moduleId) {
+        log.debug("REST request to get kpi results of instanceModule : {} of type a1", moduleId);
+        List<KpiA1ResultDTO> kpiA1Results = kpiA1ResultService.findByInstanceModuleId(moduleId);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(kpiA1Results));
     }
 
@@ -64,9 +62,9 @@ public class KpiResource {
      */
     @GetMapping("kpi-results/a2/module/{moduleId}")
     //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_DETAIL_FUNCTION + "\")")
-    public ResponseEntity<List<KpiA2ResultDTO>> getKpiA2Results(@PathVariable Long id) {
-        log.debug("REST request to get kpi results of instanceModule : {} of type a2", id);
-        List<KpiA2ResultDTO> kpiA2Results = kpiA2ResultService.findByInstanceModuleId(id);
+    public ResponseEntity<List<KpiA2ResultDTO>> getKpiA2Results(@PathVariable Long moduleId) {
+        log.debug("REST request to get kpi results of instanceModule : {} of type a2", moduleId);
+        List<KpiA2ResultDTO> kpiA2Results = kpiA2ResultService.findByInstanceModuleId(moduleId);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(kpiA2Results));
     }
 
@@ -78,9 +76,9 @@ public class KpiResource {
      */
     @GetMapping("kpi-results/b2/module/{moduleId}")
     //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_DETAIL_FUNCTION + "\")")
-    public ResponseEntity<List<KpiB2ResultDTO>> getKpiB2Results(@PathVariable Long id) {
-        log.debug("REST request to get kpi results of instanceModule : {} of type b2", id);
-        List<KpiB2ResultDTO> kpiB2Results = kpiB2ResultService.findByInstanceModuleId(id);
+    public ResponseEntity<List<KpiB2ResultDTO>> getKpiB2Results(@PathVariable Long moduleId) {
+        log.debug("REST request to get kpi results of instanceModule : {} of type b2", moduleId);
+        List<KpiB2ResultDTO> kpiB2Results = kpiB2ResultService.findByInstanceModuleId(moduleId);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(kpiB2Results));
     }
 
