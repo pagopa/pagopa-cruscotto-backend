@@ -1,10 +1,5 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.nexigroup.pagopa.cruscotto.domain.PagoPaRecordedTimeout;
 import com.nexigroup.pagopa.cruscotto.domain.QPagoPaRecordedTimeout;
 import com.nexigroup.pagopa.cruscotto.service.PagoPaRecordedTimeoutService;
@@ -15,7 +10,6 @@ import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -23,6 +17,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service Implementation for managing {@link PagoPaRecordedTimeout}.

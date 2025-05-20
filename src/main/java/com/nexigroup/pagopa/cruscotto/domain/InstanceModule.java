@@ -1,18 +1,9 @@
 package com.nexigroup.pagopa.cruscotto.domain;
 
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisOutcome;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleStatus;
-
-import java.io.Serializable;
-import java.time.Instant;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -27,8 +18,14 @@ import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.io.Serializable;
+import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 /**
  * A InstanceModule.
@@ -79,7 +76,7 @@ public class InstanceModule extends AbstractAuditingEntity<Long> implements Seri
     @Enumerated(EnumType.STRING)
     @Column(name = "TE_AUTOMATIC_OUTCOME")
     private AnalysisOutcome automaticOutcome;
-    
+
     @Column(name = "DT_AUTOMATIC_OUTCOME_DATE")
     private Instant automaticOutcomeDate;
 

@@ -94,6 +94,9 @@ public class AnagPlannedShutdown extends AbstractAuditingEntity<Long> implements
             ", externalId=" + externalId +
             ", anagPartner=" + anagPartner +
             ", anagStation=" + anagStation +
-            "} " + super.toString();
+            ", createdBy='" + getCreatedBy() +
+            ", createdDate=" + getCreatedDate() +
+            ", lastModifiedBy='" + getLastModifiedBy() +
+            ", lastModifiedDate=" + getLastModifiedDate();
     }
 }
