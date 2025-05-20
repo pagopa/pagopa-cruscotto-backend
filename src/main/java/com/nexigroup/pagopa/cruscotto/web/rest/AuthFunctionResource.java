@@ -166,7 +166,10 @@ public class AuthFunctionResource {
 
     @GetMapping("/auth-functions/auth-group/{idGroup}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_ELENCO_FUNZIONI_ASSOCIATI_A_GRUPPO + "\")")
-    public ResponseEntity<List<AuthFunctionDTO>> getAllAuthFunctions(@PathVariable Long idGroup, Pageable pageable) {
+    public ResponseEntity<List<AuthFunctionDTO>> getAllAuthFunctions(
+        @PathVariable Long idGroup,
+        @Parameter(description = "Pageable", required = true) @ParameterObject Pageable pageable
+    ) {
         Page<AuthFunctionDTO> page = authFunctionService.listAllFunctionSelected(idGroup, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
@@ -177,7 +180,7 @@ public class AuthFunctionResource {
     public ResponseEntity<List<AuthFunctionDTO>> getAllAuthFunctionsAssociabili(
         @PathVariable Long idGroup,
         @RequestParam Optional<String> nameFilter,
-        Pageable pageable
+        @Parameter(description = "Pageable", required = true) @ParameterObject Pageable pageable
     ) {
         Page<AuthFunctionDTO> page = authFunctionService.listAllFunctionAssociabili(idGroup, nameFilter, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);

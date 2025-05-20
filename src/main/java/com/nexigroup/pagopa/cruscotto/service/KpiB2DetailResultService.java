@@ -8,4 +8,6 @@ import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2DetailResultDTO;
  */
 public interface KpiB2DetailResultService {
     KpiB2DetailResultDTO save(KpiB2DetailResultDTO kpiB2DetailResultDTO);
+
+    int deleteAllByInstanceModule(long instanceModuleId);
 }

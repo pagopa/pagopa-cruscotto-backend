@@ -22,7 +22,7 @@
       <column name="CO_INSTANCE_MODULE_ID" type="bigint">
         <constraints nullable="false"/>
       </column>
-      <column name="DT_ANALISYS_DATE" type="datetime">
+      <column name="DT_ANALISYS_DATE" type="date">
         <constraints nullable="false"/>
       </column>
       <column name="FL_EXCLUDE_PLANNED_SHUTDOWN" type="boolean">
@@ -50,6 +50,13 @@
     <rollback>
       DROP TABLE ${database.defaultSchemaName}.KPI_B2_RESULT CASCADE CONSTRAINTS;
     </rollback>
+  </changeSet>
+
+  <changeSet id="20250506154600-3" author="pagopaCruscotto" context="ddl">
+    <createIndex indexName="IX${project_name}_KPIB2RES02"
+				 tableName="KPI_B2_RESULT">
+      <column name="CO_INSTANCE_MODULE_ID"/>
+    </createIndex>
   </changeSet>
 
 </databaseChangeLog>

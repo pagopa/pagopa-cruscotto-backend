@@ -121,7 +121,10 @@ public class AuthPermissionResource {
      */
     @GetMapping("/auth-permissions/auth-function/{idFunction}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_ELENCO_PERMESSI_ASSOCIATI_A_FUNZIONE + "\")")
-    public ResponseEntity<List<AuthPermissionDTO>> getAllAuthFunctionsSelected(@PathVariable Long idFunction, Pageable pageable) {
+    public ResponseEntity<List<AuthPermissionDTO>> getAllAuthFunctionsSelected(
+        @PathVariable Long idFunction,
+        @Parameter(description = "Pageable", required = true) @ParameterObject Pageable pageable
+    ) {
         log.debug("REST request to get AuthPermissions by id function: {}", idFunction);
         Page<AuthPermissionDTO> page = authPermissionService.listAllPermissionSelected(idFunction, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
@@ -140,7 +143,7 @@ public class AuthPermissionResource {
     public ResponseEntity<List<AuthPermissionDTO>> getAllAuthFunctionsAssociabili(
         @PathVariable Long idFunction,
         @RequestParam Optional<String> nameFilter,
-        Pageable pageable
+        @Parameter(description = "Pageable", required = true) @ParameterObject Pageable pageable
     ) {
         log.debug("REST request to get AuthPermissions associabili by id function: {}", idFunction);
         Page<AuthPermissionDTO> page = authPermissionService.listAllPermissionAssociabili(idFunction, nameFilter, pageable);

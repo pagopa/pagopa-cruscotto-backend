@@ -10,6 +10,8 @@ import org.springframework.stereotype.Repository;
  * Spring Data repository for the AnagPlannedShutdown entity.
  */
 @Repository
-public interface AnagPlannedShutdownRepository extends JpaRepository<AnagPlannedShutdown, Long>, JpaSpecificationExecutor<AnagPlannedShutdown>, QueryByExampleExecutor<AnagPlannedShutdown> {
-
-}
+public interface AnagPlannedShutdownRepository
+    extends
+        JpaRepository<AnagPlannedShutdown, Long>,
+        JpaSpecificationExecutor<AnagPlannedShutdown>,
+        QueryByExampleExecutor<AnagPlannedShutdown> {}

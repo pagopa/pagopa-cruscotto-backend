@@ -54,5 +54,12 @@
       DROP TABLE ${database.defaultSchemaName}.KPI_B2_ANALYTIC_DATA CASCADE CONSTRAINTS;
     </rollback>
   </changeSet>
+  
+  <changeSet id="20250506154800-3" author="pagopaCruscotto" context="ddl">
+    <createIndex indexName="IX${project_name}_KPIB2ANADATA01" 
+				 tableName="KPI_B2_ANALYTIC_DATA">
+      <column name="CO_INSTANCE_MODULE_ID"/>
+    </createIndex>
+  </changeSet>   
 
 </databaseChangeLog>

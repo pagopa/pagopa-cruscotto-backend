@@ -73,12 +73,12 @@ public class InstanceModule extends AbstractAuditingEntity<Long> implements Seri
     @Column(name = "FL_ALLOW_MANUAL_OUTCOME", nullable = false)
     private boolean allowManualOutcome;
 
-    @Column(name = "DT_ANALISYS_DATE")
-    private Instant analysisDate;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "TE_AUTOMATIC_OUTCOME")
     private AnalysisOutcome automaticOutcome;
+
+    @Column(name = "DT_AUTOMATIC_OUTCOME_DATE")
+    private Instant automaticOutcomeDate;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "TE_MANUAL_OUTCOME")

@@ -368,6 +368,11 @@
       <artifactId>p6spy-spring-boot-starter</artifactId>
       <version>${p6spy.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.cronutils</groupId>
+      <artifactId>cron-utils</artifactId>
+      <version>9.2.0</version>
+    </dependency>
   </dependencies>
 
   <build>
