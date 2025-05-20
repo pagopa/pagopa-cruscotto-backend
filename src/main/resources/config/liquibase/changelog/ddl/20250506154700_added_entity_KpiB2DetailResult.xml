@@ -66,6 +66,11 @@
 				 tableName="KPI_B2_DETAIL_RESULT">
       <column name="CO_INSTANCE_MODULE_ID"/>
     </createIndex>
+    
+    <createIndex indexName="IX${project_name}_KPIB2DETRES02" 
+				 tableName="KPI_B2_DETAIL_RESULT">
+      <column name="CO_KPI_B2_RESULT_ID"/>
+    </createIndex>    
   </changeSet>     
 
 </databaseChangeLog>
