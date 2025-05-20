@@ -1,24 +1,22 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
-import com.nexigroup.pagopa.cruscotto.domain.*;
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.PartnerStatus;
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.StationStatus;
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.TypePlanned;
-import com.nexigroup.pagopa.cruscotto.repository.*;
-import com.nexigroup.pagopa.cruscotto.service.AnagPlannedShutdownService;
+import com.nexigroup.pagopa.cruscotto.domain.AnagStation;
+import com.nexigroup.pagopa.cruscotto.domain.Instance;
+import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
+import com.nexigroup.pagopa.cruscotto.domain.KpiB2AnalyticData;
+import com.nexigroup.pagopa.cruscotto.domain.KpiB2DetailResult;
+import com.nexigroup.pagopa.cruscotto.repository.AnagStationRepository;
+import com.nexigroup.pagopa.cruscotto.repository.InstanceModuleRepository;
+import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
+import com.nexigroup.pagopa.cruscotto.repository.KpiB2AnalyticDataRepository;
+import com.nexigroup.pagopa.cruscotto.repository.KpiB2DetailResultRepository;
 import com.nexigroup.pagopa.cruscotto.service.KpiB2AnalyticDataService;
-import com.nexigroup.pagopa.cruscotto.service.dto.AnagPlannedShutdownDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2AnalyticDataDTO;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
-import com.querydsl.core.types.Projections;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -116,5 +114,10 @@ public class KpiB2AnalyticDataServiceImpl implements KpiB2AnalyticDataService {
         kpiB2AnalyticData.setKpiB2DetailResult(kpiB2DetailResult);
 
         return kpiB2AnalyticData;
+    }
+
+    @Override
+    public int deleteAllByInstanceModule(long instanceModuleId) {
+        return kpiB2AnalyticDataRepository.deleteAllByInstanceModuleId(instanceModuleId);
     }
 }

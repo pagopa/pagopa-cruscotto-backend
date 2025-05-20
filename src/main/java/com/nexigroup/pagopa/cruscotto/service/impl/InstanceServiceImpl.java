@@ -1,8 +1,17 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
-import com.nexigroup.pagopa.cruscotto.domain.*;
+import com.nexigroup.pagopa.cruscotto.domain.AnagPartner;
+import com.nexigroup.pagopa.cruscotto.domain.AuthUser;
+import com.nexigroup.pagopa.cruscotto.domain.Instance;
+import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
 import com.nexigroup.pagopa.cruscotto.domain.Module;
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.*;
+import com.nexigroup.pagopa.cruscotto.domain.QInstance;
+import com.nexigroup.pagopa.cruscotto.domain.QInstanceModule;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisOutcome;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisType;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.InstanceStatus;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleStatus;
 import com.nexigroup.pagopa.cruscotto.repository.AnagPartnerRepository;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
 import com.nexigroup.pagopa.cruscotto.repository.ModuleRepository;
@@ -326,7 +335,7 @@ public class InstanceServiceImpl implements InstanceService {
                     .and(QInstanceModule.instanceModule.moduleCode.eq(moduleCode.code))
                     .and(QInstanceModule.instanceModule.analysisType.eq(AnalysisType.AUTOMATICA))
                     .and(QInstanceModule.instanceModule.status.eq(ModuleStatus.ATTIVO))
-                    .and(QInstanceModule.instanceModule.analysisDate.isNull())
+                    .and(QInstanceModule.instanceModule.automaticOutcomeDate.isNull())
             )
             .select(
                 Projections.fields(

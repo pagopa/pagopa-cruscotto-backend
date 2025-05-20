@@ -9,4 +9,6 @@ import java.util.List;
  */
 public interface KpiB2AnalyticDataService {
     void saveAll(List<KpiB2AnalyticDataDTO> kpiB2AnalyticDataDTOS);
+
+    int deleteAllByInstanceModule(long instanceModuleId);
 }
