@@ -1,11 +1,16 @@
 package com.nexigroup.pagopa.cruscotto.job.config;
 
-import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
-import com.nexigroup.pagopa.cruscotto.job.cache.LoadRegistryJob;
-import com.nexigroup.pagopa.cruscotto.job.kpi.b2.KpiB2Job;
-import org.quartz.*;
+import org.quartz.CronScheduleBuilder;
+import org.quartz.JobBuilder;
+import org.quartz.JobDataMap;
+import org.quartz.JobDetail;
+import org.quartz.Trigger;
+import org.quartz.TriggerBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
+import com.nexigroup.pagopa.cruscotto.job.kpi.b2.KpiB2Job;
 
 @Configuration
 public class KpiB2ConfigJob {
