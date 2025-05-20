@@ -1,11 +1,5 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
-import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.nexigroup.pagopa.cruscotto.domain.AnagStation;
 import com.nexigroup.pagopa.cruscotto.domain.Instance;
 import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
@@ -20,9 +14,14 @@ import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2DetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPQLQuery;
-
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service Implementation for managing {@link InstanceModule}.
@@ -32,14 +31,13 @@ import java.util.Optional;
 public class InstanceModuleServiceImpl implements InstanceModuleService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InstanceModuleServiceImpl.class);
-    
+
     private final InstanceModuleRepository instanceModuleRepository;
 
     private final QueryBuilder queryBuilder;
-    
 
     public InstanceModuleServiceImpl(InstanceModuleRepository instanceModuleRepository, QueryBuilder queryBuilder) {
-    	this.instanceModuleRepository = instanceModuleRepository;
+        this.instanceModuleRepository = instanceModuleRepository;
         this.queryBuilder = queryBuilder;
     }
 
@@ -72,32 +70,32 @@ public class InstanceModuleServiceImpl implements InstanceModuleService {
                 .fetchOne()
         );
     }
-    
+
     @Override
     public void updateAutomaticOutcome(Long instanceModuleId, OutcomeStatus automaticOutcome) {
+        InstanceModule instanceModule = instanceModuleRepository
+            .findById(instanceModuleId)
+            .orElseThrow(() -> new IllegalArgumentException("InstanceModule not found"));
+        AnalysisOutcome analysisOutcome =
+            switch (automaticOutcome) {
+                case OK -> AnalysisOutcome.OK;
+                case KO -> AnalysisOutcome.KO;
+                case STANDBY -> AnalysisOutcome.STANDBY;
+                default -> throw new IllegalArgumentException("Invalid automatic outcome");
+            };
 
-        InstanceModule instanceModule = instanceModuleRepository.findById(instanceModuleId)
-        														.orElseThrow(() -> new IllegalArgumentException("InstanceModule not found"));
-        AnalysisOutcome analysisOutcome;
-        
-        switch (automaticOutcome) {
-			case OK:
-				analysisOutcome = AnalysisOutcome.OK;
-				break;
-			case KO:
-				analysisOutcome = AnalysisOutcome.KO;
-				break;
-			case STANDBY:
-				analysisOutcome = AnalysisOutcome.STANDBY;
-				break;
-			default:
-				throw new IllegalArgumentException("Invalid automatic outcome");
-		}
-        
         instanceModule.setAutomaticOutcome(analysisOutcome);
         instanceModule.setAutomaticOutcomeDate(Instant.now());
 
         instanceModuleRepository.save(instanceModule);
+    }
+
+    @Override
+    public void delete(Long id) {}
+
+    @Override
+    public List<InstanceModuleDTO> findAll() {
+        return List.of();
     }
 
     private static @NotNull KpiB2DetailResult getKpiB2DetailResult(
