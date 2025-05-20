@@ -20,6 +20,9 @@ import com.nexigroup.pagopa.cruscotto.service.KpiB2DetailResultService;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2DetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * Service Implementation for managing {@link KpiB2DetailResult}.
  */
@@ -36,11 +39,11 @@ public class KpiB2DetailResultServiceImpl implements KpiB2DetailResultService {
     private final InstanceModuleRepository instanceModuleRepository;
 
     private final KpiB2DetailResultRepository kpiB2DetailResultRepository;
-    
+
     private final KpiB2ResultRepository kpiB2ResultRepository;
 
     private final QueryBuilder queryBuilder;
-    
+
 
     public KpiB2DetailResultServiceImpl(
         AnagStationRepository anagStationRepository,
@@ -76,7 +79,7 @@ public class KpiB2DetailResultServiceImpl implements KpiB2DetailResultService {
         AnagStation station = anagStationRepository
             .findById(kpiB2DetailResultDTO.getStationId())
             .orElseThrow(() -> new IllegalArgumentException("Station not found"));
-        
+
         KpiB2Result kpiB2DResult = kpiB2ResultRepository
                 .findById(kpiB2DetailResultDTO.getKpiB2ResultId())
                 .orElseThrow(() -> new IllegalArgumentException("KpiB2Result not found"));
@@ -114,9 +117,38 @@ public class KpiB2DetailResultServiceImpl implements KpiB2DetailResultService {
 
         return kpiB2DetailResult;
     }
-    
+
+    private static @NotNull KpiB2DetailResultDTO getKpiB2DetailResultDTO(KpiB2DetailResult kpiB2DetailResult) {
+        KpiB2DetailResultDTO kpiB2DetailResultDTO = new KpiB2DetailResultDTO();
+        kpiB2DetailResultDTO.setId(kpiB2DetailResult.getId());
+        kpiB2DetailResultDTO.setInstanceId(kpiB2DetailResult.getInstance()!=null ? kpiB2DetailResult.getInstance().getId() : null);
+        kpiB2DetailResultDTO.setInstanceModuleId(kpiB2DetailResult.getInstanceModule()!=null ? kpiB2DetailResult.getInstanceModule().getId() : null);
+        kpiB2DetailResultDTO.setAnalysisDate(kpiB2DetailResult.getAnalysisDate());
+        kpiB2DetailResultDTO.setStationId(kpiB2DetailResult.getStation()!=null ? kpiB2DetailResult.getStation().getId() : null);
+        kpiB2DetailResultDTO.setMethod(kpiB2DetailResult.getMethod());
+        kpiB2DetailResultDTO.setEvaluationType(kpiB2DetailResult.getEvaluationType());
+        kpiB2DetailResultDTO.setEvaluationStartDate(kpiB2DetailResult.getEvaluationStartDate());
+        kpiB2DetailResultDTO.setEvaluationEndDate(kpiB2DetailResult.getEvaluationEndDate());
+        kpiB2DetailResultDTO.setTotReq(kpiB2DetailResult.getTotReq());
+        kpiB2DetailResultDTO.setAvgTime(kpiB2DetailResult.getAvgTime());
+        kpiB2DetailResultDTO.setOverTimeLimit(kpiB2DetailResult.getOverTimeLimit());
+        kpiB2DetailResultDTO.setOutcome(kpiB2DetailResult.getOutcome());
+        kpiB2DetailResultDTO.setKpiB2ResultId(kpiB2DetailResult.getKpiB2Result()!=null ? kpiB2DetailResult.getKpiB2Result().getId() : null);
+        return kpiB2DetailResultDTO;
+    }
+
+
 	@Override
 	public int deleteAllByInstanceModule(long instanceModuleId) {
-		return kpiB2DetailResultRepository.deleteAllByInstanceModuleId(instanceModuleId);	
-	}    
+		return kpiB2DetailResultRepository.deleteAllByInstanceModuleId(instanceModuleId);
+	}
+
+    @Override
+    public List<KpiB2DetailResultDTO> findByInstanceModuleId(long instanceModuleId) {
+        return kpiB2DetailResultRepository.selectByInstanceModuleId(instanceModuleId)
+            .stream()
+            .map(KpiB2DetailResultServiceImpl::getKpiB2DetailResultDTO)
+            .collect(Collectors.toList());
+    }
+
 }
