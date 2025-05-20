@@ -4,10 +4,8 @@ import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisOutcome;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleStatus;
-
 import java.io.Serializable;
 import java.time.Instant;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -36,8 +34,8 @@ public class InstanceModuleDTO implements Serializable {
     private Boolean allowManualOutcome;
 
     private AnalysisOutcome automaticOutcome;
-    
-    private Instant automaticOutcomeDate;   
+
+    private Instant automaticOutcomeDate;
 
     private AnalysisOutcome manualOutcome;
 

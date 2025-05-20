@@ -18,11 +18,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.nexigroup.pagopa.cruscotto.domain.Instance;
 import com.nexigroup.pagopa.cruscotto.service.InstanceService;
 import com.nexigroup.pagopa.cruscotto.service.bean.InstanceRequestBean;
 import com.nexigroup.pagopa.cruscotto.service.dto.InstanceDTO;
 import com.nexigroup.pagopa.cruscotto.service.filter.InstanceFilter;
+import com.nexigroup.pagopa.cruscotto.service.validation.InstanceRequestValidator;
 import com.nexigroup.pagopa.cruscotto.web.rest.errors.BadRequestAlertException;
 
 import java.net.URI;
@@ -37,7 +37,7 @@ import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
  
 /**
- * REST controller for managing {@link Instance}.
+ * REST controller for managing {@link 'Instance'}.
  */
 @RestController
 @RequestMapping("/api")
@@ -60,7 +60,7 @@ public class InstanceResource {
     /**
      * {@code POST  /instances} : Create a new instances.
      *
-     * @param instanceDTO the instanceDTO to create.
+     * @param 'instanceDTO' the instanceDTO to create.
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new instanceDTO, or with status {@code 400 (Bad Request)} if the instance has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
@@ -73,6 +73,8 @@ public class InstanceResource {
             throw new BadRequestAlertException("A new instance cannot already have an ID", ENTITY_NAME, "idexists");
         }
         
+        InstanceRequestValidator.adjustAnalysisPeriodDates(instance);
+
         InstanceDTO result = instanceService.saveNew(instance);
         
         return ResponseEntity.created(new URI("/api/instances/" + result.getId()))
@@ -83,7 +85,7 @@ public class InstanceResource {
     /**
      * {@code PUT  /instances} : Updates an existing instance.
      *
-     * @param instanceDTO the instanceDTO to update.
+     * @param 'instanceDTO' the instanceDTO to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated instanceDTO,
      * or with status {@code 400 (Bad Request)} if the instanceDTO is not valid,
      * or with status {@code 500 (Internal Server Error)} if the instanceDTO couldn't be updated.
@@ -98,6 +100,8 @@ public class InstanceResource {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
         
+        InstanceRequestValidator.adjustAnalysisPeriodDates(instance);
+
         InstanceDTO result = instanceService.update(instance);
         
         return ResponseEntity.ok()
