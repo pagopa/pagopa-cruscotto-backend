@@ -10,6 +10,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
+import java.time.LocalDate;
+
 /**
  * A DTO for the {@link KpiA1AnalyticData} entity.
  */
@@ -47,19 +50,28 @@ public class KpiA1AnalyticDataDTO implements Serializable {
 
     @NotNull(groups = { ValidationGroups.KpiA1Job.class })
     private Long reqTimeoutReal;
-    
+
     @NotNull(groups = { ValidationGroups.KpiA1Job.class })
     private Long reqTimeoutValid;
 
     private Long kpiA1DetailResultId;
-    
+
 
     @Override
-	public String toString() {
-		return "KpiA1AnalyticDataDTO [id=" + id + ", instanceId=" + instanceId + ", instanceModuleId="
-				+ instanceModuleId + ", analysisDate=" + analysisDate + ", stationId=" + stationId + ", method="
-				+ method + ", evaluationDate=" + evaluationDate + ", totReq=" + totReq + ", reqOk=" + reqOk
-				+ ", reqTimeoutReal=" + reqTimeoutReal + ", reqTimeoutValid=" + reqTimeoutValid
-				+ ", kpiA1DetailResultId=" + kpiA1DetailResultId + "]";
-	}
+    public String toString() {
+        return "KpiA1AnalyticDataDTO{" +
+            "id=" + id +
+            ", instanceId=" + instanceId +
+            ", instanceModuleId=" + instanceModuleId +
+            ", analysisDate=" + analysisDate +
+            ", stationId=" + stationId +
+            ", method='" + method + '\'' +
+            ", evaluationDate=" + evaluationDate +
+            ", totReq=" + totReq +
+            ", reqOk=" + reqOk +
+            ", reqTimeoutReal=" + reqTimeoutReal +
+            ", reqTimeoutValid=" + reqTimeoutValid +
+            ", kpiA1DetailResultId=" + kpiA1DetailResultId +
+            '}';
+    }
 }

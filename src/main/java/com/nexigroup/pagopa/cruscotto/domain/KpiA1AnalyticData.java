@@ -90,7 +90,7 @@ public class KpiA1AnalyticData implements Serializable {
     @NotNull
     @Column(name = "CO_REQ_TIMEOUT_REAL", nullable = false)
     private Long reqTimeoutReal;
-    
+
     @NotNull
     @Column(name = "CO_REQ_TIMEOUT_VALID", nullable = false)
     private Long reqTimeoutValid;
@@ -100,7 +100,7 @@ public class KpiA1AnalyticData implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CO_KPI_A1_DETAIL_RESULT_ID", nullable = false)
     private KpiA1DetailResult kpiA1DetailResult;
-    
+
 
     @Override
     public boolean equals(Object o) {
@@ -117,10 +117,20 @@ public class KpiA1AnalyticData implements Serializable {
     }
 
     @Override
-	public String toString() {
-		return "KpiA1AnalyticData [id=" + id + ", instance=" + instance + ", instanceModule=" + instanceModule
-				+ ", analysisDate=" + analysisDate + ", station=" + station + ", method=" + method + ", evaluationDate="
-				+ evaluationDate + ", totReq=" + totReq + ", reqOk=" + reqOk + ", reqTimeoutReal=" + reqTimeoutReal
-				+ ", reqTimeoutValid=" + reqTimeoutValid + ", kpiA1DetailResult=" + kpiA1DetailResult + "]";
-	}
+    public String toString() {
+        return "KpiA1AnalyticData{" +
+            "id=" + id +
+            ", instance=" + instance +
+            ", instanceModule=" + instanceModule +
+            ", analysisDate=" + analysisDate +
+            ", station=" + station +
+            ", method='" + method + '\'' +
+            ", evaluationDate=" + evaluationDate +
+            ", totReq=" + totReq +
+            ", reqOk=" + reqOk +
+            ", reqTimeoutReal=" + reqTimeoutReal +
+            ", reqTimeoutValid=" + reqTimeoutValid +
+            ", kpiA1DetailResult=" + kpiA1DetailResult +
+            '}';
+    }
 }

@@ -1,5 +1,10 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
+import com.nexigroup.pagopa.cruscotto.domain.*;
+import com.nexigroup.pagopa.cruscotto.repository.*;
+import com.nexigroup.pagopa.cruscotto.service.KpiA1AnalyticDataService;
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiA1AnalyticDataDTO;
+import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +26,7 @@ import com.nexigroup.pagopa.cruscotto.service.dto.KpiA1AnalyticDataDTO;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Service Implementation for managing {@link KpiA1AnalyticData}.
@@ -42,7 +48,7 @@ public class KpiA1AnalyticDataServiceImpl implements KpiA1AnalyticDataService {
     private final KpiA1DetailResultRepository kpiA1DetailResultRepository;
 
     private final QueryBuilder queryBuilder;
-    
+
 
     public KpiA1AnalyticDataServiceImpl(AnagStationRepository anagStationRepository, InstanceRepository instanceRepository,
     									InstanceModuleRepository instanceModuleRepository, KpiA1AnalyticDataRepository kpiA1AnalyticDataRepository,
@@ -99,8 +105,35 @@ public class KpiA1AnalyticDataServiceImpl implements KpiA1AnalyticDataService {
         return kpiA1AnalyticData;
     }
 
-	@Override
-	public int deleteAllByInstanceModule(long instanceModuleId) {
-		return kpiA1AnalyticDataRepository.deleteAllByInstanceModuleId(instanceModuleId);	
-	}
+    private static @NotNull KpiA1AnalyticDataDTO getkpiA1AnalyticDataDTO(KpiA1AnalyticData kpiA1AnalyticData) {
+        KpiA1AnalyticDataDTO kpiA1AnalyticDataDTO = new KpiA1AnalyticDataDTO();
+        kpiA1AnalyticDataDTO.setId(kpiA1AnalyticData.getId());
+        kpiA1AnalyticDataDTO.setInstanceId(kpiA1AnalyticData.getInstance()!=null ? kpiA1AnalyticData.getInstance().getId() : null);
+        kpiA1AnalyticDataDTO.setInstanceModuleId(kpiA1AnalyticData.getInstanceModule()!=null ? kpiA1AnalyticData.getInstanceModule().getId() : null);
+        kpiA1AnalyticDataDTO.setAnalysisDate(kpiA1AnalyticData.getAnalysisDate());
+        kpiA1AnalyticDataDTO.setStationId(kpiA1AnalyticData.getStation()!=null ? kpiA1AnalyticData.getStation().getId() : null);
+        kpiA1AnalyticDataDTO.setMethod(kpiA1AnalyticData.getMethod());
+        kpiA1AnalyticDataDTO.setEvaluationDate(kpiA1AnalyticData.getEvaluationDate());
+        kpiA1AnalyticDataDTO.setTotReq(kpiA1AnalyticData.getTotReq());
+        kpiA1AnalyticDataDTO.setReqOk(kpiA1AnalyticData.getReqOk());
+        kpiA1AnalyticDataDTO.setReqTimeoutReal(kpiA1AnalyticData.getReqTimeoutReal());
+        kpiA1AnalyticDataDTO.setReqTimeoutValid(kpiA1AnalyticData.getReqTimeoutValid());
+        kpiA1AnalyticDataDTO.setKpiA1DetailResultId(kpiA1AnalyticData.getKpiA1DetailResult()!=null ? kpiA1AnalyticData.getKpiA1DetailResult().getId() : null);
+        return kpiA1AnalyticDataDTO;
+    }
+
+
+    @Override
+    public int deleteAllByInstanceModule(long instanceModuleId) {
+        return kpiA1AnalyticDataRepository.deleteAllByInstanceModuleId(instanceModuleId);
+    }
+
+    @Override
+    public List<KpiA1AnalyticDataDTO> findByInstanceModuleId(long instanceModuleId) {
+        return kpiA1AnalyticDataRepository.selectByInstanceModuleId(instanceModuleId)
+            .stream()
+            .map(KpiA1AnalyticDataServiceImpl::getkpiA1AnalyticDataDTO)
+            .collect(Collectors.toList());
+    }
+
 }

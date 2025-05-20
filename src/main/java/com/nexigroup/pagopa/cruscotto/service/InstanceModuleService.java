@@ -12,4 +12,8 @@ public interface InstanceModuleService {
     Optional<InstanceModuleDTO> findOne(Long instanceId, Long moduleId);
 
     void updateAutomaticOutcome(Long instanceModuleId, OutcomeStatus automaticOutcome);
+
+    Optional<InstanceModule> findById(Long id);
+
+    Optional<InstanceModuleDTO> findInstanceModuleDTOById(Long id);
 }
