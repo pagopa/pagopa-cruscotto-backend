@@ -11,4 +11,6 @@ public class JobConstant {
     public static final String LOAD_REGISTRY_JOB = "loadRegistryJob";
 
     public static final String KPI_B2 = "kpiB2Job";
+    
+    public static final String KPI_A1 = "kpiA1Job";
 }

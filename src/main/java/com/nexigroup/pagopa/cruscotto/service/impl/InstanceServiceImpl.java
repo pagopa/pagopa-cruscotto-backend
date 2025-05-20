@@ -384,9 +384,9 @@ public class InstanceServiceImpl implements InstanceService {
 
                 log.info(
                     "Updating status of instance with identifier {} in {} by user {}",
-                    instance.getInstanceIdentification(),
-                    loginUtenteLoggato,
-                    instance.getStatus()
+                    instance.getInstanceIdentification(),                    
+                    instance.getStatus(),
+                    loginUtenteLoggato
                 );
 
                 return instance;

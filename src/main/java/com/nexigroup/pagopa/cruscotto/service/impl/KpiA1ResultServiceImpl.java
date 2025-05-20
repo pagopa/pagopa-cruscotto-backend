@@ -1,0 +1,101 @@
+package com.nexigroup.pagopa.cruscotto.service.impl;
+
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.nexigroup.pagopa.cruscotto.domain.Instance;
+import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
+import com.nexigroup.pagopa.cruscotto.domain.KpiA1Result;
+import com.nexigroup.pagopa.cruscotto.domain.QKpiA1Result;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
+import com.nexigroup.pagopa.cruscotto.repository.InstanceModuleRepository;
+import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
+import com.nexigroup.pagopa.cruscotto.repository.KpiA1ResultRepository;
+import com.nexigroup.pagopa.cruscotto.service.KpiA1ResultService;
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiA1ResultDTO;
+import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
+import com.querydsl.jpa.impl.JPAUpdateClause;
+
+/**
+ * Service Implementation for managing {@link KpiA1Result}.
+ */
+@Service
+@Transactional
+public class KpiA1ResultServiceImpl implements KpiA1ResultService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(KpiA1ResultServiceImpl.class);
+
+    private final InstanceRepository instanceRepository;
+
+    private final InstanceModuleRepository instanceModuleRepository;
+
+    private final KpiA1ResultRepository kpiA1ResultRepository;
+
+    private final QueryBuilder queryBuilder;
+    
+
+    public KpiA1ResultServiceImpl(InstanceRepository instanceRepository, InstanceModuleRepository instanceModuleRepository,
+    							  KpiA1ResultRepository kpiA1ResultRepository, QueryBuilder queryBuilder) {
+        this.instanceRepository = instanceRepository;
+        this.instanceModuleRepository = instanceModuleRepository;
+        this.kpiA1ResultRepository = kpiA1ResultRepository;
+        this.queryBuilder = queryBuilder;
+    }
+
+    /**
+     * Save kpiA1Result.
+     *
+     * @param kpiA1ResultDTO the entity to save.
+     */
+    @Override
+    public KpiA1ResultDTO save(KpiA1ResultDTO kpiA1ResultDTO) {
+        Instance instance = instanceRepository.findById(kpiA1ResultDTO.getInstanceId())
+                							  .orElseThrow(() -> new IllegalArgumentException("Instance not found"));
+
+    	InstanceModule instanceModule = instanceModuleRepository.findById(kpiA1ResultDTO.getInstanceModuleId())
+                												.orElseThrow(() -> new IllegalArgumentException("InstanceModule not found"));
+
+        KpiA1Result kpiA1Result = getKpiA1Result(kpiA1ResultDTO, instance, instanceModule);
+
+        kpiA1Result = kpiA1ResultRepository.save(kpiA1Result);
+
+        kpiA1ResultDTO.setId(kpiA1Result.getId());
+
+        return kpiA1ResultDTO;
+    }
+
+    private static @NotNull KpiA1Result getKpiA1Result(KpiA1ResultDTO kpiA1ResultDTO, Instance instance, InstanceModule instanceModule) {
+    	
+        KpiA1Result kpiA1Result = new KpiA1Result();
+        kpiA1Result.setInstance(instance);
+        kpiA1Result.setInstanceModule(instanceModule);
+        kpiA1Result.setAnalysisDate(kpiA1ResultDTO.getAnalysisDate());
+		kpiA1Result.setExcludePlannedShutdown(kpiA1ResultDTO.getExcludePlannedShutdown());
+		kpiA1Result.setExcludeUnplannedShutdown(kpiA1ResultDTO.getExcludeUnplannedShutdown());
+		kpiA1Result.setEligibilityThreshold(kpiA1ResultDTO.getEligibilityThreshold());
+		kpiA1Result.setTollerance(kpiA1ResultDTO.getTollerance());
+        kpiA1Result.setEvaluationType(kpiA1ResultDTO.getEvaluationType());
+        kpiA1Result.setOutcome(kpiA1ResultDTO.getOutcome());
+
+        return kpiA1Result;
+    }
+    
+	@Override
+	public int deleteAllByInstanceModule(long instanceModuleId) {
+		return kpiA1ResultRepository.deleteAllByInstanceModuleId(instanceModuleId);	
+	}
+
+	@Override
+	public void updateKpiA1ResultOutcome(long id, OutcomeStatus outcomeStatus) {
+		LOGGER.debug("Request to update KpiA1Result {} outcome status to {}", id, outcomeStatus);
+
+		JPAUpdateClause jpql = queryBuilder.updateQuery(QKpiA1Result.kpiA1Result);
+		
+		jpql.set(QKpiA1Result.kpiA1Result.outcome, outcomeStatus)
+			.where(QKpiA1Result.kpiA1Result.id.eq(id))
+			.execute();
+	}       
+}
