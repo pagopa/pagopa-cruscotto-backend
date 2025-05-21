@@ -14,6 +14,7 @@ import com.nexigroup.pagopa.cruscotto.service.KpiB2AnalyticDataService;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2AnalyticDataDTO;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,8 +117,38 @@ public class KpiB2AnalyticDataServiceImpl implements KpiB2AnalyticDataService {
         return kpiB2AnalyticData;
     }
 
+    private static @NotNull KpiB2AnalyticDataDTO getkpiB2AnalyticDataDTO(KpiB2AnalyticData kpiB2AnalyticData) {
+        KpiB2AnalyticDataDTO kpiB2AnalyticDataDTO = new KpiB2AnalyticDataDTO();
+        kpiB2AnalyticDataDTO.setId(kpiB2AnalyticData.getId());
+        kpiB2AnalyticDataDTO.setInstanceId(kpiB2AnalyticData.getInstance() != null ? kpiB2AnalyticData.getInstance().getId() : null);
+        kpiB2AnalyticDataDTO.setInstanceModuleId(
+            kpiB2AnalyticData.getInstanceModule() != null ? kpiB2AnalyticData.getInstanceModule().getId() : null
+        );
+        kpiB2AnalyticDataDTO.setAnalysisDate(kpiB2AnalyticData.getAnalysisDate());
+        kpiB2AnalyticDataDTO.setStationId(kpiB2AnalyticData.getStation() != null ? kpiB2AnalyticData.getStation().getId() : null);
+        kpiB2AnalyticDataDTO.setMethod(kpiB2AnalyticData.getMethod());
+        kpiB2AnalyticDataDTO.setEvaluationDate(kpiB2AnalyticData.getEvaluationDate());
+        kpiB2AnalyticDataDTO.setTotReq(kpiB2AnalyticData.getTotReq());
+        kpiB2AnalyticDataDTO.setReqOk(kpiB2AnalyticData.getReqOk());
+        kpiB2AnalyticDataDTO.setReqTimeout(kpiB2AnalyticData.getReqTimeout());
+        kpiB2AnalyticDataDTO.setAvgTime(kpiB2AnalyticData.getAvgTime());
+        kpiB2AnalyticDataDTO.setKpiB2DetailResultId(
+            kpiB2AnalyticData.getKpiB2DetailResult() != null ? kpiB2AnalyticData.getKpiB2DetailResult().getId() : null
+        );
+        return kpiB2AnalyticDataDTO;
+    }
+
     @Override
     public int deleteAllByInstanceModule(long instanceModuleId) {
         return kpiB2AnalyticDataRepository.deleteAllByInstanceModuleId(instanceModuleId);
+    }
+
+    @Override
+    public List<KpiB2AnalyticDataDTO> findByInstanceModuleId(long instanceModuleId) {
+        return kpiB2AnalyticDataRepository
+            .selectByInstanceModuleId(instanceModuleId)
+            .stream()
+            .map(KpiB2AnalyticDataServiceImpl::getkpiB2AnalyticDataDTO)
+            .collect(Collectors.toList());
     }
 }

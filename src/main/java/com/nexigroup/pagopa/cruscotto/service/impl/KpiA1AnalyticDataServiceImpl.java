@@ -1,26 +1,30 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
-import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import com.nexigroup.pagopa.cruscotto.domain.*;
 import com.nexigroup.pagopa.cruscotto.domain.AnagStation;
 import com.nexigroup.pagopa.cruscotto.domain.Instance;
 import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
 import com.nexigroup.pagopa.cruscotto.domain.KpiA1AnalyticData;
 import com.nexigroup.pagopa.cruscotto.domain.KpiA1DetailResult;
+import com.nexigroup.pagopa.cruscotto.repository.*;
 import com.nexigroup.pagopa.cruscotto.repository.AnagStationRepository;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceModuleRepository;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
 import com.nexigroup.pagopa.cruscotto.repository.KpiA1AnalyticDataRepository;
 import com.nexigroup.pagopa.cruscotto.repository.KpiA1DetailResultRepository;
 import com.nexigroup.pagopa.cruscotto.service.KpiA1AnalyticDataService;
+import com.nexigroup.pagopa.cruscotto.service.KpiA1AnalyticDataService;
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiA1AnalyticDataDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA1AnalyticDataDTO;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
-
+import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import java.util.List;
+import java.util.stream.Collectors;
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service Implementation for managing {@link KpiA1AnalyticData}.
@@ -42,11 +46,15 @@ public class KpiA1AnalyticDataServiceImpl implements KpiA1AnalyticDataService {
     private final KpiA1DetailResultRepository kpiA1DetailResultRepository;
 
     private final QueryBuilder queryBuilder;
-    
 
-    public KpiA1AnalyticDataServiceImpl(AnagStationRepository anagStationRepository, InstanceRepository instanceRepository,
-    									InstanceModuleRepository instanceModuleRepository, KpiA1AnalyticDataRepository kpiA1AnalyticDataRepository,
-    									KpiA1DetailResultRepository kpiA1DetailResultRepository, QueryBuilder queryBuilder ) {
+    public KpiA1AnalyticDataServiceImpl(
+        AnagStationRepository anagStationRepository,
+        InstanceRepository instanceRepository,
+        InstanceModuleRepository instanceModuleRepository,
+        KpiA1AnalyticDataRepository kpiA1AnalyticDataRepository,
+        KpiA1DetailResultRepository kpiA1DetailResultRepository,
+        QueryBuilder queryBuilder
+    ) {
         this.anagStationRepository = anagStationRepository;
         this.instanceRepository = instanceRepository;
         this.instanceModuleRepository = instanceModuleRepository;
@@ -63,26 +71,41 @@ public class KpiA1AnalyticDataServiceImpl implements KpiA1AnalyticDataService {
     @Override
     public void saveAll(List<KpiA1AnalyticDataDTO> kpiA1AnalyticDataDTOS) {
         kpiA1AnalyticDataDTOS.forEach(kpiA1AnalyticDataDTO -> {
-            Instance instance = instanceRepository.findById(kpiA1AnalyticDataDTO.getInstanceId())
-            									  .orElseThrow(() -> new IllegalArgumentException("Instance not found"));
+            Instance instance = instanceRepository
+                .findById(kpiA1AnalyticDataDTO.getInstanceId())
+                .orElseThrow(() -> new IllegalArgumentException("Instance not found"));
 
-            InstanceModule instanceModule = instanceModuleRepository.findById(kpiA1AnalyticDataDTO.getInstanceModuleId())
-            														.orElseThrow(() -> new IllegalArgumentException("InstanceModule not found"));
+            InstanceModule instanceModule = instanceModuleRepository
+                .findById(kpiA1AnalyticDataDTO.getInstanceModuleId())
+                .orElseThrow(() -> new IllegalArgumentException("InstanceModule not found"));
 
-            AnagStation station = anagStationRepository.findById(kpiA1AnalyticDataDTO.getStationId())
-            										   .orElseThrow(() -> new IllegalArgumentException("Station not found"));
+            AnagStation station = anagStationRepository
+                .findById(kpiA1AnalyticDataDTO.getStationId())
+                .orElseThrow(() -> new IllegalArgumentException("Station not found"));
 
-            KpiA1DetailResult kpiA1DetailResult = kpiA1DetailResultRepository.findById(kpiA1AnalyticDataDTO.getKpiA1DetailResultId())
-            																 .orElseThrow(() -> new IllegalArgumentException("KpiA1DetailResult not found"));
+            KpiA1DetailResult kpiA1DetailResult = kpiA1DetailResultRepository
+                .findById(kpiA1AnalyticDataDTO.getKpiA1DetailResultId())
+                .orElseThrow(() -> new IllegalArgumentException("KpiA1DetailResult not found"));
 
-            KpiA1AnalyticData kpiA1AnalyticData = getkpiA1AnalyticData(kpiA1AnalyticDataDTO, instance, instanceModule, station, kpiA1DetailResult);
+            KpiA1AnalyticData kpiA1AnalyticData = getkpiA1AnalyticData(
+                kpiA1AnalyticDataDTO,
+                instance,
+                instanceModule,
+                station,
+                kpiA1DetailResult
+            );
 
             kpiA1AnalyticDataRepository.save(kpiA1AnalyticData);
         });
     }
 
-    private static @NotNull KpiA1AnalyticData getkpiA1AnalyticData(KpiA1AnalyticDataDTO kpiA1AnalyticDataDTO, Instance instance,
-    															   InstanceModule instanceModule, AnagStation station, KpiA1DetailResult kpiA1DetailResult) {
+    private static @NotNull KpiA1AnalyticData getkpiA1AnalyticData(
+        KpiA1AnalyticDataDTO kpiA1AnalyticDataDTO,
+        Instance instance,
+        InstanceModule instanceModule,
+        AnagStation station,
+        KpiA1DetailResult kpiA1DetailResult
+    ) {
         KpiA1AnalyticData kpiA1AnalyticData = new KpiA1AnalyticData();
         kpiA1AnalyticData.setInstance(instance);
         kpiA1AnalyticData.setInstanceModule(instanceModule);
@@ -99,8 +122,38 @@ public class KpiA1AnalyticDataServiceImpl implements KpiA1AnalyticDataService {
         return kpiA1AnalyticData;
     }
 
-	@Override
-	public int deleteAllByInstanceModule(long instanceModuleId) {
-		return kpiA1AnalyticDataRepository.deleteAllByInstanceModuleId(instanceModuleId);	
-	}
+    private static @NotNull KpiA1AnalyticDataDTO getkpiA1AnalyticDataDTO(KpiA1AnalyticData kpiA1AnalyticData) {
+        KpiA1AnalyticDataDTO kpiA1AnalyticDataDTO = new KpiA1AnalyticDataDTO();
+        kpiA1AnalyticDataDTO.setId(kpiA1AnalyticData.getId());
+        kpiA1AnalyticDataDTO.setInstanceId(kpiA1AnalyticData.getInstance() != null ? kpiA1AnalyticData.getInstance().getId() : null);
+        kpiA1AnalyticDataDTO.setInstanceModuleId(
+            kpiA1AnalyticData.getInstanceModule() != null ? kpiA1AnalyticData.getInstanceModule().getId() : null
+        );
+        kpiA1AnalyticDataDTO.setAnalysisDate(kpiA1AnalyticData.getAnalysisDate());
+        kpiA1AnalyticDataDTO.setStationId(kpiA1AnalyticData.getStation() != null ? kpiA1AnalyticData.getStation().getId() : null);
+        kpiA1AnalyticDataDTO.setMethod(kpiA1AnalyticData.getMethod());
+        kpiA1AnalyticDataDTO.setEvaluationDate(kpiA1AnalyticData.getEvaluationDate());
+        kpiA1AnalyticDataDTO.setTotReq(kpiA1AnalyticData.getTotReq());
+        kpiA1AnalyticDataDTO.setReqOk(kpiA1AnalyticData.getReqOk());
+        kpiA1AnalyticDataDTO.setReqTimeoutReal(kpiA1AnalyticData.getReqTimeoutReal());
+        kpiA1AnalyticDataDTO.setReqTimeoutValid(kpiA1AnalyticData.getReqTimeoutValid());
+        kpiA1AnalyticDataDTO.setKpiA1DetailResultId(
+            kpiA1AnalyticData.getKpiA1DetailResult() != null ? kpiA1AnalyticData.getKpiA1DetailResult().getId() : null
+        );
+        return kpiA1AnalyticDataDTO;
+    }
+
+    @Override
+    public int deleteAllByInstanceModule(long instanceModuleId) {
+        return kpiA1AnalyticDataRepository.deleteAllByInstanceModuleId(instanceModuleId);
+    }
+
+    @Override
+    public List<KpiA1AnalyticDataDTO> findByInstanceModuleId(long instanceModuleId) {
+        return kpiA1AnalyticDataRepository
+            .selectByInstanceModuleId(instanceModuleId)
+            .stream()
+            .map(KpiA1AnalyticDataServiceImpl::getkpiA1AnalyticDataDTO)
+            .collect(Collectors.toList());
+    }
 }

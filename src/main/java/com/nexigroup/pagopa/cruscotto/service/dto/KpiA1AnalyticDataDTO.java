@@ -2,11 +2,11 @@ package com.nexigroup.pagopa.cruscotto.service.dto;
 
 import com.nexigroup.pagopa.cruscotto.domain.KpiA1AnalyticData;
 import com.nexigroup.pagopa.cruscotto.service.validation.ValidationGroups;
-
+import jakarta.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.io.Serializable;
 import java.time.LocalDate;
-
-import jakarta.validation.constraints.NotNull;
+import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -47,19 +47,42 @@ public class KpiA1AnalyticDataDTO implements Serializable {
 
     @NotNull(groups = { ValidationGroups.KpiA1Job.class })
     private Long reqTimeoutReal;
-    
+
     @NotNull(groups = { ValidationGroups.KpiA1Job.class })
     private Long reqTimeoutValid;
 
     private Long kpiA1DetailResultId;
-    
 
     @Override
-	public String toString() {
-		return "KpiA1AnalyticDataDTO [id=" + id + ", instanceId=" + instanceId + ", instanceModuleId="
-				+ instanceModuleId + ", analysisDate=" + analysisDate + ", stationId=" + stationId + ", method="
-				+ method + ", evaluationDate=" + evaluationDate + ", totReq=" + totReq + ", reqOk=" + reqOk
-				+ ", reqTimeoutReal=" + reqTimeoutReal + ", reqTimeoutValid=" + reqTimeoutValid
-				+ ", kpiA1DetailResultId=" + kpiA1DetailResultId + "]";
-	}
+    public String toString() {
+        return (
+            "KpiA1AnalyticDataDTO{" +
+            "id=" +
+            id +
+            ", instanceId=" +
+            instanceId +
+            ", instanceModuleId=" +
+            instanceModuleId +
+            ", analysisDate=" +
+            analysisDate +
+            ", stationId=" +
+            stationId +
+            ", method='" +
+            method +
+            '\'' +
+            ", evaluationDate=" +
+            evaluationDate +
+            ", totReq=" +
+            totReq +
+            ", reqOk=" +
+            reqOk +
+            ", reqTimeoutReal=" +
+            reqTimeoutReal +
+            ", reqTimeoutValid=" +
+            reqTimeoutValid +
+            ", kpiA1DetailResultId=" +
+            kpiA1DetailResultId +
+            '}'
+        );
+    }
 }

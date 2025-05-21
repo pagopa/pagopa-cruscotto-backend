@@ -1,18 +1,8 @@
 package com.nexigroup.pagopa.cruscotto.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.LocalDate;
 import lombok.Getter;
@@ -25,24 +15,24 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 /**
- * A KpiA1AnalyticData.
+ * A KpiA2AnalyticData.
  */
 
 @Entity
-@Table(name = "KPI_A1_ANALYTIC_DATA")
+@Table(name = "KPI_A2_ANALYTIC_DATA")
 @Getter
 @Setter
 @DynamicUpdate
 @DynamicInsert
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class KpiA1AnalyticData implements Serializable {
+public class KpiA2AnalyticData implements Serializable {
 
     private static final long serialVersionUID = 7810237102590802078L;
 
     @Id
     @Column(name = "CO_ID")
-    @SequenceGenerator(name = "SQDASH_KPIA1ANADATA01", sequenceName = "SQDASH_KPIA1ANADATA01", allocationSize = 1)
-    @GeneratedValue(generator = "SQDASH_KPIA1ANADATA01", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "SQDASH_KPIA2ANADATA01", sequenceName = "SQDASH_KPIA2ANADATA01", allocationSize = 1)
+    @GeneratedValue(generator = "SQDASH_KPIA2ANADATA01", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @JsonIgnore
@@ -61,48 +51,29 @@ public class KpiA1AnalyticData implements Serializable {
     @Column(name = "DT_ANALISYS_DATE", nullable = false)
     private LocalDate analysisDate;
 
-    @JsonIgnore
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CO_STATION_ID", nullable = false)
-    private AnagStation station;
-
-    @Size(min = 1, max = 255)
-    @NotNull
-    @Column(name = "TE_METHOD", length = 255, nullable = false)
-    private String method;
-
     @NotNull
     @Column(name = "DT_EVALUATION_DATE", nullable = false)
     private LocalDate evaluationDate;
 
     @NotNull
-    @Column(name = "CO_TOT_REQ", nullable = false)
-    private Long totReq;
+    @Column(name = "CO_TOT_PAYMENTS", nullable = false)
+    private Long totPayments;
 
     @NotNull
-    @Column(name = "CO_REQ_OK", nullable = false)
-    private Long reqOk;
-
-    @NotNull
-    @Column(name = "CO_REQ_TIMEOUT_REAL", nullable = false)
-    private Long reqTimeoutReal;
-
-    @NotNull
-    @Column(name = "CO_REQ_TIMEOUT_VALID", nullable = false)
-    private Long reqTimeoutValid;
+    @Column(name = "CO_TOT_INCORRECT_PAYMENTS", nullable = false)
+    private Long totIncorrectPayments;
 
     @JsonIgnore
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CO_KPI_A1_DETAIL_RESULT_ID", nullable = false)
-    private KpiA1DetailResult kpiA1DetailResult;
+    @JoinColumn(name = "CO_KPI_A2_DETAIL_RESULT_ID", nullable = false)
+    private KpiA2Result kpiA2DetailResult;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
 
-        if (!(o instanceof KpiA1AnalyticData that)) return false;
+        if (!(o instanceof KpiA2AnalyticData that)) return false;
 
         return new EqualsBuilder().append(id, that.id).isEquals();
     }
@@ -115,7 +86,7 @@ public class KpiA1AnalyticData implements Serializable {
     @Override
     public String toString() {
         return (
-            "KpiA1AnalyticData{" +
+            "KpiA2AnalyticData{" +
             "id=" +
             id +
             ", instance=" +
@@ -124,23 +95,14 @@ public class KpiA1AnalyticData implements Serializable {
             instanceModule +
             ", analysisDate=" +
             analysisDate +
-            ", station=" +
-            station +
-            ", method='" +
-            method +
-            '\'' +
             ", evaluationDate=" +
             evaluationDate +
-            ", totReq=" +
-            totReq +
-            ", reqOk=" +
-            reqOk +
-            ", reqTimeoutReal=" +
-            reqTimeoutReal +
-            ", reqTimeoutValid=" +
-            reqTimeoutValid +
-            ", kpiA1DetailResult=" +
-            kpiA1DetailResult +
+            ", totPayments=" +
+            totPayments +
+            ", totIncorrectPayments=" +
+            totIncorrectPayments +
+            ", kpiA2DetailResult=" +
+            kpiA2DetailResult +
             '}'
         );
     }

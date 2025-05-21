@@ -1,14 +1,14 @@
 package com.nexigroup.pagopa.cruscotto.service.dto;
 
+import com.nexigroup.pagopa.cruscotto.domain.Instance;
+import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
 import com.nexigroup.pagopa.cruscotto.domain.KpiA1Result;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.service.validation.ValidationGroups;
-
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDate;
-
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,12 +19,18 @@ import lombok.Setter;
 @Setter
 public class KpiA1ResultDTO implements Serializable {
 
-	private static final long serialVersionUID = -3635788827709487094L;
+    private static final long serialVersionUID = -3635788827709487094L;
 
-	private Long id;
+    private Long id;
+
+    @NotNull(groups = { ValidationGroups.KpiA1Job.class })
+    private Instance instance;
 
     @NotNull(groups = { ValidationGroups.KpiA1Job.class })
     private Long instanceId;
+
+    @NotNull(groups = { ValidationGroups.KpiA1Job.class })
+    private InstanceModule instanceModule;
 
     @NotNull(groups = { ValidationGroups.KpiA1Job.class })
     private Long instanceModuleId;
@@ -34,13 +40,13 @@ public class KpiA1ResultDTO implements Serializable {
 
     @NotNull(groups = { ValidationGroups.KpiA1Job.class })
     private Boolean excludePlannedShutdown;
-    
+
     @NotNull(groups = { ValidationGroups.KpiA1Job.class })
     private Boolean excludeUnplannedShutdown;
-    
+
     @NotNull(groups = { ValidationGroups.KpiA1Job.class })
     private Double eligibilityThreshold;
-    
+
     @NotNull(groups = { ValidationGroups.KpiA1Job.class })
     private Double tollerance;
 
@@ -50,13 +56,31 @@ public class KpiA1ResultDTO implements Serializable {
     @NotNull(groups = { ValidationGroups.KpiA1Job.class })
     private OutcomeStatus outcome;
 
-    
-	@Override
-	public String toString() {
-		return "KpiA1ResultDTO [id=" + id + ", instanceId=" + instanceId + ", instanceModuleId=" + instanceModuleId
-				+ ", analysisDate=" + analysisDate + ", excludePlannedShutdown=" + excludePlannedShutdown
-				+ ", excludeUnplannedShutdown=" + excludeUnplannedShutdown + ", eligibilityThreshold="
-				+ eligibilityThreshold + ", tollerance=" + tollerance + ", evaluationType=" + evaluationType
-				+ ", outcome=" + outcome + "]";
-	}
+    @Override
+    public String toString() {
+        return (
+            "KpiA1ResultDTO{" +
+            "id=" +
+            id +
+            ", instance=" +
+            instance +
+            ", instanceModule=" +
+            instanceModule +
+            ", analysisDate=" +
+            analysisDate +
+            ", excludePlannedShutdown=" +
+            excludePlannedShutdown +
+            ", excludeUnplannedShutdown=" +
+            excludeUnplannedShutdown +
+            ", eligibilityThreshold=" +
+            eligibilityThreshold +
+            ", tollerance=" +
+            tollerance +
+            ", evaluationType=" +
+            evaluationType +
+            ", outcome=" +
+            outcome +
+            '}'
+        );
+    }
 }
