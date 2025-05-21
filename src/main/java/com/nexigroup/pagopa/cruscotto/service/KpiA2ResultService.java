@@ -3,15 +3,13 @@ package com.nexigroup.pagopa.cruscotto.service;
 import com.nexigroup.pagopa.cruscotto.domain.KpiA1Result;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA2ResultDTO;
-
 import java.util.List;
 
 /**
  * Service Interface for managing {@link KpiA1Result}.
  */
 public interface KpiA2ResultService {
-
-	KpiA2ResultDTO save(KpiA2ResultDTO kpiA2ResultDTO);
+    KpiA2ResultDTO save(KpiA2ResultDTO kpiA2ResultDTO);
 
     int deleteAllByInstanceModule(long instanceModuleId);
 

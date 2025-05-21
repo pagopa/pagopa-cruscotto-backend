@@ -1,12 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
-import com.nexigroup.pagopa.cruscotto.domain.AnagPartner;
-import com.nexigroup.pagopa.cruscotto.domain.AuthUser;
-import com.nexigroup.pagopa.cruscotto.domain.Instance;
-import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
+import com.nexigroup.pagopa.cruscotto.domain.*;
 import com.nexigroup.pagopa.cruscotto.domain.Module;
-import com.nexigroup.pagopa.cruscotto.domain.QInstance;
-import com.nexigroup.pagopa.cruscotto.domain.QInstanceModule;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisOutcome;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.InstanceStatus;
@@ -26,11 +21,11 @@ import com.nexigroup.pagopa.cruscotto.service.qdsl.QdslUtility;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import com.nexigroup.pagopa.cruscotto.service.util.UserUtils;
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.Order;
-import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.*;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPQLQuery;
+import com.querydsl.jpa.impl.JPAUpdateClause;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -57,6 +52,23 @@ import org.springframework.transaction.annotation.Transactional;
 public class InstanceServiceImpl implements InstanceService {
 
     private final Logger log = LoggerFactory.getLogger(InstanceServiceImpl.class);
+    private static final String ID_FIELD = "id";
+
+    private static final String INSTANCE_IDENTIFICATION_FIELD = "instanceIdentification";
+
+    private static final String PARTNER_ID_FIELD = "partnerId";
+
+    private static final String PARTNER_FISCAL_CODE_FIELD = "partnerFiscalCode";
+
+    private static final String PARTNER_NAME_FIELD = "partnerName";
+
+    private static final String APPLICATION_DATE_FIELD = "applicationDate";
+
+    private static final String PREDICTED_DATE_ANALYSIS_FIELD = "predictedDateAnalysis";
+
+    private static final String ANALYSIS_PERIOD_START_DATE_FIELD = "analysisPeriodStartDate";
+
+    private static final String ANALYSIS_PERIOD_END_DATE_FIELD = "analysisPeriodEndDate";
 
     private static final String INSTANCE = "instance";
 
@@ -198,6 +210,7 @@ public class InstanceServiceImpl implements InstanceService {
         instance.setStatus(InstanceStatus.BOZZA);
         instance.setApplicationDate(now.toInstant());
         instance.setAssignedUser(loggedUser);
+        instance.setLastAnalysisOutcome(AnalysisOutcome.STANDBY);
 
         Set<InstanceModule> instanceModules = new HashSet<>();
         List<Module> modules = moduleRepository.findAllByStatus(ModuleStatus.ATTIVO);
@@ -337,20 +350,7 @@ public class InstanceServiceImpl implements InstanceService {
                     .and(QInstanceModule.instanceModule.status.eq(ModuleStatus.ATTIVO))
                     .and(QInstanceModule.instanceModule.automaticOutcomeDate.isNull())
             )
-            .select(
-                Projections.fields(
-                    InstanceDTO.class,
-                    QInstance.instance.id.as("id"),
-                    QInstance.instance.instanceIdentification.as("instanceIdentification"),
-                    QInstance.instance.partner.id.as("partnerId"),
-                    QInstance.instance.partner.fiscalCode.as("partnerFiscalCode"),
-                    QInstance.instance.partner.name.as("partnerName"),
-                    QInstance.instance.applicationDate.as("applicationDate"),
-                    QInstance.instance.predictedDateAnalysis.as("predictedDateAnalysis"),
-                    QInstance.instance.analysisPeriodStartDate.as("analysisPeriodStartDate"),
-                    QInstance.instance.analysisPeriodEndDate.as("analysisPeriodEndDate")
-                )
-            )
+            .select(buildInstanceProjection(QInstance.instance))
             .limit(limit)
             .orderBy(new OrderSpecifier<>(Order.ASC, Expressions.stringPath("applicationDate")));
 
@@ -384,7 +384,7 @@ public class InstanceServiceImpl implements InstanceService {
 
                 log.info(
                     "Updating status of instance with identifier {} in {} by user {}",
-                    instance.getInstanceIdentification(),                    
+                    instance.getInstanceIdentification(),
                     instance.getStatus(),
                     loginUtenteLoggato
                 );
@@ -395,5 +395,53 @@ public class InstanceServiceImpl implements InstanceService {
             .orElseThrow(() ->
                 new GenericServiceException(String.format("Instance with id %s not exist", id), INSTANCE, "instance.notExists")
             );
+    }
+
+    @Override
+    public List<InstanceDTO> findInstanceToCalculate(Integer limit) {
+        QInstance instance = QInstance.instance;
+        JPQLQuery<InstanceDTO> jpql = queryBuilder
+            .<Instance>createQuery()
+            .from(instance)
+            .where(
+                instance.status
+                    .eq(InstanceStatus.IN_ESECUZIONE)
+                    .and(instance.predictedDateAnalysis.loe(LocalDate.now()))
+                    .and(instance.lastAnalysisDate.isNull())
+            )
+            .select(buildInstanceProjection(instance))
+            .limit(limit)
+            .orderBy(new OrderSpecifier<>(Order.ASC, Expressions.stringPath(APPLICATION_DATE_FIELD)));
+
+        return jpql.fetch();
+    }
+
+    private QBean<InstanceDTO> buildInstanceProjection(QInstance instance) {
+        return Projections.fields(
+            InstanceDTO.class,
+            instance.id.as(ID_FIELD),
+            instance.instanceIdentification.as(INSTANCE_IDENTIFICATION_FIELD),
+            instance.partner.id.as(PARTNER_ID_FIELD),
+            instance.partner.fiscalCode.as(PARTNER_FISCAL_CODE_FIELD),
+            instance.partner.name.as(PARTNER_NAME_FIELD),
+            instance.applicationDate.as(APPLICATION_DATE_FIELD),
+            instance.predictedDateAnalysis.as(PREDICTED_DATE_ANALYSIS_FIELD),
+            instance.analysisPeriodStartDate.as(ANALYSIS_PERIOD_START_DATE_FIELD),
+            instance.analysisPeriodEndDate.as(ANALYSIS_PERIOD_END_DATE_FIELD)
+        );
+    }
+
+    @Override
+    public void updateExecuteStateAndLastAnalysis(Long id, Instant lastAnalysisDate, AnalysisOutcome lastAnalysisOutcome) {
+        log.debug("Request to update Instance {}", id);
+
+        JPAUpdateClause jpql = queryBuilder.updateQuery(QInstance.instance);
+
+        jpql
+            .set(QInstance.instance.status, InstanceStatus.ESEGUITA)
+            .set(QInstance.instance.lastAnalysisDate, lastAnalysisDate)
+            .set(QInstance.instance.lastAnalysisOutcome, lastAnalysisOutcome)
+            .where(QInstance.instance.id.eq(id))
+            .execute();
     }
 }

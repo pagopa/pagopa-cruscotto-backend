@@ -2,6 +2,8 @@ package com.nexigroup.pagopa.cruscotto.web.rest;
 
 import com.nexigroup.pagopa.cruscotto.service.*;
 import com.nexigroup.pagopa.cruscotto.service.dto.*;
+import java.util.List;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,9 +13,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import tech.jhipster.web.util.ResponseUtil;
-
-import java.util.List;
-import java.util.Optional;
 
 /**
  * REST controller for managing {@link 'KpiA1AnalyticData, KpiA2AnalyticData, KpiB2AnalyticData'}.
@@ -33,7 +32,11 @@ public class KpiAnalyticDataResource {
 
     private final KpiB2AnalyticDataService kpiB2AnalyticDataService;
 
-    public KpiAnalyticDataResource(KpiA1AnalyticDataService kpiA1AnalyticDataService, KpiB2AnalyticDataService kpiB2AnalyticDataService, KpiA2AnalyticDataService kpiA2AnalyticDataService) {
+    public KpiAnalyticDataResource(
+        KpiA1AnalyticDataService kpiA1AnalyticDataService,
+        KpiB2AnalyticDataService kpiB2AnalyticDataService,
+        KpiA2AnalyticDataService kpiA2AnalyticDataService
+    ) {
         this.kpiA1AnalyticDataService = kpiA1AnalyticDataService;
         this.kpiB2AnalyticDataService = kpiB2AnalyticDataService;
         this.kpiA2AnalyticDataService = kpiA2AnalyticDataService;
@@ -80,5 +83,4 @@ public class KpiAnalyticDataResource {
         List<KpiB2AnalyticDataDTO> kpiB2AnalyticData = kpiB2AnalyticDataService.findByInstanceModuleId(moduleId);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(kpiB2AnalyticData));
     }
-
 }

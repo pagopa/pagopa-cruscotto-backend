@@ -3,11 +3,10 @@ package com.nexigroup.pagopa.cruscotto.service.dto;
 import com.nexigroup.pagopa.cruscotto.domain.KpiA2AnalyticData;
 import com.nexigroup.pagopa.cruscotto.service.validation.ValidationGroups;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.io.Serializable;
 import java.time.LocalDate;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * A DTO for the {@link KpiA2AnalyticData} entity.
@@ -42,16 +41,25 @@ public class KpiA2AnalyticDataDTO implements Serializable {
 
     @Override
     public String toString() {
-        return "KpiA2AnalyticDataDTO{" +
-            "id=" + id +
-            ", instanceId=" + instanceId +
-            ", instanceModuleId=" + instanceModuleId +
-            ", analysisDate=" + analysisDate +
-            ", evaluationDate=" + evaluationDate +
-            ", totPayments=" + totPayments +
-            ", totIncorrectPayments=" + totIncorrectPayments +
-            ", kpiA2DetailResultId=" + kpiA2DetailResultId +
-            '}';
+        return (
+            "KpiA2AnalyticDataDTO{" +
+            "id=" +
+            id +
+            ", instanceId=" +
+            instanceId +
+            ", instanceModuleId=" +
+            instanceModuleId +
+            ", analysisDate=" +
+            analysisDate +
+            ", evaluationDate=" +
+            evaluationDate +
+            ", totPayments=" +
+            totPayments +
+            ", totIncorrectPayments=" +
+            totIncorrectPayments +
+            ", kpiA2DetailResultId=" +
+            kpiA2DetailResultId +
+            '}'
+        );
     }
-
 }

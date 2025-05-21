@@ -7,11 +7,10 @@ import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.service.validation.ValidationGroups;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.io.Serializable;
 import java.time.Instant;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * A DTO for the {@link KpiA2Result} entity.
@@ -48,14 +47,23 @@ public class KpiA2ResultDTO implements Serializable {
 
     @Override
     public String toString() {
-        return "KpiA2ResultDTO{" +
-            "id=" + id +
-            ", instance=" + instance +
-            ", instanceModule=" + instanceModule +
-            ", analysisDate=" + analysisDate +
-            ", tollerance=" + tollerance +
-            ", evaluationType=" + evaluationType +
-            ", outcome=" + outcome +
-            '}';
+        return (
+            "KpiA2ResultDTO{" +
+            "id=" +
+            id +
+            ", instance=" +
+            instance +
+            ", instanceModule=" +
+            instanceModule +
+            ", analysisDate=" +
+            analysisDate +
+            ", tollerance=" +
+            tollerance +
+            ", evaluationType=" +
+            evaluationType +
+            ", outcome=" +
+            outcome +
+            '}'
+        );
     }
 }
