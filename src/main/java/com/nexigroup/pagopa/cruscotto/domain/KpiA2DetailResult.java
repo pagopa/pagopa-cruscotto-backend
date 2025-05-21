@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -12,9 +14,6 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-
-import java.io.Serializable;
-import java.time.LocalDate;
 
 /**
  * A KpiA2DetailResult.
@@ -100,18 +99,31 @@ public class KpiA2DetailResult implements Serializable {
 
     @Override
     public String toString() {
-        return "KpiA2DetailResult{" +
-            "id=" + id +
-            ", instance=" + instance +
-            ", instanceModule=" + instanceModule +
-            ", analysisDate=" + analysisDate +
-            ", evaluationStartDate=" + evaluationStartDate +
-            ", evaluationEndDate=" + evaluationEndDate +
-            ", totPayments=" + totPayments +
-            ", totIncorrectPayments=" + totIncorrectPayments +
-            ", errorPercentage=" + errorPercentage +
-            ", outcome=" + outcome +
-            ", kpiA2Result=" + kpiA2Result +
-            '}';
+        return (
+            "KpiA2DetailResult{" +
+            "id=" +
+            id +
+            ", instance=" +
+            instance +
+            ", instanceModule=" +
+            instanceModule +
+            ", analysisDate=" +
+            analysisDate +
+            ", evaluationStartDate=" +
+            evaluationStartDate +
+            ", evaluationEndDate=" +
+            evaluationEndDate +
+            ", totPayments=" +
+            totPayments +
+            ", totIncorrectPayments=" +
+            totIncorrectPayments +
+            ", errorPercentage=" +
+            errorPercentage +
+            ", outcome=" +
+            outcome +
+            ", kpiA2Result=" +
+            kpiA2Result +
+            '}'
+        );
     }
 }

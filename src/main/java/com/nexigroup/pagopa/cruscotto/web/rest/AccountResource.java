@@ -1,14 +1,12 @@
 package com.nexigroup.pagopa.cruscotto.web.rest;
 
 import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
-import com.nexigroup.pagopa.cruscotto.config.Constants;
 import com.nexigroup.pagopa.cruscotto.domain.AuthUser;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AuthenticationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.Language;
 import com.nexigroup.pagopa.cruscotto.repository.AuthUserRepository;
 import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
 import com.nexigroup.pagopa.cruscotto.security.SecurityUtils;
-import com.nexigroup.pagopa.cruscotto.security.helper.CookieHelper;
 import com.nexigroup.pagopa.cruscotto.security.util.PasswordExpiredUtils;
 import com.nexigroup.pagopa.cruscotto.service.AuthUserService;
 import com.nexigroup.pagopa.cruscotto.service.MailService;
@@ -21,7 +19,6 @@ import com.nexigroup.pagopa.cruscotto.web.rest.errors.BadRequestAlertException;
 import com.nexigroup.pagopa.cruscotto.web.rest.errors.EmailAlreadyUsedException;
 import com.nexigroup.pagopa.cruscotto.web.rest.errors.InvalidPasswordException;
 import com.nexigroup.pagopa.cruscotto.web.rest.vm.KeyAndPasswordVM;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -124,8 +121,7 @@ public class AccountResource {
             // cancello le autorizzazioni dell'utente e assegno
             authUserDTO.getAuthorities().clear();
 
-            authUserDTO.getAuthorities().add(AuthoritiesConstants.GTW_MODIFICA_PASSWORD);
-            authUserDTO.getAuthorities().add(AuthoritiesConstants.GTW_INFO_ACCOUNT);
+            authUserDTO.getAuthorities().add(AuthoritiesConstants.CHANGE_PASSWORD_EXPIRED);
         }
         String lang = "it";
         if (authUserDTO != null) {
@@ -181,12 +177,12 @@ public class AccountResource {
     }
 
     /**
-     * {@code POST  /account/change-password} : changes the current authUser's password.
+     * {@code POST  /account/change-password/expired} : changes the current authUser's password.
      *
      * @param passwordChangeRequestBean current and new password.
      * @throws InvalidPasswordException {@code 400 (Bad Request)} if the new password is incorrect.
      */
-    @PostMapping(path = "/account/change-password")
+    @PostMapping(path = "/account/change-password/expired")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_MODIFICA_PASSWORD + "\")")
     public void changePassword(@Valid @RequestBody PasswordChangeRequestBean passwordChangeRequestBean) {
         AuthenticationType authenticationType = SecurityUtils.getAuthenticationTypeUserLogin()
@@ -244,7 +240,14 @@ public class AccountResource {
      */
     @PostMapping(path = "/account/reset-password/init")
     public void requestPasswordReset(@RequestBody String mail) {
-        authUserService.requestPasswordResetByMail(mail, AuthenticationType.FORM_LOGIN).ifPresent(mailService::sendPasswordResetMail);
+        Optional<AuthUser> user = authUserService.requestPasswordResetByMail(mail, AuthenticationType.FORM_LOGIN);
+        if (user.isPresent()) {
+            mailService.sendPasswordResetMail(user.get());
+        } else {
+            // Pretend the request has been successful to prevent checking which emails really exist
+            // but log that an invalid attempt has been made
+            log.warn("Password reset requested for non existing mail");
+        }
     }
 
     /**
@@ -260,7 +263,7 @@ public class AccountResource {
 
         AuthUser authUser = authUserOptional.orElseThrow(() -> new AccountResourceException("No user was found for this reset key"));
 
-        //validità token
+        //validity token
         if (
             properties.getPassword().getHoursKeyResetPasswordExpired() != null &&
             properties.getPassword().getHoursKeyResetPasswordExpired() > 0

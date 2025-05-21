@@ -6,15 +6,14 @@ import com.nexigroup.pagopa.cruscotto.service.KpiB2ResultService;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA1ResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA2ResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2ResultDTO;
+import java.util.List;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tech.jhipster.web.util.ResponseUtil;
-
-import java.util.List;
-import java.util.Optional;
 
 /**
  * REST controller for managing {@link 'KpiA1Result, KpiA2Result, KpiB2Result'}.
@@ -34,7 +33,11 @@ public class KpiResultResource {
 
     private final KpiB2ResultService kpiB2ResultService;
 
-    public KpiResultResource(KpiA1ResultService kpiA1ResultService, KpiB2ResultService kpiB2ResultService, KpiA2ResultService kpiA2ResultService) {
+    public KpiResultResource(
+        KpiA1ResultService kpiA1ResultService,
+        KpiB2ResultService kpiB2ResultService,
+        KpiA2ResultService kpiA2ResultService
+    ) {
         this.kpiA1ResultService = kpiA1ResultService;
         this.kpiB2ResultService = kpiB2ResultService;
         this.kpiA2ResultService = kpiA2ResultService;
@@ -81,5 +84,4 @@ public class KpiResultResource {
         List<KpiB2ResultDTO> kpiB2Results = kpiB2ResultService.findByInstanceModuleId(moduleId);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(kpiB2Results));
     }
-
 }

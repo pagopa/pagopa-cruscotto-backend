@@ -1,16 +1,10 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
-import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import com.nexigroup.pagopa.cruscotto.domain.*;
 import com.nexigroup.pagopa.cruscotto.domain.Instance;
 import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
 import com.nexigroup.pagopa.cruscotto.domain.KpiA1Result;
 import com.nexigroup.pagopa.cruscotto.domain.QKpiA1Result;
-import com.nexigroup.pagopa.cruscotto.domain.*;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceModuleRepository;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
@@ -19,14 +13,18 @@ import com.nexigroup.pagopa.cruscotto.service.KpiA1ResultService;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA1ResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import com.querydsl.jpa.impl.JPAUpdateClause;
-import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.stream.Collectors;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service Implementation for managing {@link KpiA1Result}.
@@ -45,9 +43,12 @@ public class KpiA1ResultServiceImpl implements KpiA1ResultService {
 
     private final QueryBuilder queryBuilder;
 
-
-    public KpiA1ResultServiceImpl(InstanceRepository instanceRepository, InstanceModuleRepository instanceModuleRepository,
-                                  KpiA1ResultRepository kpiA1ResultRepository, QueryBuilder queryBuilder) {
+    public KpiA1ResultServiceImpl(
+        InstanceRepository instanceRepository,
+        InstanceModuleRepository instanceModuleRepository,
+        KpiA1ResultRepository kpiA1ResultRepository,
+        QueryBuilder queryBuilder
+    ) {
         this.instanceRepository = instanceRepository;
         this.instanceModuleRepository = instanceModuleRepository;
         this.kpiA1ResultRepository = kpiA1ResultRepository;
@@ -61,11 +62,13 @@ public class KpiA1ResultServiceImpl implements KpiA1ResultService {
      */
     @Override
     public KpiA1ResultDTO save(KpiA1ResultDTO kpiA1ResultDTO) {
-        Instance instance = instanceRepository.findById(kpiA1ResultDTO.getInstanceId())
-                							  .orElseThrow(() -> new IllegalArgumentException("Instance not found"));
+        Instance instance = instanceRepository
+            .findById(kpiA1ResultDTO.getInstanceId())
+            .orElseThrow(() -> new IllegalArgumentException("Instance not found"));
 
-    	InstanceModule instanceModule = instanceModuleRepository.findById(kpiA1ResultDTO.getInstanceModuleId())
-                												.orElseThrow(() -> new IllegalArgumentException("InstanceModule not found"));
+        InstanceModule instanceModule = instanceModuleRepository
+            .findById(kpiA1ResultDTO.getInstanceModuleId())
+            .orElseThrow(() -> new IllegalArgumentException("InstanceModule not found"));
 
         KpiA1Result kpiA1Result = getKpiA1Result(kpiA1ResultDTO, instance, instanceModule);
 
@@ -77,7 +80,6 @@ public class KpiA1ResultServiceImpl implements KpiA1ResultService {
     }
 
     private static @NotNull KpiA1Result getKpiA1Result(KpiA1ResultDTO kpiA1ResultDTO, Instance instance, InstanceModule instanceModule) {
-
         KpiA1Result kpiA1Result = new KpiA1Result();
         kpiA1Result.setInstance(instance);
         kpiA1Result.setInstanceModule(instanceModule);
@@ -106,25 +108,24 @@ public class KpiA1ResultServiceImpl implements KpiA1ResultService {
         return kpiA1ResultDTO;
     }
 
-	@Override
-	public int deleteAllByInstanceModule(long instanceModuleId) {
-		return kpiA1ResultRepository.deleteAllByInstanceModuleId(instanceModuleId);
-	}
+    @Override
+    public int deleteAllByInstanceModule(long instanceModuleId) {
+        return kpiA1ResultRepository.deleteAllByInstanceModuleId(instanceModuleId);
+    }
 
-	@Override
-	public void updateKpiA1ResultOutcome(long id, OutcomeStatus outcomeStatus) {
-		LOGGER.debug("Request to update KpiA1Result {} outcome status to {}", id, outcomeStatus);
+    @Override
+    public void updateKpiA1ResultOutcome(long id, OutcomeStatus outcomeStatus) {
+        LOGGER.debug("Request to update KpiA1Result {} outcome status to {}", id, outcomeStatus);
 
-		JPAUpdateClause jpql = queryBuilder.updateQuery(QKpiA1Result.kpiA1Result);
+        JPAUpdateClause jpql = queryBuilder.updateQuery(QKpiA1Result.kpiA1Result);
 
-		jpql.set(QKpiA1Result.kpiA1Result.outcome, outcomeStatus)
-			.where(QKpiA1Result.kpiA1Result.id.eq(id))
-			.execute();
-	}
+        jpql.set(QKpiA1Result.kpiA1Result.outcome, outcomeStatus).where(QKpiA1Result.kpiA1Result.id.eq(id)).execute();
+    }
 
     @Override
     public List<KpiA1ResultDTO> findByInstanceModuleId(long instanceModuleId) {
-        return kpiA1ResultRepository.selectByInstanceModuleId(instanceModuleId)
+        return kpiA1ResultRepository
+            .selectByInstanceModuleId(instanceModuleId)
             .stream()
             .map(KpiA1ResultServiceImpl::getKpiA1ResultDTO)
             .collect(Collectors.toList());

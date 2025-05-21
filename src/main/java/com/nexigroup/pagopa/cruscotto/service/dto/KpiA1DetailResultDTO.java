@@ -5,16 +5,13 @@ import com.nexigroup.pagopa.cruscotto.domain.KpiB2DetailResult;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.service.validation.ValidationGroups;
-
+import jakarta.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.io.Serializable;
 import java.time.LocalDate;
-
-import jakarta.validation.constraints.NotNull;
+import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.io.Serializable;
-import java.time.LocalDate;
 
 /**
  * A DTO for the {@link KpiB2DetailResult} entity.
@@ -24,7 +21,7 @@ import java.time.LocalDate;
 @Setter
 public class KpiA1DetailResultDTO implements Serializable {
 
-	private static final long serialVersionUID = 1477746486886196475L;
+    private static final long serialVersionUID = 1477746486886196475L;
 
     private Long id;
 
@@ -66,24 +63,40 @@ public class KpiA1DetailResultDTO implements Serializable {
 
     private Long kpiA1ResultId;
 
-
     @Override
     public String toString() {
-        return "KpiA1DetailResultDTO{" +
-            "id=" + id +
-            ", instanceId=" + instanceId +
-            ", instanceModuleId=" + instanceModuleId +
-            ", analysisDate=" + analysisDate +
-            ", stationId=" + stationId +
-            ", method='" + method + '\'' +
-            ", evaluationType=" + evaluationType +
-            ", evaluationStartDate=" + evaluationStartDate +
-            ", evaluationEndDate=" + evaluationEndDate +
-            ", totReq=" + totReq +
-            ", reqTimeout=" + reqTimeout +
-            ", timeoutPercentage=" + timeoutPercentage +
-            ", outcome=" + outcome +
-            ", kpiA1ResultId=" + kpiA1ResultId +
-            '}';
+        return (
+            "KpiA1DetailResultDTO{" +
+            "id=" +
+            id +
+            ", instanceId=" +
+            instanceId +
+            ", instanceModuleId=" +
+            instanceModuleId +
+            ", analysisDate=" +
+            analysisDate +
+            ", stationId=" +
+            stationId +
+            ", method='" +
+            method +
+            '\'' +
+            ", evaluationType=" +
+            evaluationType +
+            ", evaluationStartDate=" +
+            evaluationStartDate +
+            ", evaluationEndDate=" +
+            evaluationEndDate +
+            ", totReq=" +
+            totReq +
+            ", reqTimeout=" +
+            reqTimeout +
+            ", timeoutPercentage=" +
+            timeoutPercentage +
+            ", outcome=" +
+            outcome +
+            ", kpiA1ResultId=" +
+            kpiA1ResultId +
+            '}'
+        );
     }
 }

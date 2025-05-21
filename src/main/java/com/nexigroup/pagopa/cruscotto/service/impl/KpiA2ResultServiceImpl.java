@@ -9,14 +9,13 @@ import com.nexigroup.pagopa.cruscotto.service.KpiA2ResultService;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA2ResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import com.querydsl.jpa.impl.JPAUpdateClause;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Service Implementation for managing {@link KpiB2Result}.
@@ -35,9 +34,12 @@ public class KpiA2ResultServiceImpl implements KpiA2ResultService {
 
     private final QueryBuilder queryBuilder;
 
-
-    public KpiA2ResultServiceImpl(InstanceRepository instanceRepository, InstanceModuleRepository instanceModuleRepository,
-                                  KpiA2ResultRepository kpiA2ResultRepository, QueryBuilder queryBuilder) {
+    public KpiA2ResultServiceImpl(
+        InstanceRepository instanceRepository,
+        InstanceModuleRepository instanceModuleRepository,
+        KpiA2ResultRepository kpiA2ResultRepository,
+        QueryBuilder queryBuilder
+    ) {
         this.instanceRepository = instanceRepository;
         this.instanceModuleRepository = instanceModuleRepository;
         this.kpiA2ResultRepository = kpiA2ResultRepository;
@@ -51,10 +53,12 @@ public class KpiA2ResultServiceImpl implements KpiA2ResultService {
      */
     @Override
     public KpiA2ResultDTO save(KpiA2ResultDTO kpiA2ResultDTO) {
-        Instance instance = instanceRepository.findById(kpiA2ResultDTO.getInstanceId())
+        Instance instance = instanceRepository
+            .findById(kpiA2ResultDTO.getInstanceId())
             .orElseThrow(() -> new IllegalArgumentException("Instance not found"));
 
-        InstanceModule instanceModule = instanceModuleRepository.findById(kpiA2ResultDTO.getInstanceModuleId())
+        InstanceModule instanceModule = instanceModuleRepository
+            .findById(kpiA2ResultDTO.getInstanceModuleId())
             .orElseThrow(() -> new IllegalArgumentException("InstanceModule not found"));
 
         KpiA2Result kpiA2Result = getKpiA2Result(kpiA2ResultDTO, instance, instanceModule);
@@ -67,7 +71,6 @@ public class KpiA2ResultServiceImpl implements KpiA2ResultService {
     }
 
     private static @NotNull KpiA2Result getKpiA2Result(KpiA2ResultDTO kpiA2ResultDTO, Instance instance, InstanceModule instanceModule) {
-
         KpiA2Result kpiA2Result = new KpiA2Result();
         kpiA2Result.setInstance(instance);
         kpiA2Result.setInstanceModule(instanceModule);
@@ -99,14 +102,13 @@ public class KpiA2ResultServiceImpl implements KpiA2ResultService {
 
         JPAUpdateClause jpql = queryBuilder.updateQuery(QKpiB2Result.kpiB2Result);
 
-        jpql.set(QKpiB2Result.kpiB2Result.outcome, outcomeStatus)
-            .where(QKpiB2Result.kpiB2Result.id.eq(id))
-            .execute();
+        jpql.set(QKpiB2Result.kpiB2Result.outcome, outcomeStatus).where(QKpiB2Result.kpiB2Result.id.eq(id)).execute();
     }
 
     @Override
     public List<KpiA2ResultDTO> findByInstanceModuleId(long instanceModuleId) {
-        return kpiA2ResultRepository.selectByInstanceModuleId(instanceModuleId)
+        return kpiA2ResultRepository
+            .selectByInstanceModuleId(instanceModuleId)
             .stream()
             .map(KpiA2ResultServiceImpl::getKpiA2ResultDTO)
             .collect(Collectors.toList());

@@ -12,14 +12,13 @@ import com.nexigroup.pagopa.cruscotto.service.KpiB2ResultService;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2ResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import com.querydsl.jpa.impl.JPAUpdateClause;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Service Implementation for managing {@link KpiB2Result}.
@@ -37,7 +36,6 @@ public class KpiB2ResultServiceImpl implements KpiB2ResultService {
     private final KpiB2ResultRepository kpiB2ResultRepository;
 
     private final QueryBuilder queryBuilder;
-
 
     public KpiB2ResultServiceImpl(
         InstanceRepository instanceRepository,
@@ -76,7 +74,6 @@ public class KpiB2ResultServiceImpl implements KpiB2ResultService {
     }
 
     private static @NotNull KpiB2Result getKpiB2Result(KpiB2ResultDTO kpiB2ResultDTO, Instance instance, InstanceModule instanceModule) {
-
         KpiB2Result kpiB2Result = new KpiB2Result();
         kpiB2Result.setInstance(instance);
         kpiB2Result.setInstanceModule(instanceModule);
@@ -106,25 +103,24 @@ public class KpiB2ResultServiceImpl implements KpiB2ResultService {
         return kpiB2ResultDTO;
     }
 
-	@Override
-	public int deleteAllByInstanceModule(long instanceModuleId) {
-		return kpiB2ResultRepository.deleteAllByInstanceModuleId(instanceModuleId);
-	}
+    @Override
+    public int deleteAllByInstanceModule(long instanceModuleId) {
+        return kpiB2ResultRepository.deleteAllByInstanceModuleId(instanceModuleId);
+    }
 
-	@Override
-	public void updateKpiB2ResultOutcome(long id, OutcomeStatus outcomeStatus) {
-		LOGGER.debug("Request to update KpiB2Result {} outcome status to {}", id, outcomeStatus);
+    @Override
+    public void updateKpiB2ResultOutcome(long id, OutcomeStatus outcomeStatus) {
+        LOGGER.debug("Request to update KpiB2Result {} outcome status to {}", id, outcomeStatus);
 
-		JPAUpdateClause jpql = queryBuilder.updateQuery(QKpiB2Result.kpiB2Result);
+        JPAUpdateClause jpql = queryBuilder.updateQuery(QKpiB2Result.kpiB2Result);
 
-		jpql.set(QKpiB2Result.kpiB2Result.outcome, outcomeStatus)
-			.where(QKpiB2Result.kpiB2Result.id.eq(id))
-			.execute();
-	}
+        jpql.set(QKpiB2Result.kpiB2Result.outcome, outcomeStatus).where(QKpiB2Result.kpiB2Result.id.eq(id)).execute();
+    }
 
     @Override
     public List<KpiB2ResultDTO> findByInstanceModuleId(long instanceModuleId) {
-        return kpiB2ResultRepository.selectByInstanceModuleId(instanceModuleId)
+        return kpiB2ResultRepository
+            .selectByInstanceModuleId(instanceModuleId)
             .stream()
             .map(KpiB2ResultServiceImpl::getKpiB2ResultDTO)
             .collect(Collectors.toList());

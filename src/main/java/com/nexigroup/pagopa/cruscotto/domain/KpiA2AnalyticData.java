@@ -3,6 +3,8 @@ package com.nexigroup.pagopa.cruscotto.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -11,9 +13,6 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-
-import java.io.Serializable;
-import java.time.LocalDate;
 
 /**
  * A KpiA2AnalyticData.
@@ -86,15 +85,25 @@ public class KpiA2AnalyticData implements Serializable {
 
     @Override
     public String toString() {
-        return "KpiA2AnalyticData{" +
-            "id=" + id +
-            ", instance=" + instance +
-            ", instanceModule=" + instanceModule +
-            ", analysisDate=" + analysisDate +
-            ", evaluationDate=" + evaluationDate +
-            ", totPayments=" + totPayments +
-            ", totIncorrectPayments=" + totIncorrectPayments +
-            ", kpiA2DetailResult=" + kpiA2DetailResult +
-            '}';
+        return (
+            "KpiA2AnalyticData{" +
+            "id=" +
+            id +
+            ", instance=" +
+            instance +
+            ", instanceModule=" +
+            instanceModule +
+            ", analysisDate=" +
+            analysisDate +
+            ", evaluationDate=" +
+            evaluationDate +
+            ", totPayments=" +
+            totPayments +
+            ", totIncorrectPayments=" +
+            totIncorrectPayments +
+            ", kpiA2DetailResult=" +
+            kpiA2DetailResult +
+            '}'
+        );
     }
 }

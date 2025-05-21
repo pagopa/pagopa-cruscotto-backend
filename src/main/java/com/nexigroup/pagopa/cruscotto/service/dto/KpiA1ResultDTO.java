@@ -6,11 +6,9 @@ import com.nexigroup.pagopa.cruscotto.domain.KpiA1Result;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.service.validation.ValidationGroups;
-
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDate;
-
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,9 +19,9 @@ import lombok.Setter;
 @Setter
 public class KpiA1ResultDTO implements Serializable {
 
-	private static final long serialVersionUID = -3635788827709487094L;
+    private static final long serialVersionUID = -3635788827709487094L;
 
-	private Long id;
+    private Long id;
 
     @NotNull(groups = { ValidationGroups.KpiA1Job.class })
     private Instance instance;
@@ -60,17 +58,29 @@ public class KpiA1ResultDTO implements Serializable {
 
     @Override
     public String toString() {
-        return "KpiA1ResultDTO{" +
-            "id=" + id +
-            ", instance=" + instance +
-            ", instanceModule=" + instanceModule +
-            ", analysisDate=" + analysisDate +
-            ", excludePlannedShutdown=" + excludePlannedShutdown +
-            ", excludeUnplannedShutdown=" + excludeUnplannedShutdown +
-            ", eligibilityThreshold=" + eligibilityThreshold +
-            ", tollerance=" + tollerance +
-            ", evaluationType=" + evaluationType +
-            ", outcome=" + outcome +
-            '}';
+        return (
+            "KpiA1ResultDTO{" +
+            "id=" +
+            id +
+            ", instance=" +
+            instance +
+            ", instanceModule=" +
+            instanceModule +
+            ", analysisDate=" +
+            analysisDate +
+            ", excludePlannedShutdown=" +
+            excludePlannedShutdown +
+            ", excludeUnplannedShutdown=" +
+            excludeUnplannedShutdown +
+            ", eligibilityThreshold=" +
+            eligibilityThreshold +
+            ", tollerance=" +
+            tollerance +
+            ", evaluationType=" +
+            evaluationType +
+            ", outcome=" +
+            outcome +
+            '}'
+        );
     }
 }

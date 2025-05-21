@@ -188,9 +188,19 @@ public class JobServiceImpl implements JobService {
                     String jobStatus = "UNDEFINED";
 
                     List<Trigger> triggers = (List<Trigger>) scheduler.getTriggersOfJob(jobKey);
-                    Date scheduleTime = triggers.get(0).getStartTime();
-                    Date nextFireTime = triggers.get(0).getNextFireTime();
-                    Date lastFiredTime = triggers.get(0).getPreviousFireTime();
+                    Date scheduleTime = null;
+                    Date nextFireTime = null;
+                    Date lastFiredTime = null;
+                    String cron = null;
+                    if (!triggers.isEmpty()) {
+                        scheduleTime = triggers.get(0).getStartTime();
+                        nextFireTime = triggers.get(0).getNextFireTime();
+                        lastFiredTime = triggers.get(0).getPreviousFireTime();
+
+                        if (triggers.get(0) instanceof CronTrigger) {
+                            cron = ((CronTrigger) triggers.get(0)).getCronExpression();
+                        }
+                    }
 
                     JobsDTO jobs = new JobsDTO();
                     jobs.setJobName(jobName);
@@ -198,6 +208,7 @@ public class JobServiceImpl implements JobService {
                     jobs.setScheduleTime(scheduleTime);
                     jobs.setLastFiredTime(lastFiredTime);
                     jobs.setNextFireTime(nextFireTime);
+                    jobs.setCron(cron);
 
                     if (checkJobRunning(jobName)) {
                         jobStatus = "RUNNING";

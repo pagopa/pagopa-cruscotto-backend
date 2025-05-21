@@ -2,6 +2,8 @@ package com.nexigroup.pagopa.cruscotto.web.rest;
 
 import com.nexigroup.pagopa.cruscotto.service.*;
 import com.nexigroup.pagopa.cruscotto.service.dto.*;
+import java.util.List;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,9 +13,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import tech.jhipster.web.util.ResponseUtil;
-
-import java.util.List;
-import java.util.Optional;
 
 /**
  * REST controller for managing {@link 'KpiA1Result, KpiA2Result, KpiB2Result'}.
@@ -33,7 +32,11 @@ public class KpiDetailResultResource {
 
     private final KpiB2DetailResultService kpiB2DetailResultService;
 
-    public KpiDetailResultResource(KpiA1DetailResultService kpiA1DetailResultService, KpiB2DetailResultService kpiB2DetailResultService, KpiA2DetailResultService kpiA2DetailResultService) {
+    public KpiDetailResultResource(
+        KpiA1DetailResultService kpiA1DetailResultService,
+        KpiB2DetailResultService kpiB2DetailResultService,
+        KpiA2DetailResultService kpiA2DetailResultService
+    ) {
         this.kpiA1DetailResultService = kpiA1DetailResultService;
         this.kpiB2DetailResultService = kpiB2DetailResultService;
         this.kpiA2DetailResultService = kpiA2DetailResultService;
@@ -80,5 +83,4 @@ public class KpiDetailResultResource {
         List<KpiB2DetailResultDTO> kpiB2DetailResults = kpiB2DetailResultService.findByInstanceModuleId(moduleId);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(kpiB2DetailResults));
     }
-
 }

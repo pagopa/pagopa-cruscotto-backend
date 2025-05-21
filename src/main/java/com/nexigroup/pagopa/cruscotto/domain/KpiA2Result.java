@@ -5,6 +5,8 @@ import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -13,9 +15,6 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-
-import java.io.Serializable;
-import java.time.Instant;
 
 /**
  * A KpiA2Result.
@@ -79,13 +78,21 @@ public class KpiA2Result implements Serializable {
 
     @Override
     public String toString() {
-        return "KpiA2Result{" +
-            "id=" + id +
-            ", instance=" + instance +
-            ", instanceModule=" + instanceModule +
-            ", analysisDate=" + analysisDate +
-            ", tollerance=" + tollerance +
-            ", outcome=" + outcome +
-            '}';
+        return (
+            "KpiA2Result{" +
+            "id=" +
+            id +
+            ", instance=" +
+            instance +
+            ", instanceModule=" +
+            instanceModule +
+            ", analysisDate=" +
+            analysisDate +
+            ", tollerance=" +
+            tollerance +
+            ", outcome=" +
+            outcome +
+            '}'
+        );
     }
 }
