@@ -1,22 +1,9 @@
 package com.nexigroup.pagopa.cruscotto.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.LocalDate;
 import lombok.Getter;
@@ -29,24 +16,24 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 /**
- * A KpiA1DetailResult.
+ * A KpiA2DetailResult.
  */
 
 @Entity
-@Table(name = "KPI_A1_DETAIL_RESULT")
+@Table(name = "KPI_A2_DETAIL_RESULT")
 @Getter
 @Setter
 @DynamicUpdate
 @DynamicInsert
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class KpiA1DetailResult implements Serializable {
+public class KpiA2DetailResult implements Serializable {
 
     private static final long serialVersionUID = 1569798052441179251L;
 
     @Id
     @Column(name = "CO_ID")
-    @SequenceGenerator(name = "SQDASH_KPIA1DETRES01", sequenceName = "SQDASH_KPIA1DETRES01", allocationSize = 1)
-    @GeneratedValue(generator = "SQDASH_KPIA1DETRES01", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "SQDASH_KPIA2DETRES01", sequenceName = "SQDASH_KPIA2DETRES01", allocationSize = 1)
+    @GeneratedValue(generator = "SQDASH_KPIA2DETRES01", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @JsonIgnore
@@ -65,22 +52,6 @@ public class KpiA1DetailResult implements Serializable {
     @Column(name = "DT_ANALISYS_DATE", nullable = false)
     private LocalDate analysisDate;
 
-    @JsonIgnore
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CO_STATION_ID", nullable = false)
-    private AnagStation station;
-
-    @Size(min = 1, max = 255)
-    @NotNull
-    @Column(name = "TE_METHOD", length = 255, nullable = false)
-    private String method;
-
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    @Column(name = "TE_EVALUATION_TYPE", nullable = false)
-    private EvaluationType evaluationType;
-
     @NotNull
     @Column(name = "DT_EVALUATION_START_DATE", nullable = false)
     private LocalDate evaluationStartDate;
@@ -90,16 +61,16 @@ public class KpiA1DetailResult implements Serializable {
     private LocalDate evaluationEndDate;
 
     @NotNull
-    @Column(name = "CO_TOT_REQ", nullable = false)
-    private Long totReq;
+    @Column(name = "CO_TOT_PAYMENTS", nullable = false)
+    private Integer totPayments;
 
     @NotNull
-    @Column(name = "CO_REQ_TIMEOUT", nullable = false)
-    private Long reqTimeout;
+    @Column(name = "CO_TOT_INCORRECT_PAYMENTS", nullable = false)
+    private Integer totIncorrectPayments;
 
     @NotNull
-    @Column(name = "CO_TIMEOUT_PERCENTAGE", nullable = false)
-    private Double timeoutPercentage;
+    @Column(name = "CO_ERROR_PERCENTAGE", nullable = false)
+    private Double errorPercentage;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -109,14 +80,14 @@ public class KpiA1DetailResult implements Serializable {
     @JsonIgnore
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CO_KPI_A1_RESULT_ID", nullable = false)
-    private KpiA1Result kpiA1Result;
+    @JoinColumn(name = "CO_KPI_A2_RESULT_ID", nullable = false)
+    private KpiA2Result kpiA2Result;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
 
-        if (!(o instanceof KpiA1DetailResult that)) return false;
+        if (!(o instanceof KpiA2DetailResult that)) return false;
 
         return new EqualsBuilder().append(id, that.id).isEquals();
     }
@@ -129,7 +100,8 @@ public class KpiA1DetailResult implements Serializable {
     @Override
     public String toString() {
         return (
-            "KpiA1DetailResult [id=" +
+            "KpiA2DetailResult{" +
+            "id=" +
             id +
             ", instance=" +
             instance +
@@ -137,27 +109,21 @@ public class KpiA1DetailResult implements Serializable {
             instanceModule +
             ", analysisDate=" +
             analysisDate +
-            ", station=" +
-            station +
-            ", method=" +
-            method +
-            ", evaluationType=" +
-            evaluationType +
             ", evaluationStartDate=" +
             evaluationStartDate +
             ", evaluationEndDate=" +
             evaluationEndDate +
-            ", totReq=" +
-            totReq +
-            ", reqTimeout=" +
-            reqTimeout +
-            ", timeoutPercentage=" +
-            timeoutPercentage +
+            ", totPayments=" +
+            totPayments +
+            ", totIncorrectPayments=" +
+            totIncorrectPayments +
+            ", errorPercentage=" +
+            errorPercentage +
             ", outcome=" +
             outcome +
-            ", kpiA1Result=" +
-            kpiA1Result +
-            "]"
+            ", kpiA2Result=" +
+            kpiA2Result +
+            '}'
         );
     }
 }

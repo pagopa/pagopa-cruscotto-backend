@@ -2,11 +2,9 @@ package com.nexigroup.pagopa.cruscotto.service.impl;
 
 import com.nexigroup.pagopa.cruscotto.domain.*;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisOutcome;
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.InstanceStatus;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceModuleRepository;
 import com.nexigroup.pagopa.cruscotto.service.InstanceModuleService;
-import com.nexigroup.pagopa.cruscotto.service.dto.InstanceDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.InstanceModuleDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2DetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
@@ -17,7 +15,6 @@ import com.querydsl.core.types.QBean;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPQLQuery;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
@@ -127,6 +124,43 @@ public class InstanceModuleServiceImpl implements InstanceModuleService {
             QInstanceModule.instanceModule.status.as(STATUS_FIELD),
             QInstanceModule.instanceModule.manualOutcomeUser.id.as(ASSIGNED_USER_ID_FIELD),
             QInstanceModule.instanceModule.manualOutcomeDate.as(MANUAL_OUTCOME_DATE_FIELD)
+        );
+    }
+
+    @Override
+    public Optional<InstanceModule> findById(Long id) {
+        return instanceModuleRepository.findById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<InstanceModuleDTO> findInstanceModuleDTOById(Long id) {
+        JPQLQuery<InstanceModule> jpql = queryBuilder
+            .<InstanceModule>createQuery()
+            .from(QInstanceModule.instanceModule)
+            .leftJoin(QInstanceModule.instanceModule.manualOutcomeUser)
+            .where(QInstanceModule.instanceModule.id.eq(id));
+
+        return Optional.ofNullable(
+            jpql
+                .select(
+                    Projections.fields(
+                        InstanceModuleDTO.class,
+                        QInstanceModule.instanceModule.id.as("id"),
+                        QInstanceModule.instanceModule.moduleCode.as("moduleCode"),
+                        QInstanceModule.instanceModule.analysisType.as("analysisType"),
+                        QInstanceModule.instanceModule.allowManualOutcome.as("allowManualOutcome"),
+                        QInstanceModule.instanceModule.automaticOutcomeDate.as("automaticOutcomeDate"),
+                        QInstanceModule.instanceModule.automaticOutcome.as("automaticOutcome"),
+                        QInstanceModule.instanceModule.manualOutcome.as("manualOutcome"),
+                        QInstanceModule.instanceModule.manualOutcomeDate.as("manualOutcomeDate"),
+                        QInstanceModule.instanceModule.status.as("status"),
+                        QInstanceModule.instanceModule.manualOutcomeUser.id.as("assignedUserId"),
+                        QInstanceModule.instanceModule.manualOutcomeUser.firstName.as("assignedUserFirstName"),
+                        QInstanceModule.instanceModule.manualOutcomeUser.lastName.as("assignedUserLastName")
+                    )
+                )
+                .fetchOne()
         );
     }
 

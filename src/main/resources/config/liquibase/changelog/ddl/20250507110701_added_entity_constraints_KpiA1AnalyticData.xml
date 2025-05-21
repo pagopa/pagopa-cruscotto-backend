@@ -4,7 +4,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
 
-    <changeSet id="20250507110700-3" author="pagopaCruscotto" context="ddl">
+    <changeSet id="20250507110700-4" author="pagopaCruscotto" context="ddl">
 
       <addForeignKeyConstraint baseColumnNames="CO_INSTANCE_ID"
                                baseTableName="KPI_A1_ANALYTIC_DATA"

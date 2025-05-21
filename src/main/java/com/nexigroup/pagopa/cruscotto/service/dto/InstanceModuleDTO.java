@@ -4,6 +4,7 @@ import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisOutcome;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleStatus;
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
 import lombok.EqualsAndHashCode;
@@ -19,6 +20,7 @@ import lombok.Setter;
 @EqualsAndHashCode
 public class InstanceModuleDTO implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = -1063577564042796502L;
 
     private Long id;
@@ -45,6 +47,11 @@ public class InstanceModuleDTO implements Serializable {
 
     private Instant manualOutcomeDate;
 
+    // Campi aggiuntivi per l'utente
+    private String assignedUserFirstName;
+
+    private String assignedUserLastName;
+
     @Override
     public String toString() {
         return (
@@ -70,6 +77,10 @@ public class InstanceModuleDTO implements Serializable {
             status +
             ", assignedUserId=" +
             assignedUserId +
+            ", assignedUserFirstName=" +
+            assignedUserFirstName +
+            ", assignedUserLastName=" +
+            assignedUserLastName +
             ", manualOutcomeDate=" +
             manualOutcomeDate +
             "]"
