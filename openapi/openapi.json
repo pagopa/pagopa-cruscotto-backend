@@ -8,7 +8,7 @@
       "name": "unlicensed",
       "url": ""
     },
-    "version": "0.2.4"
+    "version": "0.3.0"
   },
   "servers": [
     {
@@ -19,7 +19,9 @@
   "paths": {
     "/api/instances": {
       "get": {
-        "tags": ["instance-resource"],
+        "tags": [
+          "instance-resource"
+        ],
         "operationId": "getAllInstances",
         "parameters": [
           {
@@ -83,7 +85,9 @@
         }
       },
       "put": {
-        "tags": ["instance-resource"],
+        "tags": [
+          "instance-resource"
+        ],
         "operationId": "updateInstance",
         "requestBody": {
           "content": {
@@ -109,7 +113,9 @@
         }
       },
       "post": {
-        "tags": ["instance-resource"],
+        "tags": [
+          "instance-resource"
+        ],
         "operationId": "createAInstance",
         "requestBody": {
           "content": {
@@ -137,7 +143,9 @@
     },
     "/api/instances/update-status": {
       "put": {
-        "tags": ["instance-resource"],
+        "tags": [
+          "instance-resource"
+        ],
         "operationId": "updateInstanceStatus",
         "parameters": [],
         "responses": {
@@ -149,7 +157,9 @@
     },
     "/api/auth-users": {
       "get": {
-        "tags": ["auth-user-resource"],
+        "tags": [
+          "auth-user-resource"
+        ],
         "operationId": "getAllAuthUsers",
         "parameters": [
           {
@@ -204,7 +214,9 @@
         }
       },
       "put": {
-        "tags": ["auth-user-resource"],
+        "tags": [
+          "auth-user-resource"
+        ],
         "operationId": "updateAuthUser",
         "requestBody": {
           "content": {
@@ -230,7 +242,9 @@
         }
       },
       "post": {
-        "tags": ["auth-user-resource"],
+        "tags": [
+          "auth-user-resource"
+        ],
         "operationId": "createAuthUser",
         "requestBody": {
           "content": {
@@ -258,7 +272,9 @@
     },
     "/api/auth-users/changeState/{id}": {
       "put": {
-        "tags": ["auth-user-resource"],
+        "tags": [
+          "auth-user-resource"
+        ],
         "operationId": "changeState",
         "parameters": [
           {
@@ -280,7 +296,9 @@
     },
     "/api/auth-permissions": {
       "get": {
-        "tags": ["auth-permission-resource"],
+        "tags": [
+          "auth-permission-resource"
+        ],
         "operationId": "getAllAuthPermissions",
         "parameters": [
           {
@@ -355,7 +373,9 @@
         }
       },
       "put": {
-        "tags": ["auth-permission-resource"],
+        "tags": [
+          "auth-permission-resource"
+        ],
         "operationId": "updateAuthPermission",
         "requestBody": {
           "content": {
@@ -381,7 +401,9 @@
         }
       },
       "post": {
-        "tags": ["auth-permission-resource"],
+        "tags": [
+          "auth-permission-resource"
+        ],
         "operationId": "createAuthPermission",
         "requestBody": {
           "content": {
@@ -409,7 +431,9 @@
     },
     "/api/auth-groups": {
       "get": {
-        "tags": ["auth-group-resource"],
+        "tags": [
+          "auth-group-resource"
+        ],
         "operationId": "getAllAuthGroups",
         "parameters": [
           {
@@ -484,7 +508,9 @@
         }
       },
       "put": {
-        "tags": ["auth-group-resource"],
+        "tags": [
+          "auth-group-resource"
+        ],
         "operationId": "updateAuthGroup",
         "requestBody": {
           "content": {
@@ -510,7 +536,9 @@
         }
       },
       "post": {
-        "tags": ["auth-group-resource"],
+        "tags": [
+          "auth-group-resource"
+        ],
         "operationId": "createAuthGroup",
         "requestBody": {
           "content": {
@@ -538,7 +566,9 @@
     },
     "/api/auth-groups/aggiorna-livello-visibilita": {
       "put": {
-        "tags": ["auth-group-resource"],
+        "tags": [
+          "auth-group-resource"
+        ],
         "operationId": "aggiornaLivelloVisibilitaGruppi",
         "requestBody": {
           "content": {
@@ -562,7 +592,9 @@
     },
     "/api/auth-functions": {
       "get": {
-        "tags": ["auth-function-resource"],
+        "tags": [
+          "auth-function-resource"
+        ],
         "operationId": "getAllAuthFunctions",
         "parameters": [
           {
@@ -637,7 +669,9 @@
         }
       },
       "put": {
-        "tags": ["auth-function-resource"],
+        "tags": [
+          "auth-function-resource"
+        ],
         "operationId": "updateAuthFunction",
         "requestBody": {
           "content": {
@@ -663,7 +697,9 @@
         }
       },
       "post": {
-        "tags": ["auth-function-resource"],
+        "tags": [
+          "auth-function-resource"
+        ],
         "operationId": "createAuthFunction",
         "requestBody": {
           "content": {
@@ -691,7 +727,9 @@
     },
     "/api/logout": {
       "post": {
-        "tags": ["logout-resource"],
+        "tags": [
+          "logout-resource"
+        ],
         "operationId": "logout",
         "responses": {
           "200": {
@@ -709,7 +747,9 @@
     },
     "/api/authenticate": {
       "post": {
-        "tags": ["login-controller"],
+        "tags": [
+          "login-controller"
+        ],
         "operationId": "authorize",
         "requestBody": {
           "content": {
@@ -737,7 +777,9 @@
     },
     "/api/auth-users/reset": {
       "post": {
-        "tags": ["auth-user-resource"],
+        "tags": [
+          "auth-user-resource"
+        ],
         "operationId": "resetPasswordUser",
         "requestBody": {
           "content": {
@@ -758,7 +800,9 @@
     },
     "/api/auth-groups/{idGroup}/associa-funzioni": {
       "post": {
-        "tags": ["auth-group-resource"],
+        "tags": [
+          "auth-group-resource"
+        ],
         "operationId": "aggiungiAssociazioneFunzione",
         "parameters": [
           {
@@ -793,7 +837,9 @@
     },
     "/api/auth-functions/{idFunction}/associa-permessi": {
       "post": {
-        "tags": ["auth-function-resource"],
+        "tags": [
+          "auth-function-resource"
+        ],
         "operationId": "aggiungiAssociazioneFunzione_1",
         "parameters": [
           {
@@ -828,7 +874,9 @@
     },
     "/api/account": {
       "get": {
-        "tags": ["account-resource"],
+        "tags": [
+          "account-resource"
+        ],
         "operationId": "getAccount",
         "responses": {
           "200": {
@@ -844,7 +892,9 @@
         }
       },
       "post": {
-        "tags": ["account-resource"],
+        "tags": [
+          "account-resource"
+        ],
         "operationId": "saveAccount",
         "requestBody": {
           "content": {
@@ -865,7 +915,9 @@
     },
     "/api/account/reset-password/init": {
       "post": {
-        "tags": ["account-resource"],
+        "tags": [
+          "account-resource"
+        ],
         "operationId": "requestPasswordReset",
         "requestBody": {
           "content": {
@@ -886,7 +938,9 @@
     },
     "/api/account/reset-password/finish": {
       "post": {
-        "tags": ["account-resource"],
+        "tags": [
+          "account-resource"
+        ],
         "operationId": "finishPasswordReset",
         "requestBody": {
           "content": {
@@ -907,7 +961,9 @@
     },
     "/api/account/change-password": {
       "post": {
-        "tags": ["account-resource"],
+        "tags": [
+          "account-resource"
+        ],
         "operationId": "changePassword",
         "requestBody": {
           "content": {
@@ -928,7 +984,9 @@
     },
     "/api/partners": {
       "get": {
-        "tags": ["anag-partner-resource"],
+        "tags": [
+          "anag-partner-resource"
+        ],
         "operationId": "getAllPartners",
         "parameters": [
           {
@@ -985,7 +1043,9 @@
     },
     "/api/language/{language}": {
       "get": {
-        "tags": ["account-resource"],
+        "tags": [
+          "account-resource"
+        ],
         "operationId": "setLanguageCookie",
         "parameters": [
           {
@@ -1006,7 +1066,9 @@
     },
     "/api/instances/{id}": {
       "get": {
-        "tags": ["instance-resource"],
+        "tags": [
+          "instance-resource"
+        ],
         "operationId": "getInstance",
         "parameters": [
           {
@@ -1033,7 +1095,9 @@
         }
       },
       "delete": {
-        "tags": ["instance-resource"],
+        "tags": [
+          "instance-resource"
+        ],
         "operationId": "deleteInstance",
         "parameters": [
           {
@@ -1055,7 +1119,9 @@
     },
     "/api/auth-users/{login}": {
       "get": {
-        "tags": ["auth-user-resource"],
+        "tags": [
+          "auth-user-resource"
+        ],
         "operationId": "getAuthUser",
         "parameters": [
           {
@@ -1081,7 +1147,9 @@
         }
       },
       "delete": {
-        "tags": ["auth-user-resource"],
+        "tags": [
+          "auth-user-resource"
+        ],
         "operationId": "deleteAuthUser",
         "parameters": [
           {
@@ -1102,7 +1170,9 @@
     },
     "/api/auth-users/{id}/view": {
       "get": {
-        "tags": ["auth-user-resource"],
+        "tags": [
+          "auth-user-resource"
+        ],
         "operationId": "getAuthUserById",
         "parameters": [
           {
@@ -1131,7 +1201,9 @@
     },
     "/api/auth-permissions/{id}": {
       "get": {
-        "tags": ["auth-permission-resource"],
+        "tags": [
+          "auth-permission-resource"
+        ],
         "operationId": "getAuthPermission",
         "parameters": [
           {
@@ -1158,7 +1230,9 @@
         }
       },
       "delete": {
-        "tags": ["auth-permission-resource"],
+        "tags": [
+          "auth-permission-resource"
+        ],
         "operationId": "deleteAuthPermission",
         "parameters": [
           {
@@ -1180,7 +1254,9 @@
     },
     "/api/auth-permissions/auth-function/{idFunction}": {
       "get": {
-        "tags": ["auth-permission-resource"],
+        "tags": [
+          "auth-permission-resource"
+        ],
         "operationId": "getAllAuthFunctionsSelected",
         "parameters": [
           {
@@ -1220,7 +1296,9 @@
     },
     "/api/auth-permissions/auth-function/{idFunction}/associabili": {
       "get": {
-        "tags": ["auth-permission-resource"],
+        "tags": [
+          "auth-permission-resource"
+        ],
         "operationId": "getAllAuthFunctionsAssociabili",
         "parameters": [
           {
@@ -1268,7 +1346,9 @@
     },
     "/api/auth-groups/{id}": {
       "get": {
-        "tags": ["auth-group-resource"],
+        "tags": [
+          "auth-group-resource"
+        ],
         "operationId": "getAuthGroup",
         "parameters": [
           {
@@ -1295,7 +1375,9 @@
         }
       },
       "delete": {
-        "tags": ["auth-group-resource"],
+        "tags": [
+          "auth-group-resource"
+        ],
         "operationId": "deleteAuthGroup",
         "parameters": [
           {
@@ -1317,7 +1399,9 @@
     },
     "/api/auth-groups/{idGroup}/rimuovi-funzione/{funzioneId}": {
       "get": {
-        "tags": ["auth-group-resource"],
+        "tags": [
+          "auth-group-resource"
+        ],
         "operationId": "rimuoviAssociazioneFunzione",
         "parameters": [
           {
@@ -1348,7 +1432,9 @@
     },
     "/api/auth-groups/detail/{id}": {
       "get": {
-        "tags": ["auth-group-resource"],
+        "tags": [
+          "auth-group-resource"
+        ],
         "operationId": "getAuthGroupWithFunction",
         "parameters": [
           {
@@ -1377,7 +1463,9 @@
     },
     "/api/auth-functions/{id}": {
       "get": {
-        "tags": ["auth-function-resource"],
+        "tags": [
+          "auth-function-resource"
+        ],
         "operationId": "getAuthFunction",
         "parameters": [
           {
@@ -1404,7 +1492,9 @@
         }
       },
       "delete": {
-        "tags": ["auth-function-resource"],
+        "tags": [
+          "auth-function-resource"
+        ],
         "operationId": "deleteAuthFunction",
         "parameters": [
           {
@@ -1426,7 +1516,9 @@
     },
     "/api/auth-functions/{idFunction}/rimuovi-permesso/{idPermesso}": {
       "get": {
-        "tags": ["auth-function-resource"],
+        "tags": [
+          "auth-function-resource"
+        ],
         "operationId": "rimuoviAssociazioneFunzione_1",
         "parameters": [
           {
@@ -1457,7 +1549,9 @@
     },
     "/api/auth-functions/detail/{id}": {
       "get": {
-        "tags": ["auth-function-resource"],
+        "tags": [
+          "auth-function-resource"
+        ],
         "operationId": "getAuthFunctionWithPermission",
         "parameters": [
           {
@@ -1486,7 +1580,9 @@
     },
     "/api/auth-functions/auth-group/{idGroup}": {
       "get": {
-        "tags": ["auth-function-resource"],
+        "tags": [
+          "auth-function-resource"
+        ],
         "operationId": "getAllAuthFunctions_1",
         "parameters": [
           {
@@ -1526,7 +1622,9 @@
     },
     "/api/auth-functions/auth-group/{idGroup}/associabili": {
       "get": {
-        "tags": ["auth-function-resource"],
+        "tags": [
+          "auth-function-resource"
+        ],
         "operationId": "getAllAuthFunctionsAssociabili_1",
         "parameters": [
           {
@@ -1576,7 +1674,12 @@
   "components": {
     "schemas": {
       "InstanceRequestBean": {
-        "required": ["analysisPeriodEndDate", "analysisPeriodStartDate", "partnerId", "predictedDateAnalysis"],
+        "required": [
+          "analysisPeriodEndDate",
+          "analysisPeriodStartDate",
+          "partnerId",
+          "predictedDateAnalysis"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -1648,7 +1751,11 @@
           },
           "status": {
             "type": "string",
-            "enum": ["BOZZA", "PIANIFICATA", "ESEGUITA"]
+            "enum": [
+              "BOZZA",
+              "PIANIFICATA",
+              "ESEGUITA"
+            ]
           },
           "lastAnalysisDate": {
             "type": "string",
@@ -1657,7 +1764,12 @@
         }
       },
       "AuthUserUpdateRequestBean": {
-        "required": ["firstName", "groupId", "id", "lastName"],
+        "required": [
+          "firstName",
+          "groupId",
+          "id",
+          "lastName"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -1694,7 +1806,10 @@
         }
       },
       "AuthUserDTO": {
-        "required": ["groupId", "login"],
+        "required": [
+          "groupId",
+          "login"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -1774,7 +1889,10 @@
           },
           "authenticationType": {
             "type": "string",
-            "enum": ["FORM_LOGIN", "OAUHT2"]
+            "enum": [
+              "FORM_LOGIN",
+              "OAUHT2"
+            ]
           },
           "deletedDate": {
             "type": "string",
@@ -1783,7 +1901,10 @@
         }
       },
       "AuthPermissionDTO": {
-        "required": ["modulo", "nome"],
+        "required": [
+          "modulo",
+          "nome"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -1806,7 +1927,11 @@
         }
       },
       "AuthFunctionDTO": {
-        "required": ["descrizione", "modulo", "nome"],
+        "required": [
+          "descrizione",
+          "modulo",
+          "nome"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -1848,7 +1973,10 @@
         }
       },
       "AuthGroupDTO": {
-        "required": ["descrizione", "nome"],
+        "required": [
+          "descrizione",
+          "nome"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -1879,7 +2007,10 @@
         }
       },
       "AuthGroupUpdateRequestBean": {
-        "required": ["id", "livelloVisibilita"],
+        "required": [
+          "id",
+          "livelloVisibilita"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -1892,7 +2023,10 @@
         }
       },
       "LoginVM": {
-        "required": ["password", "username"],
+        "required": [
+          "password",
+          "username"
+        ],
         "type": "object",
         "properties": {
           "username": {
@@ -1911,7 +2045,12 @@
         }
       },
       "AuthUserCreateRequestBean": {
-        "required": ["firstName", "groupId", "lastName", "login"],
+        "required": [
+          "firstName",
+          "groupId",
+          "lastName",
+          "login"
+        ],
         "type": "object",
         "properties": {
           "login": {
@@ -1980,7 +2119,9 @@
         }
       },
       "AuthGroup": {
-        "required": ["livelloVisibilita"],
+        "required": [
+          "livelloVisibilita"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -2037,7 +2178,12 @@
         }
       },
       "AuthUser": {
-        "required": ["activated", "authenticationType", "blocked", "login"],
+        "required": [
+          "activated",
+          "authenticationType",
+          "blocked",
+          "login"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -2105,7 +2251,10 @@
           },
           "authenticationType": {
             "type": "string",
-            "enum": ["FORM_LOGIN", "OAUHT2"]
+            "enum": [
+              "FORM_LOGIN",
+              "OAUHT2"
+            ]
           },
           "group": {
             "$ref": "#/components/schemas/AuthGroup"
@@ -2149,7 +2298,9 @@
         }
       },
       "PasswordChangeRequestBean": {
-        "required": ["newPassword"],
+        "required": [
+          "newPassword"
+        ],
         "type": "object",
         "properties": {
           "currentPassword": {
@@ -2161,7 +2312,11 @@
         }
       },
       "AnagPartnerDTO": {
-        "required": ["fiscalCode", "name", "status"],
+        "required": [
+          "fiscalCode",
+          "name",
+          "status"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -2176,7 +2331,10 @@
           },
           "status": {
             "type": "string",
-            "enum": ["ATTIVO", "NON_ATTIVO"]
+            "enum": [
+              "ATTIVO",
+              "NON_ATTIVO"
+            ]
           },
           "qualified": {
             "type": "boolean"
