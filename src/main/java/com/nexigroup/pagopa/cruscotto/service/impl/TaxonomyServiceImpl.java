@@ -1,14 +1,15 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
-import com.nexigroup.pagopa.cruscotto.domain.*;
-import com.nexigroup.pagopa.cruscotto.repository.TaxonomyRepository;
-import com.nexigroup.pagopa.cruscotto.service.TaxonomyService;
-import com.nexigroup.pagopa.cruscotto.service.dto.TaxonomyDTO;
-import com.nexigroup.pagopa.cruscotto.service.mapper.TaxonomyMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.nexigroup.pagopa.cruscotto.domain.Taxonomy;
+import com.nexigroup.pagopa.cruscotto.repository.TaxonomyRepository;
+import com.nexigroup.pagopa.cruscotto.service.TaxonomyService;
+import com.nexigroup.pagopa.cruscotto.service.dto.TaxonomyDTO;
+import com.nexigroup.pagopa.cruscotto.service.mapper.TaxonomyMapper;
 
 import java.util.List;
 
@@ -16,21 +17,24 @@ import java.util.List;
 /**
  * Service Implementation for managing {@link Taxonomy}.
  */
+
 @Service
 @Transactional
 public class TaxonomyServiceImpl implements TaxonomyService {
 
     private final Logger log = LoggerFactory.getLogger(TaxonomyServiceImpl.class);
+    
 
     private final TaxonomyRepository taxonomyRepository;
 
     private final TaxonomyMapper taxonomyMapper;
+    
 
     public TaxonomyServiceImpl(TaxonomyRepository taxonomyRepository, TaxonomyMapper taxonomyMapper) {
         this.taxonomyRepository = taxonomyRepository;
         this.taxonomyMapper = taxonomyMapper;
     }
-
+    
 
     /**
      * Save a taxonomy.
@@ -82,4 +86,9 @@ public class TaxonomyServiceImpl implements TaxonomyService {
         taxonomyRepository.delete();
     }
 
+
+	@Override
+	public List<String> getAllTakingsIdentifiers() {
+		return taxonomyRepository.findAllTakingsIdentifiers();
+	}
 }

@@ -1,19 +1,33 @@
 package com.nexigroup.pagopa.cruscotto.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import java.io.Serializable;
-import java.time.LocalDate;
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
+
+import java.io.Serializable;
+import java.time.LocalDate;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * A KpiA2DetailResult.
@@ -28,9 +42,9 @@ import org.hibernate.annotations.DynamicUpdate;
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class KpiA2DetailResult implements Serializable {
 
-    private static final long serialVersionUID = 1569798052441179251L;
+	private static final long serialVersionUID = 1L;
 
-    @Id
+	@Id
     @Column(name = "CO_ID")
     @SequenceGenerator(name = "SQDASH_KPIA2DETRES01", sequenceName = "SQDASH_KPIA2DETRES01", allocationSize = 1)
     @GeneratedValue(generator = "SQDASH_KPIA2DETRES01", strategy = GenerationType.SEQUENCE)
@@ -62,11 +76,11 @@ public class KpiA2DetailResult implements Serializable {
 
     @NotNull
     @Column(name = "CO_TOT_PAYMENTS", nullable = false)
-    private Integer totPayments;
+    private Long totPayments;
 
     @NotNull
     @Column(name = "CO_TOT_INCORRECT_PAYMENTS", nullable = false)
-    private Integer totIncorrectPayments;
+    private Long totIncorrectPayments;
 
     @NotNull
     @Column(name = "CO_ERROR_PERCENTAGE", nullable = false)
@@ -83,6 +97,7 @@ public class KpiA2DetailResult implements Serializable {
     @JoinColumn(name = "CO_KPI_A2_RESULT_ID", nullable = false)
     private KpiA2Result kpiA2Result;
 
+    
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -97,33 +112,12 @@ public class KpiA2DetailResult implements Serializable {
         return new HashCodeBuilder(17, 37).append(id).toHashCode();
     }
 
-    @Override
-    public String toString() {
-        return (
-            "KpiA2DetailResult{" +
-            "id=" +
-            id +
-            ", instance=" +
-            instance +
-            ", instanceModule=" +
-            instanceModule +
-            ", analysisDate=" +
-            analysisDate +
-            ", evaluationStartDate=" +
-            evaluationStartDate +
-            ", evaluationEndDate=" +
-            evaluationEndDate +
-            ", totPayments=" +
-            totPayments +
-            ", totIncorrectPayments=" +
-            totIncorrectPayments +
-            ", errorPercentage=" +
-            errorPercentage +
-            ", outcome=" +
-            outcome +
-            ", kpiA2Result=" +
-            kpiA2Result +
-            '}'
-        );
-    }
+	@Override
+	public String toString() {
+		return "KpiA2DetailResult [id=" + id + ", instance=" + instance + ", instanceModule=" + instanceModule
+				+ ", analysisDate=" + analysisDate + ", evaluationStartDate=" + evaluationStartDate
+				+ ", evaluationEndDate=" + evaluationEndDate + ", totPayments=" + totPayments
+				+ ", totIncorrectPayments=" + totIncorrectPayments + ", errorPercentage=" + errorPercentage
+				+ ", outcome=" + outcome + ", kpiA2Result=" + kpiA2Result + "]";
+	}
 }

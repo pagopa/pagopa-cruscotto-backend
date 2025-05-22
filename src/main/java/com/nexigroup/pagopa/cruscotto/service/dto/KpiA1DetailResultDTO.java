@@ -1,29 +1,29 @@
 package com.nexigroup.pagopa.cruscotto.service.dto;
 
 import com.nexigroup.pagopa.cruscotto.domain.KpiA1DetailResult;
-import com.nexigroup.pagopa.cruscotto.domain.KpiB2DetailResult;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.service.validation.ValidationGroups;
+
+import java.io.Serializable;
+import java.time.LocalDate;
+
 import jakarta.validation.constraints.NotNull;
-import java.io.Serializable;
-import java.io.Serializable;
-import java.time.LocalDate;
-import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
 
 /**
- * A DTO for the {@link KpiB2DetailResult} entity.
  * A DTO for the {@link KpiA1DetailResult} entity.
  */
+
 @Getter
 @Setter
 public class KpiA1DetailResultDTO implements Serializable {
 
-    private static final long serialVersionUID = 1477746486886196475L;
+	private static final long serialVersionUID = 1477746486886196475L;
+	
 
-    private Long id;
+	private Long id;
 
     @NotNull(groups = { ValidationGroups.KpiA1Job.class })
     private Long instanceId;
@@ -51,9 +51,9 @@ public class KpiA1DetailResultDTO implements Serializable {
 
     @NotNull(groups = { ValidationGroups.KpiA1Job.class })
     private Long totReq;
-
+    
     @NotNull(groups = { ValidationGroups.KpiA1Job.class })
-    private Long reqTimeout;
+    private Long reqTimeout;    
 
     @NotNull(groups = { ValidationGroups.KpiA1Job.class })
     private Double timeoutPercentage;
@@ -63,40 +63,14 @@ public class KpiA1DetailResultDTO implements Serializable {
 
     private Long kpiA1ResultId;
 
+    
     @Override
-    public String toString() {
-        return (
-            "KpiA1DetailResultDTO{" +
-            "id=" +
-            id +
-            ", instanceId=" +
-            instanceId +
-            ", instanceModuleId=" +
-            instanceModuleId +
-            ", analysisDate=" +
-            analysisDate +
-            ", stationId=" +
-            stationId +
-            ", method='" +
-            method +
-            '\'' +
-            ", evaluationType=" +
-            evaluationType +
-            ", evaluationStartDate=" +
-            evaluationStartDate +
-            ", evaluationEndDate=" +
-            evaluationEndDate +
-            ", totReq=" +
-            totReq +
-            ", reqTimeout=" +
-            reqTimeout +
-            ", timeoutPercentage=" +
-            timeoutPercentage +
-            ", outcome=" +
-            outcome +
-            ", kpiA1ResultId=" +
-            kpiA1ResultId +
-            '}'
-        );
-    }
+	public String toString() {
+		return "KpiA1DetailResultDTO [id=" + id + ", instanceId=" + instanceId + ", instanceModuleId="
+				+ instanceModuleId + ", analysisDate=" + analysisDate + ", stationId=" + stationId + ", method="
+				+ method + ", evaluationType=" + evaluationType + ", evaluationStartDate=" + evaluationStartDate
+				+ ", evaluationEndDate=" + evaluationEndDate + ", totReq=" + totReq + ", reqTimeout=" + reqTimeout
+				+ ", timeoutPercentage=" + timeoutPercentage + ", outcome=" + outcome + ", kpiA1ResultId="
+				+ kpiA1ResultId + "]";
+	}
 }

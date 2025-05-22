@@ -1,5 +1,20 @@
 package com.nexigroup.pagopa.cruscotto.job.kpi.a1;
 
+import org.apache.commons.lang3.BooleanUtils;
+import org.jetbrains.annotations.NotNull;
+import org.quartz.DisallowConcurrentExecution;
+import org.quartz.JobDetail;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
+import org.quartz.SimpleScheduleBuilder;
+import org.quartz.Trigger;
+import org.quartz.TriggerBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.quartz.QuartzJobBean;
+import org.springframework.stereotype.Component;
+
 import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
@@ -23,6 +38,7 @@ import com.nexigroup.pagopa.cruscotto.service.dto.KpiA1DetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA1ResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiConfigurationDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.PagoPaRecordedTimeoutDTO;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
@@ -34,14 +50,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+
 import lombok.AllArgsConstructor;
-import org.apache.commons.lang3.BooleanUtils;
-import org.jetbrains.annotations.NotNull;
-import org.quartz.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.quartz.QuartzJobBean;
-import org.springframework.stereotype.Component;
 
 @Component
 @AllArgsConstructor
@@ -72,6 +82,7 @@ public class KpiA1Job extends QuartzJobBean {
 
     private final Scheduler scheduler;
 
+    
     @Override
     protected void executeInternal(@NotNull JobExecutionContext context) {
         LOGGER.info("Start calculate kpi A.1");
@@ -101,80 +112,82 @@ public class KpiA1Job extends QuartzJobBean {
                         instanceDTO.getAnalysisPeriodEndDate()
                     );
 
-                    InstanceModuleDTO instanceModuleDTO = instanceModuleService
-                        .findOne(instanceDTO.getId(), kpiConfigurationDTO.getModuleId())
-                        .orElseThrow(() -> new NullPointerException("KPI A1 InstanceModule not found"));
-
-                    LOGGER.info("Deletion phase for any previous processing in error");
-
-                    int kpiA1AnalyticRecordsDataDeleted = kpiA1AnalyticDataService.deleteAllByInstanceModule(instanceModuleDTO.getId());
-                    LOGGER.info("{} kpiA1AnalyticData records deleted", kpiA1AnalyticRecordsDataDeleted);
-
-                    int kpiA1DetailResultDeleted = kpiA1DetailResultService.deleteAllByInstanceModule(instanceModuleDTO.getId());
-                    LOGGER.info("{} kpiA1DetailResult records deleted", kpiA1DetailResultDeleted);
-
-                    int kpiA1ResultDeleted = kpiA1ResultService.deleteAllByInstanceModule(instanceModuleDTO.getId());
-                    LOGGER.info("{} kpiA1ResultDeleted records deleted", kpiA1ResultDeleted);
-
-                    Map<String, List<String>> stations = pagoPaRecordedTimeoutService.findAllStationAndMethodIntoPeriodForPartner(
-                        instanceDTO.getPartnerFiscalCode(),
-                        instanceDTO.getAnalysisPeriodStartDate(),
-                        instanceDTO.getAnalysisPeriodEndDate()
-                    );
-
-                    AtomicReference<KpiA1ResultDTO> kpiA1ResultRef = new AtomicReference<>();
-
-                    KpiA1ResultDTO kpiA1ResultDTO = new KpiA1ResultDTO();
-                    kpiA1ResultDTO.setInstanceId(instanceDTO.getId());
-                    kpiA1ResultDTO.setInstanceModuleId(instanceModuleDTO.getId());
-                    kpiA1ResultDTO.setAnalysisDate(LocalDate.now());
-                    kpiA1ResultDTO.setExcludePlannedShutdown(kpiConfigurationDTO.getExcludePlannedShutdown());
-                    kpiA1ResultDTO.setExcludeUnplannedShutdown(kpiConfigurationDTO.getExcludeUnplannedShutdown());
-                    kpiA1ResultDTO.setEligibilityThreshold(kpiConfigurationDTO.getEligibilityThreshold());
-                    kpiA1ResultDTO.setTollerance(kpiConfigurationDTO.getTollerance());
-                    kpiA1ResultDTO.setEvaluationType(kpiConfigurationDTO.getEvaluationType());
-                    kpiA1ResultDTO.setOutcome(!stations.isEmpty() ? OutcomeStatus.STANDBY : OutcomeStatus.OK);
-
-                    kpiA1ResultRef.set(kpiA1ResultService.save(kpiA1ResultDTO));
-
-                    AtomicReference<OutcomeStatus> kpiA1ResultFinalOutcome = new AtomicReference<>(OutcomeStatus.OK);
-
-                    if (stations.isEmpty()) {
-                        LOGGER.info("No stations found");
-                    } else {
-                        stations.forEach((station, methods) -> {
-                            LOGGER.info("Station {}", station);
-
-                            long idStation = anagStationService.findIdByNameOrCreate(station, instanceDTO.getPartnerId());
-
-                            List<AnagPlannedShutdownDTO> maintenance = new ArrayList<>();
-                            if (BooleanUtils.toBooleanDefaultIfNull(kpiConfigurationDTO.getExcludePlannedShutdown(), false)) {
-                                maintenance.addAll(
-                                    anagPlannedShutdownService.findAllByTypePlannedIntoPeriod(
-                                        instanceDTO.getPartnerId(),
-                                        idStation,
-                                        TypePlanned.PROGRAMMATO,
-                                        instanceDTO.getAnalysisPeriodStartDate(),
-                                        instanceDTO.getAnalysisPeriodEndDate()
-                                    )
-                                );
-                            }
-
-                            if (BooleanUtils.toBooleanDefaultIfNull(kpiConfigurationDTO.getExcludeUnplannedShutdown(), false)) {
-                                maintenance.addAll(
-                                    anagPlannedShutdownService.findAllByTypePlannedIntoPeriod(
-                                        instanceDTO.getPartnerId(),
-                                        idStation,
-                                        TypePlanned.NON_PROGRAMMATO,
-                                        instanceDTO.getAnalysisPeriodStartDate(),
-                                        instanceDTO.getAnalysisPeriodEndDate()
-                                    )
-                                );
-                            }
-
-                            LOGGER.info("Found {} rows of maintenance", maintenance.size());
-
-                            methods.forEach(method -> {
+                    instanceService.updateInstanceStatusInProgress(instanceDTO.getId()); 	                
+	
+	                InstanceModuleDTO instanceModuleDTO = instanceModuleService.findOne(instanceDTO.getId(), kpiConfigurationDTO.getModuleId())
+	                														   .orElseThrow(() -> new NullPointerException("KPI A1 InstanceModule not found"));		               
+	                
+	                LOGGER.info("Deletion phase for any previous processing in error");
+	                
+	                int kpiA1AnalyticRecordsDataDeleted = kpiA1AnalyticDataService.deleteAllByInstanceModule(instanceModuleDTO.getId());
+	                LOGGER.info("{} kpiA1AnalyticData records deleted", kpiA1AnalyticRecordsDataDeleted);
+	               
+	                int kpiA1DetailResultDeleted = kpiA1DetailResultService.deleteAllByInstanceModule(instanceModuleDTO.getId());
+	                LOGGER.info("{} kpiA1DetailResult records deleted", kpiA1DetailResultDeleted);
+	                
+	                int kpiA1ResultDeleted = kpiA1ResultService.deleteAllByInstanceModule(instanceModuleDTO.getId());
+	                LOGGER.info("{} kpiA1ResultDeleted records deleted", kpiA1ResultDeleted);
+	                
+	                Map<String, List<String>> stations = pagoPaRecordedTimeoutService.findAllStationAndMethodIntoPeriodForPartner(
+		                    instanceDTO.getPartnerFiscalCode(),
+		                    instanceDTO.getAnalysisPeriodStartDate(),
+		                    instanceDTO.getAnalysisPeriodEndDate()
+		                );
+	                                
+	                AtomicReference<KpiA1ResultDTO> kpiA1ResultRef = new AtomicReference<>();
+	                
+	                KpiA1ResultDTO kpiA1ResultDTO = new KpiA1ResultDTO();
+	                kpiA1ResultDTO.setInstanceId(instanceDTO.getId());
+	                kpiA1ResultDTO.setInstanceModuleId(instanceModuleDTO.getId());
+	                kpiA1ResultDTO.setAnalysisDate(LocalDate.now());
+	                kpiA1ResultDTO.setExcludePlannedShutdown(kpiConfigurationDTO.getExcludePlannedShutdown());
+	                kpiA1ResultDTO.setExcludeUnplannedShutdown(kpiConfigurationDTO.getExcludeUnplannedShutdown());
+	                kpiA1ResultDTO.setEligibilityThreshold(kpiConfigurationDTO.getEligibilityThreshold());
+	                kpiA1ResultDTO.setTollerance(kpiConfigurationDTO.getTollerance());
+	                kpiA1ResultDTO.setEvaluationType(kpiConfigurationDTO.getEvaluationType());
+	                kpiA1ResultDTO.setOutcome(!stations.isEmpty() ? OutcomeStatus.STANDBY : OutcomeStatus.OK);
+	                
+	                kpiA1ResultRef.set(kpiA1ResultService.save(kpiA1ResultDTO));
+	                
+	                AtomicReference<OutcomeStatus> kpiA1ResultFinalOutcome = new AtomicReference<>(OutcomeStatus.OK);
+	
+	                if (stations.isEmpty()) {
+	                    LOGGER.info("No stations found");
+	                } else {
+	                    stations.forEach((station, methods) -> {
+	                        LOGGER.info("Station {}", station);
+	
+	                        long idStation = anagStationService.findIdByNameOrCreate(station, instanceDTO.getPartnerId());
+	
+	                        List<AnagPlannedShutdownDTO> maintenance = new ArrayList<>();
+	                        if (BooleanUtils.toBooleanDefaultIfNull(kpiConfigurationDTO.getExcludePlannedShutdown(), false)) {
+	                            maintenance.addAll(
+	                                anagPlannedShutdownService.findAllByTypePlannedIntoPeriod(
+	                                    instanceDTO.getPartnerId(),
+	                                    idStation,
+	                                    TypePlanned.PROGRAMMATO,
+	                                    instanceDTO.getAnalysisPeriodStartDate(),
+	                                    instanceDTO.getAnalysisPeriodEndDate()
+	                                )
+	                            );
+	                        }
+	
+	                        if (BooleanUtils.toBooleanDefaultIfNull(kpiConfigurationDTO.getExcludeUnplannedShutdown(), false)) {
+	                            maintenance.addAll(
+	                                anagPlannedShutdownService.findAllByTypePlannedIntoPeriod(
+	                                    instanceDTO.getPartnerId(),
+	                                    idStation,
+	                                    TypePlanned.NON_PROGRAMMATO,
+	                                    instanceDTO.getAnalysisPeriodStartDate(),
+	                                    instanceDTO.getAnalysisPeriodEndDate()
+	                                )
+	                            );
+	                        }
+	                        
+	                        LOGGER.info("Found {} rows of maintenance", maintenance.size());
+	
+	                        methods.forEach(method -> {
+	                        	
                                 LOGGER.info("Method {}", method);
 
                                 AtomicReference<Month> prevMonth = new AtomicReference<>();
@@ -316,9 +329,7 @@ public class KpiA1Job extends QuartzJobBean {
                                     });
 
                                 Long totReqPeriodValue = totReqPeriod.get();
-                                double percTimeoutReqPeriod = totReqPeriodValue.compareTo(0L) > 0
-                                    ? (double) (totTimeoutReqPeriod.get() * 100) / totReqPeriodValue
-                                    : 0.0;
+                                double percTimeoutReqPeriod = totReqPeriodValue.compareTo(0L) > 0 ? (double) (totTimeoutReqPeriod.get() * 100) / totReqPeriodValue : 0.0;
 
                                 KpiA1DetailResultDTO kpiA1DetailResultDTO = new KpiA1DetailResultDTO();
                                 kpiA1DetailResultDTO.setInstanceId(instanceDTO.getId());
@@ -371,6 +382,7 @@ public class KpiA1Job extends QuartzJobBean {
                         .build();
 
                     scheduler.scheduleJob(trigger);
+                    
                 } catch (Exception e) {
                     LOGGER.error(
                         "Error in elaboration instance {} for partner {} - {} with period {} - {}",
@@ -378,7 +390,7 @@ public class KpiA1Job extends QuartzJobBean {
                         instanceDTO.getPartnerFiscalCode(),
                         instanceDTO.getPartnerName(),
                         instanceDTO.getAnalysisPeriodStartDate(),
-                        instanceDTO.getAnalysisPeriodEndDate(),
+                        instanceDTO.getAnalysisPeriodEndDate(), 
                         e
                     );
                 }
@@ -392,13 +404,11 @@ public class KpiA1Job extends QuartzJobBean {
         bd = bd.setScale(5, RoundingMode.HALF_UP);
         return bd.doubleValue();
     }
-
-    public boolean isInstantInRangeInclusive(Instant instantToCheck, Instant startInstant, Instant endInstant) {
-        return (
-            (instantToCheck.atZone(ZoneOffset.systemDefault()).isEqual(startInstant.atZone(ZoneOffset.systemDefault())) ||
-                instantToCheck.atZone(ZoneOffset.systemDefault()).isAfter(startInstant.atZone(ZoneOffset.systemDefault()))) &&
-            (instantToCheck.atZone(ZoneOffset.systemDefault()).isEqual(endInstant.atZone(ZoneOffset.systemDefault())) ||
-                instantToCheck.atZone(ZoneOffset.systemDefault()).isBefore(endInstant.atZone(ZoneOffset.systemDefault())))
-        );
+    
+    private boolean isInstantInRangeInclusive(Instant instantToCheck, Instant startInstant, Instant endInstant) {
+    	return ((instantToCheck.atZone(ZoneOffset.systemDefault()).isEqual(startInstant.atZone(ZoneOffset.systemDefault())) ||
+    			 instantToCheck.atZone(ZoneOffset.systemDefault()).isAfter(startInstant.atZone(ZoneOffset.systemDefault()))) && 
+    			(instantToCheck.atZone(ZoneOffset.systemDefault()).isEqual(endInstant.atZone(ZoneOffset.systemDefault())) ||
+    			 instantToCheck.atZone(ZoneOffset.systemDefault()).isBefore(endInstant.atZone(ZoneOffset.systemDefault()))));
     }
 }
