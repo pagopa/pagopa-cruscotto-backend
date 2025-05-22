@@ -1,5 +1,6 @@
 package com.nexigroup.pagopa.cruscotto.repository;
 
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -18,4 +19,7 @@ public interface KpiB2AnalyticDataRepository extends JpaRepository<KpiB2Analytic
     @Modifying
     @Query("DELETE KpiB2AnalyticData kpiB2AnalyticData WHERE kpiB2AnalyticData.instanceModule.id = :instanceModuleId")
     int deleteAllByInstanceModuleId(@Param("instanceModuleId") Long instanceModuleId);
+
+    @Query("SELECT b FROM KpiB2AnalyticData b WHERE b.instanceModule.id = :instanceModuleId")
+    List<KpiB2AnalyticData> selectByInstanceModuleId(@Param("instanceModuleId") Long instanceModuleId);
 }

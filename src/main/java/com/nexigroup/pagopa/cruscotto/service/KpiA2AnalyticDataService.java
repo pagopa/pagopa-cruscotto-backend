@@ -14,4 +14,6 @@ public interface KpiA2AnalyticDataService {
 	void saveAll(List<KpiA2AnalyticDataDTO> kpiA2AnalyticDataDTOS);
     
     int deleteAllByInstanceModule(long instanceModuleId);
+    
+    List<KpiA2AnalyticDataDTO> findByInstanceModuleId(long instanceModuleId);    
 }

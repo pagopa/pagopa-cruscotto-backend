@@ -9,6 +9,8 @@ import org.springframework.stereotype.Repository;
 
 import com.nexigroup.pagopa.cruscotto.domain.KpiA2DetailResult;
 
+import java.util.List;
+
 /**
  * Spring Data repository for the KpiA2DetailResult entity.
  */
@@ -18,5 +20,8 @@ public interface KpiA2DetailResultRepository extends JpaRepository<KpiA2DetailRe
 	
     @Modifying
     @Query("DELETE KpiA2DetailResult kpiA2DetailResult WHERE kpiA2DetailResult.instanceModule.id = :instanceModuleId")
-    int deleteAllByInstanceModuleId(@Param("instanceModuleId") Long instanceModuleId); 
+    int deleteAllByInstanceModuleId(@Param("instanceModuleId") Long instanceModuleId);
+
+    @Query("SELECT a FROM KpiA2DetailResult a WHERE a.instanceModule.id = :instanceModuleId")
+    List<KpiA2DetailResult> selectByInstanceModuleId(@Param("instanceModuleId") Long instanceModuleId);    
 }

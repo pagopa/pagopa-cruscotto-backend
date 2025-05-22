@@ -19,6 +19,9 @@ import com.nexigroup.pagopa.cruscotto.service.dto.KpiA2ResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import com.querydsl.jpa.impl.JPAUpdateClause;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * Service Implementation for managing {@link KpiA2Result}.
  */
@@ -96,4 +99,23 @@ public class KpiA2ResultServiceImpl implements KpiA2ResultService {
 			.where(QKpiA2Result.kpiA2Result.id.eq(id))
 			.execute();
 	}
+
+    @Override
+    public List<KpiA2ResultDTO> findByInstanceModuleId(long instanceModuleId) {
+        return kpiA2ResultRepository
+            .selectByInstanceModuleId(instanceModuleId)
+            .stream()
+            .map(KpiA2ResultServiceImpl::getKpiA2ResultDTO)
+            .collect(Collectors.toList());
+    }
+    
+    private static @NotNull KpiA2ResultDTO getKpiA2ResultDTO(KpiA2Result kpiA2Result) {
+        KpiA2ResultDTO kpiA2ResultDTO = new KpiA2ResultDTO();
+        kpiA2ResultDTO.setId(kpiA2Result.getId());
+        kpiA2ResultDTO.setInstanceModuleId((kpiA2Result.getInstanceModule().getId()));
+        kpiA2ResultDTO.setAnalysisDate(kpiA2Result.getAnalysisDate());
+        kpiA2ResultDTO.setTollerance(kpiA2Result.getTollerance());
+        kpiA2ResultDTO.setOutcome(kpiA2Result.getOutcome());
+        return kpiA2ResultDTO;
+    }
 }

@@ -18,6 +18,9 @@ import com.nexigroup.pagopa.cruscotto.service.KpiA2DetailResultService;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA2DetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * Service Implementation for managing {@link KpiA2DetailResult}.
  */
@@ -95,5 +98,34 @@ public class KpiA2DetailResultServiceImpl implements KpiA2DetailResultService {
 	@Override
 	public int deleteAllByInstanceModule(long instanceModuleId) {
 		return kpiA2DetailResultRepository.deleteAllByInstanceModuleId(instanceModuleId);	
-	}    
+	}
+	
+    @Override
+    public List<KpiA2DetailResultDTO> findByInstanceModuleId(long instanceModuleId) {
+        return kpiA2DetailResultRepository
+            .selectByInstanceModuleId(instanceModuleId)
+            .stream()
+            .map(KpiA2DetailResultServiceImpl::getKpiA2DetailResultDTO)
+            .collect(Collectors.toList());
+    }
+    
+    private static @NotNull KpiA2DetailResultDTO getKpiA2DetailResultDTO(KpiA2DetailResult kpiA2DetailResult) {
+        KpiA2DetailResultDTO kpiA2DetailResultDTO = new KpiA2DetailResultDTO();
+        kpiA2DetailResultDTO.setId(kpiA2DetailResult.getId());
+        kpiA2DetailResultDTO.setInstanceId(kpiA2DetailResult.getInstance() != null ? kpiA2DetailResult.getInstance().getId() : null);
+        kpiA2DetailResultDTO.setInstanceModuleId(
+            kpiA2DetailResult.getInstanceModule() != null ? kpiA2DetailResult.getInstanceModule().getId() : null
+        );
+        kpiA2DetailResultDTO.setAnalysisDate(kpiA2DetailResult.getAnalysisDate());
+        kpiA2DetailResultDTO.setEvaluationStartDate(kpiA2DetailResult.getEvaluationStartDate());
+        kpiA2DetailResultDTO.setEvaluationEndDate(kpiA2DetailResult.getEvaluationEndDate());
+        kpiA2DetailResultDTO.setTotPayments(kpiA2DetailResult.getTotPayments());
+        kpiA2DetailResultDTO.setTotIncorrectPayments(kpiA2DetailResult.getTotIncorrectPayments());
+        kpiA2DetailResultDTO.setErrorPercentage(kpiA2DetailResult.getErrorPercentage());
+        kpiA2DetailResultDTO.setOutcome(kpiA2DetailResult.getOutcome());
+        kpiA2DetailResultDTO.setKpiA2ResultId(
+            kpiA2DetailResult.getKpiA2Result() != null ? kpiA2DetailResult.getKpiA2Result().getId() : null
+        );
+        return kpiA2DetailResultDTO;
+    }    
 }
