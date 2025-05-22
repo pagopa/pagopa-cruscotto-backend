@@ -242,7 +242,7 @@ public class AccountResource {
     public void requestPasswordReset(@RequestBody String mail) {
         Optional<AuthUser> user = authUserService.requestPasswordResetByMail(mail, AuthenticationType.FORM_LOGIN);
         if (user.isPresent()) {
-            mailService.sendPasswordResetMail(user.get());
+            mailService.sendPasswordResetMail(user.orElseThrow(() -> new AccountResourceException("User could not be found")));
         } else {
             // Pretend the request has been successful to prevent checking which emails really exist
             // but log that an invalid attempt has been made
