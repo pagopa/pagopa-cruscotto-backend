@@ -12,6 +12,8 @@ import com.nexigroup.pagopa.cruscotto.service.KpiB2ResultService;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2ResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import com.querydsl.jpa.impl.JPAUpdateClause;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,6 +89,20 @@ public class KpiB2ResultServiceImpl implements KpiB2ResultService {
         return kpiB2Result;
     }
 
+    private static @NotNull KpiB2ResultDTO getKpiB2ResultDTO(KpiB2Result kpiB2Result) {
+        KpiB2ResultDTO kpiB2ResultDTO = new KpiB2ResultDTO();
+        kpiB2ResultDTO.setId(kpiB2Result.getId());
+        kpiB2ResultDTO.setInstanceModuleId((kpiB2Result.getInstanceModule().getId()));
+        kpiB2ResultDTO.setAnalysisDate(kpiB2Result.getAnalysisDate());
+        kpiB2ResultDTO.setExcludePlannedShutdown(kpiB2Result.getExcludePlannedShutdown());
+        kpiB2ResultDTO.setExcludeUnplannedShutdown(kpiB2Result.getExcludeUnplannedShutdown());
+        kpiB2ResultDTO.setEligibilityThreshold(kpiB2Result.getEligibilityThreshold());
+        kpiB2ResultDTO.setTollerance(kpiB2Result.getTollerance());
+        kpiB2ResultDTO.setEvaluationType(kpiB2Result.getEvaluationType());
+        kpiB2ResultDTO.setOutcome(kpiB2Result.getOutcome());
+        return kpiB2ResultDTO;
+    }
+
     @Override
     public int deleteAllByInstanceModule(long instanceModuleId) {
         return kpiB2ResultRepository.deleteAllByInstanceModuleId(instanceModuleId);
@@ -94,10 +110,19 @@ public class KpiB2ResultServiceImpl implements KpiB2ResultService {
 
     @Override
     public void updateKpiB2ResultOutcome(long id, OutcomeStatus outcomeStatus) {
-        LOGGER.debug("Request to get all AnagPartner");
+        LOGGER.debug("Request to update KpiB2Result {} outcome status to {}", id, outcomeStatus);
 
         JPAUpdateClause jpql = queryBuilder.updateQuery(QKpiB2Result.kpiB2Result);
 
         jpql.set(QKpiB2Result.kpiB2Result.outcome, outcomeStatus).where(QKpiB2Result.kpiB2Result.id.eq(id)).execute();
+    }
+
+    @Override
+    public List<KpiB2ResultDTO> findByInstanceModuleId(long instanceModuleId) {
+        return kpiB2ResultRepository
+            .selectByInstanceModuleId(instanceModuleId)
+            .stream()
+            .map(KpiB2ResultServiceImpl::getKpiB2ResultDTO)
+            .collect(Collectors.toList());
     }
 }

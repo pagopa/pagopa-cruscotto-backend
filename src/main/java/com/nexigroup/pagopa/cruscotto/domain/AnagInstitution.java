@@ -26,8 +26,8 @@ public class AnagInstitution extends AbstractAuditingEntity<Long> implements Ser
 
     @Id
     @Column(name = "CO_ID")
-    @SequenceGenerator(name = "SQDASH_INST01", sequenceName = "SQDASH_INST01", allocationSize = 1)
-    @GeneratedValue(generator = "SQDASH_INST01", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "SQCRUSC8_ANAGINST", sequenceName = "SQCRUSC8_ANAGINST", allocationSize = 1)
+    @GeneratedValue(generator = "SQCRUSC8_ANAGINST", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @NotNull

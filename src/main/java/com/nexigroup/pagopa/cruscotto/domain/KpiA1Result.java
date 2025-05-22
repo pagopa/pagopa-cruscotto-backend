@@ -17,7 +17,7 @@ import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.time.Instant;
+import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -44,8 +44,8 @@ public class KpiA1Result implements Serializable {
 
     @Id
     @Column(name = "CO_ID")
-    @SequenceGenerator(name = "SQDASH_KPIA1RES01", sequenceName = "SQDASH_KPIA1RES01", allocationSize = 1)
-    @GeneratedValue(generator = "SQDASH_KPIA1RES01", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "SQCRUSC8_KPIA1RESU", sequenceName = "SQCRUSC8_KPIA1RESU", allocationSize = 1)
+    @GeneratedValue(generator = "SQCRUSC8_KPIA1RESU", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @JsonIgnore
@@ -62,7 +62,7 @@ public class KpiA1Result implements Serializable {
 
     @NotNull
     @Column(name = "DT_ANALISYS_DATE", nullable = false)
-    private Instant analysisDate;
+    private LocalDate analysisDate;
 
     @NotNull
     @Column(name = "FL_EXCLUDE_PLANNED_SHUTDOWN", nullable = false)

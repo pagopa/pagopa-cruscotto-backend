@@ -1,6 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.service.dto;
 
 import com.nexigroup.pagopa.cruscotto.domain.Instance;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisOutcome;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.InstanceStatus;
 import java.io.Serializable;
 import java.time.Instant;
@@ -49,6 +50,8 @@ public class InstanceDTO implements Serializable {
 
     private Instant lastAnalysisDate;
 
+    private AnalysisOutcome lastAnalysisOutcome;
+
     private Set<InstanceModuleDTO> instanceModules;
 
     @Override
@@ -88,6 +91,8 @@ public class InstanceDTO implements Serializable {
             status +
             ", lastAnalysisDate=" +
             lastAnalysisDate +
+            ", lastAnalysisOutcome=" +
+            lastAnalysisOutcome +
             ", instanceModules=" +
             instanceModules +
             '}'

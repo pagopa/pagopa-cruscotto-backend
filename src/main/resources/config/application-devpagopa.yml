@@ -102,7 +102,15 @@ application:
       cron: 0 0/30 07-8 ? * MON,TUE,WED,THU,FRI *
     kpi-b2-job:
       enabled: true
-      cron: 0 0/30 14-16 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
+      cron: 0 0/10 01-03 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
+      limit: 20
+    kpi-a1-job:
+      enabled: true
+      cron: 0 0/10 01-03 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
+      limit: 20
+    kpi-a2-job:
+      enabled: true
+      cron: 0 0/10 01-03 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
       limit: 20
   liquibase:
     async-start: false
