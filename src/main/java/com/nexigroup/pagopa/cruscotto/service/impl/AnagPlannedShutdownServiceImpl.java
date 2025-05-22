@@ -93,7 +93,11 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
         BooleanBuilder builder = new BooleanBuilder();
 
         if (StringUtils.isNotBlank(filter.getPartnerId())) {
-            builder.and(QAnagPlannedShutdown.anagPlannedShutdown.anagPartner.id.eq(Long.valueOf(filter.getPartnerId())));
+            builder.and(QAnagPlannedShutdown.anagPlannedShutdown.anagPartner.id.eq(Long.valueOf(filter.getPartnerId())))
+                .and(QAnagPlannedShutdown.anagPlannedShutdown.typePlanned.eq(filter.getTypePlanned()));
+        }
+        if (filter.getTypePlanned()!=null) {
+            builder.and(QAnagPlannedShutdown.anagPlannedShutdown.typePlanned.eq(filter.getTypePlanned()));
         }
 
         JPQLQuery<AnagPlannedShutdown> jpql = queryBuilder
