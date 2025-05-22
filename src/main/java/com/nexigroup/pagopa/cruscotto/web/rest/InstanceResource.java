@@ -1,17 +1,5 @@
 package com.nexigroup.pagopa.cruscotto.web.rest;
 
-import com.nexigroup.pagopa.cruscotto.service.InstanceService;
-import com.nexigroup.pagopa.cruscotto.service.bean.InstanceRequestBean;
-import com.nexigroup.pagopa.cruscotto.service.dto.InstanceDTO;
-import com.nexigroup.pagopa.cruscotto.service.filter.InstanceFilter;
-import com.nexigroup.pagopa.cruscotto.service.validation.InstanceRequestValidator;
-import com.nexigroup.pagopa.cruscotto.web.rest.errors.BadRequestAlertException;
-import io.swagger.v3.oas.annotations.Parameter;
-import jakarta.validation.Valid;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springdoc.core.annotations.ParameterObject;
@@ -29,10 +17,25 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import com.nexigroup.pagopa.cruscotto.service.InstanceService;
+import com.nexigroup.pagopa.cruscotto.service.bean.InstanceRequestBean;
+import com.nexigroup.pagopa.cruscotto.service.dto.InstanceDTO;
+import com.nexigroup.pagopa.cruscotto.service.filter.InstanceFilter;
+import com.nexigroup.pagopa.cruscotto.service.validation.InstanceRequestValidator;
+import com.nexigroup.pagopa.cruscotto.web.rest.errors.BadRequestAlertException;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Optional;
+
+import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.Valid;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
-
+ 
 /**
  * REST controller for managing {@link 'Instance'}.
  */
@@ -48,6 +51,7 @@ public class InstanceResource {
     private String applicationName;
 
     private final InstanceService instanceService;
+    
 
     public InstanceResource(InstanceService instanceService) {
         this.instanceService = instanceService;
@@ -61,21 +65,21 @@ public class InstanceResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/instances")
-    //  @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_ADMIN_INSTANCE + "\")")
+  //  @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_ADMIN_INSTANCE + "\")")
     public ResponseEntity<InstanceDTO> createAInstance(@Valid @RequestBody InstanceRequestBean instance) throws URISyntaxException {
         log.debug("REST request to save Instance : {}", instance);
-
+        
         if (instance.getId() != null) {
             throw new BadRequestAlertException("A new instance cannot already have an ID", ENTITY_NAME, "idexists");
         }
-
+        
         InstanceRequestValidator.adjustAnalysisPeriodDates(instance);
 
         InstanceDTO result = instanceService.saveNew(instance);
-
+        
         return ResponseEntity.created(new URI("/api/instances/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getInstanceIdentification()))
-            .body(result);
+        					 .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getInstanceIdentification()))
+        					 .body(result);
     }
 
     /**
@@ -91,18 +95,18 @@ public class InstanceResource {
     //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_ADMIN_INSTANCE + "\")")
     public ResponseEntity<InstanceDTO> updateInstance(@Valid @RequestBody InstanceRequestBean instance) throws URISyntaxException {
         log.debug("REST request to update Instance : {}", instance);
-
+        
         if (instance.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-
+        
         InstanceRequestValidator.adjustAnalysisPeriodDates(instance);
 
         InstanceDTO result = instanceService.update(instance);
-
+        
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, result.getInstanceIdentification()))
-            .body(result);
+        					 .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, result.getInstanceIdentification()))
+        					 .body(result);
     }
 
     /**
@@ -113,11 +117,10 @@ public class InstanceResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of instances in body.
      */
     @GetMapping("/instances")
-    //    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_LIST_FUNCTION + "\")")
+//    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_LIST_FUNCTION + "\")")
     public ResponseEntity<List<InstanceDTO>> getAllInstances(
         @Parameter(description = "Filtro", required = false) @Valid @ParameterObject InstanceFilter filter,
-        @Parameter(description = "Pageable", required = true) @ParameterObject Pageable pageable
-    ) {
+        @Parameter(description = "Pageable", required = true) @ParameterObject Pageable pageable) {
         log.debug("REST request to get Instances by filter: {}", filter);
         Page<InstanceDTO> page = instanceService.findAll(filter, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
@@ -150,19 +153,19 @@ public class InstanceResource {
         log.debug("REST request to delete Instance : {}", id);
         InstanceDTO result = instanceService.delete(id);
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, result.getInstanceIdentification()))
-            .build();
+        					 .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, result.getInstanceIdentification()))
+        					 .build();
     }
-
-    @PutMapping("/instances/update-status")
+    
+    @PutMapping("/instances/update-status/{id}")
     //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_ADMIN_INSTANCE + "\")")
     public ResponseEntity<Void> updateInstanceStatus(@PathVariable Long id) {
         log.debug("REST request to update status od instance {}: ", id);
-
+        
         InstanceDTO result = instanceService.updateStatus(id);
-
+        
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, result.getInstanceIdentification()))
-            .build();
-    }
+        					 .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, result.getInstanceIdentification()))
+        					 .build();
+    }    
 }

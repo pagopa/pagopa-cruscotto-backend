@@ -44,8 +44,8 @@ public class KpiB2DetailResult implements Serializable {
 
     @Id
     @Column(name = "CO_ID")
-    @SequenceGenerator(name = "SQDASH_KPIB2DETRES01", sequenceName = "SQDASH_KPIB2DETRES01", allocationSize = 1)
-    @GeneratedValue(generator = "SQDASH_KPIB2DETRES01", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "SQCRUSC8_KPIB2DETARESU", sequenceName = "SQCRUSC8_KPIB2DETARESU", allocationSize = 1)
+    @GeneratedValue(generator = "SQCRUSC8_KPIB2DETARESU", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @JsonIgnore

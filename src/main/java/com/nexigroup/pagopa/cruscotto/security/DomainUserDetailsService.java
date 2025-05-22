@@ -55,7 +55,7 @@ public class DomainUserDetailsService implements UserDetailsService {
         boolean accountNonLocked = !authUser.isBlocked();
         boolean enabled = true;
         boolean accountNonExpired = true;
-        boolean credentialNonExpired = true;
+        boolean credentialNonExpired;
 
         credentialNonExpired = PasswordExpiredUtils.isPasswordNonExpired(
             authUser.getLastPasswordChangeDate(),
@@ -66,14 +66,8 @@ public class DomainUserDetailsService implements UserDetailsService {
 
         if (credentialNonExpired) {
             grantedAuthorities.add(new SimpleGrantedAuthority(authUser.getGroup().getNome()));
-            //            grantedAuthorities.addAll(getAuthorities(user.get()));
         } else {
             grantedAuthorities.add(new SimpleGrantedAuthority(Constants.ROLE_PASSWORD_EXPIRED));
-            //            SimpleGrantedAuthority grantedAuthority = new SimpleGrantedAuthority(AuthoritiesConstants.GTW_MODIFICA_PASSWORD);
-            //            SimpleGrantedAuthority grantedAuthorityInfoAccount = new SimpleGrantedAuthority(AuthoritiesConstants.GTW_INFO_ACCOUNT);
-            //
-            //            grantedAuthorities.add(grantedAuthority);
-            //            grantedAuthorities.add(grantedAuthorityInfoAccount);
         }
 
         return new org.springframework.security.core.userdetails.User(

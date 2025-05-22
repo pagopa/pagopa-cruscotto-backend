@@ -43,8 +43,8 @@ public class InstanceModule extends AbstractAuditingEntity<Long> implements Seri
 
     @Id
     @Column(name = "CO_ID")
-    @SequenceGenerator(name = "SQDASH_ISMO01", sequenceName = "SQDASH_ISMO01", allocationSize = 1)
-    @GeneratedValue(generator = "SQDASH_ISMO01", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "SQCRUSC8_INSTMODU", sequenceName = "SQCRUSC8_INSTMODU", allocationSize = 1)
+    @GeneratedValue(generator = "SQCRUSC8_INSTMODU", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @JsonIgnore

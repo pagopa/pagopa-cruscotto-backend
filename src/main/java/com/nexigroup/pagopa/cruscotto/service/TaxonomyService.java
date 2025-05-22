@@ -37,4 +37,6 @@ public interface TaxonomyService {
      *
      */
     void deleteAll();
+    
+    List<String> getAllTakingsIdentifiers();
 }

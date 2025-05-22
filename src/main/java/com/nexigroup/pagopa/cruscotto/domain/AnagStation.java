@@ -27,8 +27,8 @@ public class AnagStation extends AbstractAuditingEntity<Long> implements Seriali
 
     @Id
     @Column(name = "CO_ID")
-    @SequenceGenerator(name = "SQDASH_STAT01", sequenceName = "SQDASH_STAT01", allocationSize = 1)
-    @GeneratedValue(generator = "SQDASH_STAT01", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "SQCRUSC8_ANAGSTAT", sequenceName = "SQCRUSC8_ANAGSTAT", allocationSize = 1)
+    @GeneratedValue(generator = "SQCRUSC8_ANAGSTAT", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @NotNull

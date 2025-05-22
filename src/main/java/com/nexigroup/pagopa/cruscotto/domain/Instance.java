@@ -1,6 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisOutcome;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.InstanceStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -42,8 +43,8 @@ public class Instance extends AbstractAuditingEntity<Long> implements Serializab
 
     @Id
     @Column(name = "CO_ID")
-    @SequenceGenerator(name = "SQDASH_INST02", sequenceName = "SQDASH_INST02", allocationSize = 1)
-    @GeneratedValue(generator = "SQDASH_INST02", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "SQCRUSC8_INST", sequenceName = "SQCRUSC8_INST", allocationSize = 1)
+    @GeneratedValue(generator = "SQCRUSC8_INST", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @NotNull
@@ -84,8 +85,14 @@ public class Instance extends AbstractAuditingEntity<Long> implements Serializab
     @Column(name = "TE_STATUS", nullable = false)
     private InstanceStatus status;
 
+    @NotNull
     @Column(name = "DT_LAST_ANALISYS_DATE")
     private Instant lastAnalysisDate;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "TE_LAST_ANALISYS_OUTCOME")
+    private AnalysisOutcome lastAnalysisOutcome;
 
     @JsonIgnore
     @OneToMany(mappedBy = "instance", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -132,8 +139,11 @@ public class Instance extends AbstractAuditingEntity<Long> implements Serializab
             status +
             ", lastAnalysisDate=" +
             lastAnalysisDate +
-            "} " +
-            super.toString()
+            ", lastAnalysisOutcome=" +
+            lastAnalysisOutcome +
+            ", instanceModules=" +
+            instanceModules +
+            '}'
         );
     }
 }

@@ -3,13 +3,12 @@ package com.nexigroup.pagopa.cruscotto.domain;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.io.Serializable;
+import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-
-import java.io.Serializable;
-import java.time.LocalDate;
 
 /**
  * A Taxonomy.
@@ -25,8 +24,8 @@ public class Taxonomy extends AbstractAuditingEntity<Long> implements Serializab
 
     @Id
     @Column(name = "CO_ID")
-    @SequenceGenerator(name = "SQDASH_TAXO01", sequenceName = "SQDASH_TAXO01")
-    @GeneratedValue(generator = "SQDASH_TAXO01", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "SQCRUSC8_TAXO", sequenceName = "SQCRUSC8_TAXO")
+    @GeneratedValue(generator = "SQCRUSC8_TAXO", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @NotNull
@@ -58,11 +57,19 @@ public class Taxonomy extends AbstractAuditingEntity<Long> implements Serializab
 
     @Override
     public String toString() {
-        return "Taxonomy{" +
-            "id=" + id +
-            ", takingsIdentifier='" + takingsIdentifier + '\'' +
-            ", validityStartDate=" + validityStartDate +
-            ", validityEndDate=" + validityEndDate +
-            "} " + super.toString();
+        return (
+            "Taxonomy{" +
+            "id=" +
+            id +
+            ", takingsIdentifier='" +
+            takingsIdentifier +
+            '\'' +
+            ", validityStartDate=" +
+            validityStartDate +
+            ", validityEndDate=" +
+            validityEndDate +
+            "} " +
+            super.toString()
+        );
     }
 }
