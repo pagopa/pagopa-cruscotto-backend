@@ -140,8 +140,9 @@ public class InstanceServiceImpl implements InstanceService {
                 QInstance.instance.analysisPeriodStartDate.as("analysisPeriodStartDate"),
                 QInstance.instance.analysisPeriodEndDate.as("analysisPeriodEndDate"),
                 QInstance.instance.status.as("status"),
-                QInstance.instance.lastAnalysisDate.as("lastAnalysisDate")
-            )
+                QInstance.instance.lastAnalysisDate.as("lastAnalysisDate"),
+                QInstance.instance.lastAnalysisOutcome.as("lastAnalysisOutcome")
+               )
         );
 
         jpqlSelected.offset(pageable.getOffset());
