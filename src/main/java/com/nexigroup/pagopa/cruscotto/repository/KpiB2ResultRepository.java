@@ -1,6 +1,5 @@
 package com.nexigroup.pagopa.cruscotto.repository;
 
-import com.nexigroup.pagopa.cruscotto.domain.KpiB2Result;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -9,9 +8,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.nexigroup.pagopa.cruscotto.domain.KpiB2Result;
+
 /**
  * Spring Data repository for the KpiB2Result entity.
  */
+
 @Repository
 public interface KpiB2ResultRepository extends JpaRepository<KpiB2Result, Long>, JpaSpecificationExecutor<KpiB2Result> {
     @Modifying

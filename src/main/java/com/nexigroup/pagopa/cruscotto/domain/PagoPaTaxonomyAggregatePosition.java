@@ -20,19 +20,19 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * A PagoPaRecordedTimeout.
+ * A PagoPaTaxonomyAggregatePosition.
  */
 
 @Entity
-@Table(name = "PAGOPA_RECORDED_TIMEOUT")
+@Table(name = "PAGOPA_TAXONOMY_AGGREGATE_POSITION")
 @Getter
 @Setter
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class PagoPaRecordedTimeout implements Serializable {
+public class PagoPaTaxonomyAggregatePosition implements Serializable {
 
-    private static final long serialVersionUID = -8763624770393827756L;
+	private static final long serialVersionUID = 1L;
 
-    @Id
+	@Id
     @Column(name = "ID")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -49,8 +49,8 @@ public class PagoPaRecordedTimeout implements Serializable {
 
     @NotNull
     @Size(min = 1, max = 35)
-    @Column(name = "METHOD", length = 35, nullable = false)
-    private String method;
+    @Column(name = "TRANSFER_CATEGORY", length = 35, nullable = false)
+    private String transferCategory;
 
     @NotNull
     @Column(name = "START_DATE", nullable = false)
@@ -61,31 +61,20 @@ public class PagoPaRecordedTimeout implements Serializable {
     private Instant endDate;
 
     @NotNull
-    @Column(name = "TOT_REQ", nullable = false)
-    private Long totReq;
+    @Column(name = "TOTAL", nullable = false)
+    private Long total;
 
-    @NotNull
-    @Column(name = "REQ_OK", nullable = false)
-    private Long reqOk;
-
-    @NotNull
-    @Column(name = "REQ_TIMEOUT", nullable = false)
-    private Long reqTimeout;
-
-    @NotNull
-    @Column(name = "AVG_TIME", nullable = false)
-    private Double avgTime;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
 
-        if (!(o instanceof PagoPaRecordedTimeout that)) return false;
+        if (!(o instanceof PagoPaTaxonomyAggregatePosition that)) return false;
 
         return new EqualsBuilder()
             .append(cfPartner, that.cfPartner)
             .append(station, that.station)
-            .append(method, that.method)
+            .append(transferCategory, that.transferCategory)
             .append(startDate, that.startDate)
             .append(endDate, that.endDate)
             .isEquals();
@@ -93,35 +82,13 @@ public class PagoPaRecordedTimeout implements Serializable {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37).append(cfPartner).append(station).append(method).append(startDate).append(endDate).toHashCode();
+        return new HashCodeBuilder(17, 37).append(cfPartner).append(station).append(transferCategory).append(startDate).append(endDate).toHashCode();
     }
 
     @Override
-    public String toString() {
-        return (
-            "PagoPaRecorderTimeout{" +
-            "cfPartner='" +
-            cfPartner +
-            '\'' +
-            ", station='" +
-            station +
-            '\'' +
-            ", method='" +
-            method +
-            '\'' +
-            ", startDate=" +
-            startDate +
-            ", endDate=" +
-            endDate +
-            ", totReq=" +
-            totReq +
-            ", reqOk=" +
-            reqOk +
-            ", reqTimeout=" +
-            reqTimeout +
-            ", avgTime=" +
-            avgTime +
-            '}'
-        );
-    }
+	public String toString() {
+		return "PagoPaTaxonomyAggregatePosition [id=" + id + ", cfPartner=" + cfPartner + ", station=" + station
+				+ ", transferCategory=" + transferCategory + ", startDate=" + startDate + ", endDate=" + endDate
+				+ ", total=" + total + "]";
+	}
 }

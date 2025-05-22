@@ -54,10 +54,12 @@ public class ApplicationProperties {
         private LoadMaintenanceJob loadMaintenanceJob = new LoadMaintenanceJob();
 
         private LoadRegistryJob loadRegistryJob = new LoadRegistryJob();
-
-        private KpiB2Job kpiB2Job = new KpiB2Job();
         
         private KpiA1Job kpiA1Job = new KpiA1Job();
+        
+        private KpiA2Job kpiA2Job = new KpiA2Job();
+        
+        private KpiB2Job kpiB2Job = new KpiB2Job();        
     }
 
     @Getter
@@ -86,7 +88,29 @@ public class ApplicationProperties {
 
         private String cron;
     }
+    
+    @Getter
+    @Setter
+    public static class KpiA1Job {
 
+        private boolean enabled;
+
+        private String cron;
+
+        private int limit;
+    }
+
+    @Getter
+    @Setter
+    public static class KpiA2Job {
+
+        private boolean enabled;
+
+        private String cron;
+
+        private int limit;
+    }
+    
     @Getter
     @Setter
     public static class KpiB2Job {
@@ -98,17 +122,6 @@ public class ApplicationProperties {
         private int limit;
     }
     
-    @Getter
-    @Setter
-    public static class KpiA1Job {
-
-        private boolean enabled;
-
-        private String cron;
-
-        private int limit;
-    }    
-
     @Getter
     @Setter
     public static class Quartz {

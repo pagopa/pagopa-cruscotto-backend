@@ -1,20 +1,33 @@
 package com.nexigroup.pagopa.cruscotto.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import java.io.Serializable;
-import java.time.Instant;
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
+
+import java.io.Serializable;
+import java.time.LocalDate;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * A KpiA2Result.
@@ -29,9 +42,9 @@ import org.hibernate.annotations.DynamicUpdate;
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class KpiA2Result implements Serializable {
 
-    private static final long serialVersionUID = 1573075938347014084L;
+	private static final long serialVersionUID = 695665088766910283L;
 
-    @Id
+	@Id
     @Column(name = "CO_ID")
     @SequenceGenerator(name = "SQDASH_KPIA2RES01", sequenceName = "SQDASH_KPIA2RES01", allocationSize = 1)
     @GeneratedValue(generator = "SQDASH_KPIA2RES01", strategy = GenerationType.SEQUENCE)
@@ -51,7 +64,7 @@ public class KpiA2Result implements Serializable {
 
     @NotNull
     @Column(name = "DT_ANALISYS_DATE", nullable = false)
-    private Instant analysisDate;
+    private LocalDate analysisDate;
 
     @NotNull
     @Column(name = "CO_TOLLERANCE", nullable = false)
@@ -62,6 +75,7 @@ public class KpiA2Result implements Serializable {
     @Column(name = "TE_OUTCOME", nullable = false)
     private OutcomeStatus outcome;
 
+    
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -77,22 +91,8 @@ public class KpiA2Result implements Serializable {
     }
 
     @Override
-    public String toString() {
-        return (
-            "KpiA2Result{" +
-            "id=" +
-            id +
-            ", instance=" +
-            instance +
-            ", instanceModule=" +
-            instanceModule +
-            ", analysisDate=" +
-            analysisDate +
-            ", tollerance=" +
-            tollerance +
-            ", outcome=" +
-            outcome +
-            '}'
-        );
-    }
+	public String toString() {
+		return "KpiA2Result [id=" + id + ", instance=" + instance + ", instanceModule=" + instanceModule
+				+ ", analysisDate=" + analysisDate + ", tollerance=" + tollerance + ", outcome=" + outcome + "]";
+	}
 }

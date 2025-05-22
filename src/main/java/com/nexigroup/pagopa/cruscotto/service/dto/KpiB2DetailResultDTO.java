@@ -4,20 +4,24 @@ import com.nexigroup.pagopa.cruscotto.domain.KpiB2DetailResult;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.service.validation.ValidationGroups;
-import jakarta.validation.constraints.NotNull;
+
 import java.io.Serializable;
 import java.time.LocalDate;
+
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
 /**
  * A DTO for the {@link KpiB2DetailResult} entity.
  */
+
 @Getter
 @Setter
 public class KpiB2DetailResultDTO implements Serializable {
 
     private static final long serialVersionUID = 5141899331669875400L;
+    
 
     private Long id;
 
@@ -59,6 +63,7 @@ public class KpiB2DetailResultDTO implements Serializable {
 
     private Long kpiB2ResultId;
 
+    
     @Override
     public String toString() {
         return (
