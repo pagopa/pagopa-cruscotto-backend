@@ -99,5 +99,16 @@
   <changeSet author="liquibase-docs" id="version_8.0_ddl">
     <tagDatabase tag="version_8.0_ddl"/>
   </changeSet>
+  
+  <include file="changelog/ddl/20250520125500_added_entity_KpiA2Result.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/ddl/20250520125501_added_entity_constraints_KpiA2Result.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/ddl/20250520141800_added_entity_KpiA2DetailResult.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/ddl/20250520141801_added_entity_constraints_KpiA2DetailResult.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/ddl/20250520142000_added_entity_KpiA2AnalyticData.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/ddl/20250520142001_added_entity_constraints_KpiA2AnalyticData.xml" relativeToChangelogFile="true"/>
+
+  <changeSet author="liquibase-docs" id="version_9.0_ddl">
+    <tagDatabase tag="version_9.0_ddl"/>
+  </changeSet>
 
 </databaseChangeLog>

@@ -96,6 +96,8 @@ public class KpiA1Job extends QuartzJobBean {
         	
             instanceDTOS.forEach(instanceDTO -> {
 
+            	instanceService.updateInstanceStatusInProgress(instanceDTO.getId()); 
+
             	try {
 	                LOGGER.info(
 	                    "Start elaboration instance {} for partner {} - {} with period {} - {}",
@@ -309,7 +311,7 @@ public class KpiA1Job extends QuartzJobBean {
                                     });
                                 
                                 Long totReqPeriodValue = totReqPeriod.get();
-                                double percTimeoutReqPeriod = totReqPeriodValue.compareTo(0L) > 0 ? (double) (totTimeoutReqPeriod.get() * 100) / totReqPeriodValue : 0.0;                                                       
+                                double percTimeoutReqPeriod = totReqPeriodValue.compareTo(0L) > 0 ? (double) (totTimeoutReqPeriod.get() * 100) / totReqPeriodValue : 0.0;
 
                                 KpiA1DetailResultDTO kpiA1DetailResultDTO = new KpiA1DetailResultDTO();
                                 kpiA1DetailResultDTO.setInstanceId(instanceDTO.getId());
@@ -367,7 +369,7 @@ public class KpiA1Job extends QuartzJobBean {
         return bd.doubleValue();
     }
     
-    public boolean isInstantInRangeInclusive(Instant instantToCheck, Instant startInstant, Instant endInstant) {
+    private boolean isInstantInRangeInclusive(Instant instantToCheck, Instant startInstant, Instant endInstant) {
     	return ((instantToCheck.atZone(ZoneOffset.systemDefault()).isEqual(startInstant.atZone(ZoneOffset.systemDefault())) ||
     			 instantToCheck.atZone(ZoneOffset.systemDefault()).isAfter(startInstant.atZone(ZoneOffset.systemDefault()))) && 
     			(instantToCheck.atZone(ZoneOffset.systemDefault()).isEqual(endInstant.atZone(ZoneOffset.systemDefault())) ||

@@ -8,6 +8,7 @@ import java.util.List;
 /**
  * Service Interface for managing {@link KpiA1AnalyticData}.
  */
+
 public interface KpiA1AnalyticDataService {
     
 	void saveAll(List<KpiA1AnalyticDataDTO> kpiA1AnalyticDataDTOS);
