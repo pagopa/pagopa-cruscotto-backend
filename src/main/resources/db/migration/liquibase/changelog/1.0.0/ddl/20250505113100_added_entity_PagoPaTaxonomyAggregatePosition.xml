@@ -6,6 +6,9 @@
 
   <changeSet id="20250505113100-1" author="system" context="ddl">
     <createTable tableName="PAGOPA_TAXONOMY_AGGREGATE_POSITION">
+      <column name="ID" type="bigint" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_PAGORECOTIME" />
+      </column>
       <column name="CF_PARTNER" type="varchar(35)">
         <constraints nullable="false"/>
       </column>
