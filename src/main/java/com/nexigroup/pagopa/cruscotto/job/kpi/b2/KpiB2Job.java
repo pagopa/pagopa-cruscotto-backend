@@ -1,5 +1,20 @@
 package com.nexigroup.pagopa.cruscotto.job.kpi.b2;
 
+import org.apache.commons.lang3.BooleanUtils;
+import org.jetbrains.annotations.NotNull;
+import org.quartz.DisallowConcurrentExecution;
+import org.quartz.JobDetail;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
+import org.quartz.SimpleScheduleBuilder;
+import org.quartz.Trigger;
+import org.quartz.TriggerBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.quartz.QuartzJobBean;
+import org.springframework.stereotype.Component;
+
 import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
@@ -37,13 +52,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import lombok.AllArgsConstructor;
-import org.apache.commons.lang3.BooleanUtils;
-import org.jetbrains.annotations.NotNull;
-import org.quartz.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.quartz.QuartzJobBean;
-import org.springframework.stereotype.Component;
 
 @Component
 @AllArgsConstructor
@@ -69,15 +77,14 @@ public class KpiB2Job extends QuartzJobBean {
     private final KpiB2AnalyticDataService kpiB2AnalyticDataService;
 
     private final KpiB2DetailResultService kpiB2DetailResultService;
-    
+
     private final KpiB2ResultService kpiB2ResultService;
 
     private final Scheduler scheduler;
     
     @Override
     protected void executeInternal(@NotNull JobExecutionContext context) {
-        
-    	LOGGER.info("Start calculate kpi B.2");
+        LOGGER.info("Start calculate kpi B.2");
 
         List<InstanceDTO> instanceDTOS = instanceService.findInstanceToCalculate(
             ModuleCode.B2,
@@ -87,18 +94,16 @@ public class KpiB2Job extends QuartzJobBean {
         if (instanceDTOS.isEmpty()) {
             LOGGER.info("No instance to calculate B.2. Exit....");
         } else {
+            KpiConfigurationDTO kpiConfigurationDTO = kpiConfigurationService
+                .findKpiConfigurationByCode(ModuleCode.B2)
+                .orElseThrow(() -> new NullPointerException("KPI B.2 Configuration not found"));
 
-    		KpiConfigurationDTO kpiConfigurationDTO = kpiConfigurationService
-                    .findKpiConfigurationByCode(ModuleCode.B2)
-                    .orElseThrow(() -> new NullPointerException("KPI B.2 Configuration not found"));
-    		
-    		LOGGER.info("Kpi configuration {}", kpiConfigurationDTO);
-        	
+            LOGGER.info("Kpi configuration {}", kpiConfigurationDTO);
+
             instanceDTOS.forEach(instanceDTO -> {
-
-            	instanceService.updateInstanceStatusInProgress(instanceDTO.getId()); 
-
+            	
             	try {
+            		
 	                LOGGER.info(
 	                    "Start elaboration instance {} for partner {} - {} with period {} - {}",
 	                    instanceDTO.getInstanceIdentification(),
@@ -106,11 +111,12 @@ public class KpiB2Job extends QuartzJobBean {
 	                    instanceDTO.getPartnerName(),
 	                    instanceDTO.getAnalysisPeriodStartDate(),
 	                    instanceDTO.getAnalysisPeriodEndDate()
-	                );	                
+	                );
+	                
+	                instanceService.updateInstanceStatusInProgress(instanceDTO.getId()); 
 	
-	                InstanceModuleDTO instanceModuleDTO = instanceModuleService
-	                    .findOne(instanceDTO.getId(), kpiConfigurationDTO.getModuleId())
-	                    .orElseThrow(() -> new NullPointerException("KPI B.2 InstanceModule not found"));		               
+	                InstanceModuleDTO instanceModuleDTO = instanceModuleService.findOne(instanceDTO.getId(), kpiConfigurationDTO.getModuleId())
+	                														   .orElseThrow(() -> new NullPointerException("KPI B.2 InstanceModule not found"));		               
 	                
 	                LOGGER.info("Deletion phase for any previous processing in error");
 	                
@@ -253,29 +259,35 @@ public class KpiB2Job extends QuartzJobBean {
                                             sumWeightsDaily =
                                                 sumWeightsDaily +
                                                 (pagoPaRecordedTimeoutDTO.getTotReq() * pagoPaRecordedTimeoutDTO.getAvgTime());
-                                            
-                                            double monthWeight = (double) (pagoPaRecordedTimeoutDTO.getTotReq() * 100) / totRecordMonth.get();
+
+                                            double monthWeight =
+                                                (double) (pagoPaRecordedTimeoutDTO.getTotReq() * 100) / totRecordMonth.get();
                                             double totalWeight = (double) (pagoPaRecordedTimeoutDTO.getTotReq() * 100) / totRecordInstance;
-                                            
+
                                             totMonthWeight.set(totMonthWeight.get() + monthWeight);
                                             totPeriodWeight.set(totPeriodWeight.get() + totalWeight);
 
                                             if (pagoPaRecordedTimeoutDTO.getAvgTime() > kpiConfigurationDTO.getAverageTimeLimit()) {
-
-                                            	boolean exclude = maintenance.stream()
-				                                                		     .map(anagPlannedShutdownDTO -> {
-				                                                		    	 Boolean excludePlanned = isInstantInRangeInclusive(pagoPaRecordedTimeoutDTO.getStartDate(), 
-					                                                		    		  											anagPlannedShutdownDTO.getShutdownStartDate(), 
-					                                                		    		  											anagPlannedShutdownDTO.getShutdownEndDate()) &&				                                                		    	 
-				                                                		    	 						  isInstantInRangeInclusive(pagoPaRecordedTimeoutDTO.getEndDate(), 
-				                                                		    	 												    anagPlannedShutdownDTO.getShutdownStartDate(), 
-				                                                		    	 												    anagPlannedShutdownDTO.getShutdownEndDate());					                                                		    	   
-				                                                		    	 return excludePlanned;
-				                                                		     })
-				                                                		     .anyMatch(Boolean::booleanValue);
-                                                if(!exclude) {
-                                                	totMonthOverTimeLimit.set(totMonthOverTimeLimit.get() + monthWeight);
-                                                	totPeriodOverTimeLimit.set(totPeriodOverTimeLimit.get() + totalWeight);
+                                                boolean exclude = maintenance
+                                                    .stream()
+                                                    .map(anagPlannedShutdownDTO -> {
+                                                        Boolean excludePlanned =
+                                                            isInstantInRangeInclusive(
+                                                                pagoPaRecordedTimeoutDTO.getStartDate(),
+                                                                anagPlannedShutdownDTO.getShutdownStartDate(),
+                                                                anagPlannedShutdownDTO.getShutdownEndDate()
+                                                            ) &&
+                                                            isInstantInRangeInclusive(
+                                                                pagoPaRecordedTimeoutDTO.getEndDate(),
+                                                                anagPlannedShutdownDTO.getShutdownStartDate(),
+                                                                anagPlannedShutdownDTO.getShutdownEndDate()
+                                                            );
+                                                        return excludePlanned;
+                                                    })
+                                                    .anyMatch(Boolean::booleanValue);
+                                                if (!exclude) {
+                                                    totMonthOverTimeLimit.set(totMonthOverTimeLimit.get() + monthWeight);
+                                                    totPeriodOverTimeLimit.set(totPeriodOverTimeLimit.get() + totalWeight);
                                                 }
                                             }
                                         }
@@ -324,19 +336,22 @@ public class KpiB2Job extends QuartzJobBean {
 
                                             OutcomeStatus outcomeStatus = OutcomeStatus.OK;
 
-                                         //   if (kpiConfigurationDTO.getEvaluationType().compareTo(EvaluationType.MESE) == 0) {
-                                            if (totMonthOverTimeLimit.get() >
-                                                (kpiConfigurationDTO.getEligibilityThreshold() + kpiConfigurationDTO.getTollerance())) {
+                                            //   if (kpiConfigurationDTO.getEvaluationType().compareTo(EvaluationType.MESE) == 0) {
+                                            if (
+                                                totMonthOverTimeLimit.get() >
+                                                (kpiConfigurationDTO.getEligibilityThreshold() + kpiConfigurationDTO.getTollerance())
+                                            ) {
                                                 outcomeStatus = OutcomeStatus.KO;
-                           //                     kpiB2ResultFinalOutcome.set(OutcomeStatus.KO);
                                             }
-                                       //     }
+                                            //     }
 
-                                            if (kpiConfigurationDTO.getEvaluationType().compareTo(EvaluationType.MESE) == 0 &&
-                                            	outcomeStatus.compareTo(OutcomeStatus.KO) == 0) {
-                                            	kpiB2ResultFinalOutcome.set(OutcomeStatus.KO);
+                                            if (
+                                                kpiConfigurationDTO.getEvaluationType().compareTo(EvaluationType.MESE) == 0 &&
+                                                outcomeStatus.compareTo(OutcomeStatus.KO) == 0
+                                            ) {
+                                                kpiB2ResultFinalOutcome.set(OutcomeStatus.KO);
                                             }
-                                            
+
                                             kpiB2DetailResultDTO.setOutcome(outcomeStatus);
 
                                             kpiB2DetailResultDTO = kpiB2DetailResultService.save(kpiB2DetailResultDTO);
@@ -381,28 +396,31 @@ public class KpiB2Job extends QuartzJobBean {
 
                                 OutcomeStatus outcomeStatus = OutcomeStatus.OK;
 
-                              //  if (kpiConfigurationDTO.getEvaluationType().compareTo(EvaluationType.TOTALE) == 0) {
-                                if (totPeriodOverTimeLimit.get() >
-                                    (kpiConfigurationDTO.getEligibilityThreshold() + kpiConfigurationDTO.getTollerance())) {
+                                //  if (kpiConfigurationDTO.getEvaluationType().compareTo(EvaluationType.TOTALE) == 0) {
+                                if (
+                                    totPeriodOverTimeLimit.get() >
+                                    (kpiConfigurationDTO.getEligibilityThreshold() + kpiConfigurationDTO.getTollerance())
+                                ) {
                                     outcomeStatus = OutcomeStatus.KO;
                                 }
-                             //   }
-                                
-                                if (kpiConfigurationDTO.getEvaluationType().compareTo(EvaluationType.TOTALE) == 0 &&
-                                	outcomeStatus.compareTo(OutcomeStatus.KO) == 0) {
-                                	kpiB2ResultFinalOutcome.set(OutcomeStatus.KO);
+                                //   }
+
+                                if (
+                                    kpiConfigurationDTO.getEvaluationType().compareTo(EvaluationType.TOTALE) == 0 &&
+                                    outcomeStatus.compareTo(OutcomeStatus.KO) == 0
+                                ) {
+                                    kpiB2ResultFinalOutcome.set(OutcomeStatus.KO);
                                 }
 
                                 kpiB2DetailResultDTO.setOutcome(outcomeStatus);
 
                                 kpiB2DetailResultService.save(kpiB2DetailResultDTO);
-	                        });
-	                    });
-	                    
-	                    LOGGER.info("Final outcome {}", kpiB2ResultFinalOutcome.get());
-	                    kpiB2ResultService.updateKpiB2ResultOutcome(kpiB2ResultRef.get().getId(), kpiB2ResultFinalOutcome.get());
-	                    // instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(), kpiB2ResultFinalOutcome.get());
-	                }
+                            });
+                        });
+
+                        LOGGER.info("Final outcome {}", kpiB2ResultFinalOutcome.get());
+                        kpiB2ResultService.updateKpiB2ResultOutcome(kpiB2ResultRef.get().getId(), kpiB2ResultFinalOutcome.get());
+                    }
                     instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(), kpiB2ResultFinalOutcome.get());
 
                     // Trigger
@@ -421,7 +439,9 @@ public class KpiB2Job extends QuartzJobBean {
 							instanceDTO.getPartnerFiscalCode(),
 							instanceDTO.getPartnerName(),
 							instanceDTO.getAnalysisPeriodStartDate(),
-							instanceDTO.getAnalysisPeriodEndDate(), e);
+							instanceDTO.getAnalysisPeriodEndDate(),
+							e
+                    );
 				}
             });
         }

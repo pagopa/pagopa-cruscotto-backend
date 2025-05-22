@@ -9,6 +9,8 @@ import org.springframework.stereotype.Repository;
 
 import com.nexigroup.pagopa.cruscotto.domain.KpiA2AnalyticData;
 
+import java.util.List;
+
 /**
  * Spring Data repository for the KpiA2AnalyticData entity.
  */
@@ -18,5 +20,8 @@ public interface KpiA2AnalyticDataRepository extends JpaRepository<KpiA2Analytic
 	
     @Modifying
     @Query("DELETE KpiA2AnalyticData kpiA2AnalyticData WHERE kpiA2AnalyticData.instanceModule.id = :instanceModuleId")
-    int deleteAllByInstanceModuleId(@Param("instanceModuleId") Long instanceModuleId); 
+    int deleteAllByInstanceModuleId(@Param("instanceModuleId") Long instanceModuleId);
+    
+    @Query("SELECT a FROM KpiA2AnalyticData a WHERE a.instanceModule.id = :instanceModuleId")
+    List<KpiA2AnalyticData> selectByInstanceModuleId(@Param("instanceModuleId") Long instanceModuleId);
 }

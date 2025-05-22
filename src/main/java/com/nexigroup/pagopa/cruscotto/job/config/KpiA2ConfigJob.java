@@ -22,7 +22,7 @@ public class KpiA2ConfigJob {
 
         return TriggerBuilder.newTrigger()
         					 .forJob(kpiA2JobDetail())
-        					 .withIdentity(JobConstant.KPI_A2, "DEFAULT")
+        					 .withIdentity(JobConstant.KPI_A2_JOB, "DEFAULT")
         					 .withSchedule(scheduleBuilder)
         					 .build();
     }
@@ -30,7 +30,7 @@ public class KpiA2ConfigJob {
     @Bean
     public JobDetail kpiA2JobDetail() {
         return JobBuilder.newJob(KpiA2Job.class)
-        				 .withIdentity(JobConstant.KPI_A2, "DEFAULT")
+        				 .withIdentity(JobConstant.KPI_A2_JOB, "DEFAULT")
         				 .setJobData(new JobDataMap())
         				 .storeDurably()
         				 .build();

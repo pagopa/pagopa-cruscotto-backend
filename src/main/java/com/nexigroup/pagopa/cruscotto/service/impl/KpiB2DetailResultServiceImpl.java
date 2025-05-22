@@ -13,6 +13,8 @@ import com.nexigroup.pagopa.cruscotto.repository.KpiB2ResultRepository;
 import com.nexigroup.pagopa.cruscotto.service.KpiB2DetailResultService;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2DetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,8 +115,40 @@ public class KpiB2DetailResultServiceImpl implements KpiB2DetailResultService {
         return kpiB2DetailResult;
     }
 
+    private static @NotNull KpiB2DetailResultDTO getKpiB2DetailResultDTO(KpiB2DetailResult kpiB2DetailResult) {
+        KpiB2DetailResultDTO kpiB2DetailResultDTO = new KpiB2DetailResultDTO();
+        kpiB2DetailResultDTO.setId(kpiB2DetailResult.getId());
+        kpiB2DetailResultDTO.setInstanceId(kpiB2DetailResult.getInstance() != null ? kpiB2DetailResult.getInstance().getId() : null);
+        kpiB2DetailResultDTO.setInstanceModuleId(
+            kpiB2DetailResult.getInstanceModule() != null ? kpiB2DetailResult.getInstanceModule().getId() : null
+        );
+        kpiB2DetailResultDTO.setAnalysisDate(kpiB2DetailResult.getAnalysisDate());
+        kpiB2DetailResultDTO.setStationId(kpiB2DetailResult.getStation() != null ? kpiB2DetailResult.getStation().getId() : null);
+        kpiB2DetailResultDTO.setMethod(kpiB2DetailResult.getMethod());
+        kpiB2DetailResultDTO.setEvaluationType(kpiB2DetailResult.getEvaluationType());
+        kpiB2DetailResultDTO.setEvaluationStartDate(kpiB2DetailResult.getEvaluationStartDate());
+        kpiB2DetailResultDTO.setEvaluationEndDate(kpiB2DetailResult.getEvaluationEndDate());
+        kpiB2DetailResultDTO.setTotReq(kpiB2DetailResult.getTotReq());
+        kpiB2DetailResultDTO.setAvgTime(kpiB2DetailResult.getAvgTime());
+        kpiB2DetailResultDTO.setOverTimeLimit(kpiB2DetailResult.getOverTimeLimit());
+        kpiB2DetailResultDTO.setOutcome(kpiB2DetailResult.getOutcome());
+        kpiB2DetailResultDTO.setKpiB2ResultId(
+            kpiB2DetailResult.getKpiB2Result() != null ? kpiB2DetailResult.getKpiB2Result().getId() : null
+        );
+        return kpiB2DetailResultDTO;
+    }
+
     @Override
     public int deleteAllByInstanceModule(long instanceModuleId) {
         return kpiB2DetailResultRepository.deleteAllByInstanceModuleId(instanceModuleId);
+    }
+
+    @Override
+    public List<KpiB2DetailResultDTO> findByInstanceModuleId(long instanceModuleId) {
+        return kpiB2DetailResultRepository
+            .selectByInstanceModuleId(instanceModuleId)
+            .stream()
+            .map(KpiB2DetailResultServiceImpl::getKpiB2DetailResultDTO)
+            .collect(Collectors.toList());
     }
 }

@@ -23,6 +23,8 @@ public class JobsDTO implements Serializable {
 
     private String jobStatus;
 
+    private String cron;
+
     @Override
     public String toString() {
         return (
@@ -41,6 +43,9 @@ public class JobsDTO implements Serializable {
             nextFireTime +
             ", jobStatus='" +
             jobStatus +
+            '\'' +
+            ", cron='" +
+            cron +
             '\'' +
             '}'
         );

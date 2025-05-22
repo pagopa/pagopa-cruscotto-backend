@@ -42,6 +42,9 @@
       <column name="DT_LAST_ANALISYS_DATE" type="datetime">
         <constraints nullable="true"/>
       </column>
+      <column name="TE_LAST_ANALISYS_OUTCOME" type="varchar(20)">
+        <constraints nullable="true"/>
+      </column>
       <column name="TE_CREATED_BY" type="varchar(50)">
         <constraints nullable="false"/>
       </column>
@@ -53,13 +56,13 @@
       DROP TABLE ${database.defaultSchemaName}.INSTANCE CASCADE CONSTRAINTS;
     </rollback>
   </changeSet>
-  
+
   <changeSet id="20250423145400-3" author="pagopaCruscotto" context="ddl">
-    <createIndex indexName="IX${project_name}_INST01" 
+    <createIndex indexName="IX${project_name}_INST01"
 				 tableName="INSTANCE">
       <column name="DT_PREDICTED_DATE_ANALYSIS"/>
       <column name="TE_STATUS"/>
     </createIndex>
-  </changeSet>    
+  </changeSet>
 
 </databaseChangeLog>

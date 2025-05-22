@@ -13,6 +13,8 @@ public final class AuthoritiesConstants {
 
     public static final String ANONYMOUS = "ROLE_ANONYMOUS";
 
+    public static final String CHANGE_PASSWORD_EXPIRED = "CHANGE_PASSWORD_EXPIRED";
+
     public static final String GTW_INFO_ACCOUNT = "GTW.INFO_ACCOUNT";
 
     public static final String GTW_MODIFICA_PASSWORD = "GTW.MODIFICA_PASSWORD";

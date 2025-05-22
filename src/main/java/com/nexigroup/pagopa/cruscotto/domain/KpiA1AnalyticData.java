@@ -1,17 +1,6 @@
 package com.nexigroup.pagopa.cruscotto.domain;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import java.io.Serializable;
-import java.time.LocalDate;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -24,8 +13,16 @@ import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.io.Serializable;
+import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 /**
  * A KpiA1AnalyticData.
@@ -90,7 +87,7 @@ public class KpiA1AnalyticData implements Serializable {
     @NotNull
     @Column(name = "CO_REQ_TIMEOUT_REAL", nullable = false)
     private Long reqTimeoutReal;
-    
+
     @NotNull
     @Column(name = "CO_REQ_TIMEOUT_VALID", nullable = false)
     private Long reqTimeoutValid;
@@ -100,7 +97,6 @@ public class KpiA1AnalyticData implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CO_KPI_A1_DETAIL_RESULT_ID", nullable = false)
     private KpiA1DetailResult kpiA1DetailResult;
-    
 
     @Override
     public boolean equals(Object o) {
@@ -117,10 +113,35 @@ public class KpiA1AnalyticData implements Serializable {
     }
 
     @Override
-	public String toString() {
-		return "KpiA1AnalyticData [id=" + id + ", instance=" + instance + ", instanceModule=" + instanceModule
-				+ ", analysisDate=" + analysisDate + ", station=" + station + ", method=" + method + ", evaluationDate="
-				+ evaluationDate + ", totReq=" + totReq + ", reqOk=" + reqOk + ", reqTimeoutReal=" + reqTimeoutReal
-				+ ", reqTimeoutValid=" + reqTimeoutValid + ", kpiA1DetailResult=" + kpiA1DetailResult + "]";
-	}
+    public String toString() {
+        return (
+            "KpiA1AnalyticData{" +
+            "id=" +
+            id +
+            ", instance=" +
+            instance +
+            ", instanceModule=" +
+            instanceModule +
+            ", analysisDate=" +
+            analysisDate +
+            ", station=" +
+            station +
+            ", method='" +
+            method +
+            '\'' +
+            ", evaluationDate=" +
+            evaluationDate +
+            ", totReq=" +
+            totReq +
+            ", reqOk=" +
+            reqOk +
+            ", reqTimeoutReal=" +
+            reqTimeoutReal +
+            ", reqTimeoutValid=" +
+            reqTimeoutValid +
+            ", kpiA1DetailResult=" +
+            kpiA1DetailResult +
+            '}'
+        );
+    }
 }

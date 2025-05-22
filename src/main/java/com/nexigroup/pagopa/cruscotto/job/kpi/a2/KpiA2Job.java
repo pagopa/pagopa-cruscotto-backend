@@ -99,9 +99,8 @@ public class KpiA2Job extends QuartzJobBean {
         	
             instanceDTOS.forEach(instanceDTO -> {
             	
-            	instanceService.updateInstanceStatusInProgress(instanceDTO.getId()); 
-
             	try {
+            	            	            	
 	                LOGGER.info(
 	                    "Start elaboration instance {} for partner {} - {} with period {} - {}",
 	                    instanceDTO.getInstanceIdentification(),
@@ -109,7 +108,9 @@ public class KpiA2Job extends QuartzJobBean {
 	                    instanceDTO.getPartnerName(),
 	                    instanceDTO.getAnalysisPeriodStartDate(),
 	                    instanceDTO.getAnalysisPeriodEndDate()
-	                );	                
+	                );
+	                
+	                instanceService.updateInstanceStatusInProgress(instanceDTO.getId()); 
 	
 	                InstanceModuleDTO instanceModuleDTO = instanceModuleService.findOne(instanceDTO.getId(), kpiConfigurationDTO.getModuleId())
 	                														   .orElseThrow(() -> new NullPointerException("KPI A2 InstanceModule not found"));		               
