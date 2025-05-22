@@ -85,9 +85,11 @@ public class Instance extends AbstractAuditingEntity<Long> implements Serializab
     @Column(name = "TE_STATUS", nullable = false)
     private InstanceStatus status;
 
+    @NotNull
     @Column(name = "DT_LAST_ANALISYS_DATE")
     private Instant lastAnalysisDate;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "TE_LAST_ANALISYS_OUTCOME")
     private AnalysisOutcome lastAnalysisOutcome;
