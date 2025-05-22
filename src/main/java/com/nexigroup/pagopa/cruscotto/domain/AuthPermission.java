@@ -21,8 +21,8 @@ public class AuthPermission implements Serializable {
 
     @Id
     @Column(name = "CO_ID")
-    @SequenceGenerator(name = "SQDASH_SION01", sequenceName = "SQDASH_SION01", allocationSize = 1)
-    @GeneratedValue(generator = "SQDASH_SION01", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "SQCRUSC8_AUTHPERM", sequenceName = "SQCRUSC8_AUTHPERM", allocationSize = 1)
+    @GeneratedValue(generator = "SQCRUSC8_AUTHPERM", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @Size(min = 1, max = 100)
