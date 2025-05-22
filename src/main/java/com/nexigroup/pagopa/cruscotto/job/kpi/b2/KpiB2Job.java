@@ -1,19 +1,11 @@
 package com.nexigroup.pagopa.cruscotto.job.kpi.b2;
 
-import org.apache.commons.lang3.BooleanUtils;
-import org.jetbrains.annotations.NotNull;
-import org.quartz.DisallowConcurrentExecution;
-import org.quartz.JobExecutionContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.quartz.QuartzJobBean;
-import org.springframework.stereotype.Component;
-
 import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.TypePlanned;
+import com.nexigroup.pagopa.cruscotto.job.config.JobConstant;
 import com.nexigroup.pagopa.cruscotto.service.AnagPlannedShutdownService;
 import com.nexigroup.pagopa.cruscotto.service.AnagStationService;
 import com.nexigroup.pagopa.cruscotto.service.InstanceModuleService;
@@ -45,6 +37,13 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.BooleanUtils;
+import org.jetbrains.annotations.NotNull;
+import org.quartz.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.quartz.QuartzJobBean;
+import org.springframework.stereotype.Component;
 
 @Component
 @AllArgsConstructor
@@ -73,6 +72,7 @@ public class KpiB2Job extends QuartzJobBean {
     
     private final KpiB2ResultService kpiB2ResultService;
 
+    private final Scheduler scheduler;
     
     @Override
     protected void executeInternal(@NotNull JobExecutionContext context) {
@@ -95,6 +95,8 @@ public class KpiB2Job extends QuartzJobBean {
     		LOGGER.info("Kpi configuration {}", kpiConfigurationDTO);
         	
             instanceDTOS.forEach(instanceDTO -> {
+
+            	instanceService.updateInstanceStatusInProgress(instanceDTO.getId()); 
 
             	try {
 	                LOGGER.info(
@@ -402,6 +404,17 @@ public class KpiB2Job extends QuartzJobBean {
 	                    // instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(), kpiB2ResultFinalOutcome.get());
 	                }
                     instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(), kpiB2ResultFinalOutcome.get());
+
+                    // Trigger
+                    JobDetail job = scheduler.getJobDetail(JobKey.jobKey(JobConstant.CALCULATE_STATE_INSTANCE_JOB, "DEFAULT"));
+
+                    Trigger trigger = TriggerBuilder.newTrigger()
+                        .usingJobData("instanceId", instanceDTO.getId())
+                        .withSchedule(SimpleScheduleBuilder.simpleSchedule().withMisfireHandlingInstructionFireNow().withRepeatCount(0))
+                        .forJob(job)
+                        .build();
+
+                    scheduler.scheduleJob(trigger);
             	} catch (Exception e) {
 					LOGGER.error("Error in elaboration instance {} for partner {} - {} with period {} - {}",
 							instanceDTO.getInstanceIdentification(),
@@ -421,7 +434,7 @@ public class KpiB2Job extends QuartzJobBean {
         return bd.doubleValue();
     }
     
-    public boolean isInstantInRangeInclusive(Instant instantToCheck, Instant startInstant, Instant endInstant) {
+    private boolean isInstantInRangeInclusive(Instant instantToCheck, Instant startInstant, Instant endInstant) {
     	return ((instantToCheck.atZone(ZoneOffset.systemDefault()).isEqual(startInstant.atZone(ZoneOffset.systemDefault())) ||
     			 instantToCheck.atZone(ZoneOffset.systemDefault()).isAfter(startInstant.atZone(ZoneOffset.systemDefault()))) && 
     			(instantToCheck.atZone(ZoneOffset.systemDefault()).isEqual(endInstant.atZone(ZoneOffset.systemDefault())) ||

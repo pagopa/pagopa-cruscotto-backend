@@ -13,11 +13,13 @@ import lombok.Setter;
 /**
  * A DTO for the {@link KpiA1AnalyticData} entity.
  */
+
 @Getter
 @Setter
 public class KpiA1AnalyticDataDTO implements Serializable {
 
     private static final long serialVersionUID = 5141899331669875400L;
+    
 
     private Long id;
 

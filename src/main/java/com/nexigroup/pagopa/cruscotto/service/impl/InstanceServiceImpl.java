@@ -1,5 +1,15 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.nexigroup.pagopa.cruscotto.domain.AnagPartner;
 import com.nexigroup.pagopa.cruscotto.domain.AuthUser;
 import com.nexigroup.pagopa.cruscotto.domain.Instance;
@@ -31,6 +41,8 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPQLQuery;
+import com.querydsl.jpa.impl.JPAUpdateClause;
+
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -39,15 +51,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service Implementation for managing {@link Instance}.
@@ -56,7 +59,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class InstanceServiceImpl implements InstanceService {
 
-    private final Logger log = LoggerFactory.getLogger(InstanceServiceImpl.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(InstanceServiceImpl.class);
+    
 
     private static final String INSTANCE = "instance";
 
@@ -75,15 +79,10 @@ public class InstanceServiceImpl implements InstanceService {
     private final QueryBuilder queryBuilder;
 
     private final UserUtils userUtils;
+    
 
-    public InstanceServiceImpl(
-        InstanceRepository instanceRepository,
-        AnagPartnerRepository anagPartnerRepository,
-        ModuleRepository moduleRepository,
-        InstanceMapper instanceMapper,
-        QueryBuilder queryBuilder,
-        UserUtils userUtils
-    ) {
+    public InstanceServiceImpl(InstanceRepository instanceRepository, AnagPartnerRepository anagPartnerRepository, ModuleRepository moduleRepository,
+    						   InstanceMapper instanceMapper, QueryBuilder queryBuilder, UserUtils userUtils) {
         this.instanceRepository = instanceRepository;
         this.anagPartnerRepository = anagPartnerRepository;
         this.moduleRepository = moduleRepository;
@@ -101,7 +100,7 @@ public class InstanceServiceImpl implements InstanceService {
      */
     @Override
     public Page<InstanceDTO> findAll(InstanceFilter filter, Pageable pageable) {
-        log.debug("Request to get all Instance by filter: {}", filter);
+    	LOGGER.debug("Request to get all Instance by filter: {}", filter);
 
         BooleanBuilder builder = new BooleanBuilder();
 
@@ -223,7 +222,7 @@ public class InstanceServiceImpl implements InstanceService {
         instance.setInstanceModules(instanceModules);
         instance = instanceRepository.save(instance);
 
-        log.info("Creation of instance with identification {} by user {}", instance.getInstanceIdentification(), loggedUser.getLogin());
+        LOGGER.info("Creation of instance with identification {} by user {}", instance.getInstanceIdentification(), loggedUser.getLogin());
 
         return instanceMapper.toDto(instance);
     }
@@ -271,7 +270,7 @@ public class InstanceServiceImpl implements InstanceService {
 
                 instanceRepository.save(instance);
 
-                log.info(
+                LOGGER.info(
                     "Updating of instance with identification {} by user {}",
                     instance.getInstanceIdentification(),
                     loginUtenteLoggato
@@ -308,7 +307,7 @@ public class InstanceServiceImpl implements InstanceService {
 
                 instanceRepository.deleteById(id);
 
-                log.info(
+                LOGGER.info(
                     "Physical deleting of instance with identification {} by user {}",
                     instance.getInstanceIdentification(),
                     loginUtenteLoggato
@@ -328,10 +327,8 @@ public class InstanceServiceImpl implements InstanceService {
             .<Instance>createQuery()
             .from(QInstance.instance)
             .leftJoin(QInstance.instance.instanceModules, QInstanceModule.instanceModule)
-            .where(
-                QInstance.instance.status
-                    .eq(InstanceStatus.PIANIFICATA)
-                    .and(QInstance.instance.predictedDateAnalysis.loe(LocalDate.now()))
+            .where(QInstance.instance.status.in(InstanceStatus.PIANIFICATA, InstanceStatus.IN_ESECUZIONE)
+            		.and(QInstance.instance.predictedDateAnalysis.loe(LocalDate.now()))
                     .and(QInstanceModule.instanceModule.moduleCode.eq(moduleCode.code))
                     .and(QInstanceModule.instanceModule.analysisType.eq(AnalysisType.AUTOMATICA))
                     .and(QInstanceModule.instanceModule.status.eq(ModuleStatus.ATTIVO))
@@ -382,7 +379,7 @@ public class InstanceServiceImpl implements InstanceService {
 
                 instanceRepository.save(instance);
 
-                log.info(
+                LOGGER.info(
                     "Updating status of instance with identifier {} in {} by user {}",
                     instance.getInstanceIdentification(),                    
                     instance.getStatus(),
@@ -396,4 +393,16 @@ public class InstanceServiceImpl implements InstanceService {
                 new GenericServiceException(String.format("Instance with id %s not exist", id), INSTANCE, "instance.notExists")
             );
     }
+    
+	@Override
+	public void updateInstanceStatusInProgress(long id) {
+		LOGGER.debug("Request to update status of instance {} to {}", id, InstanceStatus.IN_ESECUZIONE);
+
+		JPAUpdateClause jpql = queryBuilder.updateQuery(QInstance.instance);
+		
+		jpql.set(QInstance.instance.status, InstanceStatus.IN_ESECUZIONE)
+			.where(QInstance.instance.id.eq(id)
+					.and(QInstance.instance.status.ne(InstanceStatus.PIANIFICATA)))
+			.execute();
+	}    
 }

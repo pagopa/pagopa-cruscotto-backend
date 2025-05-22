@@ -12,6 +12,7 @@ import com.nexigroup.pagopa.cruscotto.domain.KpiA1DetailResult;
 /**
  * Spring Data repository for the KpiA1DetailResult entity.
  */
+
 @Repository
 public interface KpiA1DetailResultRepository extends JpaRepository<KpiA1DetailResult, Long>, JpaSpecificationExecutor<KpiA1DetailResult> {
 	

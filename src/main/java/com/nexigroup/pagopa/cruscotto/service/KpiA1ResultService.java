@@ -7,6 +7,7 @@ import com.nexigroup.pagopa.cruscotto.service.dto.KpiA1ResultDTO;
 /**
  * Service Interface for managing {@link KpiA1Result}.
  */
+
 public interface KpiA1ResultService {
 	
 	KpiA1ResultDTO save(KpiA1ResultDTO kpiA1ResultDTO);

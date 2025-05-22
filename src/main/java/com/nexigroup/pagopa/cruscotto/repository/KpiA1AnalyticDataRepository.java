@@ -12,6 +12,7 @@ import com.nexigroup.pagopa.cruscotto.domain.KpiA1AnalyticData;
 /**
  * Spring Data repository for the KpiA1AnalyticData entity.
  */
+
 @Repository
 public interface KpiA1AnalyticDataRepository extends JpaRepository<KpiA1AnalyticData, Long>, JpaSpecificationExecutor<KpiA1AnalyticData> {
 	

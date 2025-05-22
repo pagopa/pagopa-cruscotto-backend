@@ -1,14 +1,16 @@
 package com.nexigroup.pagopa.cruscotto.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import com.nexigroup.pagopa.cruscotto.domain.Instance;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.service.bean.InstanceRequestBean;
 import com.nexigroup.pagopa.cruscotto.service.dto.InstanceDTO;
 import com.nexigroup.pagopa.cruscotto.service.filter.InstanceFilter;
+
 import java.util.List;
 import java.util.Optional;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 /**
  * Service Interface for managing {@link Instance}.
@@ -34,4 +36,6 @@ public interface InstanceService {
     InstanceDTO updateStatus(Long id);
 
     List<InstanceDTO> findInstanceToCalculate(ModuleCode moduleCode, Integer limit);
+    
+    void updateInstanceStatusInProgress(long id);
 }
