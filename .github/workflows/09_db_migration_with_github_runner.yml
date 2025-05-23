@@ -85,15 +85,15 @@ jobs:
           liquibaseSchemaName: ${{ vars.POSTGRES_DB_SCHEMA }}
           liquibase.hub.mode: OFF
           log-level: INFO
-          " > fdr.properties
+          " > crusc8.properties
 
-          #liquibase --defaultsFile=fdr.properties drop-all
-          #liquibase --defaultsFile=fdr.properties update --changelogFile="db.changelog-master-1.0.0.xml"
-          #liquibase --defaultsFile=fdr.properties clear-checksums #--changelogFile="db.changelog-master-1.0.0.xml"
+          #liquibase --defaultsFile=crusc8.properties drop-all
+          #liquibase --defaultsFile=crusc8.properties update --changelogFile="db.changelog-master-1.0.0.xml"
+          #liquibase --defaultsFile=crusc8.properties clear-checksums #--changelogFile="db.changelog-master-1.0.0.xml"
 
-          liquibase --defaultsFile=fdr.properties update --changelogFile="db.changelog-master-${{ inputs.db_version }}.xml"
+          liquibase --defaultsFile=crusc8.properties update --changelogFile="db.changelog-master-${{ inputs.db_version }}.xml"
 
-          rm fdr.properties
+          rm crusc8.properties
 
   cleanup_runner:
     name: Cleanup Runner
