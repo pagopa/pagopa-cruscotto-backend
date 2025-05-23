@@ -94,7 +94,6 @@ public class KpiA2DetailResult implements Serializable {
     @JoinColumn(name = "CO_KPI_A2_RESULT_ID", nullable = false)
     private KpiA2Result kpiA2Result;
 
-    
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

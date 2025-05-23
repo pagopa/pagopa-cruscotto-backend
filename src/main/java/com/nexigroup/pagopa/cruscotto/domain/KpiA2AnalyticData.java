@@ -77,7 +77,6 @@ public class KpiA2AnalyticData implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CO_KPI_A2_DETAIL_RESULT_ID", nullable = false)
     private KpiA2DetailResult kpiA2DetailResult;
-    
 
     @Override
     public boolean equals(Object o) {

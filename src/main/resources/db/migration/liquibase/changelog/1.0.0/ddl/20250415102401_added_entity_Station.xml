@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+  <changeSet id="20250415102401-1" author="system" context="ddl">
+    <createSequence sequenceName="SQ${project_name}_ANAGSTAT" startValue="3000" cacheSize="20"/>
+  </changeSet>
+
+  <changeSet id="20250415102401-2" author="system" context="ddl">
+    <createTable tableName="ANAG_STATION">
+      <column name="CO_ID" type="bigint">
+        <constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_ANAGSTAT"/>
+      </column>
+      <column name="TE_NAME" type="varchar(35)" >
+        <constraints nullable="false" unique="true" uniqueConstraintName="UI${project_name}_ANAGSTAT"/>
+      </column>
+      <column name="DT_ACTIVATION_DATE" type="date">
+        <constraints nullable="true"/>
+      </column>
+      <column name="TE_TYPE_CONNECTION" type="varchar(35)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="TE_PRIMITIVE_VERSION" type="int">
+        <constraints nullable="true"/>
+      </column>
+      <column name="FL_PAYMENT_OPTION" type="boolean">
+        <constraints nullable="true"/>
+      </column>
+      <column name="CO_ASSOCIATED_INSTITUTES" type="integer">
+        <constraints nullable="false" />
+      </column>
+      <column name="TE_STATUS" type="varchar(35)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DT_DEACTIVATION_DATE" type="date"/>
+      <column name="CO_ANAG_PARTNER_ID" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TE_CREATED_BY" type="varchar(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DT_CREATED_DATE" type="datetime"/>
+      <column name="TE_LAST_MODIFIED_BY" type="varchar(50)"/>
+      <column name="DT_LAST_MODIFIED_DATE" type="datetime"/>
+
+    </createTable>
+    <rollback>
+      DROP TABLE ${database.defaultSchemaName}.ANAG_PARTNER CASCADE CONSTRAINTS;
+    </rollback>
+  </changeSet>
+
+  <changeSet id="20250415102401-3" author="system" context="ddl">
+    <createIndex indexName="IX${project_name}_ANAGSTAT"
+				 tableName="ANAG_STATION">
+      <column name="TE_NAME"/>
+    </createIndex>
+  </changeSet>
+
+</databaseChangeLog>
