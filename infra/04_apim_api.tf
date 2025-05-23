@@ -1,8 +1,8 @@
 locals {
   repo_name = "pagopa-cruscotto-backend"
 
-  display_name = "Cruscotto pagoPA backend service"
-  description = "Cruscotto pagoPA backend service"
+  display_name = "Cruscotto pagoPA backend service API"
+  description = "Cruscotto pagoPA backend service API"
   path  = "smo/cruscotto"
 
   host         = "api.${var.apim_dns_zone_prefix}.${var.external_domain}"
