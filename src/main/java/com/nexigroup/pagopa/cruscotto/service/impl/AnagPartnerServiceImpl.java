@@ -10,6 +10,7 @@ import com.nexigroup.pagopa.cruscotto.service.dto.AnagPartnerDTO;
 import com.nexigroup.pagopa.cruscotto.service.mapper.AnagPartnerMapper;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QdslUtility;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
@@ -17,6 +18,7 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPQLQuery;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,10 +56,14 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
      * @return the list of entities.
      */
     @Override
-    public Page<AnagPartnerDTO> findAll(Pageable pageable) {
+    public Page<AnagPartnerDTO> findAll(String nameFilter, Pageable pageable) {
         log.debug("Request to get all AnagPartner");
 
         JPQLQuery<AnagPartner> jpql = queryBuilder.<AnagPartner>createQuery().from(QAnagPartner.anagPartner);
+
+        if (nameFilter != null && !nameFilter.isEmpty()) {
+            jpql.where(QAnagPartner.anagPartner.name.containsIgnoreCase(nameFilter));
+        }
 
         long size = jpql.fetchCount();
 
