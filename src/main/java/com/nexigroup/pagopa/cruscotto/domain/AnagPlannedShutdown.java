@@ -64,6 +64,7 @@ public class AnagPlannedShutdown extends AbstractAuditingEntity<Long> implements
     @JoinColumn(name = "CO_ANAG_STATION_ID", nullable = false)
     private AnagStation anagStation;
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

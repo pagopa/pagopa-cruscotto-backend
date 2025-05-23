@@ -21,6 +21,6 @@ public interface TaxonomyRepository extends JpaRepository<Taxonomy, Long>, JpaSp
     @Query("delete Taxonomy taxonomy")
     void delete();
     
-    @Query("SELECT taxonomy.takingsIdentifier FROM Taxonomy taxonomy")
-    List<String> findAllTakingsIdentifiers();
+    @Query("SELECT taxonomy.takingsIdentifier FROM Taxonomy taxonomy WHERE taxonomy.createdDate >= CURRENT_DATE")
+    List<String> findAllUpdatedTakingsIdentifiers();
 }
