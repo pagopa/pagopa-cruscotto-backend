@@ -29,8 +29,8 @@ public class KpiConfiguration implements Serializable {
 
     @Id
     @Column(name = "CO_ID")
-    @SequenceGenerator(name = "SQDASH_KPICONF01", sequenceName = "SQDASH_KPICONF01", allocationSize = 1)
-    @GeneratedValue(generator = "SQDASH_KPICONF01", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "SQCRUSC8_KPICONF", sequenceName = "SQCRUSC8_KPICONF", allocationSize = 1)
+    @GeneratedValue(generator = "SQCRUSC8_KPICONF", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @JsonIgnore
