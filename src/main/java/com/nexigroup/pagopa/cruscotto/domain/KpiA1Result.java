@@ -90,7 +90,6 @@ public class KpiA1Result implements Serializable {
     @Column(name = "TE_OUTCOME", nullable = false)
     private OutcomeStatus outcome;
 
-    
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
