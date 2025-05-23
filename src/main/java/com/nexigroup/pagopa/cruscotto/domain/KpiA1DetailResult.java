@@ -45,8 +45,8 @@ public class KpiA1DetailResult implements Serializable {
 
     @Id
     @Column(name = "CO_ID")
-    @SequenceGenerator(name = "SQDASH_KPIA1DETRES01", sequenceName = "SQDASH_KPIA1DETRES01", allocationSize = 1)
-    @GeneratedValue(generator = "SQDASH_KPIA1DETRES01", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "SQCRUSC8_KPIA1DETARESU", sequenceName = "SQCRUSC8_KPIA1DETARESU", allocationSize = 1)
+    @GeneratedValue(generator = "SQCRUSC8_KPIA1DETARESU", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @JsonIgnore

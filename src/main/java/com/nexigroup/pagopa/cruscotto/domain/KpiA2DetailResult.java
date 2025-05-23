@@ -1,18 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.domain;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
-
-import java.io.Serializable;
-import java.time.LocalDate;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -26,8 +15,16 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 /**
  * A KpiA2DetailResult.
@@ -42,12 +39,12 @@ import lombok.Setter;
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class KpiA2DetailResult implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	@Id
+    @Id
     @Column(name = "CO_ID")
-    @SequenceGenerator(name = "SQDASH_KPIA2DETRES01", sequenceName = "SQDASH_KPIA2DETRES01", allocationSize = 1)
-    @GeneratedValue(generator = "SQDASH_KPIA2DETRES01", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "SQCRUSC8_KPIA2DETARESU", sequenceName = "SQCRUSC8_KPIA2DETARESU", allocationSize = 1)
+    @GeneratedValue(generator = "SQCRUSC8_KPIA2DETARESU", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @JsonIgnore
@@ -112,12 +109,32 @@ public class KpiA2DetailResult implements Serializable {
         return new HashCodeBuilder(17, 37).append(id).toHashCode();
     }
 
-	@Override
-	public String toString() {
-		return "KpiA2DetailResult [id=" + id + ", instance=" + instance + ", instanceModule=" + instanceModule
-				+ ", analysisDate=" + analysisDate + ", evaluationStartDate=" + evaluationStartDate
-				+ ", evaluationEndDate=" + evaluationEndDate + ", totPayments=" + totPayments
-				+ ", totIncorrectPayments=" + totIncorrectPayments + ", errorPercentage=" + errorPercentage
-				+ ", outcome=" + outcome + ", kpiA2Result=" + kpiA2Result + "]";
-	}
+    @Override
+    public String toString() {
+        return (
+            "KpiA2DetailResult [id=" +
+            id +
+            ", instance=" +
+            instance +
+            ", instanceModule=" +
+            instanceModule +
+            ", analysisDate=" +
+            analysisDate +
+            ", evaluationStartDate=" +
+            evaluationStartDate +
+            ", evaluationEndDate=" +
+            evaluationEndDate +
+            ", totPayments=" +
+            totPayments +
+            ", totIncorrectPayments=" +
+            totIncorrectPayments +
+            ", errorPercentage=" +
+            errorPercentage +
+            ", outcome=" +
+            outcome +
+            ", kpiA2Result=" +
+            kpiA2Result +
+            "]"
+        );
+    }
 }

@@ -40,8 +40,10 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -79,157 +81,166 @@ public class KpiA2Job extends QuartzJobBean {
     protected void executeInternal(@NotNull JobExecutionContext context) {
         
     	LOGGER.info("Start calculate kpi A.2");
+    	
+        try {
+	        List<InstanceDTO> instanceDTOS = instanceService.findInstanceToCalculate(
+	            ModuleCode.A2,
+	            applicationProperties.getJob().getKpiA2Job().getLimit()
+	        );
 
-        List<InstanceDTO> instanceDTOS = instanceService.findInstanceToCalculate(
-            ModuleCode.A2,
-            applicationProperties.getJob().getKpiA2Job().getLimit()
-        );
-
-        if (instanceDTOS.isEmpty()) {
-            LOGGER.info("No instance to calculate A.2. Exit....");
-        } else {
-
-    		KpiConfigurationDTO kpiConfigurationDTO = kpiConfigurationService
-                    .findKpiConfigurationByCode(ModuleCode.A2)
-                    .orElseThrow(() -> new NullPointerException("KPI A.2 Configuration not found"));
-    		
-    		LOGGER.info("Kpi configuration {}", kpiConfigurationDTO);
-    		
-    		Set<String> taxonomyTakingsIdentifierSet = new HashSet<>(taxonomyService.getAllTakingsIdentifiers());
-        	
-            instanceDTOS.forEach(instanceDTO -> {
-            	
-            	try {
-            	            	            	
-	                LOGGER.info(
-	                    "Start elaboration instance {} for partner {} - {} with period {} - {}",
-	                    instanceDTO.getInstanceIdentification(),
-	                    instanceDTO.getPartnerFiscalCode(),
-	                    instanceDTO.getPartnerName(),
-	                    instanceDTO.getAnalysisPeriodStartDate(),
-	                    instanceDTO.getAnalysisPeriodEndDate()
-	                );
-	                
-	                instanceService.updateInstanceStatusInProgress(instanceDTO.getId()); 
+	        if (instanceDTOS.isEmpty()) {
+	            LOGGER.info("No instance to calculate A.2. Exit....");
+	        } else {
 	
-	                InstanceModuleDTO instanceModuleDTO = instanceModuleService.findOne(instanceDTO.getId(), kpiConfigurationDTO.getModuleId())
-	                														   .orElseThrow(() -> new NullPointerException("KPI A2 InstanceModule not found"));		               
-	                
-	                LOGGER.info("Deletion phase for any previous processing in error");
-	                
-	                int kpiA2AnalyticRecordsDataDeleted = kpiA2AnalyticDataService.deleteAllByInstanceModule(instanceModuleDTO.getId());
-	                LOGGER.info("{} kpiA2AnalyticData records deleted", kpiA2AnalyticRecordsDataDeleted);
-	               
-	                int kpiA2DetailResultDeleted = kpiA2DetailResultService.deleteAllByInstanceModule(instanceModuleDTO.getId());
-	                LOGGER.info("{} kpiA2DetailResult records deleted", kpiA2DetailResultDeleted);
-	                
-	                int kpiA2ResultDeleted = kpiA2ResultService.deleteAllByInstanceModule(instanceModuleDTO.getId());
-	                LOGGER.info("{} kpiA2ResultDeleted records deleted", kpiA2ResultDeleted);	            
-	                                
-	                AtomicReference<KpiA2ResultDTO> kpiA2ResultRef = new AtomicReference<>();
-	                
-	                KpiA2ResultDTO kpiA2ResultDTO = new KpiA2ResultDTO();
-	                kpiA2ResultDTO.setInstanceId(instanceDTO.getId());
-	                kpiA2ResultDTO.setInstanceModuleId(instanceModuleDTO.getId());
-	                kpiA2ResultDTO.setAnalysisDate(LocalDate.now());
-	                kpiA2ResultDTO.setTollerance(kpiConfigurationDTO.getTollerance());
-	                kpiA2ResultDTO.setOutcome(OutcomeStatus.STANDBY);
-	                
-	                kpiA2ResultRef.set(kpiA2ResultService.save(kpiA2ResultDTO));
-	                
-	                AtomicReference<Long> totPaymentsPeriod = new AtomicReference<>(0L);
-	             	AtomicReference<Long> totIncorrectPaymentsPeriod = new AtomicReference<>(0L);
-                	List<KpiA2AnalyticDataDTO> kpiA2AnalyticDataDTOS = new ArrayList<>();                                
+	    		KpiConfigurationDTO kpiConfigurationDTO = kpiConfigurationService.findKpiConfigurationByCode(ModuleCode.A2)
+	                    														 .orElseThrow(() -> new NullPointerException("KPI A.2 Configuration not found"));
+	    		
+	    		LOGGER.info("Kpi configuration {}", kpiConfigurationDTO);
+	    		
+	    		// Estrazione corretta perchè il job LoadTaxonomyJob cancella ogni volta tutti i record e li ricrea
+	    		Set<String> taxonomyTakingsIdentifierSet = new HashSet<>(taxonomyService.getAllUpdatedTakingsIdentifiers());
+	    		
+	    		if(CollectionUtils.isEmpty(taxonomyTakingsIdentifierSet)) {
+	    			LOGGER.warn("Taxonomy table data not updated as of today, the kpi A.2 cannot be calculated. Exit...");
+	    		} else {
+	        	
+		            instanceDTOS.forEach(instanceDTO -> {
+		            	
+		            	try {
+		            	            	            	
+			                LOGGER.info(
+			                    "Start elaboration instance {} for partner {} - {} with period {} - {}",
+			                    instanceDTO.getInstanceIdentification(),
+			                    instanceDTO.getPartnerFiscalCode(),
+			                    instanceDTO.getPartnerName(),
+			                    instanceDTO.getAnalysisPeriodStartDate(),
+			                    instanceDTO.getAnalysisPeriodEndDate()
+			                );
+			                
+			                instanceService.updateInstanceStatusInProgress(instanceDTO.getId()); 
+			
+			                InstanceModuleDTO instanceModuleDTO = instanceModuleService.findOne(instanceDTO.getId(), kpiConfigurationDTO.getModuleId())
+			                														   .orElseThrow(() -> new NullPointerException("KPI A2 InstanceModule not found"));		               
+			                
+			                LOGGER.info("Deletion phase for any previous processing in error");
+			                
+			                int kpiA2AnalyticRecordsDataDeleted = kpiA2AnalyticDataService.deleteAllByInstanceModule(instanceModuleDTO.getId());
+			                LOGGER.info("{} kpiA2AnalyticData records deleted", kpiA2AnalyticRecordsDataDeleted);
+			               
+			                int kpiA2DetailResultDeleted = kpiA2DetailResultService.deleteAllByInstanceModule(instanceModuleDTO.getId());
+			                LOGGER.info("{} kpiA2DetailResult records deleted", kpiA2DetailResultDeleted);
+			                
+			                int kpiA2ResultDeleted = kpiA2ResultService.deleteAllByInstanceModule(instanceModuleDTO.getId());
+			                LOGGER.info("{} kpiA2ResultDeleted records deleted", kpiA2ResultDeleted);
+			                
+			                KpiA2ResultDTO kpiA2ResultDTO = new KpiA2ResultDTO();
+			                kpiA2ResultDTO.setInstanceId(instanceDTO.getId());
+			                kpiA2ResultDTO.setInstanceModuleId(instanceModuleDTO.getId());
+			                kpiA2ResultDTO.setAnalysisDate(LocalDate.now());
+			                kpiA2ResultDTO.setTollerance(kpiConfigurationDTO.getTollerance());
+			                kpiA2ResultDTO.setOutcome(OutcomeStatus.STANDBY);
+			                
+			                kpiA2ResultDTO = kpiA2ResultService.save(kpiA2ResultDTO);
+			                
+			                AtomicReference<Long> totPaymentsPeriod = new AtomicReference<>(0L);
+			             	AtomicReference<Long> totIncorrectPaymentsPeriod = new AtomicReference<>(0L);
+			             	List<KpiA2AnalyticDataDTO> kpiA2AnalyticDataDTOS = new ArrayList<>();
+			             	Map<String, Boolean> transferCategoryMap = new HashMap<>();
+		
+		                  	instanceDTO.getAnalysisPeriodStartDate()
+		                  			   .datesUntil(instanceDTO.getAnalysisPeriodEndDate().plusDays(1))
+		                  			   .forEach(date -> {
+		                  				   LOGGER.info("Date {}", date);
+		
+		                  				   List<PagoPaTaxonomyAggregatePositionDTO> pagoPaTaxonomyAggregatePositionDTOS =
+		                  						   pagoPaTaxonomyAggregatePositionService.findAllRecordIntoDayForPartner(instanceDTO.getPartnerFiscalCode(), date);
+		
+		                  				   long sumPaymentsDaily = 0;
+		                  				   long sumIncorrectPaymentsDaily = 0;
+		
+		                  				   for (PagoPaTaxonomyAggregatePositionDTO pagoPaTaxonomyAggregatePositionDTO : pagoPaTaxonomyAggregatePositionDTOS) {
+			
+		                  					   sumPaymentsDaily = sumPaymentsDaily + pagoPaTaxonomyAggregatePositionDTO.getTotal();
 
-                  	instanceDTO.getAnalysisPeriodStartDate()
-                  			   .datesUntil(instanceDTO.getAnalysisPeriodEndDate().plusDays(1))
-                  			   .forEach(date -> {
-                  				   LOGGER.info("Date {}", date);
-
-                  				   List<PagoPaTaxonomyAggregatePositionDTO> pagoPaTaxonomyAggregatePositionDTOS =
-                  						   pagoPaTaxonomyAggregatePositionService.findAllRecordIntoDayForPartner(instanceDTO.getPartnerFiscalCode(), date);
-
-                  				   long sumPaymentsDaily = 0;
-                  				   long sumIncorrectPaymentsDaily = 0;
-
-                  				   for (PagoPaTaxonomyAggregatePositionDTO pagoPaTaxonomyAggregatePositionDTO : pagoPaTaxonomyAggregatePositionDTOS) {
-	
-                  					   sumPaymentsDaily = sumPaymentsDaily + pagoPaTaxonomyAggregatePositionDTO.getTotal();
-                  					   
-                  					   if(!isCorrectPayment(pagoPaTaxonomyAggregatePositionDTO.getTransferCategory(), taxonomyTakingsIdentifierSet)) {
-                  						 sumIncorrectPaymentsDaily = sumIncorrectPaymentsDaily + pagoPaTaxonomyAggregatePositionDTO.getTotal();
-                  					   }
-                  				   }
-
-                  				   totPaymentsPeriod.set(totPaymentsPeriod.get() + sumPaymentsDaily);
-                  				   totIncorrectPaymentsPeriod.set(totIncorrectPaymentsPeriod.get() + sumIncorrectPaymentsDaily);
-
-                  				   KpiA2AnalyticDataDTO kpiA2AnalyticDataDTO = new KpiA2AnalyticDataDTO();
-                  				   kpiA2AnalyticDataDTO.setInstanceId(instanceDTO.getId());
-                  				   kpiA2AnalyticDataDTO.setInstanceModuleId(instanceModuleDTO.getId());
-                  				   kpiA2AnalyticDataDTO.setAnalysisDate(LocalDate.now());
-                  				   kpiA2AnalyticDataDTO.setEvaluationDate(date);
-                  				   kpiA2AnalyticDataDTO.setTotPayments(sumPaymentsDaily);
-                  				   kpiA2AnalyticDataDTO.setTotIncorrectPayments(sumIncorrectPaymentsDaily);
-
-                  				   kpiA2AnalyticDataDTOS.add(kpiA2AnalyticDataDTO);
-                  			   });
-                  	
-                  	Long totPaymentsPeriodValue = totPaymentsPeriod.get();
-                  	double errorPercentagePeriod = totPaymentsPeriodValue.compareTo(0L) > 0 ? (double) (totIncorrectPaymentsPeriod.get() * 100) / totPaymentsPeriodValue : 0.0;
-
-                  	KpiA2DetailResultDTO kpiA2DetailResultDTO = new KpiA2DetailResultDTO();
-                    kpiA2DetailResultDTO.setInstanceId(instanceDTO.getId());
-                    kpiA2DetailResultDTO.setInstanceModuleId(instanceModuleDTO.getId());
-                    kpiA2DetailResultDTO.setAnalysisDate(LocalDate.now());
-                    kpiA2DetailResultDTO.setEvaluationStartDate(instanceDTO.getAnalysisPeriodStartDate());
-                    kpiA2DetailResultDTO.setEvaluationEndDate(instanceDTO.getAnalysisPeriodEndDate());
-                    kpiA2DetailResultDTO.setTotPayments(totPaymentsPeriod.get());
-                    kpiA2DetailResultDTO.setTotIncorrectPayments(totIncorrectPaymentsPeriod.get());
-                    kpiA2DetailResultDTO.setErrorPercentage(roundToNDecimalPlaces(errorPercentagePeriod));
-                    kpiA2DetailResultDTO.setKpiA2ResultId(kpiA2ResultRef.get().getId());
-                    
-                    OutcomeStatus outcomeStatus = OutcomeStatus.OK;
-                    
-                    if (errorPercentagePeriod > kpiConfigurationDTO.getTollerance()) {
-                    	outcomeStatus = OutcomeStatus.KO;
-                    }
-                    
-                    kpiA2DetailResultDTO.setOutcome(outcomeStatus);
-
-                    kpiA2DetailResultService.save(kpiA2DetailResultDTO);
-
-                    kpiA2AnalyticDataDTOS.forEach(kpiA2AnalyticData -> {
-                        kpiA2AnalyticData.setKpiA2DetailResultId(kpiA2DetailResultDTO.getId());
-                    });
-
-                    kpiA2AnalyticDataService.saveAll(kpiA2AnalyticDataDTOS);
-	                    
-                    LOGGER.info("Final outcome {}", outcomeStatus);
-                    kpiA2ResultService.updateKpiA2ResultOutcome(kpiA2ResultRef.get().getId(), outcomeStatus);	                    
-                    instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(), outcomeStatus);
-                    
-                    // Trigger
-                    JobDetail job = scheduler.getJobDetail(JobKey.jobKey(JobConstant.CALCULATE_STATE_INSTANCE_JOB, "DEFAULT"));
-
-                    Trigger trigger = TriggerBuilder.newTrigger()
-                        .usingJobData("instanceId", instanceDTO.getId())
-                        .withSchedule(SimpleScheduleBuilder.simpleSchedule().withMisfireHandlingInstructionFireNow().withRepeatCount(0))
-                        .forJob(job)
-                        .build();
-
-                    scheduler.scheduleJob(trigger);                    
-                    
-            	} catch (Exception e) {
-					LOGGER.error("Error in elaboration instance {} for partner {} - {} with period {} - {}",
-							instanceDTO.getInstanceIdentification(),
-							instanceDTO.getPartnerFiscalCode(),
-							instanceDTO.getPartnerName(),
-							instanceDTO.getAnalysisPeriodStartDate(),
-							instanceDTO.getAnalysisPeriodEndDate(), e);
-				}
-            });
-        }
+		                  					   if(!isCorrectPayment(pagoPaTaxonomyAggregatePositionDTO.getTransferCategory(), taxonomyTakingsIdentifierSet, transferCategoryMap)) {
+		                  						 sumIncorrectPaymentsDaily = sumIncorrectPaymentsDaily + pagoPaTaxonomyAggregatePositionDTO.getTotal();
+		                  					   }
+		                  				   }
+		
+		                  				   totPaymentsPeriod.set(totPaymentsPeriod.get() + sumPaymentsDaily);
+		                  				   totIncorrectPaymentsPeriod.set(totIncorrectPaymentsPeriod.get() + sumIncorrectPaymentsDaily);
+		
+		                  				   KpiA2AnalyticDataDTO kpiA2AnalyticDataDTO = new KpiA2AnalyticDataDTO();
+		                  				   kpiA2AnalyticDataDTO.setInstanceId(instanceDTO.getId());
+		                  				   kpiA2AnalyticDataDTO.setInstanceModuleId(instanceModuleDTO.getId());
+		                  				   kpiA2AnalyticDataDTO.setAnalysisDate(LocalDate.now());
+		                  				   kpiA2AnalyticDataDTO.setEvaluationDate(date);
+		                  				   kpiA2AnalyticDataDTO.setTotPayments(sumPaymentsDaily);
+		                  				   kpiA2AnalyticDataDTO.setTotIncorrectPayments(sumIncorrectPaymentsDaily);
+		
+		                  				   kpiA2AnalyticDataDTOS.add(kpiA2AnalyticDataDTO);
+		                  			   });
+		                  	
+		                  	Long totPaymentsPeriodValue = totPaymentsPeriod.get();
+		                  	double errorPercentagePeriod = totPaymentsPeriodValue.compareTo(0L) > 0 ? (double) (totIncorrectPaymentsPeriod.get() * 100) / totPaymentsPeriodValue : 0.0;
+		
+		                  	KpiA2DetailResultDTO kpiA2DetailResultDTO = new KpiA2DetailResultDTO();
+		                    kpiA2DetailResultDTO.setInstanceId(instanceDTO.getId());
+		                    kpiA2DetailResultDTO.setInstanceModuleId(instanceModuleDTO.getId());
+		                    kpiA2DetailResultDTO.setAnalysisDate(LocalDate.now());
+		                    kpiA2DetailResultDTO.setEvaluationStartDate(instanceDTO.getAnalysisPeriodStartDate());
+		                    kpiA2DetailResultDTO.setEvaluationEndDate(instanceDTO.getAnalysisPeriodEndDate());
+		                    kpiA2DetailResultDTO.setTotPayments(totPaymentsPeriod.get());
+		                    kpiA2DetailResultDTO.setTotIncorrectPayments(totIncorrectPaymentsPeriod.get());
+		                    kpiA2DetailResultDTO.setErrorPercentage(roundToNDecimalPlaces(errorPercentagePeriod));
+		                    kpiA2DetailResultDTO.setKpiA2ResultId(kpiA2ResultDTO.getId());
+		                    
+		                    OutcomeStatus outcomeStatus = OutcomeStatus.OK;
+		                    
+		                    if (errorPercentagePeriod > kpiConfigurationDTO.getTollerance()) {
+		                    	outcomeStatus = OutcomeStatus.KO;
+		                    }
+		                    
+		                    kpiA2DetailResultDTO.setOutcome(outcomeStatus);
+		
+		                    kpiA2DetailResultService.save(kpiA2DetailResultDTO);
+		
+		                    kpiA2AnalyticDataDTOS.forEach(kpiA2AnalyticData -> {
+		                        kpiA2AnalyticData.setKpiA2DetailResultId(kpiA2DetailResultDTO.getId());
+		                    });
+		
+		                    kpiA2AnalyticDataService.saveAll(kpiA2AnalyticDataDTOS);
+			                    
+		                    LOGGER.info("Final outcome {}", outcomeStatus);
+		                    kpiA2ResultService.updateKpiA2ResultOutcome(kpiA2ResultDTO.getId(), outcomeStatus);	                    
+		                    instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(), outcomeStatus);
+		                    
+		                    // Trigger
+		                    JobDetail job = scheduler.getJobDetail(JobKey.jobKey(JobConstant.CALCULATE_STATE_INSTANCE_JOB, "DEFAULT"));
+		
+		                    Trigger trigger = TriggerBuilder.newTrigger()
+		                        .usingJobData("instanceId", instanceDTO.getId())
+		                        .withSchedule(SimpleScheduleBuilder.simpleSchedule().withMisfireHandlingInstructionFireNow().withRepeatCount(0))
+		                        .forJob(job)
+		                        .build();
+		
+		                    scheduler.scheduleJob(trigger);                    
+		                    
+		            	} catch (Exception e) {
+							LOGGER.error("Error in elaboration instance {} for partner {} - {} with period {} - {}",
+									instanceDTO.getInstanceIdentification(),
+									instanceDTO.getPartnerFiscalCode(),
+									instanceDTO.getPartnerName(),
+									instanceDTO.getAnalysisPeriodStartDate(),
+									instanceDTO.getAnalysisPeriodEndDate(), e);
+						}
+		            });
+	    		}
+	        }
+        } catch (Exception exception) {
+			LOGGER.error("Problem during calculate kpi A.2", exception);
+		}
+        
         LOGGER.info("End");
     }
 
@@ -239,7 +250,7 @@ public class KpiA2Job extends QuartzJobBean {
         return bd.doubleValue();
     }
     
-    private boolean isCorrectPayment(String transferCategory, Set<String> taxonomyTakingsIdentifierSet) {
+    private boolean isCorrectPayment(String transferCategory, Set<String> taxonomyTakingsIdentifierSet, Map<String, Boolean> transferCategoryMap) {
 
     	if (StringUtils.isBlank(transferCategory) || CollectionUtils.isEmpty(taxonomyTakingsIdentifierSet)) {
 			return false;
@@ -257,29 +268,12 @@ public class KpiA2Job extends QuartzJobBean {
 			return false;
 		}
     	
-    	return taxonomyTakingsIdentifierSet.contains(taxonomyTakingsIdentifier);
-
-//		for (String taxonomyTakingsIdentifier : taxonomyTakingsIdentifierList) {
-//			if (transferCategory.equals(taxonomyTakingsIdentifier)) {
-//				return true;
-//			}
-//		}
-    }
-    
-
-
-	public static void main(String[] args) {
-		String input = "707091*"; // Sostituisci con la tua stringa
-
-		String result;
-		if (input.startsWith("9/")) {
-			result = input.substring(0, 12);
-		} else {
-			result = "9/" + input.substring(0, 10);
+    	Boolean correctPayment = transferCategoryMap.get(taxonomyTakingsIdentifier);
+		if (correctPayment == null) {
+			correctPayment = taxonomyTakingsIdentifierSet.contains(taxonomyTakingsIdentifier);
+			transferCategoryMap.put(taxonomyTakingsIdentifier, correctPayment);
 		}
-		
-		//if exception return false
-
-		System.out.println(result + "****");;// Stampa il risultato
-	}
+    	
+    	return correctPayment;
+    }
 }
