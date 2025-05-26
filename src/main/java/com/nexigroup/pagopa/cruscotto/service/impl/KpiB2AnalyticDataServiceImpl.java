@@ -144,9 +144,9 @@ public class KpiB2AnalyticDataServiceImpl implements KpiB2AnalyticDataService {
     }
 
     @Override
-    public List<KpiB2AnalyticDataDTO> findByInstanceModuleId(long instanceModuleId) {
+    public List<KpiB2AnalyticDataDTO> findByDetailResultId(long detailResultId) {
         return kpiB2AnalyticDataRepository
-            .selectByInstanceModuleId(instanceModuleId)
+            .selectByDetailResultId(detailResultId)
             .stream()
             .map(KpiB2AnalyticDataServiceImpl::getkpiB2AnalyticDataDTO)
             .collect(Collectors.toList());

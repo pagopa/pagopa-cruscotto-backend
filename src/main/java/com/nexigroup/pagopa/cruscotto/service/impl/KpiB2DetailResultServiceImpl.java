@@ -144,9 +144,9 @@ public class KpiB2DetailResultServiceImpl implements KpiB2DetailResultService {
     }
 
     @Override
-    public List<KpiB2DetailResultDTO> findByInstanceModuleId(long instanceModuleId) {
+    public List<KpiB2DetailResultDTO> findByResultId(long resultId) {
         return kpiB2DetailResultRepository
-            .selectByInstanceModuleId(instanceModuleId)
+            .selectByResultId(resultId)
             .stream()
             .map(KpiB2DetailResultServiceImpl::getKpiB2DetailResultDTO)
             .collect(Collectors.toList());
