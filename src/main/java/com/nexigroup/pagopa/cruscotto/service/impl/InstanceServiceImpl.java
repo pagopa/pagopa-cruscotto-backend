@@ -52,7 +52,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class InstanceServiceImpl implements InstanceService {
 
     private final Logger LOGGER = LoggerFactory.getLogger(InstanceServiceImpl.class);
-    
+
     private static final String ID_FIELD = "id";
 
     private static final String INSTANCE_IDENTIFICATION_FIELD = "instanceIdentification";
@@ -88,7 +88,7 @@ public class InstanceServiceImpl implements InstanceService {
     private final QueryBuilder queryBuilder;
 
     private final UserUtils userUtils;
-    
+
 
     public InstanceServiceImpl(InstanceRepository instanceRepository, AnagPartnerRepository anagPartnerRepository, ModuleRepository moduleRepository,
     						   InstanceMapper instanceMapper, QueryBuilder queryBuilder, UserUtils userUtils) {
@@ -116,6 +116,19 @@ public class InstanceServiceImpl implements InstanceService {
         if (StringUtils.isNotBlank(filter.getPartnerId())) {
             builder.and(QInstance.instance.partner.id.eq(Long.valueOf(filter.getPartnerId())));
         }
+        if (filter.getStatus()!=null) {
+            builder.and(QInstance.instance.status.eq(filter.getStatus()));
+        }
+
+        LocalDate predictedAnalysisStartDate = LocalDate.parse(filter.getPredictedAnalysisStartDate(), formatter);
+        LocalDate predictedAnalysisEndDate = LocalDate.parse(filter.getPredictedAnalysisEndDate(), formatter);
+        builder.and(QInstance.instance.predictedDateAnalysis.between(predictedAnalysisStartDate, predictedAnalysisEndDate));
+
+        LocalDate analysisStartDate = LocalDate.parse(filter.getAnalysisStartDate(), formatter);
+        LocalDate analysisEndDate = LocalDate.parse(filter.getAnalysisEndDate(), formatter);
+        builder.and(QInstance.instance.analysisPeriodStartDate.eq(analysisStartDate));
+        builder.and(QInstance.instance.analysisPeriodEndDate.eq(analysisEndDate));
+
 
         JPQLQuery<Instance> jpql = queryBuilder.<Instance>createQuery().from(QInstance.instance).where(builder);
 
@@ -391,7 +404,7 @@ public class InstanceServiceImpl implements InstanceService {
                 new GenericServiceException(String.format("Instance with id %s not exist", id), INSTANCE, "instance.notExists")
             );
     }
-    
+
 
     @Override
     public List<InstanceDTO> findInstanceToCalculate(Integer limit) {
@@ -439,17 +452,17 @@ public class InstanceServiceImpl implements InstanceService {
             .set(QInstance.instance.lastAnalysisOutcome, lastAnalysisOutcome)
             .where(QInstance.instance.id.eq(id))
             .execute();
-    }    
-    
+    }
+
 	@Override
 	public void updateInstanceStatusInProgress(long id) {
 		LOGGER.debug("Request to update status of instance {} to {}", id, InstanceStatus.IN_ESECUZIONE);
 
 		JPAUpdateClause jpql = queryBuilder.updateQuery(QInstance.instance);
-		
+
 		jpql.set(QInstance.instance.status, InstanceStatus.IN_ESECUZIONE)
 			.where(QInstance.instance.id.eq(id)
 					.and(QInstance.instance.status.ne(InstanceStatus.PIANIFICATA)))
 			.execute();
-	}    
+	}
 }
