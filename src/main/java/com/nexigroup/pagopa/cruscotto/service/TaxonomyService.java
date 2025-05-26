@@ -39,7 +39,7 @@ public interface TaxonomyService {
      */
     void deleteAll();
 
-    List<String> getAllTakingsIdentifiers();
+    List<String> getAllUpdatedTakingsIdentifiers();
 
     /**
      * Finds all {@link TaxonomyDTO} entities matching the given filter and pagination information.
