@@ -112,8 +112,8 @@ public class TaxonomyServiceImpl implements TaxonomyService {
     }
 
     @Override
-    public List<String> getAllTakingsIdentifiers() {
-        return taxonomyRepository.findAllTakingsIdentifiers();
+    public List<String> getAllUpdatedTakingsIdentifiers() {
+        return taxonomyRepository.findAllUpdatedTakingsIdentifiers();
     }
 
     /**
