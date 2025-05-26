@@ -18,6 +18,6 @@ public interface KpiB2AnalyticDataRepository extends JpaRepository<KpiB2Analytic
     @Query("DELETE KpiB2AnalyticData kpiB2AnalyticData WHERE kpiB2AnalyticData.instanceModule.id = :instanceModuleId")
     int deleteAllByInstanceModuleId(@Param("instanceModuleId") Long instanceModuleId);
 
-    @Query("SELECT b FROM KpiB2AnalyticData b WHERE b.instanceModule.id = :instanceModuleId")
-    List<KpiB2AnalyticData> selectByInstanceModuleId(@Param("instanceModuleId") Long instanceModuleId);
+    @Query("SELECT b FROM KpiB2AnalyticData b WHERE b.kpiB2DetailResult.id = :detailResultId")
+    List<KpiB2AnalyticData> selectByDetailResultId(@Param("detailResultId") Long detailResultId);
 }
