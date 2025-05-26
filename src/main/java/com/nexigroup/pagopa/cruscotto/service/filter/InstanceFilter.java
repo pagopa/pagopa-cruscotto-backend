@@ -20,19 +20,15 @@ public class InstanceFilter implements Serializable {
 
     private InstanceStatus status;
 
-    @NotBlank
     @Pattern(regexp = "(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[012])/[0-9]{4}")
     private String predictedAnalysisStartDate;
 
-    @NotBlank
     @Pattern(regexp = "(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[012])/[0-9]{4}")
     private String predictedAnalysisEndDate;
 
-    @NotBlank
     @Pattern(regexp = "(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[012])/[0-9]{4}")
     private String analysisStartDate;
 
-    @NotBlank
     @Pattern(regexp = "(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[012])/[0-9]{4}")
     private String analysisEndDate;
 

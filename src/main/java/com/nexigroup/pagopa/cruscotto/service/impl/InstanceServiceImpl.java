@@ -120,14 +120,23 @@ public class InstanceServiceImpl implements InstanceService {
             builder.and(QInstance.instance.status.eq(filter.getStatus()));
         }
 
-        LocalDate predictedAnalysisStartDate = LocalDate.parse(filter.getPredictedAnalysisStartDate(), formatter);
-        LocalDate predictedAnalysisEndDate = LocalDate.parse(filter.getPredictedAnalysisEndDate(), formatter);
-        builder.and(QInstance.instance.predictedDateAnalysis.between(predictedAnalysisStartDate, predictedAnalysisEndDate));
+        if(filter.getPredictedAnalysisStartDate() != null) {
+            LocalDate predictedAnalysisStartDate = LocalDate.parse(filter.getPredictedAnalysisStartDate(), formatter);
+            builder.and(QInstance.instance.predictedDateAnalysis.goe(predictedAnalysisStartDate));
+        }
+        if(filter.getPredictedAnalysisEndDate() != null) {
+            LocalDate predictedAnalysisEndDate = LocalDate.parse(filter.getPredictedAnalysisEndDate(), formatter);
+            builder.and(QInstance.instance.predictedDateAnalysis.loe(predictedAnalysisEndDate));
+        }
 
-        LocalDate analysisStartDate = LocalDate.parse(filter.getAnalysisStartDate(), formatter);
-        LocalDate analysisEndDate = LocalDate.parse(filter.getAnalysisEndDate(), formatter);
-        builder.and(QInstance.instance.analysisPeriodStartDate.eq(analysisStartDate));
-        builder.and(QInstance.instance.analysisPeriodEndDate.eq(analysisEndDate));
+        if(filter.getAnalysisStartDate() != null) {
+            LocalDate analysisStartDate = LocalDate.parse(filter.getAnalysisStartDate(), formatter);
+            builder.and(QInstance.instance.analysisPeriodStartDate.eq(analysisStartDate));
+        }
+        if(filter.getAnalysisEndDate() != null) {
+            LocalDate analysisEndDate = LocalDate.parse(filter.getAnalysisEndDate(), formatter);
+            builder.and(QInstance.instance.analysisPeriodEndDate.eq(analysisEndDate));
+        }
 
 
         JPQLQuery<Instance> jpql = queryBuilder.<Instance>createQuery().from(QInstance.instance).where(builder);
