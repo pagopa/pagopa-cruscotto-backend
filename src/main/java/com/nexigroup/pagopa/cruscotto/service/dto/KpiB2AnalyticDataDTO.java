@@ -1,10 +1,10 @@
 package com.nexigroup.pagopa.cruscotto.service.dto;
 
-import com.nexigroup.pagopa.cruscotto.domain.*;
+import com.nexigroup.pagopa.cruscotto.domain.KpiB2AnalyticData;
 import com.nexigroup.pagopa.cruscotto.service.validation.ValidationGroups;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serial;
 import java.io.Serializable;
-import java.time.Instant;
 import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,6 +16,7 @@ import lombok.Setter;
 @Setter
 public class KpiB2AnalyticDataDTO implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 5141899331669875400L;
 
     private Long id;
@@ -51,6 +52,8 @@ public class KpiB2AnalyticDataDTO implements Serializable {
     private Double avgTime;
 
     private Long kpiB2DetailResultId;
+
+    private String stationName;
 
     @Override
     public String toString() {
