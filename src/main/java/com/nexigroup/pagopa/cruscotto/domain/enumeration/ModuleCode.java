@@ -10,4 +10,16 @@ public enum ModuleCode {
     ModuleCode(String code) {
         this.code = code;
     }
+
+    public static ModuleCode fromCode(String code) {
+        if (code == null) {
+            return null;
+        }
+        for (ModuleCode moduleCode : ModuleCode.values()) {
+            if (moduleCode.code.equals(code)) {
+                return moduleCode;
+            }
+        }
+        return null;
+    }
 }
