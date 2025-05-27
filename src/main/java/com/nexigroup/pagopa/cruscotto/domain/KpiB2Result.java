@@ -76,8 +76,8 @@ public class KpiB2Result implements Serializable {
     private Double eligibilityThreshold;
 
     @NotNull
-    @Column(name = "CO_TOLLERANCE", nullable = false)
-    private Double tollerance;
+    @Column(name = "CO_TOLERANCE", nullable = false)
+    private Double tolerance;
 
     @NotNull
     @Column(name = "CO_AVERAGE_TIME_LIMIT", nullable = false)
@@ -125,8 +125,8 @@ public class KpiB2Result implements Serializable {
             excludeUnplannedShutdown +
             ", eligibilityThreshold=" +
             eligibilityThreshold +
-            ", tollerance=" +
-            tollerance +
+            ", tolerance=" +
+            tolerance +
             ", averageTimeLimit=" +
             averageTimeLimit +
             ", evaluationType=" +

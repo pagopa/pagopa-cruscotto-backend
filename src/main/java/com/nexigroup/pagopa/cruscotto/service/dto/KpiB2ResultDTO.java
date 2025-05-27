@@ -4,11 +4,9 @@ import com.nexigroup.pagopa.cruscotto.domain.KpiB2Result;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.service.validation.ValidationGroups;
-
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDate;
-
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,7 +19,6 @@ import lombok.Setter;
 public class KpiB2ResultDTO implements Serializable {
 
     private static final long serialVersionUID = 1464684720174723448L;
-    
 
     private Long id;
 
@@ -44,7 +41,7 @@ public class KpiB2ResultDTO implements Serializable {
     private Double eligibilityThreshold;
 
     @NotNull(groups = { ValidationGroups.KpiB2Job.class })
-    private Double tollerance;
+    private Double tolerance;
 
     @NotNull(groups = { ValidationGroups.KpiB2Job.class })
     private Double averageTimeLimit;
@@ -54,7 +51,6 @@ public class KpiB2ResultDTO implements Serializable {
 
     @NotNull(groups = { ValidationGroups.KpiB2Job.class })
     private OutcomeStatus outcome;
-    
 
     @Override
     public String toString() {
@@ -73,8 +69,8 @@ public class KpiB2ResultDTO implements Serializable {
             excludeUnplannedShutdown +
             ", eligibilityThreshold=" +
             eligibilityThreshold +
-            ", tollerance=" +
-            tollerance +
+            ", tolerance=" +
+            tolerance +
             ", averageTimeLimit=" +
             averageTimeLimit +
             ", evaluationType=" +
