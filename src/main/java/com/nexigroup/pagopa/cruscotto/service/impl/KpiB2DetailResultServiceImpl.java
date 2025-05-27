@@ -1,20 +1,11 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
-import com.nexigroup.pagopa.cruscotto.domain.AnagStation;
-import com.nexigroup.pagopa.cruscotto.domain.Instance;
-import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
-import com.nexigroup.pagopa.cruscotto.domain.KpiB2DetailResult;
-import com.nexigroup.pagopa.cruscotto.domain.KpiB2Result;
-import com.nexigroup.pagopa.cruscotto.repository.AnagStationRepository;
-import com.nexigroup.pagopa.cruscotto.repository.InstanceModuleRepository;
-import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
-import com.nexigroup.pagopa.cruscotto.repository.KpiB2DetailResultRepository;
-import com.nexigroup.pagopa.cruscotto.repository.KpiB2ResultRepository;
+import com.nexigroup.pagopa.cruscotto.domain.*;
+import com.nexigroup.pagopa.cruscotto.repository.*;
 import com.nexigroup.pagopa.cruscotto.service.KpiB2DetailResultService;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2DetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -145,10 +136,6 @@ public class KpiB2DetailResultServiceImpl implements KpiB2DetailResultService {
 
     @Override
     public List<KpiB2DetailResultDTO> findByResultId(long resultId) {
-        return kpiB2DetailResultRepository
-            .selectByResultId(resultId)
-            .stream()
-            .map(KpiB2DetailResultServiceImpl::getKpiB2DetailResultDTO)
-            .collect(Collectors.toList());
+        return kpiB2DetailResultRepository.findByKpiB2ResultId(resultId);
     }
 }
