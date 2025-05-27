@@ -39,8 +39,8 @@ public class Module extends AbstractAuditingEntity<Long> implements Serializable
 
     @Id
     @Column(name = "CO_ID")
-    @SequenceGenerator(name = "SQDASH_MODU01", sequenceName = "SQDASH_MODU01", allocationSize = 1)
-    @GeneratedValue(generator = "SQDASH_MODU01", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "SQCRUSC8_MODU", sequenceName = "SQCRUSC8_MODU", allocationSize = 1)
+    @GeneratedValue(generator = "SQCRUSC8_MODU", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @NotNull

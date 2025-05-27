@@ -23,8 +23,8 @@ public class AuthGroup implements Serializable {
 
     @Id
     @Column(name = "CO_ID")
-    @SequenceGenerator(name = "SQDASH_ROUP03", sequenceName = "SQDASH_ROUP03", allocationSize = 1)
-    @GeneratedValue(generator = "SQDASH_ROUP03", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "SQCRUSC8_AUTHGROU", sequenceName = "SQCRUSC8_AUTHGROU", allocationSize = 1)
+    @GeneratedValue(generator = "SQCRUSC8_AUTHGROU", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @Size(min = 1, max = 50)

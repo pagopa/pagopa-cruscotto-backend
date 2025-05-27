@@ -2,7 +2,18 @@ package com.nexigroup.pagopa.cruscotto.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -28,12 +39,12 @@ import org.hibernate.annotations.DynamicUpdate;
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class KpiA2DetailResult implements Serializable {
 
-    private static final long serialVersionUID = 1569798052441179251L;
+    private static final long serialVersionUID = 1L;
 
     @Id
     @Column(name = "CO_ID")
-    @SequenceGenerator(name = "SQDASH_KPIA2DETRES01", sequenceName = "SQDASH_KPIA2DETRES01", allocationSize = 1)
-    @GeneratedValue(generator = "SQDASH_KPIA2DETRES01", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "SQCRUSC8_KPIA2DETARESU", sequenceName = "SQCRUSC8_KPIA2DETARESU", allocationSize = 1)
+    @GeneratedValue(generator = "SQCRUSC8_KPIA2DETARESU", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @JsonIgnore
@@ -62,11 +73,11 @@ public class KpiA2DetailResult implements Serializable {
 
     @NotNull
     @Column(name = "CO_TOT_PAYMENTS", nullable = false)
-    private Integer totPayments;
+    private Long totPayments;
 
     @NotNull
     @Column(name = "CO_TOT_INCORRECT_PAYMENTS", nullable = false)
-    private Integer totIncorrectPayments;
+    private Long totIncorrectPayments;
 
     @NotNull
     @Column(name = "CO_ERROR_PERCENTAGE", nullable = false)
@@ -100,8 +111,7 @@ public class KpiA2DetailResult implements Serializable {
     @Override
     public String toString() {
         return (
-            "KpiA2DetailResult{" +
-            "id=" +
+            "KpiA2DetailResult [id=" +
             id +
             ", instance=" +
             instance +
@@ -123,7 +133,7 @@ public class KpiA2DetailResult implements Serializable {
             outcome +
             ", kpiA2Result=" +
             kpiA2Result +
-            '}'
+            "]"
         );
     }
 }

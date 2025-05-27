@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 /**
  * Spring Data repository for the KpiA1AnalyticData entity.
  */
+
 @Repository
 public interface KpiA1AnalyticDataRepository extends JpaRepository<KpiA1AnalyticData, Long>, JpaSpecificationExecutor<KpiA1AnalyticData> {
     @Modifying

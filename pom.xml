@@ -6,7 +6,7 @@
 
   <groupId>com.nexigroup.pagopa.cruscotto</groupId>
   <artifactId>pagopa-cruscotto-backend</artifactId>
-  <version>0.2.4</version>
+  <version>0.3.4</version>
   <packaging>jar</packaging>
   <name>PagoPa Cruscotto Backend</name>
   <description>PagoPa Cruscotto Backend</description>
@@ -372,6 +372,16 @@
       <groupId>com.cronutils</groupId>
       <artifactId>cron-utils</artifactId>
       <version>9.2.0</version>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback.contrib</groupId>
+      <artifactId>logback-json-classic</artifactId>
+      <version>0.1.5</version>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback.contrib</groupId>
+      <artifactId>logback-jackson</artifactId>
+      <version>0.1.5</version>
     </dependency>
   </dependencies>
 

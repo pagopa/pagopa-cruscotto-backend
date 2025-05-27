@@ -21,8 +21,8 @@ public class AuthFunction implements Serializable {
 
     @Id
     @Column(name = "CO_ID")
-    @SequenceGenerator(name = "SQDASH_TION02", sequenceName = "SQDASH_TION02", allocationSize = 1)
-    @GeneratedValue(generator = "SQDASH_TION02", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "SQCRUSC8_AUTHFUNC", sequenceName = "SQCRUSC8_AUTHFUNC", allocationSize = 1)
+    @GeneratedValue(generator = "SQCRUSC8_AUTHFUNC", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @Size(min = 1, max = 50)

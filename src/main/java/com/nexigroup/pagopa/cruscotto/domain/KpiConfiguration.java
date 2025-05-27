@@ -29,8 +29,8 @@ public class KpiConfiguration implements Serializable {
 
     @Id
     @Column(name = "CO_ID")
-    @SequenceGenerator(name = "SQDASH_KPICONF01", sequenceName = "SQDASH_KPICONF01", allocationSize = 1)
-    @GeneratedValue(generator = "SQDASH_KPICONF01", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "SQCRUSC8_KPICONF", sequenceName = "SQCRUSC8_KPICONF", allocationSize = 1)
+    @GeneratedValue(generator = "SQCRUSC8_KPICONF", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @JsonIgnore
@@ -48,8 +48,8 @@ public class KpiConfiguration implements Serializable {
     @Column(name = "CO_ELIGIBILITY_THRESHOLD")
     private Double eligibilityThreshold;
 
-    @Column(name = "CO_TOLLERANCE")
-    private Double tollerance;
+    @Column(name = "CO_TOLERANCE")
+    private Double tolerance;
 
     @Column(name = "CO_AVERAGE_TIME_LIMIT")
     private Double averageTimeLimit;
@@ -83,8 +83,8 @@ public class KpiConfiguration implements Serializable {
             excludeUnplannedShutdown +
             ", eligibilityThreshold=" +
             eligibilityThreshold +
-            ", tollerance=" +
-            tollerance +
+            ", tolerance=" +
+            tolerance +
             ", averageTimeLimit=" +
             averageTimeLimit +
             ", evaluationType=" +

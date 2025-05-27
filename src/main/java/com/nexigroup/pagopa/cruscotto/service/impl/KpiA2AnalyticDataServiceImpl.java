@@ -1,7 +1,13 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
-import com.nexigroup.pagopa.cruscotto.domain.*;
-import com.nexigroup.pagopa.cruscotto.repository.*;
+import com.nexigroup.pagopa.cruscotto.domain.Instance;
+import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
+import com.nexigroup.pagopa.cruscotto.domain.KpiA2AnalyticData;
+import com.nexigroup.pagopa.cruscotto.domain.KpiA2DetailResult;
+import com.nexigroup.pagopa.cruscotto.repository.InstanceModuleRepository;
+import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
+import com.nexigroup.pagopa.cruscotto.repository.KpiA2AnalyticDataRepository;
+import com.nexigroup.pagopa.cruscotto.repository.KpiA2DetailResultRepository;
 import com.nexigroup.pagopa.cruscotto.service.KpiA2AnalyticDataService;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA2AnalyticDataDTO;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
@@ -16,13 +22,12 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Service Implementation for managing {@link KpiA2AnalyticData}.
  */
+
 @Service
 @Transactional
 public class KpiA2AnalyticDataServiceImpl implements KpiA2AnalyticDataService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KpiA2AnalyticDataServiceImpl.class);
-
-    private final AnagStationRepository anagStationRepository;
 
     private final InstanceRepository instanceRepository;
 
@@ -35,14 +40,12 @@ public class KpiA2AnalyticDataServiceImpl implements KpiA2AnalyticDataService {
     private final QueryBuilder queryBuilder;
 
     public KpiA2AnalyticDataServiceImpl(
-        AnagStationRepository anagStationRepository,
         InstanceRepository instanceRepository,
         InstanceModuleRepository instanceModuleRepository,
         KpiA2AnalyticDataRepository kpiA2AnalyticDataRepository,
         KpiA2DetailResultRepository kpiA2DetailResultRepository,
         QueryBuilder queryBuilder
     ) {
-        this.anagStationRepository = anagStationRepository;
         this.instanceRepository = instanceRepository;
         this.instanceModuleRepository = instanceModuleRepository;
         this.kpiA2AnalyticDataRepository = kpiA2AnalyticDataRepository;
@@ -89,9 +92,23 @@ public class KpiA2AnalyticDataServiceImpl implements KpiA2AnalyticDataService {
         kpiA2AnalyticData.setEvaluationDate(kpiA2AnalyticDataDTO.getEvaluationDate());
         kpiA2AnalyticData.setTotPayments(kpiA2AnalyticDataDTO.getTotPayments());
         kpiA2AnalyticData.setTotIncorrectPayments(kpiA2AnalyticDataDTO.getTotIncorrectPayments());
-        kpiA2AnalyticData.setKpiA2DetailResult(kpiA2DetailResult.getKpiA2Result());
+        kpiA2AnalyticData.setKpiA2DetailResult(kpiA2DetailResult);
 
         return kpiA2AnalyticData;
+    }
+
+    @Override
+    public int deleteAllByInstanceModule(long instanceModuleId) {
+        return kpiA2AnalyticDataRepository.deleteAllByInstanceModuleId(instanceModuleId);
+    }
+
+    @Override
+    public List<KpiA2AnalyticDataDTO> findByInstanceModuleId(long instanceModuleId) {
+        return kpiA2AnalyticDataRepository
+            .selectByInstanceModuleId(instanceModuleId)
+            .stream()
+            .map(KpiA2AnalyticDataServiceImpl::getkpiA2AnalyticDataDTO)
+            .collect(Collectors.toList());
     }
 
     private static @NotNull KpiA2AnalyticDataDTO getkpiA2AnalyticDataDTO(KpiA2AnalyticData kpiA2AnalyticData) {
@@ -109,19 +126,5 @@ public class KpiA2AnalyticDataServiceImpl implements KpiA2AnalyticDataService {
             kpiA2AnalyticData.getKpiA2DetailResult() != null ? kpiA2AnalyticData.getKpiA2DetailResult().getId() : null
         );
         return kpiA2AnalyticDataDTO;
-    }
-
-    @Override
-    public int deleteAllByInstanceModule(long instanceModuleId) {
-        return kpiA2AnalyticDataRepository.deleteAllByInstanceModuleId(instanceModuleId);
-    }
-
-    @Override
-    public List<KpiA2AnalyticDataDTO> findByInstanceModuleId(long instanceModuleId) {
-        return kpiA2AnalyticDataRepository
-            .selectByInstanceModuleId(instanceModuleId)
-            .stream()
-            .map(KpiA2AnalyticDataServiceImpl::getkpiA2AnalyticDataDTO)
-            .collect(Collectors.toList());
     }
 }

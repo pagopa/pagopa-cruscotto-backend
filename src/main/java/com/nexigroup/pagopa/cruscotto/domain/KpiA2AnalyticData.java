@@ -1,7 +1,16 @@
 package com.nexigroup.pagopa.cruscotto.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -27,12 +36,12 @@ import org.hibernate.annotations.DynamicUpdate;
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class KpiA2AnalyticData implements Serializable {
 
-    private static final long serialVersionUID = 7810237102590802078L;
+    private static final long serialVersionUID = 1L;
 
     @Id
     @Column(name = "CO_ID")
-    @SequenceGenerator(name = "SQDASH_KPIA2ANADATA01", sequenceName = "SQDASH_KPIA2ANADATA01", allocationSize = 1)
-    @GeneratedValue(generator = "SQDASH_KPIA2ANADATA01", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "SQCRUSC8_KPIA2ANALDATA", sequenceName = "SQCRUSC8_KPIA2ANALDATA", allocationSize = 1)
+    @GeneratedValue(generator = "SQCRUSC8_KPIA2ANALDATA", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @JsonIgnore
@@ -67,7 +76,7 @@ public class KpiA2AnalyticData implements Serializable {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CO_KPI_A2_DETAIL_RESULT_ID", nullable = false)
-    private KpiA2Result kpiA2DetailResult;
+    private KpiA2DetailResult kpiA2DetailResult;
 
     @Override
     public boolean equals(Object o) {
@@ -86,8 +95,7 @@ public class KpiA2AnalyticData implements Serializable {
     @Override
     public String toString() {
         return (
-            "KpiA2AnalyticData{" +
-            "id=" +
+            "KpiA2AnalyticData [id=" +
             id +
             ", instance=" +
             instance +
@@ -103,7 +111,7 @@ public class KpiA2AnalyticData implements Serializable {
             totIncorrectPayments +
             ", kpiA2DetailResult=" +
             kpiA2DetailResult +
-            '}'
+            "]"
         );
     }
 }

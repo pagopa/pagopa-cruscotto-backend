@@ -13,6 +13,7 @@ import lombok.Setter;
 /**
  * A DTO for the {@link KpiA1AnalyticData} entity.
  */
+
 @Getter
 @Setter
 public class KpiA1AnalyticDataDTO implements Serializable {

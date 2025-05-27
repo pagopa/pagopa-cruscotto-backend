@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+  <changeSet id="20250415102402-1" author="system" context="ddl">
+    <createSequence sequenceName="SQ${project_name}_ANAGINST" startValue="3000" cacheSize="20"/>
+  </changeSet>
+
+  <changeSet id="20250415102402-2" author="system" context="ddl">
+    <createTable tableName="ANAG_INSTITUTION">
+      <column name="CO_ID" type="bigint">
+        <constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_ANAGINST"/>
+      </column>
+      <column name="TE_FISCAL_CODE" type="varchar(35)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TE_NAME" type="varchar(256)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="FL_ACA" type="boolean">
+        <constraints nullable="false"/>
+      </column>
+      <column name="FL_STAND_IND" type="boolean">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DT_ACTIVATION_DATE" type="date">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_ANAG_PARTNER_ID" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TE_CREATED_BY" type="varchar(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DT_CREATED_DATE" type="datetime"/>
+      <column name="TE_LAST_MODIFIED_BY" type="varchar(50)"/>
+      <column name="DT_LAST_MODIFIED_DATE" type="datetime"/>
+    </createTable>
+    <rollback>
+      DROP TABLE ${database.defaultSchemaName}.ANAG_INSTITUTION CASCADE CONSTRAINTS;
+    </rollback>
+  </changeSet>
+
+  <changeSet id="20250415102402-3" author="system" context="ddl">
+    <createTable tableName="ANAG_STATION_ANAG_INSTITUTION">
+      <column name="CO_ANAG_STATION_ID" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_ANAG_INSTITUTION_ID" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <addPrimaryKey constraintName="PK${project_name}_ANAGSTATINST" columnNames="CO_ANAG_STATION_ID, CO_ANAG_INSTITUTION_ID"
+                   tableName="ANAG_STATION_ANAG_INSTITUTION"/>
+    <rollback>
+      DROP TABLE ${database.defaultSchemaName}.ANAG_STATION_ANAG_INSTITUTION CASCADE CONSTRAINTS;
+    </rollback>
+  </changeSet>
+
+</databaseChangeLog>

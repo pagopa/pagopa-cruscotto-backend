@@ -1,11 +1,15 @@
 package com.nexigroup.pagopa.cruscotto.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -14,8 +18,9 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
- * A Module.
+ * A PagoPaRecordedTimeout.
  */
+
 @Entity
 @Table(name = "PAGOPA_RECORDED_TIMEOUT")
 @Getter
@@ -37,7 +42,7 @@ public class PagoPaRecordedTimeout implements Serializable {
 
     @NotNull
     @Size(min = 1, max = 35)
-    @Column(name = "STATION", length = 256, nullable = false)
+    @Column(name = "STATION", length = 35, nullable = false)
     private String station;
 
     @NotNull

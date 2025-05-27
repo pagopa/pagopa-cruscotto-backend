@@ -10,8 +10,9 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 /**
- * Spring Data repository for the KpiB2DetailResult entity.
+ * Spring Data repository for the KpiA2DetailResult entity.
  */
+
 @Repository
 public interface KpiA2DetailResultRepository extends JpaRepository<KpiA2DetailResult, Long>, JpaSpecificationExecutor<KpiA2DetailResult> {
     @Modifying

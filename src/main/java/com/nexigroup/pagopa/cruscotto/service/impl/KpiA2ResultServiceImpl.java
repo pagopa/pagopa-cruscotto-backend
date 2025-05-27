@@ -1,6 +1,9 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
-import com.nexigroup.pagopa.cruscotto.domain.*;
+import com.nexigroup.pagopa.cruscotto.domain.Instance;
+import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
+import com.nexigroup.pagopa.cruscotto.domain.KpiA2Result;
+import com.nexigroup.pagopa.cruscotto.domain.QKpiA2Result;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceModuleRepository;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
@@ -18,8 +21,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Service Implementation for managing {@link KpiB2Result}.
+ * Service Implementation for managing {@link KpiA2Result}.
  */
+
 @Service
 @Transactional
 public class KpiA2ResultServiceImpl implements KpiA2ResultService {
@@ -47,7 +51,7 @@ public class KpiA2ResultServiceImpl implements KpiA2ResultService {
     }
 
     /**
-     * Save kpiB2Result.
+     * Save kpiA2Result.
      *
      * @param kpiA2ResultDTO the entity to save.
      */
@@ -75,20 +79,10 @@ public class KpiA2ResultServiceImpl implements KpiA2ResultService {
         kpiA2Result.setInstance(instance);
         kpiA2Result.setInstanceModule(instanceModule);
         kpiA2Result.setAnalysisDate(kpiA2ResultDTO.getAnalysisDate());
-        kpiA2Result.setTollerance(kpiA2ResultDTO.getTollerance());
+        kpiA2Result.setTolerance(kpiA2ResultDTO.getTolerance());
         kpiA2Result.setOutcome(kpiA2ResultDTO.getOutcome());
 
         return kpiA2Result;
-    }
-
-    private static @NotNull KpiA2ResultDTO getKpiA2ResultDTO(KpiA2Result kpiA2Result) {
-        KpiA2ResultDTO kpiA2ResultDTO = new KpiA2ResultDTO();
-        kpiA2ResultDTO.setId(kpiA2Result.getId());
-        kpiA2ResultDTO.setInstanceModuleId((kpiA2Result.getInstanceModule().getId()));
-        kpiA2ResultDTO.setAnalysisDate(kpiA2Result.getAnalysisDate());
-        kpiA2ResultDTO.setTollerance(kpiA2Result.getTollerance());
-        kpiA2ResultDTO.setOutcome(kpiA2Result.getOutcome());
-        return kpiA2ResultDTO;
     }
 
     @Override
@@ -98,11 +92,11 @@ public class KpiA2ResultServiceImpl implements KpiA2ResultService {
 
     @Override
     public void updateKpiA2ResultOutcome(long id, OutcomeStatus outcomeStatus) {
-        LOGGER.debug("Request to get all AnagPartner");
+        LOGGER.debug("Request to update KpiA2Result {} outcome status to {}", id, outcomeStatus);
 
-        JPAUpdateClause jpql = queryBuilder.updateQuery(QKpiB2Result.kpiB2Result);
+        JPAUpdateClause jpql = queryBuilder.updateQuery(QKpiA2Result.kpiA2Result);
 
-        jpql.set(QKpiB2Result.kpiB2Result.outcome, outcomeStatus).where(QKpiB2Result.kpiB2Result.id.eq(id)).execute();
+        jpql.set(QKpiA2Result.kpiA2Result.outcome, outcomeStatus).where(QKpiA2Result.kpiA2Result.id.eq(id)).execute();
     }
 
     @Override
@@ -112,5 +106,15 @@ public class KpiA2ResultServiceImpl implements KpiA2ResultService {
             .stream()
             .map(KpiA2ResultServiceImpl::getKpiA2ResultDTO)
             .collect(Collectors.toList());
+    }
+
+    private static @NotNull KpiA2ResultDTO getKpiA2ResultDTO(KpiA2Result kpiA2Result) {
+        KpiA2ResultDTO kpiA2ResultDTO = new KpiA2ResultDTO();
+        kpiA2ResultDTO.setId(kpiA2Result.getId());
+        kpiA2ResultDTO.setInstanceModuleId((kpiA2Result.getInstanceModule().getId()));
+        kpiA2ResultDTO.setAnalysisDate(kpiA2Result.getAnalysisDate());
+        kpiA2ResultDTO.setTolerance(kpiA2Result.getTolerance());
+        kpiA2ResultDTO.setOutcome(kpiA2Result.getOutcome());
+        return kpiA2ResultDTO;
     }
 }
