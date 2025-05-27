@@ -73,14 +73,14 @@ public class KpiAnalyticDataResource {
     /**
      * {@code GET  /kpi-analytic-data/b2/module/{moduleId}} : get the kpiB2AnalyticDataDTOs associated to the "id" instanceModule of type B2.
      *
-     * @param moduleId the id of the instanceModuleDTO the kpi analytic data to retrieve are associated to
+     * @param detailResultId the id of the instanceModuleDTO the kpi analytic data to retrieve are associated to
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the KpiB2AnalyticDataDTOs, or with status {@code 404 (Not Found)}.
      */
-    @GetMapping("kpi-analytic-data/b2/module/{moduleId}")
+    @GetMapping("kpi-analytic-data/b2/module/{detailResultId}")
     //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_DETAIL_FUNCTION + "\")")
-    public ResponseEntity<List<KpiB2AnalyticDataDTO>> getKpiB2AnalyticDataResults(@PathVariable Long moduleId) {
-        log.debug("REST request to get kpi analytic data of instanceModule : {} of type b2", moduleId);
-        List<KpiB2AnalyticDataDTO> kpiB2AnalyticData = kpiB2AnalyticDataService.findByInstanceModuleId(moduleId);
+    public ResponseEntity<List<KpiB2AnalyticDataDTO>> getKpiB2AnalyticDataResults(@PathVariable Long detailResultId) {
+        log.debug("REST request to get kpi analytic data of instanceModule : {} of type b2", detailResultId);
+        List<KpiB2AnalyticDataDTO> kpiB2AnalyticData = kpiB2AnalyticDataService.findByDetailResultId(detailResultId);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(kpiB2AnalyticData));
     }
 }

@@ -2,11 +2,9 @@ package com.nexigroup.pagopa.cruscotto.service.dto;
 
 import com.nexigroup.pagopa.cruscotto.domain.KpiA2AnalyticData;
 import com.nexigroup.pagopa.cruscotto.service.validation.ValidationGroups;
-
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDate;
-
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,10 +16,9 @@ import lombok.Setter;
 @Setter
 public class KpiA2AnalyticDataDTO implements Serializable {
 
-	private static final long serialVersionUID = 1L;
-	
+    private static final long serialVersionUID = 1L;
 
-	private Long id;
+    private Long id;
 
     @NotNull(groups = { ValidationGroups.KpiA2Job.class })
     private Long instanceId;
@@ -42,13 +39,27 @@ public class KpiA2AnalyticDataDTO implements Serializable {
     private Long totIncorrectPayments;
 
     private Long kpiA2DetailResultId;
-    
 
     @Override
-	public String toString() {
-		return "KpiA2AnalyticDataDTO [id=" + id + ", instanceId=" + instanceId + ", instanceModuleId="
-				+ instanceModuleId + ", analysisDate=" + analysisDate + ", evaluationDate=" + evaluationDate
-				+ ", totPayments=" + totPayments + ", totIncorrectPayments=" + totIncorrectPayments
-				+ ", kpiA2DetailResultId=" + kpiA2DetailResultId + "]";
-	}
+    public String toString() {
+        return (
+            "KpiA2AnalyticDataDTO [id=" +
+            id +
+            ", instanceId=" +
+            instanceId +
+            ", instanceModuleId=" +
+            instanceModuleId +
+            ", analysisDate=" +
+            analysisDate +
+            ", evaluationDate=" +
+            evaluationDate +
+            ", totPayments=" +
+            totPayments +
+            ", totIncorrectPayments=" +
+            totIncorrectPayments +
+            ", kpiA2DetailResultId=" +
+            kpiA2DetailResultId +
+            "]"
+        );
+    }
 }
