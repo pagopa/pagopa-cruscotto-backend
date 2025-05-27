@@ -110,7 +110,7 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
     }
 
     private com.querydsl.core.types.Expression<KpiConfigurationDTO> createKpiConfigurationProjection(QKpiConfiguration qKpiConfiguration) {
-        return Projections.constructor(
+        return Projections.fields(
             KpiConfigurationDTO.class,
             qKpiConfiguration.id.as(FIELD_ID),
             qKpiConfiguration.module.id.as(FIELD_MODULE_ID),

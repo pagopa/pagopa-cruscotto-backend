@@ -63,10 +63,12 @@ public class KpiConfigurationResources {
      */
     @GetMapping("/kpi-configurations/{moduleCode}")
     public ResponseEntity<KpiConfigurationDTO> getKpiConfiguration(
-        @Parameter(description = "Codice del modulo") @PathVariable ModuleCode moduleCode
+        @Parameter(description = "Codice del modulo") @PathVariable String moduleCode
     ) {
         log.debug("REST request to get KPI Configuration : {}", moduleCode);
-        Optional<KpiConfigurationDTO> kpiConfigurationDTO = kpiConfigurationService.findKpiConfigurationByCode(moduleCode);
+        Optional<KpiConfigurationDTO> kpiConfigurationDTO = kpiConfigurationService.findKpiConfigurationByCode(
+            ModuleCode.fromCode(moduleCode)
+        );
         return ResponseUtil.wrapOrNotFound(kpiConfigurationDTO);
     }
 }
