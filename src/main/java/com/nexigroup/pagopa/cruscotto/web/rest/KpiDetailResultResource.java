@@ -73,14 +73,14 @@ public class KpiDetailResultResource {
     /**
      * {@code GET  /kpi-detial-results/b2/module/{moduleId}} : get the kpiB2DetailResultDTOs associated to the "id" instanceModule of type B2.
      *
-     * @param moduleId the id of the instanceModuleDTO the kpi detail results to retrieve are associated to
+     * @param resultId the id of the instanceModuleDTO the kpi detail results to retrieve are associated to
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the KpiB2DetailResultDTOs, or with status {@code 404 (Not Found)}.
      */
-    @GetMapping("kpi-detail-results/b2/module/{moduleId}")
+    @GetMapping("kpi-detail-results/b2/module/{resultId}")
     //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_DETAIL_FUNCTION + "\")")
-    public ResponseEntity<List<KpiB2DetailResultDTO>> getKpiB2DetailResults(@PathVariable Long moduleId) {
-        log.debug("REST request to get kpi detail results of instanceModule : {} of type b2", moduleId);
-        List<KpiB2DetailResultDTO> kpiB2DetailResults = kpiB2DetailResultService.findByInstanceModuleId(moduleId);
+    public ResponseEntity<List<KpiB2DetailResultDTO>> getKpiB2DetailResults(@PathVariable Long resultId) {
+        log.debug("REST request to get kpi detail results of instanceModule : {} of type b2", resultId);
+        List<KpiB2DetailResultDTO> kpiB2DetailResults = kpiB2DetailResultService.findByResultId(resultId);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(kpiB2DetailResults));
     }
 }

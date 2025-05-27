@@ -1,27 +1,16 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
+import com.nexigroup.pagopa.cruscotto.domain.*;
+import com.nexigroup.pagopa.cruscotto.repository.*;
+import com.nexigroup.pagopa.cruscotto.service.KpiB2AnalyticDataService;
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2AnalyticDataDTO;
+import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
+import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.nexigroup.pagopa.cruscotto.domain.AnagStation;
-import com.nexigroup.pagopa.cruscotto.domain.Instance;
-import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
-import com.nexigroup.pagopa.cruscotto.domain.KpiB2AnalyticData;
-import com.nexigroup.pagopa.cruscotto.domain.KpiB2DetailResult;
-import com.nexigroup.pagopa.cruscotto.repository.AnagStationRepository;
-import com.nexigroup.pagopa.cruscotto.repository.InstanceModuleRepository;
-import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
-import com.nexigroup.pagopa.cruscotto.repository.KpiB2AnalyticDataRepository;
-import com.nexigroup.pagopa.cruscotto.repository.KpiB2DetailResultRepository;
-import com.nexigroup.pagopa.cruscotto.service.KpiB2AnalyticDataService;
-import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2AnalyticDataDTO;
-import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Service Implementation for managing {@link KpiB2AnalyticData}.
@@ -43,7 +32,6 @@ public class KpiB2AnalyticDataServiceImpl implements KpiB2AnalyticDataService {
     private final KpiB2DetailResultRepository kpiB2DetailResultRepository;
 
     private final QueryBuilder queryBuilder;
-    
 
     public KpiB2AnalyticDataServiceImpl(
         AnagStationRepository anagStationRepository,
@@ -147,11 +135,7 @@ public class KpiB2AnalyticDataServiceImpl implements KpiB2AnalyticDataService {
     }
 
     @Override
-    public List<KpiB2AnalyticDataDTO> findByInstanceModuleId(long instanceModuleId) {
-        return kpiB2AnalyticDataRepository
-            .selectByInstanceModuleId(instanceModuleId)
-            .stream()
-            .map(KpiB2AnalyticDataServiceImpl::getkpiB2AnalyticDataDTO)
-            .collect(Collectors.toList());
+    public List<KpiB2AnalyticDataDTO> findByDetailResultId(long detailResultId) {
+        return kpiB2AnalyticDataRepository.findByDetailResultId(detailResultId);
     }
 }
