@@ -40,4 +40,6 @@ public interface InstanceService {
     List<InstanceDTO> findInstanceToCalculate(Integer limit);
 
     void updateExecuteStateAndLastAnalysis(Long id, Instant lastAnalysisDate, AnalysisOutcome lastAnalysisOutcome);
+
+    void updateInstanceStatusInProgress(long id);
 }

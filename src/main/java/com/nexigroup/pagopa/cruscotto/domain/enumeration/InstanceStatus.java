@@ -9,5 +9,4 @@ public enum InstanceStatus {
     PIANIFICATA,
     IN_ESECUZIONE,
     ESEGUITA,
-    // CANCELLATA;
 }

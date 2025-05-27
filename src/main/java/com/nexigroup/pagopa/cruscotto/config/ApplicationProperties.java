@@ -1,9 +1,8 @@
 package com.nexigroup.pagopa.cruscotto.config;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * Properties specific to PagoPa Cruscotto Backend.
@@ -32,6 +31,8 @@ public class ApplicationProperties {
     public static class Liquibase {
 
         private Boolean asyncStart = true;
+
+        private String dbVersion;
     }
 
     @Setter
@@ -55,9 +56,11 @@ public class ApplicationProperties {
 
         private LoadRegistryJob loadRegistryJob = new LoadRegistryJob();
 
-        private KpiB2Job kpiB2Job = new KpiB2Job();
-        
         private KpiA1Job kpiA1Job = new KpiA1Job();
+
+        private KpiA2Job kpiA2Job = new KpiA2Job();
+
+        private KpiB2Job kpiB2Job = new KpiB2Job();
     }
 
     @Getter
@@ -89,6 +92,28 @@ public class ApplicationProperties {
 
     @Getter
     @Setter
+    public static class KpiA1Job {
+
+        private boolean enabled;
+
+        private String cron;
+
+        private int limit;
+    }
+
+    @Getter
+    @Setter
+    public static class KpiA2Job {
+
+        private boolean enabled;
+
+        private String cron;
+
+        private int limit;
+    }
+
+    @Getter
+    @Setter
     public static class KpiB2Job {
 
         private boolean enabled;
@@ -97,17 +122,6 @@ public class ApplicationProperties {
 
         private int limit;
     }
-    
-    @Getter
-    @Setter
-    public static class KpiA1Job {
-
-        private boolean enabled;
-
-        private String cron;
-
-        private int limit;
-    }    
 
     @Getter
     @Setter

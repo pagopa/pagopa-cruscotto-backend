@@ -11,11 +11,12 @@ import lombok.Setter;
 /**
  * A DTO for the {@link KpiA2AnalyticData} entity.
  */
+
 @Getter
 @Setter
 public class KpiA2AnalyticDataDTO implements Serializable {
 
-    private static final long serialVersionUID = 5141899331669875400L;
+    private static final long serialVersionUID = 1L;
 
     private Long id;
 
@@ -42,8 +43,7 @@ public class KpiA2AnalyticDataDTO implements Serializable {
     @Override
     public String toString() {
         return (
-            "KpiA2AnalyticDataDTO{" +
-            "id=" +
+            "KpiA2AnalyticDataDTO [id=" +
             id +
             ", instanceId=" +
             instanceId +
@@ -59,7 +59,7 @@ public class KpiA2AnalyticDataDTO implements Serializable {
             totIncorrectPayments +
             ", kpiA2DetailResultId=" +
             kpiA2DetailResultId +
-            '}'
+            "]"
         );
     }
 }

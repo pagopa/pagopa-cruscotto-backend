@@ -1,12 +1,22 @@
 package com.nexigroup.pagopa.cruscotto.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.time.Instant;
+import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -29,12 +39,12 @@ import org.hibernate.annotations.DynamicUpdate;
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class KpiA2Result implements Serializable {
 
-    private static final long serialVersionUID = 1573075938347014084L;
+    private static final long serialVersionUID = 695665088766910283L;
 
     @Id
     @Column(name = "CO_ID")
-    @SequenceGenerator(name = "SQDASH_KPIA2RES01", sequenceName = "SQDASH_KPIA2RES01", allocationSize = 1)
-    @GeneratedValue(generator = "SQDASH_KPIA2RES01", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "SQCRUSC8_KPIA2RESU", sequenceName = "SQCRUSC8_KPIA2RESU", allocationSize = 1)
+    @GeneratedValue(generator = "SQCRUSC8_KPIA2RESU", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @JsonIgnore
@@ -51,11 +61,11 @@ public class KpiA2Result implements Serializable {
 
     @NotNull
     @Column(name = "DT_ANALISYS_DATE", nullable = false)
-    private Instant analysisDate;
+    private LocalDate analysisDate;
 
     @NotNull
-    @Column(name = "CO_TOLLERANCE", nullable = false)
-    private Double tollerance;
+    @Column(name = "CO_TOLERANCE", nullable = false)
+    private Double tolerance;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -79,8 +89,7 @@ public class KpiA2Result implements Serializable {
     @Override
     public String toString() {
         return (
-            "KpiA2Result{" +
-            "id=" +
+            "KpiA2Result [id=" +
             id +
             ", instance=" +
             instance +
@@ -88,11 +97,11 @@ public class KpiA2Result implements Serializable {
             instanceModule +
             ", analysisDate=" +
             analysisDate +
-            ", tollerance=" +
-            tollerance +
+            ", tolerance=" +
+            tolerance +
             ", outcome=" +
             outcome +
-            '}'
+            "]"
         );
     }
 }

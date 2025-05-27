@@ -13,6 +13,7 @@ import lombok.Setter;
 /**
  * A DTO for the {@link KpiB2Result} entity.
  */
+
 @Getter
 @Setter
 public class KpiB2ResultDTO implements Serializable {
@@ -40,7 +41,7 @@ public class KpiB2ResultDTO implements Serializable {
     private Double eligibilityThreshold;
 
     @NotNull(groups = { ValidationGroups.KpiB2Job.class })
-    private Double tollerance;
+    private Double tolerance;
 
     @NotNull(groups = { ValidationGroups.KpiB2Job.class })
     private Double averageTimeLimit;
@@ -68,8 +69,8 @@ public class KpiB2ResultDTO implements Serializable {
             excludeUnplannedShutdown +
             ", eligibilityThreshold=" +
             eligibilityThreshold +
-            ", tollerance=" +
-            tollerance +
+            ", tolerance=" +
+            tolerance +
             ", averageTimeLimit=" +
             averageTimeLimit +
             ", evaluationType=" +

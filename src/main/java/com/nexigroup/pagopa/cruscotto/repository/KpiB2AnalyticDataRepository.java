@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 /**
  * Spring Data repository for the KpiB2AnalyticData entity.
  */
+
 @Repository
 public interface KpiB2AnalyticDataRepository
     extends JpaRepository<KpiB2AnalyticData, Long>, JpaSpecificationExecutor<KpiB2AnalyticData>, KpiB2AnalyticDataRepositoryCustom {

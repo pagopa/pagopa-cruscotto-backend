@@ -1,7 +1,13 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
-import com.nexigroup.pagopa.cruscotto.domain.*;
-import com.nexigroup.pagopa.cruscotto.repository.*;
+import com.nexigroup.pagopa.cruscotto.domain.Instance;
+import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
+import com.nexigroup.pagopa.cruscotto.domain.KpiA2DetailResult;
+import com.nexigroup.pagopa.cruscotto.domain.KpiA2Result;
+import com.nexigroup.pagopa.cruscotto.repository.InstanceModuleRepository;
+import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
+import com.nexigroup.pagopa.cruscotto.repository.KpiA2DetailResultRepository;
+import com.nexigroup.pagopa.cruscotto.repository.KpiA2ResultRepository;
 import com.nexigroup.pagopa.cruscotto.service.KpiA2DetailResultService;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA2DetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
@@ -16,13 +22,12 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Service Implementation for managing {@link KpiA2DetailResult}.
  */
+
 @Service
 @Transactional
 public class KpiA2DetailResultServiceImpl implements KpiA2DetailResultService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KpiA2DetailResultServiceImpl.class);
-
-    private final AnagStationRepository anagStationRepository;
 
     private final InstanceRepository instanceRepository;
 
@@ -35,14 +40,12 @@ public class KpiA2DetailResultServiceImpl implements KpiA2DetailResultService {
     private final QueryBuilder queryBuilder;
 
     public KpiA2DetailResultServiceImpl(
-        AnagStationRepository anagStationRepository,
         InstanceRepository instanceRepository,
         InstanceModuleRepository instanceModuleRepository,
         KpiA2DetailResultRepository kpiA2DetailResultRepository,
         KpiA2ResultRepository kpiA2ResultRepository,
         QueryBuilder queryBuilder
     ) {
-        this.anagStationRepository = anagStationRepository;
         this.instanceRepository = instanceRepository;
         this.instanceModuleRepository = instanceModuleRepository;
         this.kpiA2DetailResultRepository = kpiA2DetailResultRepository;
@@ -91,12 +94,26 @@ public class KpiA2DetailResultServiceImpl implements KpiA2DetailResultService {
         kpiA2DetailResult.setEvaluationStartDate(kpiA2DetailResultDTO.getEvaluationStartDate());
         kpiA2DetailResult.setEvaluationEndDate(kpiA2DetailResultDTO.getEvaluationEndDate());
         kpiA2DetailResult.setTotPayments(kpiA2DetailResultDTO.getTotPayments());
-        kpiA2DetailResult.setTotIncorrectPayments(kpiA2DetailResult.getTotIncorrectPayments());
+        kpiA2DetailResult.setTotIncorrectPayments(kpiA2DetailResultDTO.getTotIncorrectPayments());
         kpiA2DetailResult.setErrorPercentage(kpiA2DetailResultDTO.getErrorPercentage());
         kpiA2DetailResult.setOutcome(kpiA2DetailResultDTO.getOutcome());
         kpiA2DetailResult.setKpiA2Result(kpiA2Result);
 
         return kpiA2DetailResult;
+    }
+
+    @Override
+    public int deleteAllByInstanceModule(long instanceModuleId) {
+        return kpiA2DetailResultRepository.deleteAllByInstanceModuleId(instanceModuleId);
+    }
+
+    @Override
+    public List<KpiA2DetailResultDTO> findByInstanceModuleId(long instanceModuleId) {
+        return kpiA2DetailResultRepository
+            .selectByInstanceModuleId(instanceModuleId)
+            .stream()
+            .map(KpiA2DetailResultServiceImpl::getKpiA2DetailResultDTO)
+            .collect(Collectors.toList());
     }
 
     private static @NotNull KpiA2DetailResultDTO getKpiA2DetailResultDTO(KpiA2DetailResult kpiA2DetailResult) {
@@ -117,19 +134,5 @@ public class KpiA2DetailResultServiceImpl implements KpiA2DetailResultService {
             kpiA2DetailResult.getKpiA2Result() != null ? kpiA2DetailResult.getKpiA2Result().getId() : null
         );
         return kpiA2DetailResultDTO;
-    }
-
-    @Override
-    public int deleteAllByInstanceModule(long instanceModuleId) {
-        return kpiA2DetailResultRepository.deleteAllByInstanceModuleId(instanceModuleId);
-    }
-
-    @Override
-    public List<KpiA2DetailResultDTO> findByInstanceModuleId(long instanceModuleId) {
-        return kpiA2DetailResultRepository
-            .selectByInstanceModuleId(instanceModuleId)
-            .stream()
-            .map(KpiA2DetailResultServiceImpl::getKpiA2DetailResultDTO)
-            .collect(Collectors.toList());
     }
 }

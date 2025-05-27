@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 /**
  * Spring Data repository for the KpiB2DetailResult entity.
  */
+
 @Repository
 public interface KpiB2DetailResultRepository extends JpaRepository<KpiB2DetailResult, Long>, JpaSpecificationExecutor<KpiB2DetailResult> {
     @Modifying

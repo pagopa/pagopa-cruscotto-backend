@@ -43,8 +43,8 @@ public class KpiB2Result implements Serializable {
 
     @Id
     @Column(name = "CO_ID")
-    @SequenceGenerator(name = "SQDASH_KPIB2RES01", sequenceName = "SQDASH_KPIB2RES01", allocationSize = 1)
-    @GeneratedValue(generator = "SQDASH_KPIB2RES01", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "SQCRUSC8_KPIB2RESU", sequenceName = "SQCRUSC8_KPIB2RESU", allocationSize = 1)
+    @GeneratedValue(generator = "SQCRUSC8_KPIB2RESU", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @JsonIgnore
@@ -76,8 +76,8 @@ public class KpiB2Result implements Serializable {
     private Double eligibilityThreshold;
 
     @NotNull
-    @Column(name = "CO_TOLLERANCE", nullable = false)
-    private Double tollerance;
+    @Column(name = "CO_TOLERANCE", nullable = false)
+    private Double tolerance;
 
     @NotNull
     @Column(name = "CO_AVERAGE_TIME_LIMIT", nullable = false)
@@ -125,8 +125,8 @@ public class KpiB2Result implements Serializable {
             excludeUnplannedShutdown +
             ", eligibilityThreshold=" +
             eligibilityThreshold +
-            ", tollerance=" +
-            tollerance +
+            ", tolerance=" +
+            tolerance +
             ", averageTimeLimit=" +
             averageTimeLimit +
             ", evaluationType=" +

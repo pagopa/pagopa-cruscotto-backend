@@ -1,0 +1,14 @@
+package com.nexigroup.pagopa.cruscotto.service;
+
+import com.nexigroup.pagopa.cruscotto.domain.PagoPaTaxonomyAggregatePosition;
+import com.nexigroup.pagopa.cruscotto.service.dto.PagoPaTaxonomyAggregatePositionDTO;
+import java.time.LocalDate;
+import java.util.List;
+
+/**
+ * Service Interface for managing {@link PagoPaTaxonomyAggregatePosition}.
+ */
+
+public interface PagoPaTaxonomyAggregatePositionService {
+    List<PagoPaTaxonomyAggregatePositionDTO> findAllRecordIntoDayForPartner(String fiscalCodePartner, LocalDate day);
+}

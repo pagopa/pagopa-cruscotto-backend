@@ -18,8 +18,8 @@ public class AuthUserHistory implements Serializable {
 
     @Id
     @Column(name = "CO_ID")
-    @SequenceGenerator(name = "SQDASH_USHI08", sequenceName = "SQDASH_USHI08", allocationSize = 1)
-    @GeneratedValue(generator = "SQDASH_USHI08", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "SQCRUSC8_AUTHUSERHIST", sequenceName = "SQCRUSC8_AUTHUSERHIST", allocationSize = 1)
+    @GeneratedValue(generator = "SQCRUSC8_AUTHUSERHIST", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @JsonIgnore

@@ -24,8 +24,8 @@ public class AnagPlannedShutdown extends AbstractAuditingEntity<Long> implements
 
     @Id
     @Column(name = "CO_ID")
-    @SequenceGenerator(name = "SQDASH_PLSH01", sequenceName = "SQDASH_PLSH01", allocationSize = 1)
-    @GeneratedValue(generator = "SQDASH_PLSH01", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "SQCRUSC8_ANAGPLANSHUT", sequenceName = "SQCRUSC8_ANAGPLANSHUT", allocationSize = 1)
+    @GeneratedValue(generator = "SQCRUSC8_ANAGPLANSHUT", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @NotNull
@@ -64,8 +64,6 @@ public class AnagPlannedShutdown extends AbstractAuditingEntity<Long> implements
     @JoinColumn(name = "CO_ANAG_STATION_ID", nullable = false)
     private AnagStation anagStation;
 
-
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -84,19 +82,34 @@ public class AnagPlannedShutdown extends AbstractAuditingEntity<Long> implements
 
     @Override
     public String toString() {
-        return "AnagPlannedShutdown{" +
-            "id=" + id +
-            ", typePlanned=" + typePlanned +
-            ", standInd=" + standInd +
-            ", shutdownStartDate=" + shutdownStartDate +
-            ", shutdownEndDate=" + shutdownEndDate +
-            ", year=" + year +
-            ", externalId=" + externalId +
-            ", anagPartner=" + anagPartner +
-            ", anagStation=" + anagStation +
-            ", createdBy='" + getCreatedBy() +
-            ", createdDate=" + getCreatedDate() +
-            ", lastModifiedBy='" + getLastModifiedBy() +
-            ", lastModifiedDate=" + getLastModifiedDate();
+        return (
+            "AnagPlannedShutdown{" +
+            "id=" +
+            id +
+            ", typePlanned=" +
+            typePlanned +
+            ", standInd=" +
+            standInd +
+            ", shutdownStartDate=" +
+            shutdownStartDate +
+            ", shutdownEndDate=" +
+            shutdownEndDate +
+            ", year=" +
+            year +
+            ", externalId=" +
+            externalId +
+            ", anagPartner=" +
+            anagPartner +
+            ", anagStation=" +
+            anagStation +
+            ", createdBy='" +
+            getCreatedBy() +
+            ", createdDate=" +
+            getCreatedDate() +
+            ", lastModifiedBy='" +
+            getLastModifiedBy() +
+            ", lastModifiedDate=" +
+            getLastModifiedDate()
+        );
     }
 }

@@ -27,8 +27,8 @@ public class AnagPartner extends AbstractAuditingEntity<Long> implements Seriali
 
     @Id
     @Column(name = "CO_ID")
-    @SequenceGenerator(name = "SQDASH_PART01", sequenceName = "SQDASH_PART01")
-    @GeneratedValue(generator = "SQDASH_PART01", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "SQCRUSC8_ANAGPARTN", sequenceName = "SQCRUSC8_ANAGPARTN")
+    @GeneratedValue(generator = "SQCRUSC8_ANAGPARTN", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @NotNull

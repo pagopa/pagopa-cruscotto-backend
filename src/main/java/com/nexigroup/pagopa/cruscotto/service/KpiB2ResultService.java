@@ -8,6 +8,7 @@ import java.util.List;
 /**
  * Service Interface for managing {@link KpiB2Result}.
  */
+
 public interface KpiB2ResultService {
     KpiB2ResultDTO save(KpiB2ResultDTO kpiB2ResultDTO);
 

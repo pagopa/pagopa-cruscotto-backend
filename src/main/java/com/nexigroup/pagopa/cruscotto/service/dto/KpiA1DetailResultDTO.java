@@ -1,22 +1,19 @@
 package com.nexigroup.pagopa.cruscotto.service.dto;
 
 import com.nexigroup.pagopa.cruscotto.domain.KpiA1DetailResult;
-import com.nexigroup.pagopa.cruscotto.domain.KpiB2DetailResult;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.service.validation.ValidationGroups;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.io.Serializable;
-import java.time.LocalDate;
 import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
 
 /**
- * A DTO for the {@link KpiB2DetailResult} entity.
  * A DTO for the {@link KpiA1DetailResult} entity.
  */
+
 @Getter
 @Setter
 public class KpiA1DetailResultDTO implements Serializable {
@@ -66,8 +63,7 @@ public class KpiA1DetailResultDTO implements Serializable {
     @Override
     public String toString() {
         return (
-            "KpiA1DetailResultDTO{" +
-            "id=" +
+            "KpiA1DetailResultDTO [id=" +
             id +
             ", instanceId=" +
             instanceId +
@@ -77,9 +73,8 @@ public class KpiA1DetailResultDTO implements Serializable {
             analysisDate +
             ", stationId=" +
             stationId +
-            ", method='" +
+            ", method=" +
             method +
-            '\'' +
             ", evaluationType=" +
             evaluationType +
             ", evaluationStartDate=" +
@@ -96,7 +91,7 @@ public class KpiA1DetailResultDTO implements Serializable {
             outcome +
             ", kpiA1ResultId=" +
             kpiA1ResultId +
-            '}'
+            "]"
         );
     }
 }

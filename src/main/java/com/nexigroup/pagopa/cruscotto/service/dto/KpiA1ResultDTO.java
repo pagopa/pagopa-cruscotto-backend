@@ -1,7 +1,5 @@
 package com.nexigroup.pagopa.cruscotto.service.dto;
 
-import com.nexigroup.pagopa.cruscotto.domain.Instance;
-import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
 import com.nexigroup.pagopa.cruscotto.domain.KpiA1Result;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
@@ -15,6 +13,7 @@ import lombok.Setter;
 /**
  * A DTO for the {@link KpiA1Result} entity.
  */
+
 @Getter
 @Setter
 public class KpiA1ResultDTO implements Serializable {
@@ -24,13 +23,7 @@ public class KpiA1ResultDTO implements Serializable {
     private Long id;
 
     @NotNull(groups = { ValidationGroups.KpiA1Job.class })
-    private Instance instance;
-
-    @NotNull(groups = { ValidationGroups.KpiA1Job.class })
     private Long instanceId;
-
-    @NotNull(groups = { ValidationGroups.KpiA1Job.class })
-    private InstanceModule instanceModule;
 
     @NotNull(groups = { ValidationGroups.KpiA1Job.class })
     private Long instanceModuleId;
@@ -48,7 +41,7 @@ public class KpiA1ResultDTO implements Serializable {
     private Double eligibilityThreshold;
 
     @NotNull(groups = { ValidationGroups.KpiA1Job.class })
-    private Double tollerance;
+    private Double tolerance;
 
     @NotNull(groups = { ValidationGroups.KpiA1Job.class })
     private EvaluationType evaluationType;
@@ -59,13 +52,12 @@ public class KpiA1ResultDTO implements Serializable {
     @Override
     public String toString() {
         return (
-            "KpiA1ResultDTO{" +
-            "id=" +
+            "KpiA1ResultDTO [id=" +
             id +
-            ", instance=" +
-            instance +
-            ", instanceModule=" +
-            instanceModule +
+            ", instanceId=" +
+            instanceId +
+            ", instanceModuleId=" +
+            instanceModuleId +
             ", analysisDate=" +
             analysisDate +
             ", excludePlannedShutdown=" +
@@ -74,13 +66,13 @@ public class KpiA1ResultDTO implements Serializable {
             excludeUnplannedShutdown +
             ", eligibilityThreshold=" +
             eligibilityThreshold +
-            ", tollerance=" +
-            tollerance +
+            ", tolerance=" +
+            tolerance +
             ", evaluationType=" +
             evaluationType +
             ", outcome=" +
             outcome +
-            '}'
+            "]"
         );
     }
 }

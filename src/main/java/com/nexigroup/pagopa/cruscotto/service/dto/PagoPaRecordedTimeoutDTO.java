@@ -10,6 +10,7 @@ import lombok.Setter;
 /**
  * A DTO for the {@link PagoPaRecordedTimeout} entity.
  */
+
 @Getter
 @Setter
 @EqualsAndHashCode

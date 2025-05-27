@@ -159,6 +159,7 @@ application:
       limit: 20
   liquibase:
     async-start: false
+    dbVersion: 1.0.0
 
 decorator:
   datasource:

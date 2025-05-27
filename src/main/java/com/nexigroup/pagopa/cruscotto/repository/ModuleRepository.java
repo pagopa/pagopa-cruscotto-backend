@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 /**
  * Spring Data repository for the Module entity.
  */
+
 @Repository
 public interface ModuleRepository extends JpaRepository<Module, Long>, JpaSpecificationExecutor<Module> {
     @Query("SELECT module FROM Module module WHERE module.status =:status ORDER BY module.code")
