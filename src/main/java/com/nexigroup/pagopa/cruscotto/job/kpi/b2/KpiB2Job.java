@@ -141,7 +141,7 @@ public class KpiB2Job extends QuartzJobBean {
                         kpiB2ResultDTO.setExcludePlannedShutdown(kpiConfigurationDTO.getExcludePlannedShutdown());
                         kpiB2ResultDTO.setExcludeUnplannedShutdown(kpiConfigurationDTO.getExcludeUnplannedShutdown());
                         kpiB2ResultDTO.setEligibilityThreshold(kpiConfigurationDTO.getEligibilityThreshold());
-                        kpiB2ResultDTO.setTollerance(kpiConfigurationDTO.getTollerance());
+                        kpiB2ResultDTO.setTolerance(kpiConfigurationDTO.getTolerance());
                         kpiB2ResultDTO.setAverageTimeLimit(kpiConfigurationDTO.getAverageTimeLimit());
                         kpiB2ResultDTO.setEvaluationType(kpiConfigurationDTO.getEvaluationType());
                         kpiB2ResultDTO.setOutcome(!stations.isEmpty() ? OutcomeStatus.STANDBY : OutcomeStatus.OK);
@@ -338,7 +338,7 @@ public class KpiB2Job extends QuartzJobBean {
                                                 //   if (kpiConfigurationDTO.getEvaluationType().compareTo(EvaluationType.MESE) == 0) {
                                                 if (
                                                     totMonthOverTimeLimit.get() >
-                                                    (kpiConfigurationDTO.getEligibilityThreshold() + kpiConfigurationDTO.getTollerance())
+                                                    (kpiConfigurationDTO.getEligibilityThreshold() + kpiConfigurationDTO.getTolerance())
                                                 ) {
                                                     outcomeStatus = OutcomeStatus.KO;
                                                 }
@@ -399,7 +399,7 @@ public class KpiB2Job extends QuartzJobBean {
                                     //  if (kpiConfigurationDTO.getEvaluationType().compareTo(EvaluationType.TOTALE) == 0) {
                                     if (
                                         totPeriodOverTimeLimit.get() >
-                                        (kpiConfigurationDTO.getEligibilityThreshold() + kpiConfigurationDTO.getTollerance())
+                                        (kpiConfigurationDTO.getEligibilityThreshold() + kpiConfigurationDTO.getTolerance())
                                     ) {
                                         outcomeStatus = OutcomeStatus.KO;
                                     }

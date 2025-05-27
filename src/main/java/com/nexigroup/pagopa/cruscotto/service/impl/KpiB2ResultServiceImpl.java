@@ -81,7 +81,7 @@ public class KpiB2ResultServiceImpl implements KpiB2ResultService {
         kpiB2Result.setExcludePlannedShutdown(kpiB2ResultDTO.getExcludePlannedShutdown());
         kpiB2Result.setExcludeUnplannedShutdown(kpiB2ResultDTO.getExcludeUnplannedShutdown());
         kpiB2Result.setEligibilityThreshold(kpiB2ResultDTO.getEligibilityThreshold());
-        kpiB2Result.setTollerance(kpiB2ResultDTO.getTollerance());
+        kpiB2Result.setTolerance(kpiB2ResultDTO.getTolerance());
         kpiB2Result.setAverageTimeLimit(kpiB2ResultDTO.getAverageTimeLimit());
         kpiB2Result.setEvaluationType(kpiB2ResultDTO.getEvaluationType());
         kpiB2Result.setOutcome(kpiB2ResultDTO.getOutcome());
@@ -97,7 +97,7 @@ public class KpiB2ResultServiceImpl implements KpiB2ResultService {
         kpiB2ResultDTO.setExcludePlannedShutdown(kpiB2Result.getExcludePlannedShutdown());
         kpiB2ResultDTO.setExcludeUnplannedShutdown(kpiB2Result.getExcludeUnplannedShutdown());
         kpiB2ResultDTO.setEligibilityThreshold(kpiB2Result.getEligibilityThreshold());
-        kpiB2ResultDTO.setTollerance(kpiB2Result.getTollerance());
+        kpiB2ResultDTO.setTolerance(kpiB2Result.getTolerance());
         kpiB2ResultDTO.setEvaluationType(kpiB2Result.getEvaluationType());
         kpiB2ResultDTO.setOutcome(kpiB2Result.getOutcome());
         return kpiB2ResultDTO;

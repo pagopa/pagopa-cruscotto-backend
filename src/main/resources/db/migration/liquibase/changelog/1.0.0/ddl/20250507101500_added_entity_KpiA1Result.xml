@@ -34,7 +34,7 @@
       <column name="CO_ELIGIBILITY_THRESHOLD" type="double">
         <constraints nullable="false"/>
       </column>
-      <column name="CO_TOLLERANCE" type="double">
+      <column name="CO_TOLERANCE" type="double">
         <constraints nullable="false"/>
       </column>
       <column name="TE_EVALUATION_TYPE" type="varchar(50)">

@@ -43,7 +43,7 @@ class AuthUserServiceIT {
     @Autowired
     private CacheManager cacheManager;
 
-    private static final String DEFAULT_IMAGEURL = "http://placehold.it/50x50";
+    private static final String DEFAULT_IMAGEURL = "https://placehold.it/50x50";
 
     private static final String DEFAULT_LANGKEY = "dummy";
 

@@ -132,7 +132,7 @@ public class KpiA2Job extends QuartzJobBean {
                             kpiA2ResultDTO.setInstanceId(instanceDTO.getId());
                             kpiA2ResultDTO.setInstanceModuleId(instanceModuleDTO.getId());
                             kpiA2ResultDTO.setAnalysisDate(LocalDate.now());
-                            kpiA2ResultDTO.setTollerance(kpiConfigurationDTO.getTollerance());
+                            kpiA2ResultDTO.setTolerance(kpiConfigurationDTO.getTolerance());
                             kpiA2ResultDTO.setOutcome(OutcomeStatus.STANDBY);
 
                             kpiA2ResultDTO = kpiA2ResultService.save(kpiA2ResultDTO);
@@ -204,7 +204,7 @@ public class KpiA2Job extends QuartzJobBean {
 
                             OutcomeStatus outcomeStatus = OutcomeStatus.OK;
 
-                            if (errorPercentagePeriod > kpiConfigurationDTO.getTollerance()) {
+                            if (errorPercentagePeriod > kpiConfigurationDTO.getTolerance()) {
                                 outcomeStatus = OutcomeStatus.KO;
                             }
 

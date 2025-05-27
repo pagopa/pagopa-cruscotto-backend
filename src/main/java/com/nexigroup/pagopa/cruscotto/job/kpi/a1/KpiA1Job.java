@@ -141,7 +141,7 @@ public class KpiA1Job extends QuartzJobBean {
                         kpiA1ResultDTO.setExcludePlannedShutdown(kpiConfigurationDTO.getExcludePlannedShutdown());
                         kpiA1ResultDTO.setExcludeUnplannedShutdown(kpiConfigurationDTO.getExcludeUnplannedShutdown());
                         kpiA1ResultDTO.setEligibilityThreshold(kpiConfigurationDTO.getEligibilityThreshold());
-                        kpiA1ResultDTO.setTollerance(kpiConfigurationDTO.getTollerance());
+                        kpiA1ResultDTO.setTolerance(kpiConfigurationDTO.getTolerance());
                         kpiA1ResultDTO.setEvaluationType(kpiConfigurationDTO.getEvaluationType());
                         kpiA1ResultDTO.setOutcome(!stations.isEmpty() ? OutcomeStatus.STANDBY : OutcomeStatus.OK);
 
@@ -295,7 +295,7 @@ public class KpiA1Job extends QuartzJobBean {
 
                                                 if (
                                                     percTimeoutReqMonth >
-                                                    (kpiConfigurationDTO.getEligibilityThreshold() + kpiConfigurationDTO.getTollerance())
+                                                    (kpiConfigurationDTO.getEligibilityThreshold() + kpiConfigurationDTO.getTolerance())
                                                 ) {
                                                     outcomeStatus = OutcomeStatus.KO;
                                                 }
@@ -348,7 +348,7 @@ public class KpiA1Job extends QuartzJobBean {
 
                                     if (
                                         percTimeoutReqPeriod >
-                                        (kpiConfigurationDTO.getEligibilityThreshold() + kpiConfigurationDTO.getTollerance())
+                                        (kpiConfigurationDTO.getEligibilityThreshold() + kpiConfigurationDTO.getTolerance())
                                     ) {
                                         outcomeStatus = OutcomeStatus.KO;
                                     }
