@@ -476,7 +476,7 @@ public class InstanceServiceImpl implements InstanceService {
 
         jpql
             .set(QInstance.instance.status, InstanceStatus.IN_ESECUZIONE)
-            .where(QInstance.instance.id.eq(id).and(QInstance.instance.status.ne(InstanceStatus.PIANIFICATA)))
+            .where(QInstance.instance.id.eq(id).and(QInstance.instance.status.eq(InstanceStatus.PIANIFICATA)))
             .execute();
     }
 }

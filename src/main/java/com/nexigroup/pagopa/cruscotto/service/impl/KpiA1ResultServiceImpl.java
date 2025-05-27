@@ -87,7 +87,7 @@ public class KpiA1ResultServiceImpl implements KpiA1ResultService {
         kpiA1Result.setExcludePlannedShutdown(kpiA1ResultDTO.getExcludePlannedShutdown());
         kpiA1Result.setExcludeUnplannedShutdown(kpiA1ResultDTO.getExcludeUnplannedShutdown());
         kpiA1Result.setEligibilityThreshold(kpiA1ResultDTO.getEligibilityThreshold());
-        kpiA1Result.setTollerance(kpiA1ResultDTO.getTollerance());
+        kpiA1Result.setTolerance(kpiA1ResultDTO.getTolerance());
         kpiA1Result.setEvaluationType(kpiA1ResultDTO.getEvaluationType());
         kpiA1Result.setOutcome(kpiA1ResultDTO.getOutcome());
 
@@ -102,7 +102,7 @@ public class KpiA1ResultServiceImpl implements KpiA1ResultService {
         kpiA1ResultDTO.setExcludePlannedShutdown(kpiA1Result.getExcludePlannedShutdown());
         kpiA1ResultDTO.setExcludeUnplannedShutdown(kpiA1Result.getExcludeUnplannedShutdown());
         kpiA1ResultDTO.setEligibilityThreshold(kpiA1Result.getEligibilityThreshold());
-        kpiA1ResultDTO.setTollerance(kpiA1Result.getTollerance());
+        kpiA1ResultDTO.setTolerance(kpiA1Result.getTolerance());
         kpiA1ResultDTO.setEvaluationType(kpiA1Result.getEvaluationType());
         kpiA1ResultDTO.setOutcome(kpiA1Result.getOutcome());
         return kpiA1ResultDTO;

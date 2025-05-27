@@ -48,8 +48,8 @@ public class KpiConfiguration implements Serializable {
     @Column(name = "CO_ELIGIBILITY_THRESHOLD")
     private Double eligibilityThreshold;
 
-    @Column(name = "CO_TOLLERANCE")
-    private Double tollerance;
+    @Column(name = "CO_TOLERANCE")
+    private Double tolerance;
 
     @Column(name = "CO_AVERAGE_TIME_LIMIT")
     private Double averageTimeLimit;
@@ -83,8 +83,8 @@ public class KpiConfiguration implements Serializable {
             excludeUnplannedShutdown +
             ", eligibilityThreshold=" +
             eligibilityThreshold +
-            ", tollerance=" +
-            tollerance +
+            ", tolerance=" +
+            tolerance +
             ", averageTimeLimit=" +
             averageTimeLimit +
             ", evaluationType=" +
