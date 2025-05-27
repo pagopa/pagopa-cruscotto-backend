@@ -5,6 +5,7 @@ import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.service.validation.ValidationGroups;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
 import lombok.Getter;
@@ -18,6 +19,7 @@ import lombok.Setter;
 @Setter
 public class KpiB2DetailResultDTO implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 5141899331669875400L;
 
     private Long id;
@@ -59,6 +61,8 @@ public class KpiB2DetailResultDTO implements Serializable {
     private OutcomeStatus outcome;
 
     private Long kpiB2ResultId;
+
+    private String stationName;
 
     @Override
     public String toString() {
