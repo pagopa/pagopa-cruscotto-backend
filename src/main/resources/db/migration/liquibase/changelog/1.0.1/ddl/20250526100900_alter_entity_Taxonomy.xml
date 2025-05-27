@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+
+  <changeSet id="20250526100900-1" author="system" context="ddl">
+    <addColumn tableName="TAXONOMY">
+      <column name="TE_INSTITUTION_TYPE_CODE" type="varchar(10)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="TE_INSTITUTION_TYPE" type="varchar(255)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="TE_AREA_PROGRESSIVE_CODE" type="varchar(10)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="TE_AREA_NAME" type="varchar(100)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="TE_AREA_DESCRIPTION" type="varchar(500)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="TE_SERVICE_TYPE_CODE" type="varchar(10)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="TE_SERVICE_TYPE" type="varchar(100)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="TE_SERVICE_TYPE_DESCRIPTION" type="varchar(1000)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="TE_VERSION" type="varchar(10)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="TE_REASON_COLLECTION" type="varchar(10)">
+        <constraints nullable="true"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+</databaseChangeLog>

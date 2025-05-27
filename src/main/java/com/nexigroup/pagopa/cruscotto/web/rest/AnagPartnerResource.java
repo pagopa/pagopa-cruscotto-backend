@@ -5,6 +5,7 @@ import com.nexigroup.pagopa.cruscotto.service.AnagPartnerService;
 import com.nexigroup.pagopa.cruscotto.service.dto.AnagPartnerDTO;
 import io.swagger.v3.oas.annotations.Parameter;
 import java.util.List;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springdoc.core.annotations.ParameterObject;
@@ -15,6 +16,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.PaginationUtil;
@@ -48,10 +50,11 @@ public class AnagPartnerResource {
     @GetMapping("/partners")
     //    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_LIST_FUNCTION + "\")")
     public ResponseEntity<List<AnagPartnerDTO>> getAllPartners(
+        @RequestParam("name") Optional<String> nameFilter,
         @Parameter(description = "Pageable", required = true) @ParameterObject Pageable pageable
     ) {
         log.debug("REST request to get Partners");
-        Page<AnagPartnerDTO> page = anagPartnerService.findAll(pageable);
+        Page<AnagPartnerDTO> page = anagPartnerService.findAll(nameFilter.orElse(null), pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }

@@ -25,7 +25,7 @@
       <column name="DT_ANALISYS_DATE" type="date">
         <constraints nullable="false"/>
       </column>
-      <column name="CO_TOLLERANCE" type="double">
+      <column name="CO_TOLERANCE" type="double">
         <constraints nullable="false"/>
       </column>
       <column name="TE_OUTCOME" type="varchar(10)">
