@@ -61,7 +61,8 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
 
     private final UserUtils userUtils;
 
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+    static final DateTimeFormatter formatterDateTime = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+    static final DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public AnagPlannedShutdownServiceImpl(
         AnagPlannedShutdownRepository anagPlannedShutdownRepository,
@@ -94,6 +95,41 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
 
         if (StringUtils.isNotBlank(filter.getPartnerId())) {
             builder.and(QAnagPlannedShutdown.anagPlannedShutdown.anagPartner.id.eq(Long.valueOf(filter.getPartnerId())));
+        }
+
+        if (StringUtils.isNotBlank(filter.getTypePlanned())) {
+            builder.and(QAnagPlannedShutdown.anagPlannedShutdown.typePlanned.eq(TypePlanned.valueOf(filter.getTypePlanned())));
+        }
+
+        if (StringUtils.isNotBlank(filter.getYear())) {
+            builder.and(QAnagPlannedShutdown.anagPlannedShutdown.year.eq(Long.valueOf(filter.getYear())));
+        }
+
+        if (StringUtils.isNotBlank(filter.getShutdownStartDate()) || StringUtils.isNotBlank(filter.getShutdownEndDate())) {
+            LocalDateTime startDateTime = StringUtils.isNotBlank(filter.getShutdownStartDate())
+                ? LocalDate.parse(filter.getShutdownStartDate(), formatterDate).atStartOfDay()
+                : LocalDate.of(Long.valueOf(filter.getYear()).intValue(), 1, 1).atStartOfDay();
+
+            LocalDateTime endDateTime = LocalDate.parse(
+                StringUtils.isNotBlank(filter.getShutdownEndDate())
+                    ? filter.getShutdownEndDate()
+                    : LocalDate.of(Long.valueOf(filter.getYear()).intValue(), 12, 31).format(formatterDate),
+                formatterDate
+            ).atTime(23, 59, 59, 0);
+
+            builder.and(
+                QAnagPlannedShutdown.anagPlannedShutdown.shutdownStartDate
+                    .between(
+                        startDateTime.atZone(ZoneOffset.systemDefault()).toInstant(),
+                        endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()
+                    )
+                    .or(
+                        QAnagPlannedShutdown.anagPlannedShutdown.shutdownEndDate.between(
+                            startDateTime.atZone(ZoneOffset.systemDefault()).toInstant(),
+                            endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()
+                        )
+                    )
+            );
         }
 
         JPQLQuery<AnagPlannedShutdown> jpql = queryBuilder
@@ -190,10 +226,10 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
         shutdown.setTypePlanned(TypePlanned.NON_PROGRAMMATO);
         shutdown.setAnagPartner(partner);
         shutdown.setAnagStation(station);
-        LocalDateTime startDateTime = LocalDateTime.parse(shutdownToCreate.getShutdownStartDate(), formatter);
+        LocalDateTime startDateTime = LocalDateTime.parse(shutdownToCreate.getShutdownStartDate(), formatterDateTime);
         Instant startInstant = startDateTime.atZone(zoneId).toInstant();
         shutdown.setShutdownStartDate(startInstant);
-        LocalDateTime endDateTime = LocalDateTime.parse(shutdownToCreate.getShutdownEndDate(), formatter);
+        LocalDateTime endDateTime = LocalDateTime.parse(shutdownToCreate.getShutdownEndDate(), formatterDateTime);
         Instant endInstant = endDateTime.atZone(zoneId).toInstant();
         shutdown.setShutdownEndDate(endInstant);
         shutdown.setStandInd(true);
@@ -359,10 +395,10 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
                         )
                     );
                 shutdown.setAnagStation(station);
-                LocalDateTime startDateTime = LocalDateTime.parse(shutdownToUpdate.getShutdownStartDate(), formatter);
+                LocalDateTime startDateTime = LocalDateTime.parse(shutdownToUpdate.getShutdownStartDate(), formatterDateTime);
                 Instant startInstant = startDateTime.atZone(zoneId).toInstant();
                 shutdown.setShutdownStartDate(startInstant);
-                LocalDateTime endDateTime = LocalDateTime.parse(shutdownToUpdate.getShutdownEndDate(), formatter);
+                LocalDateTime endDateTime = LocalDateTime.parse(shutdownToUpdate.getShutdownEndDate(), formatterDateTime);
                 Instant endInstant = endDateTime.atZone(zoneId).toInstant();
                 shutdown.setShutdownEndDate(endInstant);
                 shutdown.setShutdownEndDate(endInstant);
