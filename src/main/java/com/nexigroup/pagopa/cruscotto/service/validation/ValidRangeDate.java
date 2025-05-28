@@ -1,19 +1,17 @@
 package com.nexigroup.pagopa.cruscotto.service.validation;
 
+import jakarta.validation.Constraint;
+import jakarta.validation.Payload;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import jakarta.validation.Constraint;
-import jakarta.validation.Payload;
-
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.ANNOTATION_TYPE, ElementType.TYPE })
 @Constraint(validatedBy = RangeDateValidator.class)
 public @interface ValidRangeDate {
-	
-    String message() default "{com.nexigroup.pagopa.cruscotto.service.validation.constraints.RangeDateNotValid.message}";
+    String message() default "{com.nexigroup.pagopa.cruscotto.service.validation.constraints.RangeDate.message}";
 
     String minDate();
 
@@ -22,7 +20,7 @@ public @interface ValidRangeDate {
     String field();
 
     String pattern() default "dd-MM-yyyy";
-    
+
     boolean equalsIsValid() default true;
 
     Class<?>[] groups() default {};
