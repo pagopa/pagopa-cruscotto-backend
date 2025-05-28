@@ -16,6 +16,10 @@ logging:
     com.nexigroup.pagopa.cruscotto: INFO
 
 spring:
+  profiles:
+    group:
+      devpagopa:
+        - api-docs
   jackson:
     serialization:
       indent-output: true
