@@ -1,16 +1,16 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
-import com.nexigroup.pagopa.cruscotto.domain.Instance;
-import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
-import com.nexigroup.pagopa.cruscotto.domain.KpiA2AnalyticData;
-import com.nexigroup.pagopa.cruscotto.domain.KpiA2DetailResult;
+import com.nexigroup.pagopa.cruscotto.domain.*;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceModuleRepository;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
 import com.nexigroup.pagopa.cruscotto.repository.KpiA2AnalyticDataRepository;
 import com.nexigroup.pagopa.cruscotto.repository.KpiA2DetailResultRepository;
 import com.nexigroup.pagopa.cruscotto.service.KpiA2AnalyticDataService;
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiA1AnalyticDataDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA2AnalyticDataDTO;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
+import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.JPQLQuery;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
@@ -103,28 +103,27 @@ public class KpiA2AnalyticDataServiceImpl implements KpiA2AnalyticDataService {
     }
 
     @Override
-    public List<KpiA2AnalyticDataDTO> findByInstanceModuleId(long instanceModuleId) {
-        return kpiA2AnalyticDataRepository
-            .selectByInstanceModuleId(instanceModuleId)
-            .stream()
-            .map(KpiA2AnalyticDataServiceImpl::getkpiA2AnalyticDataDTO)
-            .collect(Collectors.toList());
-    }
+    public List<KpiA2AnalyticDataDTO> findByDetailResultId(long detailResultId) {
+        final QKpiA2AnalyticData qKpiA2AnalyticData = QKpiA2AnalyticData.kpiA2AnalyticData;
 
-    private static @NotNull KpiA2AnalyticDataDTO getkpiA2AnalyticDataDTO(KpiA2AnalyticData kpiA2AnalyticData) {
-        KpiA2AnalyticDataDTO kpiA2AnalyticDataDTO = new KpiA2AnalyticDataDTO();
-        kpiA2AnalyticDataDTO.setId(kpiA2AnalyticData.getId());
-        kpiA2AnalyticDataDTO.setInstanceId(kpiA2AnalyticData.getInstance() != null ? kpiA2AnalyticData.getInstance().getId() : null);
-        kpiA2AnalyticDataDTO.setInstanceModuleId(
-            kpiA2AnalyticData.getInstanceModule() != null ? kpiA2AnalyticData.getInstanceModule().getId() : null
-        );
-        kpiA2AnalyticDataDTO.setAnalysisDate(kpiA2AnalyticData.getAnalysisDate());
-        kpiA2AnalyticDataDTO.setEvaluationDate(kpiA2AnalyticData.getEvaluationDate());
-        kpiA2AnalyticDataDTO.setTotPayments(kpiA2AnalyticData.getTotPayments());
-        kpiA2AnalyticDataDTO.setTotIncorrectPayments(kpiA2AnalyticData.getTotIncorrectPayments());
-        kpiA2AnalyticDataDTO.setKpiA2DetailResultId(
-            kpiA2AnalyticData.getKpiA2DetailResult() != null ? kpiA2AnalyticData.getKpiA2DetailResult().getId() : null
-        );
-        return kpiA2AnalyticDataDTO;
+        JPQLQuery<KpiA2AnalyticDataDTO> query = queryBuilder
+            .createQuery()
+            .from(qKpiA2AnalyticData)
+            .where(qKpiA2AnalyticData.kpiA2DetailResult.id.eq(detailResultId))
+            .select(
+                Projections.fields(
+                    KpiA2AnalyticDataDTO.class,
+                    qKpiA2AnalyticData.id.as("id"),
+                    qKpiA2AnalyticData.instance.id.as("instanceId"),
+                    qKpiA2AnalyticData.instanceModule.id.as("instanceModuleId"),
+                    qKpiA2AnalyticData.analysisDate.as("analysisDate"),
+                    qKpiA2AnalyticData.evaluationDate.as("evaluationDate"),
+                    qKpiA2AnalyticData.totPayments.as("totPayments"),
+                    qKpiA2AnalyticData.totIncorrectPayments.as("totIncorrectPayments"),
+                    qKpiA2AnalyticData.kpiA2DetailResult.id.as("kpiA1DetailResultId")
+                )
+            );
+
+        return query.fetch();
     }
 }

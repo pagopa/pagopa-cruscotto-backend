@@ -13,8 +13,7 @@ import org.springframework.stereotype.Repository;
  */
 
 @Repository
-public interface KpiB2DetailResultRepository
-    extends JpaRepository<KpiB2DetailResult, Long>, JpaSpecificationExecutor<KpiB2DetailResult>, KpiB2DetailResultRepositoryCustom {
+public interface KpiB2DetailResultRepository extends JpaRepository<KpiB2DetailResult, Long>, JpaSpecificationExecutor<KpiB2DetailResult> {
     @Modifying
     @Query("DELETE KpiB2DetailResult kpiB2DetailResult WHERE kpiB2DetailResult.instanceModule.id = :instanceModuleId")
     int deleteAllByInstanceModuleId(@Param("instanceModuleId") Long instanceModuleId);

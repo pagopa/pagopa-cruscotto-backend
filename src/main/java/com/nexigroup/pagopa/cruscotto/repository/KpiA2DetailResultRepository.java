@@ -18,7 +18,4 @@ public interface KpiA2DetailResultRepository extends JpaRepository<KpiA2DetailRe
     @Modifying
     @Query("DELETE KpiA2DetailResult kpiA2DetailResult WHERE kpiA2DetailResult.instanceModule.id = :instanceModuleId")
     int deleteAllByInstanceModuleId(@Param("instanceModuleId") Long instanceModuleId);
-
-    @Query("SELECT a FROM KpiA2DetailResult a WHERE a.instanceModule.id = :instanceModuleId")
-    List<KpiA2DetailResult> selectByInstanceModuleId(@Param("instanceModuleId") Long instanceModuleId);
 }

@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 /**
  * A DTO for the {@link KpiB2DetailResult} entity.
@@ -17,6 +18,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
+@ToString
 public class KpiB2DetailResultDTO implements Serializable {
 
     @Serial
@@ -35,6 +37,8 @@ public class KpiB2DetailResultDTO implements Serializable {
 
     @NotNull(groups = { ValidationGroups.KpiB2Job.class })
     private Long stationId;
+
+    private String stationName;
 
     @NotNull(groups = { ValidationGroups.KpiB2Job.class })
     private String method;
@@ -61,43 +65,4 @@ public class KpiB2DetailResultDTO implements Serializable {
     private OutcomeStatus outcome;
 
     private Long kpiB2ResultId;
-
-    private String stationName;
-
-    @Override
-    public String toString() {
-        return (
-            "KpiB2DetailResultDTO{" +
-            "id=" +
-            id +
-            ", instanceId=" +
-            instanceId +
-            ", instanceModuleId=" +
-            instanceModuleId +
-            ", analysisDate=" +
-            analysisDate +
-            ", stationId=" +
-            stationId +
-            ", method='" +
-            method +
-            '\'' +
-            ", evaluationType=" +
-            evaluationType +
-            ", evaluationStartDate=" +
-            evaluationStartDate +
-            ", evaluationEndDate=" +
-            evaluationEndDate +
-            ", totReq=" +
-            totReq +
-            ", avgTime=" +
-            avgTime +
-            ", overTimeLimit=" +
-            overTimeLimit +
-            ", outcome=" +
-            outcome +
-            ", kpiB2ResultId=" +
-            kpiB2ResultId +
-            '}'
-        );
-    }
 }
