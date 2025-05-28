@@ -143,7 +143,11 @@ public class InstanceServiceImpl implements InstanceService {
             builder.and(QInstance.instance.analysisPeriodEndDate.loe(analysisEndDate));
         }
 
-        JPQLQuery<Instance> jpql = queryBuilder.<Instance>createQuery().from(QInstance.instance).where(builder);
+        JPQLQuery<Instance> jpql = queryBuilder
+            .<Instance>createQuery()
+            .from(QInstance.instance)
+            .leftJoin(QInstance.instance.partner, QAnagPartner.anagPartner)
+            .where(builder);
 
         long size = jpql.fetchCount();
 
@@ -152,8 +156,9 @@ public class InstanceServiceImpl implements InstanceService {
                 InstanceDTO.class,
                 QInstance.instance.id.as("id"),
                 QInstance.instance.instanceIdentification.as("instanceIdentification"),
-                QInstance.instance.partner.id.as("partnerId"),
-                QInstance.instance.partner.name.as("partnerName"),
+                QAnagPartner.anagPartner.id.as("partnerId"),
+                QAnagPartner.anagPartner.name.as("partnerName"),
+                QAnagPartner.anagPartner.fiscalCode.as("partnerFiscalCode"),
                 QInstance.instance.applicationDate.as("applicationDate"),
                 QInstance.instance.predictedDateAnalysis.as("predictedDateAnalysis"),
                 QInstance.instance.assignedUser.id.as("assignedUserId"),
