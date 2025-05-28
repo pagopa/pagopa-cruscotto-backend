@@ -1,5 +1,20 @@
 package com.nexigroup.pagopa.cruscotto.job.kpi.b2;
 
+import org.apache.commons.lang3.BooleanUtils;
+import org.jetbrains.annotations.NotNull;
+import org.quartz.DisallowConcurrentExecution;
+import org.quartz.JobDetail;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
+import org.quartz.SimpleScheduleBuilder;
+import org.quartz.Trigger;
+import org.quartz.TriggerBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.quartz.QuartzJobBean;
+import org.springframework.stereotype.Component;
+
 import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
@@ -23,6 +38,7 @@ import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2DetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2ResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiConfigurationDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.PagoPaRecordedTimeoutDTO;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
@@ -34,21 +50,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+
 import lombok.AllArgsConstructor;
-import org.apache.commons.lang3.BooleanUtils;
-import org.jetbrains.annotations.NotNull;
-import org.quartz.DisallowConcurrentExecution;
-import org.quartz.JobDetail;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobKey;
-import org.quartz.Scheduler;
-import org.quartz.SimpleScheduleBuilder;
-import org.quartz.Trigger;
-import org.quartz.TriggerBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.quartz.QuartzJobBean;
-import org.springframework.stereotype.Component;
 
 @Component
 @AllArgsConstructor
@@ -84,6 +87,12 @@ public class KpiB2Job extends QuartzJobBean {
         LOGGER.info("Start calculate kpi B.2");
 
         try {
+        	
+			if (!applicationProperties.getJob().getKpiB2Job().isEnabled()) {
+				LOGGER.info("Job calculate kpi B.2 disabled. Exit...");
+				return;
+			}
+			
             List<InstanceDTO> instanceDTOS = instanceService.findInstanceToCalculate(
                 ModuleCode.B2,
                 applicationProperties.getJob().getKpiB2Job().getLimit()
