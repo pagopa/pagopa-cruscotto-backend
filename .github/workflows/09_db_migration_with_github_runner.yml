@@ -93,7 +93,7 @@ jobs:
 
           # status https://docs.liquibase.com/commands/change-tracking/status.html
           # update https://docs.liquibase.com/commands/update/update.html
-          liquibase --defaultsFile=crusc8.properties status --changelogFile="db.changelog-master-${{ inputs.db_version }}.xml"
+          liquibase --defaultsFile=crusc8.properties update --changelogFile="db.changelog-master-${{ inputs.db_version }}.xml"
 
           rm crusc8.properties
 
