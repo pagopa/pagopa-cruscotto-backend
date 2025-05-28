@@ -92,7 +92,8 @@ jobs:
           #liquibase --defaultsFile=crusc8.properties clear-checksums #--changelogFile="db.changelog-master-1.0.0.xml"
 
           # status https://docs.liquibase.com/commands/change-tracking/status.html
-          liquibase --defaultsFile=crusc8.properties update --changelogFile="db.changelog-master-${{ inputs.db_version }}.xml"
+          # update https://docs.liquibase.com/commands/update/update.html
+          liquibase --defaultsFile=crusc8.properties status --changelogFile="db.changelog-master-${{ inputs.db_version }}.xml"
 
           rm crusc8.properties
 
