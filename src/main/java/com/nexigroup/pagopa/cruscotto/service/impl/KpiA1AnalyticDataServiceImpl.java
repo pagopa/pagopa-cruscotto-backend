@@ -16,8 +16,11 @@ import com.nexigroup.pagopa.cruscotto.service.KpiA1AnalyticDataService;
 import com.nexigroup.pagopa.cruscotto.service.KpiA1AnalyticDataService;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA1AnalyticDataDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA1AnalyticDataDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2AnalyticDataDTO;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
+import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.JPQLQuery;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
@@ -149,11 +152,34 @@ public class KpiA1AnalyticDataServiceImpl implements KpiA1AnalyticDataService {
     }
 
     @Override
-    public List<KpiA1AnalyticDataDTO> findByInstanceModuleId(long instanceModuleId) {
-        return kpiA1AnalyticDataRepository
-            .selectByInstanceModuleId(instanceModuleId)
-            .stream()
-            .map(KpiA1AnalyticDataServiceImpl::getkpiA1AnalyticDataDTO)
-            .collect(Collectors.toList());
+    public List<KpiA1AnalyticDataDTO> findByDetailResultId(long detailResultId) {
+        final QKpiA1AnalyticData qKpiA1AnalyticData = QKpiA1AnalyticData.kpiA1AnalyticData;
+        final QAnagStation qAnagStation = QAnagStation.anagStation;
+
+        JPQLQuery<KpiA1AnalyticDataDTO> query = queryBuilder
+            .createQuery()
+            .from(qKpiA1AnalyticData)
+            .leftJoin(qKpiA1AnalyticData.station, qAnagStation)
+            .where(qKpiA1AnalyticData.kpiA1DetailResult.id.eq(detailResultId))
+            .select(
+                Projections.fields(
+                    KpiA1AnalyticDataDTO.class,
+                    qKpiA1AnalyticData.id.as("id"),
+                    qKpiA1AnalyticData.instance.id.as("instanceId"),
+                    qKpiA1AnalyticData.instanceModule.id.as("instanceModuleId"),
+                    qKpiA1AnalyticData.analysisDate.as("analysisDate"),
+                    qKpiA1AnalyticData.station.id.as("stationId"),
+                    qKpiA1AnalyticData.method.as("method"),
+                    qKpiA1AnalyticData.evaluationDate.as("evaluationDate"),
+                    qKpiA1AnalyticData.totReq.as("totReq"),
+                    qKpiA1AnalyticData.reqOk.as("reqOk"),
+                    qKpiA1AnalyticData.reqTimeoutReal.as("reqTimeoutReal"),
+                    qKpiA1AnalyticData.reqTimeoutValid.as("reqTimeoutValid"),
+                    qKpiA1AnalyticData.kpiA1DetailResult.id.as("kpiA1DetailResultId"),
+                    qAnagStation.name.as("stationName")
+                )
+            );
+
+        return query.fetch();
     }
 }

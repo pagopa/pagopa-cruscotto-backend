@@ -15,14 +15,13 @@ on:
 env:
   APP_NAME: pagopacruscottobackend
 
-
 permissions:
   id-token: write
   contents: read
 
 jobs:
   deploy:
-    runs-on: [ self-hosted-job, "${{ inputs.environment }}" ]
+    runs-on: [self-hosted-job, '${{ inputs.environment }}']
     name: Deploy on AKS
     environment: ${{ inputs.environment }}
     steps:
@@ -42,7 +41,7 @@ jobs:
           timeout: '10m0s'
 
   update_openapi:
-    needs: [ deploy ]
+    needs: [deploy]
     runs-on: ubuntu-latest
     name: Update OpenAPI
     environment: ${{ inputs.environment }}

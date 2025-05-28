@@ -9,10 +9,9 @@ import java.util.List;
  */
 
 public interface KpiB2DetailResultService {
-	
     KpiB2DetailResultDTO save(KpiB2DetailResultDTO kpiB2DetailResultDTO);
 
     int deleteAllByInstanceModule(long instanceModuleId);
 
-    List<KpiB2DetailResultDTO> findByInstanceModuleId(long instanceModuleId);
+    List<KpiB2DetailResultDTO> findByResultId(long resultId);
 }
