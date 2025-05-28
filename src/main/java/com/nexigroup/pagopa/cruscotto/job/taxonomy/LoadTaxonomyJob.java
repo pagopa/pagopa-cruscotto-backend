@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.jetbrains.annotations.NotNull;
 import org.quartz.DisallowConcurrentExecution;
@@ -53,8 +54,20 @@ public class LoadTaxonomyJob extends QuartzJobBean {
             Validator validator = factory.getValidator();
 
             response.forEach(taxonomy -> {
-                TaxonomyDTO taxonomyDTO;
-                taxonomyDTO = new TaxonomyDTO();
+                TaxonomyDTO taxonomyDTO = new TaxonomyDTO();
+                taxonomyDTO.setInstitutionTypeCode(StringUtils.substring(taxonomy.get(TaxonomyField.INSTITUTION_TYPE_CODE.field), 0, 10));
+                taxonomyDTO.setInstitutionType(StringUtils.substring(taxonomy.get(TaxonomyField.INSTITUTION_TYPE.field), 0, 255));
+                taxonomyDTO.setAreaProgressiveCode(StringUtils.substring(taxonomy.get(TaxonomyField.AREA_PROGRESSIVE_CODE.field), 0, 10));
+                taxonomyDTO.setAreaName(StringUtils.substring(taxonomy.get(TaxonomyField.AREA_NAME.field), 0, 100));
+                taxonomyDTO.setAreaDescription(StringUtils.substring(taxonomy.get(TaxonomyField.AREA_DESCRIPTION.field), 0, 500));
+                taxonomyDTO.setServiceTypeCode(StringUtils.substring(taxonomy.get(TaxonomyField.SERVICE_TYPE_CODE.field), 0, 10));
+                taxonomyDTO.setServiceType(StringUtils.substring(taxonomy.get(TaxonomyField.SERVICE_TYPE.field), 0, 100));
+                taxonomyDTO.setServiceTypeDescription(
+                    StringUtils.substring(taxonomy.get(TaxonomyField.SERVICE_TYPE_DESCRIPTION.field), 0, 1000)
+                );
+                taxonomyDTO.setAreaProgressiveCode(StringUtils.substring(taxonomy.get(TaxonomyField.AREA_PROGRESSIVE_CODE.field), 0, 10));
+                taxonomyDTO.setVersion(StringUtils.substring(taxonomy.get(TaxonomyField.VERSION.field), 0, 10));
+                taxonomyDTO.setReasonCollection(StringUtils.substring(taxonomy.get(TaxonomyField.REASON_COLLECTION.field), 0, 10));
                 taxonomyDTO.setTakingsIdentifier(taxonomy.get(TaxonomyField.TAKINGS_IDENTIFIER.field));
                 taxonomyDTO.setValidityStartDate(
                     parseDate(taxonomy.get(TaxonomyField.VALIDITY_START_DATE.field), taxonomy.get(TaxonomyField.TAKINGS_IDENTIFIER.field))

@@ -64,8 +64,8 @@ public class KpiA2Result implements Serializable {
     private LocalDate analysisDate;
 
     @NotNull
-    @Column(name = "CO_TOLLERANCE", nullable = false)
-    private Double tollerance;
+    @Column(name = "CO_TOLERANCE", nullable = false)
+    private Double tolerance;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -97,8 +97,8 @@ public class KpiA2Result implements Serializable {
             instanceModule +
             ", analysisDate=" +
             analysisDate +
-            ", tollerance=" +
-            tollerance +
+            ", tolerance=" +
+            tolerance +
             ", outcome=" +
             outcome +
             "]"

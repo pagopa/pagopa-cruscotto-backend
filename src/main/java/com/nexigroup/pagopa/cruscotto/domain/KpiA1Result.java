@@ -77,8 +77,8 @@ public class KpiA1Result implements Serializable {
     private Double eligibilityThreshold;
 
     @NotNull
-    @Column(name = "CO_TOLLERANCE", nullable = false)
-    private Double tollerance;
+    @Column(name = "CO_TOLERANCE", nullable = false)
+    private Double tolerance;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -122,8 +122,8 @@ public class KpiA1Result implements Serializable {
             excludeUnplannedShutdown +
             ", eligibilityThreshold=" +
             eligibilityThreshold +
-            ", tollerance=" +
-            tollerance +
+            ", tolerance=" +
+            tolerance +
             ", evaluationType=" +
             evaluationType +
             ", outcome=" +
