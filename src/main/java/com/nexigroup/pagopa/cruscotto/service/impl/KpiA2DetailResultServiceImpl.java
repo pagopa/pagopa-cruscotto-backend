@@ -1,16 +1,16 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
-import com.nexigroup.pagopa.cruscotto.domain.Instance;
-import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
-import com.nexigroup.pagopa.cruscotto.domain.KpiA2DetailResult;
-import com.nexigroup.pagopa.cruscotto.domain.KpiA2Result;
+import com.nexigroup.pagopa.cruscotto.domain.*;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceModuleRepository;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
 import com.nexigroup.pagopa.cruscotto.repository.KpiA2DetailResultRepository;
 import com.nexigroup.pagopa.cruscotto.repository.KpiA2ResultRepository;
 import com.nexigroup.pagopa.cruscotto.service.KpiA2DetailResultService;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA2DetailResultDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2DetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
+import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.JPQLQuery;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
@@ -108,31 +108,30 @@ public class KpiA2DetailResultServiceImpl implements KpiA2DetailResultService {
     }
 
     @Override
-    public List<KpiA2DetailResultDTO> findByInstanceModuleId(long instanceModuleId) {
-        return kpiA2DetailResultRepository
-            .selectByInstanceModuleId(instanceModuleId)
-            .stream()
-            .map(KpiA2DetailResultServiceImpl::getKpiA2DetailResultDTO)
-            .collect(Collectors.toList());
-    }
+    public List<KpiA2DetailResultDTO> findByResultId(long resultId) {
+        final QKpiA2DetailResult qKpiA2DetailResult = QKpiA2DetailResult.kpiA2DetailResult;
 
-    private static @NotNull KpiA2DetailResultDTO getKpiA2DetailResultDTO(KpiA2DetailResult kpiA2DetailResult) {
-        KpiA2DetailResultDTO kpiA2DetailResultDTO = new KpiA2DetailResultDTO();
-        kpiA2DetailResultDTO.setId(kpiA2DetailResult.getId());
-        kpiA2DetailResultDTO.setInstanceId(kpiA2DetailResult.getInstance() != null ? kpiA2DetailResult.getInstance().getId() : null);
-        kpiA2DetailResultDTO.setInstanceModuleId(
-            kpiA2DetailResult.getInstanceModule() != null ? kpiA2DetailResult.getInstanceModule().getId() : null
-        );
-        kpiA2DetailResultDTO.setAnalysisDate(kpiA2DetailResult.getAnalysisDate());
-        kpiA2DetailResultDTO.setEvaluationStartDate(kpiA2DetailResult.getEvaluationStartDate());
-        kpiA2DetailResultDTO.setEvaluationEndDate(kpiA2DetailResult.getEvaluationEndDate());
-        kpiA2DetailResultDTO.setTotPayments(kpiA2DetailResult.getTotPayments());
-        kpiA2DetailResultDTO.setTotIncorrectPayments(kpiA2DetailResult.getTotIncorrectPayments());
-        kpiA2DetailResultDTO.setErrorPercentage(kpiA2DetailResult.getErrorPercentage());
-        kpiA2DetailResultDTO.setOutcome(kpiA2DetailResult.getOutcome());
-        kpiA2DetailResultDTO.setKpiA2ResultId(
-            kpiA2DetailResult.getKpiA2Result() != null ? kpiA2DetailResult.getKpiA2Result().getId() : null
-        );
-        return kpiA2DetailResultDTO;
+        JPQLQuery<KpiA2DetailResultDTO> query = queryBuilder
+            .createQuery()
+            .from(qKpiA2DetailResult)
+            .where(qKpiA2DetailResult.kpiA2Result.id.eq(resultId))
+            .select(
+                Projections.fields(
+                    KpiA2DetailResultDTO.class,
+                    qKpiA2DetailResult.id.as("id"),
+                    qKpiA2DetailResult.instance.id.as("instanceId"),
+                    qKpiA2DetailResult.instanceModule.id.as("instanceModuleId"),
+                    qKpiA2DetailResult.analysisDate.as("analysisDate"),
+                    qKpiA2DetailResult.evaluationStartDate.as("evaluationStartDate"),
+                    qKpiA2DetailResult.evaluationEndDate.as("evaluationEndDate"),
+                    qKpiA2DetailResult.totPayments.as("totPayments"),
+                    qKpiA2DetailResult.totIncorrectPayments.as("totIncorrectPayments"),
+                    qKpiA2DetailResult.errorPercentage.as("errorPercentage"),
+                    qKpiA2DetailResult.outcome.as("outcome"),
+                    qKpiA2DetailResult.kpiA2Result.id.as("kpiA2ResultId")
+                )
+            );
+
+        return query.fetch();
     }
 }
