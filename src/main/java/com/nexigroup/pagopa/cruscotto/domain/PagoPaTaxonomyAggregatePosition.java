@@ -1,13 +1,5 @@
 package com.nexigroup.pagopa.cruscotto.domain;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
-import java.io.Serializable;
-import java.time.Instant;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -16,8 +8,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.io.Serializable;
+import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * A PagoPaTaxonomyAggregatePosition.
@@ -30,9 +28,9 @@ import lombok.Setter;
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class PagoPaTaxonomyAggregatePosition implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	@Id
+    @Id
     @Column(name = "ID")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -64,7 +62,6 @@ public class PagoPaTaxonomyAggregatePosition implements Serializable {
     @Column(name = "TOTAL", nullable = false)
     private Long total;
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -82,13 +79,33 @@ public class PagoPaTaxonomyAggregatePosition implements Serializable {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37).append(cfPartner).append(station).append(transferCategory).append(startDate).append(endDate).toHashCode();
+        return new HashCodeBuilder(17, 37)
+            .append(cfPartner)
+            .append(station)
+            .append(transferCategory)
+            .append(startDate)
+            .append(endDate)
+            .toHashCode();
     }
 
     @Override
-	public String toString() {
-		return "PagoPaTaxonomyAggregatePosition [id=" + id + ", cfPartner=" + cfPartner + ", station=" + station
-				+ ", transferCategory=" + transferCategory + ", startDate=" + startDate + ", endDate=" + endDate
-				+ ", total=" + total + "]";
-	}
+    public String toString() {
+        return (
+            "PagoPaTaxonomyAggregatePosition [id=" +
+            id +
+            ", cfPartner=" +
+            cfPartner +
+            ", station=" +
+            station +
+            ", transferCategory=" +
+            transferCategory +
+            ", startDate=" +
+            startDate +
+            ", endDate=" +
+            endDate +
+            ", total=" +
+            total +
+            "]"
+        );
+    }
 }

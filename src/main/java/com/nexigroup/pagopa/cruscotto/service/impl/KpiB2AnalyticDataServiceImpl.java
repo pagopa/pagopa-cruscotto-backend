@@ -1,27 +1,18 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
+import com.nexigroup.pagopa.cruscotto.domain.*;
+import com.nexigroup.pagopa.cruscotto.repository.*;
+import com.nexigroup.pagopa.cruscotto.service.KpiB2AnalyticDataService;
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2AnalyticDataDTO;
+import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
+import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.JPQLQuery;
+import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.nexigroup.pagopa.cruscotto.domain.AnagStation;
-import com.nexigroup.pagopa.cruscotto.domain.Instance;
-import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
-import com.nexigroup.pagopa.cruscotto.domain.KpiB2AnalyticData;
-import com.nexigroup.pagopa.cruscotto.domain.KpiB2DetailResult;
-import com.nexigroup.pagopa.cruscotto.repository.AnagStationRepository;
-import com.nexigroup.pagopa.cruscotto.repository.InstanceModuleRepository;
-import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
-import com.nexigroup.pagopa.cruscotto.repository.KpiB2AnalyticDataRepository;
-import com.nexigroup.pagopa.cruscotto.repository.KpiB2DetailResultRepository;
-import com.nexigroup.pagopa.cruscotto.service.KpiB2AnalyticDataService;
-import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2AnalyticDataDTO;
-import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Service Implementation for managing {@link KpiB2AnalyticData}.
@@ -43,7 +34,6 @@ public class KpiB2AnalyticDataServiceImpl implements KpiB2AnalyticDataService {
     private final KpiB2DetailResultRepository kpiB2DetailResultRepository;
 
     private final QueryBuilder queryBuilder;
-    
 
     public KpiB2AnalyticDataServiceImpl(
         AnagStationRepository anagStationRepository,
@@ -120,38 +110,39 @@ public class KpiB2AnalyticDataServiceImpl implements KpiB2AnalyticDataService {
         return kpiB2AnalyticData;
     }
 
-    private static @NotNull KpiB2AnalyticDataDTO getkpiB2AnalyticDataDTO(KpiB2AnalyticData kpiB2AnalyticData) {
-        KpiB2AnalyticDataDTO kpiB2AnalyticDataDTO = new KpiB2AnalyticDataDTO();
-        kpiB2AnalyticDataDTO.setId(kpiB2AnalyticData.getId());
-        kpiB2AnalyticDataDTO.setInstanceId(kpiB2AnalyticData.getInstance() != null ? kpiB2AnalyticData.getInstance().getId() : null);
-        kpiB2AnalyticDataDTO.setInstanceModuleId(
-            kpiB2AnalyticData.getInstanceModule() != null ? kpiB2AnalyticData.getInstanceModule().getId() : null
-        );
-        kpiB2AnalyticDataDTO.setAnalysisDate(kpiB2AnalyticData.getAnalysisDate());
-        kpiB2AnalyticDataDTO.setStationId(kpiB2AnalyticData.getStation() != null ? kpiB2AnalyticData.getStation().getId() : null);
-        kpiB2AnalyticDataDTO.setMethod(kpiB2AnalyticData.getMethod());
-        kpiB2AnalyticDataDTO.setEvaluationDate(kpiB2AnalyticData.getEvaluationDate());
-        kpiB2AnalyticDataDTO.setTotReq(kpiB2AnalyticData.getTotReq());
-        kpiB2AnalyticDataDTO.setReqOk(kpiB2AnalyticData.getReqOk());
-        kpiB2AnalyticDataDTO.setReqTimeout(kpiB2AnalyticData.getReqTimeout());
-        kpiB2AnalyticDataDTO.setAvgTime(kpiB2AnalyticData.getAvgTime());
-        kpiB2AnalyticDataDTO.setKpiB2DetailResultId(
-            kpiB2AnalyticData.getKpiB2DetailResult() != null ? kpiB2AnalyticData.getKpiB2DetailResult().getId() : null
-        );
-        return kpiB2AnalyticDataDTO;
-    }
-
     @Override
     public int deleteAllByInstanceModule(long instanceModuleId) {
         return kpiB2AnalyticDataRepository.deleteAllByInstanceModuleId(instanceModuleId);
     }
 
     @Override
-    public List<KpiB2AnalyticDataDTO> findByInstanceModuleId(long instanceModuleId) {
-        return kpiB2AnalyticDataRepository
-            .selectByInstanceModuleId(instanceModuleId)
-            .stream()
-            .map(KpiB2AnalyticDataServiceImpl::getkpiB2AnalyticDataDTO)
-            .collect(Collectors.toList());
+    public List<KpiB2AnalyticDataDTO> findByDetailResultId(long detailResultId) {
+        final QKpiB2AnalyticData qKpiB2AnalyticData = QKpiB2AnalyticData.kpiB2AnalyticData;
+        final QAnagStation qAnagStation = QAnagStation.anagStation;
+
+        JPQLQuery<KpiB2AnalyticDataDTO> query = queryBuilder
+            .createQuery()
+            .from(qKpiB2AnalyticData)
+            .leftJoin(qKpiB2AnalyticData.station, qAnagStation)
+            .where(qKpiB2AnalyticData.kpiB2DetailResult.id.eq(detailResultId)) // Filtro per detailResultId
+            .select(
+                Projections.fields(
+                    KpiB2AnalyticDataDTO.class,
+                    qKpiB2AnalyticData.id.as("id"),
+                    qKpiB2AnalyticData.instance.id.as("instanceId"),
+                    qKpiB2AnalyticData.instanceModule.id.as("instanceModuleId"),
+                    qKpiB2AnalyticData.analysisDate.as("analysisDate"),
+                    qKpiB2AnalyticData.station.id.as("stationId"),
+                    qKpiB2AnalyticData.method.as("method"),
+                    qKpiB2AnalyticData.evaluationDate.as("evaluationDate"),
+                    qKpiB2AnalyticData.totReq.as("totReq"),
+                    qKpiB2AnalyticData.reqOk.as("reqOk"),
+                    qKpiB2AnalyticData.reqTimeout.as("reqTimeout"),
+                    qKpiB2AnalyticData.avgTime.as("avgTime"),
+                    qKpiB2AnalyticData.kpiB2DetailResult.id.as("kpiB2DetailResultId"),
+                    qAnagStation.name.as("stationName")
+                )
+            );
+        return query.fetch();
     }
 }

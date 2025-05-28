@@ -1,10 +1,8 @@
 package com.nexigroup.pagopa.cruscotto.service.dto;
 
 import com.nexigroup.pagopa.cruscotto.domain.PagoPaRecordedTimeout;
-
 import java.io.Serializable;
 import java.time.Instant;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,7 +17,6 @@ import lombok.Setter;
 public class PagoPaRecordedTimeoutDTO implements Serializable {
 
     private static final long serialVersionUID = 6591513253390502398L;
-    
 
     private Long id;
 
@@ -40,7 +37,6 @@ public class PagoPaRecordedTimeoutDTO implements Serializable {
     private Long reqTimeout;
 
     private Double avgTime;
-    
 
     @Override
     public String toString() {

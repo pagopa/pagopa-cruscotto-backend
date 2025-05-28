@@ -52,7 +52,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class InstanceServiceImpl implements InstanceService {
 
     private final Logger LOGGER = LoggerFactory.getLogger(InstanceServiceImpl.class);
-    
+
     private static final String ID_FIELD = "id";
 
     private static final String INSTANCE_IDENTIFICATION_FIELD = "instanceIdentification";
@@ -88,10 +88,15 @@ public class InstanceServiceImpl implements InstanceService {
     private final QueryBuilder queryBuilder;
 
     private final UserUtils userUtils;
-    
 
-    public InstanceServiceImpl(InstanceRepository instanceRepository, AnagPartnerRepository anagPartnerRepository, ModuleRepository moduleRepository,
-    						   InstanceMapper instanceMapper, QueryBuilder queryBuilder, UserUtils userUtils) {
+    public InstanceServiceImpl(
+        InstanceRepository instanceRepository,
+        AnagPartnerRepository anagPartnerRepository,
+        ModuleRepository moduleRepository,
+        InstanceMapper instanceMapper,
+        QueryBuilder queryBuilder,
+        UserUtils userUtils
+    ) {
         this.instanceRepository = instanceRepository;
         this.anagPartnerRepository = anagPartnerRepository;
         this.moduleRepository = moduleRepository;
@@ -109,15 +114,40 @@ public class InstanceServiceImpl implements InstanceService {
      */
     @Override
     public Page<InstanceDTO> findAll(InstanceFilter filter, Pageable pageable) {
-    	LOGGER.debug("Request to get all Instance by filter: {}", filter);
+        LOGGER.debug("Request to get all Instance by filter: {}", filter);
 
         BooleanBuilder builder = new BooleanBuilder();
 
         if (StringUtils.isNotBlank(filter.getPartnerId())) {
             builder.and(QInstance.instance.partner.id.eq(Long.valueOf(filter.getPartnerId())));
         }
+        if (filter.getStatus() != null) {
+            builder.and(QInstance.instance.status.eq(filter.getStatus()));
+        }
 
-        JPQLQuery<Instance> jpql = queryBuilder.<Instance>createQuery().from(QInstance.instance).where(builder);
+        if (filter.getPredictedAnalysisStartDate() != null) {
+            LocalDate predictedAnalysisStartDate = LocalDate.parse(filter.getPredictedAnalysisStartDate(), formatter);
+            builder.and(QInstance.instance.predictedDateAnalysis.goe(predictedAnalysisStartDate));
+        }
+        if (filter.getPredictedAnalysisEndDate() != null) {
+            LocalDate predictedAnalysisEndDate = LocalDate.parse(filter.getPredictedAnalysisEndDate(), formatter);
+            builder.and(QInstance.instance.predictedDateAnalysis.loe(predictedAnalysisEndDate));
+        }
+
+        if (filter.getAnalysisStartDate() != null) {
+            LocalDate analysisStartDate = LocalDate.parse(filter.getAnalysisStartDate(), formatter);
+            builder.and(QInstance.instance.analysisPeriodStartDate.goe(analysisStartDate));
+        }
+        if (filter.getAnalysisEndDate() != null) {
+            LocalDate analysisEndDate = LocalDate.parse(filter.getAnalysisEndDate(), formatter);
+            builder.and(QInstance.instance.analysisPeriodEndDate.loe(analysisEndDate));
+        }
+
+        JPQLQuery<Instance> jpql = queryBuilder
+            .<Instance>createQuery()
+            .from(QInstance.instance)
+            .leftJoin(QInstance.instance.partner, QAnagPartner.anagPartner)
+            .where(builder);
 
         long size = jpql.fetchCount();
 
@@ -126,8 +156,9 @@ public class InstanceServiceImpl implements InstanceService {
                 InstanceDTO.class,
                 QInstance.instance.id.as("id"),
                 QInstance.instance.instanceIdentification.as("instanceIdentification"),
-                QInstance.instance.partner.id.as("partnerId"),
-                QInstance.instance.partner.name.as("partnerName"),
+                QAnagPartner.anagPartner.id.as("partnerId"),
+                QAnagPartner.anagPartner.name.as("partnerName"),
+                QAnagPartner.anagPartner.fiscalCode.as("partnerFiscalCode"),
                 QInstance.instance.applicationDate.as("applicationDate"),
                 QInstance.instance.predictedDateAnalysis.as("predictedDateAnalysis"),
                 QInstance.instance.assignedUser.id.as("assignedUserId"),
@@ -138,7 +169,7 @@ public class InstanceServiceImpl implements InstanceService {
                 QInstance.instance.status.as("status"),
                 QInstance.instance.lastAnalysisDate.as("lastAnalysisDate"),
                 QInstance.instance.lastAnalysisOutcome.as("lastAnalysisOutcome")
-               )
+            )
         );
 
         jpqlSelected.offset(pageable.getOffset());
@@ -338,8 +369,10 @@ public class InstanceServiceImpl implements InstanceService {
             .<Instance>createQuery()
             .from(QInstance.instance)
             .leftJoin(QInstance.instance.instanceModules, QInstanceModule.instanceModule)
-            .where(QInstance.instance.status.in(InstanceStatus.PIANIFICATA, InstanceStatus.IN_ESECUZIONE)
-            		.and(QInstance.instance.predictedDateAnalysis.loe(LocalDate.now()))
+            .where(
+                QInstance.instance.status
+                    .in(InstanceStatus.PIANIFICATA, InstanceStatus.IN_ESECUZIONE)
+                    .and(QInstance.instance.predictedDateAnalysis.loe(LocalDate.now()))
                     .and(QInstanceModule.instanceModule.moduleCode.eq(moduleCode.code))
                     .and(QInstanceModule.instanceModule.analysisType.eq(AnalysisType.AUTOMATICA))
                     .and(QInstanceModule.instanceModule.status.eq(ModuleStatus.ATTIVO))
@@ -391,7 +424,6 @@ public class InstanceServiceImpl implements InstanceService {
                 new GenericServiceException(String.format("Instance with id %s not exist", id), INSTANCE, "instance.notExists")
             );
     }
-    
 
     @Override
     public List<InstanceDTO> findInstanceToCalculate(Integer limit) {
@@ -439,17 +471,17 @@ public class InstanceServiceImpl implements InstanceService {
             .set(QInstance.instance.lastAnalysisOutcome, lastAnalysisOutcome)
             .where(QInstance.instance.id.eq(id))
             .execute();
-    }    
-    
-	@Override
-	public void updateInstanceStatusInProgress(long id) {
-		LOGGER.debug("Request to update status of instance {} to {}", id, InstanceStatus.IN_ESECUZIONE);
+    }
 
-		JPAUpdateClause jpql = queryBuilder.updateQuery(QInstance.instance);
-		
-		jpql.set(QInstance.instance.status, InstanceStatus.IN_ESECUZIONE)
-			.where(QInstance.instance.id.eq(id)
-					.and(QInstance.instance.status.ne(InstanceStatus.PIANIFICATA)))
-			.execute();
-	}    
+    @Override
+    public void updateInstanceStatusInProgress(long id) {
+        LOGGER.debug("Request to update status of instance {} to {}", id, InstanceStatus.IN_ESECUZIONE);
+
+        JPAUpdateClause jpql = queryBuilder.updateQuery(QInstance.instance);
+
+        jpql
+            .set(QInstance.instance.status, InstanceStatus.IN_ESECUZIONE)
+            .where(QInstance.instance.id.eq(id).and(QInstance.instance.status.eq(InstanceStatus.PIANIFICATA)))
+            .execute();
+    }
 }

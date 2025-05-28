@@ -3,11 +3,9 @@ package com.nexigroup.pagopa.cruscotto.service.dto;
 import com.nexigroup.pagopa.cruscotto.domain.KpiA2DetailResult;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.service.validation.ValidationGroups;
-
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDate;
-
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,10 +17,9 @@ import lombok.Setter;
 @Setter
 public class KpiA2DetailResultDTO implements Serializable {
 
-	private static final long serialVersionUID = 1L;
-	
+    private static final long serialVersionUID = 1L;
 
-	private Long id;
+    private Long id;
 
     @NotNull(groups = { ValidationGroups.KpiA2Job.class })
     private Long instanceId;
@@ -41,9 +38,9 @@ public class KpiA2DetailResultDTO implements Serializable {
 
     @NotNull(groups = { ValidationGroups.KpiA2Job.class })
     private Long totPayments;
-    
+
     @NotNull(groups = { ValidationGroups.KpiA2Job.class })
-    private Long totIncorrectPayments;    
+    private Long totIncorrectPayments;
 
     @NotNull(groups = { ValidationGroups.KpiA2Job.class })
     private Double errorPercentage;
@@ -53,13 +50,32 @@ public class KpiA2DetailResultDTO implements Serializable {
 
     private Long kpiA2ResultId;
 
-    
     @Override
-	public String toString() {
-		return "KpiA2DetailResultDTO [id=" + id + ", instanceId=" + instanceId + ", instanceModuleId="
-				+ instanceModuleId + ", analysisDate=" + analysisDate + ", evaluationStartDate=" + evaluationStartDate
-				+ ", evaluationEndDate=" + evaluationEndDate + ", totPayments=" + totPayments
-				+ ", totIncorrectPayments=" + totIncorrectPayments + ", errorPercentage=" + errorPercentage
-				+ ", outcome=" + outcome + ", kpiA2ResultId=" + kpiA2ResultId + "]";
-	}
+    public String toString() {
+        return (
+            "KpiA2DetailResultDTO [id=" +
+            id +
+            ", instanceId=" +
+            instanceId +
+            ", instanceModuleId=" +
+            instanceModuleId +
+            ", analysisDate=" +
+            analysisDate +
+            ", evaluationStartDate=" +
+            evaluationStartDate +
+            ", evaluationEndDate=" +
+            evaluationEndDate +
+            ", totPayments=" +
+            totPayments +
+            ", totIncorrectPayments=" +
+            totIncorrectPayments +
+            ", errorPercentage=" +
+            errorPercentage +
+            ", outcome=" +
+            outcome +
+            ", kpiA2ResultId=" +
+            kpiA2ResultId +
+            "]"
+        );
+    }
 }
