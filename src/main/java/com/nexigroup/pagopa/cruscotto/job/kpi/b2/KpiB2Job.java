@@ -107,6 +107,10 @@ public class KpiB2Job extends QuartzJobBean {
 
                 LOGGER.info("Kpi configuration {}", kpiConfigurationDTO);
 
+                Double eligibilityThreshold = kpiConfigurationDTO.getEligibilityThreshold() != null ? kpiConfigurationDTO.getEligibilityThreshold() : 0.0;
+                Double tolerance = kpiConfigurationDTO.getTolerance() != null ? kpiConfigurationDTO.getTolerance() : 0.0;
+                Double averageTimeLimit = kpiConfigurationDTO.getAverageTimeLimit() != null ? kpiConfigurationDTO.getAverageTimeLimit() : 0.0;
+
                 instanceDTOS.forEach(instanceDTO -> {
                     try {
                         LOGGER.info(
@@ -147,11 +151,11 @@ public class KpiB2Job extends QuartzJobBean {
                         kpiB2ResultDTO.setInstanceId(instanceDTO.getId());
                         kpiB2ResultDTO.setInstanceModuleId(instanceModuleDTO.getId());
                         kpiB2ResultDTO.setAnalysisDate(LocalDate.now());
-                        kpiB2ResultDTO.setExcludePlannedShutdown(kpiConfigurationDTO.getExcludePlannedShutdown());
-                        kpiB2ResultDTO.setExcludeUnplannedShutdown(kpiConfigurationDTO.getExcludeUnplannedShutdown());
-                        kpiB2ResultDTO.setEligibilityThreshold(kpiConfigurationDTO.getEligibilityThreshold());
-                        kpiB2ResultDTO.setTolerance(kpiConfigurationDTO.getTolerance());
-                        kpiB2ResultDTO.setAverageTimeLimit(kpiConfigurationDTO.getAverageTimeLimit());
+                        kpiB2ResultDTO.setExcludePlannedShutdown(BooleanUtils.toBooleanDefaultIfNull(kpiConfigurationDTO.getExcludePlannedShutdown(), false));
+                        kpiB2ResultDTO.setExcludeUnplannedShutdown(BooleanUtils.toBooleanDefaultIfNull(kpiConfigurationDTO.getExcludeUnplannedShutdown(), false));
+                        kpiB2ResultDTO.setEligibilityThreshold(eligibilityThreshold);
+                        kpiB2ResultDTO.setTolerance(tolerance);
+                        kpiB2ResultDTO.setAverageTimeLimit(averageTimeLimit);
                         kpiB2ResultDTO.setEvaluationType(kpiConfigurationDTO.getEvaluationType());
                         kpiB2ResultDTO.setOutcome(!stations.isEmpty() ? OutcomeStatus.STANDBY : OutcomeStatus.OK);
 
@@ -273,7 +277,7 @@ public class KpiB2Job extends QuartzJobBean {
                                                 totMonthWeight.set(totMonthWeight.get() + monthWeight);
                                                 totPeriodWeight.set(totPeriodWeight.get() + totalWeight);
 
-                                                if (pagoPaRecordedTimeoutDTO.getAvgTime() > kpiConfigurationDTO.getAverageTimeLimit()) {
+                                                if (pagoPaRecordedTimeoutDTO.getAvgTime() > averageTimeLimit) {
                                                     boolean exclude = maintenance
                                                         .stream()
                                                         .map(anagPlannedShutdownDTO -> {
@@ -345,10 +349,7 @@ public class KpiB2Job extends QuartzJobBean {
                                                 OutcomeStatus outcomeStatus = OutcomeStatus.OK;
 
                                                 //   if (kpiConfigurationDTO.getEvaluationType().compareTo(EvaluationType.MESE) == 0) {
-                                                if (
-                                                    totMonthOverTimeLimit.get() >
-                                                    (kpiConfigurationDTO.getEligibilityThreshold() + kpiConfigurationDTO.getTolerance())
-                                                ) {
+                                                if (totMonthOverTimeLimit.get() > (eligibilityThreshold + tolerance)) {
                                                     outcomeStatus = OutcomeStatus.KO;
                                                 }
                                                 //     }
@@ -406,10 +407,7 @@ public class KpiB2Job extends QuartzJobBean {
                                     OutcomeStatus outcomeStatus = OutcomeStatus.OK;
 
                                     //  if (kpiConfigurationDTO.getEvaluationType().compareTo(EvaluationType.TOTALE) == 0) {
-                                    if (
-                                        totPeriodOverTimeLimit.get() >
-                                        (kpiConfigurationDTO.getEligibilityThreshold() + kpiConfigurationDTO.getTolerance())
-                                    ) {
+                                    if (totPeriodOverTimeLimit.get() > (eligibilityThreshold + tolerance)) {
                                         outcomeStatus = OutcomeStatus.KO;
                                     }
                                     //   }
