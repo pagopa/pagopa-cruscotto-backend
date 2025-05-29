@@ -3529,7 +3529,7 @@
           "Api Docs"
         ],
         "summary": "Api Docs 'springdocDefault'",
-        "operationId": "allOpenApi",
+        "operationId": "apiDocSpring",
         "responses": {
           "200": {
             "description": "OK",
@@ -3550,7 +3550,7 @@
           "Api Docs"
         ],
         "summary": "Api Docs 'management'",
-        "operationId": "allOpenApi",
+        "operationId": "apiDocManagement",
         "responses": {
           "200": {
             "description": "OK",
