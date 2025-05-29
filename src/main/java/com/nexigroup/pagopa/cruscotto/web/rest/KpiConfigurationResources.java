@@ -2,10 +2,17 @@ package com.nexigroup.pagopa.cruscotto.web.rest;
 
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.service.KpiConfigurationService;
+import com.nexigroup.pagopa.cruscotto.service.bean.KpiConfigurationRequestBean;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiConfigurationDTO;
+import com.nexigroup.pagopa.cruscotto.web.rest.errors.BadRequestAlertException;
 import io.swagger.v3.oas.annotations.Parameter;
+
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
+
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springdoc.core.annotations.ParameterObject;
@@ -16,6 +23,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
 
@@ -70,5 +78,67 @@ public class KpiConfigurationResources {
             ModuleCode.fromCode(moduleCode)
         );
         return ResponseUtil.wrapOrNotFound(kpiConfigurationDTO);
+    }
+
+    /**
+     * {@code POST  /kpi-configurations} : Create a new kpi configurations.
+     *
+     * @param 'KpiConfigurationDTO' the KpiConfigurationDTO to create.
+     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new KpiConfigurationDTO, or with status {@code 400 (Bad Request)} if the kpi configuration has already an ID.
+     * @throws URISyntaxException if the Location URI syntax is incorrect.
+     */
+    @PostMapping("/kpi-configurations")
+    //  @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_ADMIN_INSTANCE + "\")")
+    public ResponseEntity<KpiConfigurationDTO> createAKpiConfiguration(@Valid @RequestBody KpiConfigurationRequestBean kpiConfigurationToCreate) throws URISyntaxException {
+        log.debug("REST request to save kpi configuration : {}", kpiConfigurationToCreate);
+
+        if (kpiConfigurationToCreate.getId() != null) {
+            throw new BadRequestAlertException("A new kpi configuration cannot already have an ID", ENTITY_NAME, "idexists");
+        }
+
+        KpiConfigurationDTO result = kpiConfigurationService.saveNew(kpiConfigurationToCreate);
+
+        return ResponseEntity.created(new URI("/api/kpi-configurations/" + result.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+            .body(result);
+    }
+
+    /**
+     * {@code PUT  /kpi-configurations} : Updates an existing /kpi configurations.
+     *
+     * @param kpiConfigurationToUpdate represents kpiConfigurationDTO to update.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated kpiConfigurationDTO,
+     * or with status {@code 400 (Bad Request)} if the kpiConfigurationDTO is not valid,
+     * or with status {@code 500 (Internal Server Error)} if the kpiConfigurationDTO couldn't be updated.
+     * @throws URISyntaxException if the Location URI syntax is incorrect.
+     */
+    @PutMapping("/kpi-configurations")
+    //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_ADMIN_INSTANCE + "\")")
+    public ResponseEntity<KpiConfigurationDTO> updateKpiConfiguration(@Valid @RequestBody KpiConfigurationRequestBean kpiConfigurationToUpdate) {
+        log.debug("REST request to update kpi configuration : {}", kpiConfigurationToUpdate);
+        if (kpiConfigurationToUpdate.getId() == null) {
+            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+        }
+        KpiConfigurationDTO result = kpiConfigurationService.update(kpiConfigurationToUpdate);
+        return ResponseEntity.ok()
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+            .body(result);
+    }
+
+
+    /**
+     * {@code DELETE  /kpi-configuration/:id} : delete the "id" kpi configuration.
+     *
+     * @param id the id of the KpiConfigurationDTO to delete.
+     * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
+     */
+    @DeleteMapping("/kpi-configurations/{id}")
+    //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_DELETE_FUNCTION + "\")")
+    public ResponseEntity<Void> deleteKpiConfiguration(@PathVariable Long id) {
+        log.debug("REST request to delete kpi configuration : {}", id);
+        kpiConfigurationService.delete(id);
+        return ResponseEntity.noContent()
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+            .build();
     }
 }
