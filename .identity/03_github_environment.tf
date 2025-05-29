@@ -25,6 +25,8 @@ locals {
     # "CI_CLIENT_ID" : var.env_short != "p" ? data.azurerm_user_assigned_identity.identity_ci[0].client_id : ""
     "TENANT_ID" : data.azurerm_client_config.current.tenant_id,
     "SUBSCRIPTION_ID" : data.azurerm_subscription.current.subscription_id,
+    "POSTGRES_DB_PASSWORD" : data.azurerm_key_vault_secret.postgres_db_password.value,
+    "POSTGRES_DB_ADMIN_PASSWORD" : data.azurerm_key_vault_secret.postgres_db_admin_password.value
   }
   env_variables = {
     "CONTAINER_APP_ENVIRONMENT_NAME" : local.container_app_environment.name,
@@ -33,7 +35,13 @@ locals {
     "CLUSTER_RESOURCE_GROUP" : local.aks_cluster.resource_group_name,
     "DOMAIN" : local.domain,
     "NAMESPACE" : local.domain,
-    "WORKLOAD_IDENTITY_ID": data.azurerm_user_assigned_identity.workload_identity_clientid.client_id
+    "WORKLOAD_IDENTITY_ID": data.azurerm_user_assigned_identity.workload_identity_clientid.client_id,
+    "POSTGRES_DB_HOST" : local.postgres_db.host,
+    "POSTGRES_DB_PORT" : local.postgres_db.port,
+    "POSTGRES_DB_SCHEMA" : local.postgres_db.schema,
+    "POSTGRES_DB_NAME" : local.postgres_db.name,
+    "POSTGRES_DB_USERNAME" : local.postgres_db.username,
+    "POSTGRES_DB_ADMIN_USERNAME" : local.postgres_db.admin_username,
   }
 }
 
