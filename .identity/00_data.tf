@@ -66,3 +66,13 @@ data "azurerm_key_vault_secret" "key_vault_integration_test_slack_webhook" {
   name         = "pagopa-pagamenti-integration-test-slack-webhook"
   key_vault_id = data.azurerm_key_vault.domain_key_vault.id
 }
+
+data "azurerm_key_vault_secret" "postgres_db_password" {
+  name         = "db-cruscotto-password"
+  key_vault_id = data.azurerm_key_vault.domain_key_vault.id
+}
+
+data "azurerm_key_vault_secret" "postgres_db_admin_password" {
+  name         = "db-administrator-login-password"
+  key_vault_id = data.azurerm_key_vault.domain_key_vault.id
+}
