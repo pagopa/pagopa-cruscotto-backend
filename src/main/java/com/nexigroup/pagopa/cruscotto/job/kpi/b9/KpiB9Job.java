@@ -108,6 +108,9 @@ public class KpiB9Job extends QuartzJobBean {
 
                 LOGGER.info("Kpi configuration {}", kpiConfigurationDTO);
 
+                Double eligibilityThreshold = kpiConfigurationDTO.getEligibilityThreshold() != null ? kpiConfigurationDTO.getEligibilityThreshold() : 0.0;
+                Double tolerance = kpiConfigurationDTO.getTolerance() != null ? kpiConfigurationDTO.getTolerance() : 0.0;
+
                 instanceDTOS.forEach(instanceDTO -> {
                     try {
                         LOGGER.info(
@@ -148,10 +151,10 @@ public class KpiB9Job extends QuartzJobBean {
                         kpiB9ResultDTO.setInstanceId(instanceDTO.getId());
                         kpiB9ResultDTO.setInstanceModuleId(instanceModuleDTO.getId());
                         kpiB9ResultDTO.setAnalysisDate(LocalDate.now());
-                        kpiB9ResultDTO.setExcludePlannedShutdown(kpiConfigurationDTO.getExcludePlannedShutdown());
-                        kpiB9ResultDTO.setExcludeUnplannedShutdown(kpiConfigurationDTO.getExcludeUnplannedShutdown());
-                        kpiB9ResultDTO.setEligibilityThreshold(kpiConfigurationDTO.getEligibilityThreshold());
-                        kpiB9ResultDTO.setTolerance(kpiConfigurationDTO.getTolerance());
+                        kpiB9ResultDTO.setExcludePlannedShutdown(BooleanUtils.toBooleanDefaultIfNull(kpiConfigurationDTO.getExcludePlannedShutdown(), false));
+                        kpiB9ResultDTO.setExcludeUnplannedShutdown(BooleanUtils.toBooleanDefaultIfNull(kpiConfigurationDTO.getExcludeUnplannedShutdown(), false));
+                        kpiB9ResultDTO.setEligibilityThreshold(eligibilityThreshold);
+                        kpiB9ResultDTO.setTolerance(tolerance);
                         kpiB9ResultDTO.setEvaluationType(kpiConfigurationDTO.getEvaluationType());
                         kpiB9ResultDTO.setOutcome(!stations.isEmpty() ? OutcomeStatus.STANDBY : OutcomeStatus.OK);
 
@@ -294,8 +297,7 @@ public class KpiB9Job extends QuartzJobBean {
 
                                     			   OutcomeStatus outcomeStatus = OutcomeStatus.OK;
 
-                                    			   if (percResKoMonth >
-                                    			   		(kpiConfigurationDTO.getEligibilityThreshold() + kpiConfigurationDTO.getTolerance())) {
+                                    			   if (percResKoMonth > (eligibilityThreshold + tolerance)) {
                                     				   outcomeStatus = OutcomeStatus.KO;
                                     			   }
 
@@ -342,7 +344,7 @@ public class KpiB9Job extends QuartzJobBean {
 
                                 OutcomeStatus outcomeStatus = OutcomeStatus.OK;
 
-                                if (percResKoPeriod > (kpiConfigurationDTO.getEligibilityThreshold() + kpiConfigurationDTO.getTolerance())) {
+                                if (percResKoPeriod > (eligibilityThreshold + tolerance)) {
                                     outcomeStatus = OutcomeStatus.KO;
                                 }
 

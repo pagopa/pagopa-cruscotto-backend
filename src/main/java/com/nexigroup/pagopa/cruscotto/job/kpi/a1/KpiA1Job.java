@@ -106,6 +106,9 @@ public class KpiA1Job extends QuartzJobBean {
                     .orElseThrow(() -> new NullPointerException("KPI A.1 Configuration not found"));
 
                 LOGGER.info("Kpi configuration {}", kpiConfigurationDTO);
+                
+                Double eligibilityThreshold = kpiConfigurationDTO.getEligibilityThreshold() != null ? kpiConfigurationDTO.getEligibilityThreshold() : 0.0;
+                Double tolerance = kpiConfigurationDTO.getTolerance() != null ? kpiConfigurationDTO.getTolerance() : 0.0;
 
                 instanceDTOS.forEach(instanceDTO -> {
                     try {
@@ -147,10 +150,10 @@ public class KpiA1Job extends QuartzJobBean {
                         kpiA1ResultDTO.setInstanceId(instanceDTO.getId());
                         kpiA1ResultDTO.setInstanceModuleId(instanceModuleDTO.getId());
                         kpiA1ResultDTO.setAnalysisDate(LocalDate.now());
-                        kpiA1ResultDTO.setExcludePlannedShutdown(kpiConfigurationDTO.getExcludePlannedShutdown());
-                        kpiA1ResultDTO.setExcludeUnplannedShutdown(kpiConfigurationDTO.getExcludeUnplannedShutdown());
-                        kpiA1ResultDTO.setEligibilityThreshold(kpiConfigurationDTO.getEligibilityThreshold());
-                        kpiA1ResultDTO.setTolerance(kpiConfigurationDTO.getTolerance());
+                        kpiA1ResultDTO.setExcludePlannedShutdown(BooleanUtils.toBooleanDefaultIfNull(kpiConfigurationDTO.getExcludePlannedShutdown(), false));
+                        kpiA1ResultDTO.setExcludeUnplannedShutdown(BooleanUtils.toBooleanDefaultIfNull(kpiConfigurationDTO.getExcludeUnplannedShutdown(), false));
+                        kpiA1ResultDTO.setEligibilityThreshold(eligibilityThreshold);
+                        kpiA1ResultDTO.setTolerance(tolerance);
                         kpiA1ResultDTO.setEvaluationType(kpiConfigurationDTO.getEvaluationType());
                         kpiA1ResultDTO.setOutcome(!stations.isEmpty() ? OutcomeStatus.STANDBY : OutcomeStatus.OK);
 
@@ -302,17 +305,12 @@ public class KpiA1Job extends QuartzJobBean {
 
                                                 OutcomeStatus outcomeStatus = OutcomeStatus.OK;
 
-                                                if (
-                                                    percTimeoutReqMonth >
-                                                    (kpiConfigurationDTO.getEligibilityThreshold() + kpiConfigurationDTO.getTolerance())
-                                                ) {
+                                                if (percTimeoutReqMonth > (eligibilityThreshold + tolerance)) {
                                                     outcomeStatus = OutcomeStatus.KO;
                                                 }
 
-                                                if (
-                                                    kpiConfigurationDTO.getEvaluationType().compareTo(EvaluationType.MESE) == 0 &&
-                                                    outcomeStatus.compareTo(OutcomeStatus.KO) == 0
-                                                ) {
+                                                if (kpiConfigurationDTO.getEvaluationType().compareTo(EvaluationType.MESE) == 0 &&
+                                                    outcomeStatus.compareTo(OutcomeStatus.KO) == 0) {
                                                     kpiA1ResultFinalOutcome.set(OutcomeStatus.KO);
                                                 }
 
@@ -355,17 +353,12 @@ public class KpiA1Job extends QuartzJobBean {
 
                                     OutcomeStatus outcomeStatus = OutcomeStatus.OK;
 
-                                    if (
-                                        percTimeoutReqPeriod >
-                                        (kpiConfigurationDTO.getEligibilityThreshold() + kpiConfigurationDTO.getTolerance())
-                                    ) {
+                                    if (percTimeoutReqPeriod > (eligibilityThreshold + tolerance)) {
                                         outcomeStatus = OutcomeStatus.KO;
                                     }
 
-                                    if (
-                                        kpiConfigurationDTO.getEvaluationType().compareTo(EvaluationType.TOTALE) == 0 &&
-                                        outcomeStatus.compareTo(OutcomeStatus.KO) == 0
-                                    ) {
+                                    if (kpiConfigurationDTO.getEvaluationType().compareTo(EvaluationType.TOTALE) == 0 &&
+                                        outcomeStatus.compareTo(OutcomeStatus.KO) == 0) {
                                         kpiA1ResultFinalOutcome.set(OutcomeStatus.KO);
                                     }
 
