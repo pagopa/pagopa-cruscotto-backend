@@ -3,6 +3,7 @@ package com.nexigroup.pagopa.cruscotto.domain.enumeration;
 public enum ModuleCode {
     A1("A.1"),
     A2("A.2"),
+    B1("B.1"),
     B2("B.2"),
     B3("B.3"),
     B4("B.4"),
