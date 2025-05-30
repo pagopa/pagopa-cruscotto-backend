@@ -7,5 +7,13 @@
   <include file="db.changelog-master-1.0.0.xml"  relativeToChangelogFile="true"/>
 
   <include file="1.0.1/ddl/20250526100900_alter_entity_Taxonomy.xml" relativeToChangelogFile="true"/>
-
+  
+  <include file="1.0.1/ddl/20250527164000_added_entity_PagoPaPaymentReceipt.xml" relativeToChangelogFile="true"/>
+  <include file="1.0.1/ddl/20250527164500_added_entity_KpiB9Result.xml" relativeToChangelogFile="true"/>
+  <include file="1.0.1/ddl/20250527164501_added_entity_constraints_KpiB9Result.xml" relativeToChangelogFile="true"/>
+  <include file="1.0.1/ddl/20250527165000_added_entity_KpiB9DetailResult.xml" relativeToChangelogFile="true"/>
+  <include file="1.0.1/ddl/20250527165001_added_entity_constraints_KpiB9DetailResult.xml" relativeToChangelogFile="true"/>
+  <include file="1.0.1/ddl/20250527165500_added_entity_KpiB9AnalyticData.xml" relativeToChangelogFile="true"/>
+  <include file="1.0.1/ddl/20250527165501_added_entity_constraints_KpiB9AnalyticData.xml" relativeToChangelogFile="true"/>
+  
 </databaseChangeLog>

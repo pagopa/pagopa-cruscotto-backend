@@ -20,6 +20,15 @@ locals {
     name           = "${local.prefix}-${var.env_short}-${local.location_short}-github-runner-cae",
     resource_group = "${local.prefix}-${var.env_short}-${local.location_short}-github-runner-rg",
   }
+
+  postgres_db = {
+    host           = "pagopa-${var.env_short}-itn-crusc8-flexible-postgresql.postgres.database.azure.com"
+    port           = 5432
+    name           = "cruscotto"
+    schema         = "cruscotto"
+    username       = "cruscotto"
+    admin_username = "usrcrus8"
+  }  
 }
 
 variable "env" {

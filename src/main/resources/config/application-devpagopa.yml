@@ -100,10 +100,6 @@ application:
     load-registry-job:
       enabled: true
       cron: 0 0/30 07-8 ? * MON,TUE,WED,THU,FRI *
-    kpi-b2-job:
-      enabled: true
-      cron: 0 0/10 01-03 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
-      limit: 20
     kpi-a1-job:
       enabled: true
       cron: 0 0/10 01-03 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
@@ -112,6 +108,15 @@ application:
       enabled: true
       cron: 0 0/10 01-03 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
       limit: 20
+    kpi-b2-job:
+      enabled: true
+      cron: 0 0/10 01-03 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
+      limit: 20
+    kpi-b9-job:
+      enabled: true
+      cron: 0 0/10 01-03 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
+      limit: 20
+
   liquibase:
     async-start: false
     dbVersion: 1.0.0

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+
+  <changeSet id="20250527164500-1" author="system" context="ddl">
+    <createSequence sequenceName="SQ${project_name}_KPIB9RESU" startValue="3000" cacheSize="20"/>
+  </changeSet>
+
+  <changeSet id="20250527164500-2" author="system" context="ddl">
+	<createTable tableName="KPI_B9_RESULT">
+ 	  <column name="CO_ID" type="bigint">
+        <constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_KPIB9RESU"/>
+      </column>
+      <column name="CO_INSTANCE_ID" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_INSTANCE_MODULE_ID" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DT_ANALISYS_DATE" type="date">
+        <constraints nullable="false"/>
+      </column>
+      <column name="FL_EXCLUDE_PLANNED_SHUTDOWN" type="boolean">
+        <constraints nullable="false"/>
+      </column>
+      <column name="FL_EXCLUDE_UNPLANNED_SHUTDOWN" type="boolean">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_ELIGIBILITY_THRESHOLD" type="double">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_TOLERANCE" type="double">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TE_EVALUATION_TYPE" type="varchar(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TE_OUTCOME" type="varchar(10)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <rollback>
+      DROP TABLE ${database.defaultSchemaName}.KPI_B9_RESULT CASCADE CONSTRAINTS;
+    </rollback>
+  </changeSet>
+
+  <changeSet id="20250527164500-3" author="system" context="ddl">
+    <createIndex indexName="IX${project_name}_KPIB9RESU"
+				 tableName="KPI_B9_RESULT">
+      <column name="CO_INSTANCE_MODULE_ID"/>
+    </createIndex>
+  </changeSet>
+
+</databaseChangeLog>
