@@ -78,6 +78,11 @@ public class KpiA2Job extends QuartzJobBean {
         LOGGER.info("Start calculate kpi A.2");
 
         try {
+            if (!applicationProperties.getJob().getKpiA2Job().isEnabled()) {
+                LOGGER.info("Job calculate kpi A.2 disabled. Exit...");
+                return;
+            }
+
             List<InstanceDTO> instanceDTOS = instanceService.findInstanceToCalculate(
                 ModuleCode.A2,
                 applicationProperties.getJob().getKpiA2Job().getLimit()
@@ -94,6 +99,8 @@ public class KpiA2Job extends QuartzJobBean {
 
                 // Estrazione corretta perchè il job LoadTaxonomyJob cancella ogni volta tutti i record e li ricrea
                 Set<String> taxonomyTakingsIdentifierSet = new HashSet<>(taxonomyService.getAllUpdatedTakingsIdentifiers());
+
+                Double tolerance = kpiConfigurationDTO.getTolerance() != null ? kpiConfigurationDTO.getTolerance() : 0.0;
 
                 if (CollectionUtils.isEmpty(taxonomyTakingsIdentifierSet)) {
                     LOGGER.warn("Taxonomy table data not updated as of today, the kpi A.2 cannot be calculated. Exit...");
@@ -132,7 +139,7 @@ public class KpiA2Job extends QuartzJobBean {
                             kpiA2ResultDTO.setInstanceId(instanceDTO.getId());
                             kpiA2ResultDTO.setInstanceModuleId(instanceModuleDTO.getId());
                             kpiA2ResultDTO.setAnalysisDate(LocalDate.now());
-                            kpiA2ResultDTO.setTolerance(kpiConfigurationDTO.getTolerance());
+                            kpiA2ResultDTO.setTolerance(tolerance);
                             kpiA2ResultDTO.setOutcome(OutcomeStatus.STANDBY);
 
                             kpiA2ResultDTO = kpiA2ResultService.save(kpiA2ResultDTO);
@@ -204,7 +211,7 @@ public class KpiA2Job extends QuartzJobBean {
 
                             OutcomeStatus outcomeStatus = OutcomeStatus.OK;
 
-                            if (errorPercentagePeriod > kpiConfigurationDTO.getTolerance()) {
+                            if (errorPercentagePeriod > tolerance) {
                                 outcomeStatus = OutcomeStatus.KO;
                             }
 

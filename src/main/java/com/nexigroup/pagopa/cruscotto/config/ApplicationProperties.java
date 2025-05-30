@@ -61,6 +61,8 @@ public class ApplicationProperties {
         private KpiA2Job kpiA2Job = new KpiA2Job();
 
         private KpiB2Job kpiB2Job = new KpiB2Job();
+
+        private KpiB9Job kpiB9Job = new KpiB9Job();
     }
 
     @Getter
@@ -94,7 +96,7 @@ public class ApplicationProperties {
     @Setter
     public static class KpiA1Job {
 
-        private boolean enabled;
+        private boolean enabled = true;
 
         private String cron;
 
@@ -105,7 +107,7 @@ public class ApplicationProperties {
     @Setter
     public static class KpiA2Job {
 
-        private boolean enabled;
+        private boolean enabled = true;
 
         private String cron;
 
@@ -116,7 +118,18 @@ public class ApplicationProperties {
     @Setter
     public static class KpiB2Job {
 
-        private boolean enabled;
+        private boolean enabled = true;
+
+        private String cron;
+
+        private int limit;
+    }
+
+    @Getter
+    @Setter
+    public static class KpiB9Job {
+
+        private boolean enabled = true;
 
         private String cron;
 
