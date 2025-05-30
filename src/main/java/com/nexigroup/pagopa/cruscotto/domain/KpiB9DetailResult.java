@@ -1,19 +1,8 @@
 package com.nexigroup.pagopa.cruscotto.domain;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
-
-import java.io.Serializable;
-import java.time.LocalDate;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -27,8 +16,16 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 /**
  * A KpiB9DetailResult.
@@ -43,9 +40,9 @@ import lombok.Setter;
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class KpiB9DetailResult implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	@Id
+    @Id
     @Column(name = "CO_ID")
     @SequenceGenerator(name = "SQCRUSC8_KPIB9DETARESU", sequenceName = "SQCRUSC8_KPIB9DETARESU", allocationSize = 1)
     @GeneratedValue(generator = "SQCRUSC8_KPIB9DETARESU", strategy = GenerationType.SEQUENCE)
@@ -108,7 +105,6 @@ public class KpiB9DetailResult implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CO_KPI_B9_RESULT_ID", nullable = false)
     private KpiB9Result kpiB9Result;
-    
 
     @Override
     public boolean equals(Object o) {
@@ -125,11 +121,33 @@ public class KpiB9DetailResult implements Serializable {
     }
 
     @Override
-	public String toString() {
-		return "KpiB9DetailResult [id=" + id + ", instance=" + instance + ", instanceModule=" + instanceModule
-				+ ", analysisDate=" + analysisDate + ", station=" + station + ", evaluationType=" + evaluationType
-				+ ", evaluationStartDate=" + evaluationStartDate + ", evaluationEndDate=" + evaluationEndDate
-				+ ", totRes=" + totRes + ", resKo=" + resKo + ", resKoPercentage=" + resKoPercentage + ", outcome="
-				+ outcome + "]";
-	}
+    public String toString() {
+        return (
+            "KpiB9DetailResult [id=" +
+            id +
+            ", instance=" +
+            instance +
+            ", instanceModule=" +
+            instanceModule +
+            ", analysisDate=" +
+            analysisDate +
+            ", station=" +
+            station +
+            ", evaluationType=" +
+            evaluationType +
+            ", evaluationStartDate=" +
+            evaluationStartDate +
+            ", evaluationEndDate=" +
+            evaluationEndDate +
+            ", totRes=" +
+            totRes +
+            ", resKo=" +
+            resKo +
+            ", resKoPercentage=" +
+            resKoPercentage +
+            ", outcome=" +
+            outcome +
+            "]"
+        );
+    }
 }

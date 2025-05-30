@@ -2,7 +2,6 @@ package com.nexigroup.pagopa.cruscotto.service;
 
 import com.nexigroup.pagopa.cruscotto.domain.KpiB9DetailResult;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB9DetailResultDTO;
-
 import java.util.List;
 
 /**
@@ -10,7 +9,6 @@ import java.util.List;
  */
 
 public interface KpiB9DetailResultService {
-	
     KpiB9DetailResultDTO save(KpiB9DetailResultDTO kpiB9DetailResultDTO);
 
     int deleteAllByInstanceModule(long instanceModuleId);

@@ -1,5 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.job.config;
 
+import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
+import com.nexigroup.pagopa.cruscotto.job.kpi.b9.KpiB9Job;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.JobBuilder;
 import org.quartz.JobDataMap;
@@ -8,9 +10,6 @@ import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
-import com.nexigroup.pagopa.cruscotto.job.kpi.b9.KpiB9Job;
 
 @Configuration
 public class KpiB9ConfigJob {

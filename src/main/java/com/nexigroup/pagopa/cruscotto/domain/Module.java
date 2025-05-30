@@ -72,6 +72,30 @@ public class Module extends AbstractAuditingEntity<Long> implements Serializable
     @Column(name = "TE_STATUS", nullable = false)
     private ModuleStatus status;
 
+    @NotNull
+    @Column(name = "FL_CONFIG_EXCLUDE_PLANNED_SHUTDOWN", nullable = false)
+    private Boolean configExcludePlannedShutdown;
+
+    @NotNull
+    @Column(name = "FL_CONFIG_EXCLUDE_UNPLANNED_SHUTDOWN", nullable = false)
+    private Boolean configExcludeUnplannedShutdown;
+
+    @NotNull
+    @Column(name = "FL_CONFIG_ELIGIBILITY_THRESHOLD", nullable = false)
+    private Boolean configEligibilityThreshold;
+
+    @NotNull
+    @Column(name = "fl_config_tolerance", nullable = false)
+    private Boolean configTolerance;
+
+    @NotNull
+    @Column(name = "FL_CONFIG_AVERAGE_TIME_LIMIT", nullable = false)
+    private Boolean configAverageTimeLimit;
+
+    @NotNull
+    @Column(name = "FL_CONFIG_EVALUATION_TYPE", nullable = false)
+    private Boolean configEvaluationType;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
