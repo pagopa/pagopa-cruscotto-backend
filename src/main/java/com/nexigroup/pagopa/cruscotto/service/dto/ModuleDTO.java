@@ -1,11 +1,8 @@
 package com.nexigroup.pagopa.cruscotto.service.dto;
 
-import com.nexigroup.pagopa.cruscotto.domain.Instance;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleStatus;
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,7 +10,6 @@ import lombok.Setter;
 /**
  * A DTO for the {@link Module} entity.
  */
-
 @Getter
 @Setter
 @EqualsAndHashCode
@@ -34,4 +30,16 @@ public class ModuleDTO implements Serializable {
     private Boolean allowManualOutcome;
 
     private ModuleStatus status;
+
+    private Boolean configExcludePlannedShutdown;
+
+    private Boolean configExcludeUnplannedShutdown;
+
+    private Boolean configEligibilityThreshold;
+
+    private Boolean configTolerance;
+
+    private Boolean configAverageTimeLimit;
+
+    private Boolean configEvaluationType;
 }
