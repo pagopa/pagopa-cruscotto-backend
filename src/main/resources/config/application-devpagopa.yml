@@ -115,7 +115,7 @@ application:
     kpi-b9-job:
       enabled: true
       cron: 0 0/10 01-03 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
-      limit: 20	  
+      limit: 20
 
   liquibase:
     async-start: false

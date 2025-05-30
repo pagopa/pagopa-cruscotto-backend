@@ -1,13 +1,5 @@
 package com.nexigroup.pagopa.cruscotto.domain;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
-import java.io.Serializable;
-import java.time.Instant;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -16,8 +8,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.io.Serializable;
+import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * A PagoPaPaymentReceipt.
@@ -30,9 +28,9 @@ import lombok.Setter;
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class PagoPaPaymentReceipt implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	@Id
+    @Id
     @Column(name = "ID")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -67,7 +65,6 @@ public class PagoPaPaymentReceipt implements Serializable {
     @Column(name = "RES_KO", nullable = false)
     private Long resKo;
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -88,9 +85,25 @@ public class PagoPaPaymentReceipt implements Serializable {
     }
 
     @Override
-	public String toString() {
-		return "PagoPaPaymentReceipt [id=" + id + ", cfPartner=" + cfPartner + ", station=" + station + ", startDate="
-				+ startDate + ", endDate=" + endDate + ", totRes=" + totRes + ", resOk=" + resOk + ", resKo=" + resKo
-				+ "]";
-	}
+    public String toString() {
+        return (
+            "PagoPaPaymentReceipt [id=" +
+            id +
+            ", cfPartner=" +
+            cfPartner +
+            ", station=" +
+            station +
+            ", startDate=" +
+            startDate +
+            ", endDate=" +
+            endDate +
+            ", totRes=" +
+            totRes +
+            ", resOk=" +
+            resOk +
+            ", resKo=" +
+            resKo +
+            "]"
+        );
+    }
 }
