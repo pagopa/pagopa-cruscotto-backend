@@ -135,19 +135,19 @@ application:
       enabled: true
       cron: 0 0/50 0-23 ? * SAT *
     kpi-a1-job:
-      enabled: true
-      cron: 0 0/2 21-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
+      enabled: false
+      cron: 0 0/2 08-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
       limit: 20
     kpi-a2-job:
-      enabled: true
-      cron: 0 0/2 21-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
+      enabled: false
+      cron: 0 0/2 08-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
       limit: 20
     kpi-b2-job:
-      enabled: true
+      enabled: false
       cron: 0 0/2 08-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
       limit: 20
     kpi-b9-job:
-      enabled: true
+      enabled: false
       cron: 0 0/2 08-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
       limit: 20
 
