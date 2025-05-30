@@ -7,7 +7,7 @@
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
   <changeSet id="20250530140600-1" author="system" context="ddl">
-    <addColumn tableName="TAXONOMY">
+    <addColumn tableName="MODULE">
       <column name="fl_config_exclude_planned_shutdown" type="boolean"  defaultValueBoolean="false">
         <constraints nullable="false"/>
       </column>
