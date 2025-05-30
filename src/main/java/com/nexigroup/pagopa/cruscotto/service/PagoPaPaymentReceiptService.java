@@ -2,7 +2,6 @@ package com.nexigroup.pagopa.cruscotto.service;
 
 import com.nexigroup.pagopa.cruscotto.domain.PagoPaPaymentReceipt;
 import com.nexigroup.pagopa.cruscotto.service.dto.PagoPaPaymentReceiptDTO;
-
 import java.time.LocalDate;
 import java.util.List;
 
@@ -20,6 +19,6 @@ public interface PagoPaPaymentReceiptService {
      * @return the map contains Station and list method.
      */
     List<String> findAllStationIntoPeriodForPartner(String fiscalCodePartner, LocalDate startDate, LocalDate endDate);
-    
+
     List<PagoPaPaymentReceiptDTO> findAllRecordIntoDayForPartnerAndStation(String fiscalCodePartner, String station, LocalDate day);
 }

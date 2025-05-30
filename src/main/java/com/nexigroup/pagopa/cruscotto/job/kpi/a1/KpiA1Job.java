@@ -1,20 +1,5 @@
 package com.nexigroup.pagopa.cruscotto.job.kpi.a1;
 
-import org.apache.commons.lang3.BooleanUtils;
-import org.jetbrains.annotations.NotNull;
-import org.quartz.DisallowConcurrentExecution;
-import org.quartz.JobDetail;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobKey;
-import org.quartz.Scheduler;
-import org.quartz.SimpleScheduleBuilder;
-import org.quartz.Trigger;
-import org.quartz.TriggerBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.quartz.QuartzJobBean;
-import org.springframework.stereotype.Component;
-
 import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
@@ -38,7 +23,6 @@ import com.nexigroup.pagopa.cruscotto.service.dto.KpiA1DetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA1ResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiConfigurationDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.PagoPaRecordedTimeoutDTO;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
@@ -50,8 +34,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
-
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.BooleanUtils;
+import org.jetbrains.annotations.NotNull;
+import org.quartz.DisallowConcurrentExecution;
+import org.quartz.JobDetail;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
+import org.quartz.SimpleScheduleBuilder;
+import org.quartz.Trigger;
+import org.quartz.TriggerBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.quartz.QuartzJobBean;
+import org.springframework.stereotype.Component;
 
 @Component
 @AllArgsConstructor
@@ -87,12 +84,11 @@ public class KpiA1Job extends QuartzJobBean {
         LOGGER.info("Start calculate kpi A.1");
 
         try {
-        	
-			if (!applicationProperties.getJob().getKpiA1Job().isEnabled()) {
-				LOGGER.info("Job calculate kpi A.1 disabled. Exit...");
-				return;
-			}
-			
+            if (!applicationProperties.getJob().getKpiA1Job().isEnabled()) {
+                LOGGER.info("Job calculate kpi A.1 disabled. Exit...");
+                return;
+            }
+
             List<InstanceDTO> instanceDTOS = instanceService.findInstanceToCalculate(
                 ModuleCode.A1,
                 applicationProperties.getJob().getKpiA1Job().getLimit()
@@ -106,8 +102,10 @@ public class KpiA1Job extends QuartzJobBean {
                     .orElseThrow(() -> new NullPointerException("KPI A.1 Configuration not found"));
 
                 LOGGER.info("Kpi configuration {}", kpiConfigurationDTO);
-                
-                Double eligibilityThreshold = kpiConfigurationDTO.getEligibilityThreshold() != null ? kpiConfigurationDTO.getEligibilityThreshold() : 0.0;
+
+                Double eligibilityThreshold = kpiConfigurationDTO.getEligibilityThreshold() != null
+                    ? kpiConfigurationDTO.getEligibilityThreshold()
+                    : 0.0;
                 Double tolerance = kpiConfigurationDTO.getTolerance() != null ? kpiConfigurationDTO.getTolerance() : 0.0;
 
                 instanceDTOS.forEach(instanceDTO -> {
@@ -150,8 +148,12 @@ public class KpiA1Job extends QuartzJobBean {
                         kpiA1ResultDTO.setInstanceId(instanceDTO.getId());
                         kpiA1ResultDTO.setInstanceModuleId(instanceModuleDTO.getId());
                         kpiA1ResultDTO.setAnalysisDate(LocalDate.now());
-                        kpiA1ResultDTO.setExcludePlannedShutdown(BooleanUtils.toBooleanDefaultIfNull(kpiConfigurationDTO.getExcludePlannedShutdown(), false));
-                        kpiA1ResultDTO.setExcludeUnplannedShutdown(BooleanUtils.toBooleanDefaultIfNull(kpiConfigurationDTO.getExcludeUnplannedShutdown(), false));
+                        kpiA1ResultDTO.setExcludePlannedShutdown(
+                            BooleanUtils.toBooleanDefaultIfNull(kpiConfigurationDTO.getExcludePlannedShutdown(), false)
+                        );
+                        kpiA1ResultDTO.setExcludeUnplannedShutdown(
+                            BooleanUtils.toBooleanDefaultIfNull(kpiConfigurationDTO.getExcludeUnplannedShutdown(), false)
+                        );
                         kpiA1ResultDTO.setEligibilityThreshold(eligibilityThreshold);
                         kpiA1ResultDTO.setTolerance(tolerance);
                         kpiA1ResultDTO.setEvaluationType(kpiConfigurationDTO.getEvaluationType());
@@ -322,8 +324,10 @@ public class KpiA1Job extends QuartzJobBean {
                                                     outcomeStatus = OutcomeStatus.KO;
                                                 }
 
-                                                if (kpiConfigurationDTO.getEvaluationType().compareTo(EvaluationType.MESE) == 0 &&
-                                                    outcomeStatus.compareTo(OutcomeStatus.KO) == 0) {
+                                                if (
+                                                    kpiConfigurationDTO.getEvaluationType().compareTo(EvaluationType.MESE) == 0 &&
+                                                    outcomeStatus.compareTo(OutcomeStatus.KO) == 0
+                                                ) {
                                                     kpiA1ResultFinalOutcome.set(OutcomeStatus.KO);
                                                 }
 
@@ -370,8 +374,10 @@ public class KpiA1Job extends QuartzJobBean {
                                         outcomeStatus = OutcomeStatus.KO;
                                     }
 
-                                    if (kpiConfigurationDTO.getEvaluationType().compareTo(EvaluationType.TOTALE) == 0 &&
-                                        outcomeStatus.compareTo(OutcomeStatus.KO) == 0) {
+                                    if (
+                                        kpiConfigurationDTO.getEvaluationType().compareTo(EvaluationType.TOTALE) == 0 &&
+                                        outcomeStatus.compareTo(OutcomeStatus.KO) == 0
+                                    ) {
                                         kpiA1ResultFinalOutcome.set(OutcomeStatus.KO);
                                     }
 

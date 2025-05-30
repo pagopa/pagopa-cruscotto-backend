@@ -1,12 +1,19 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
 import com.nexigroup.pagopa.cruscotto.domain.*;
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
+import com.nexigroup.pagopa.cruscotto.domain.Module;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.*;
 import com.nexigroup.pagopa.cruscotto.repository.KpiConfigurationRepository;
+import com.nexigroup.pagopa.cruscotto.repository.ModuleRepository;
+import com.nexigroup.pagopa.cruscotto.security.SecurityUtils;
+import com.nexigroup.pagopa.cruscotto.service.GenericServiceException;
 import com.nexigroup.pagopa.cruscotto.service.KpiConfigurationService;
+import com.nexigroup.pagopa.cruscotto.service.bean.KpiConfigurationRequestBean;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiConfigurationDTO;
+import com.nexigroup.pagopa.cruscotto.service.mapper.KpiConfigurationMapper;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QdslUtility;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
+import com.nexigroup.pagopa.cruscotto.service.util.UserUtils;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
@@ -32,20 +39,44 @@ import org.springframework.transaction.annotation.Transactional;
 public class KpiConfigurationServiceImpl implements KpiConfigurationService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KpiConfigurationServiceImpl.class);
+    public static final String KPI_CONFIGURATION = "kpiConfiguration";
     public static final String FIELD_ID = "id";
     public static final String FIELD_MODULE_ID = "moduleId";
     public static final String FIELD_MODULE_CODE = "moduleCode";
+    public static final String FIELD_MODULE_NAME = "moduleName";
     public static final String FIELD_EXCLUDE_PLANNED_SHUTDOWN = "excludePlannedShutdown";
     public static final String FIELD_EXCLUDE_UNPLANNED_SHUTDOWN = "excludeUnplannedShutdown";
     public static final String FIELD_ELIGIBILITY_THRESHOLD = "eligibilityThreshold";
     public static final String FIELD_TOLERANCE = "tolerance";
     public static final String FIELD_AVERAGE_TIME_LIMIT = "averageTimeLimit";
     public static final String FIELD_EVALUATION_TYPE = "evaluationType";
+    public static final String FIELD_CONFIG_EXCLUDE_PLANNED_SHUTDOWN = "configExcludePlannedShutdown";
+    public static final String FIELD_CONFIG_EXCLUDE_UNPLANNED_SHUTDOWN = "configExcludeUnplannedShutdown";
+    public static final String FIELD_CONFIG_ELIGIBILITY_THRESHOLD = "configEligibilityThreshold";
+    public static final String FIELD_CONFIG_TOLERANCE = "configTolerance";
+    public static final String FIELD_CONFIG_AVERAGE_TIME_LIMIT = "configAverageTimeLimit";
+    public static final String FIELD_CONFIG_EVALUATION_TYPE = "configEvaluationType";
+
+    private static final String CURRENT_USER_LOGIN_NOT_FOUND = "Current user login not found";
 
     private final QueryBuilder queryBuilder;
+    private final KpiConfigurationRepository kpiConfigurationRepository;
+    private final ModuleRepository moduleRepository;
+    private final KpiConfigurationMapper kpiConfigurationMapper;
+    private final UserUtils userUtils;
 
-    public KpiConfigurationServiceImpl(QueryBuilder queryBuilder) {
+    public KpiConfigurationServiceImpl(
+        QueryBuilder queryBuilder,
+        KpiConfigurationRepository kpiConfigurationRepository,
+        KpiConfigurationMapper kpiConfigurationMapper,
+        ModuleRepository moduleRepository,
+        UserUtils userUtils
+    ) {
         this.queryBuilder = queryBuilder;
+        this.kpiConfigurationRepository = kpiConfigurationRepository;
+        this.kpiConfigurationMapper = kpiConfigurationMapper;
+        this.moduleRepository = moduleRepository;
+        this.userUtils = userUtils;
     }
 
     /**
@@ -57,14 +88,15 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
     @Override
     public Optional<KpiConfigurationDTO> findKpiConfigurationByCode(ModuleCode code) {
         QKpiConfiguration qKpiConfiguration = QKpiConfiguration.kpiConfiguration;
+        QModule qModule = QModule.module;
 
         JPQLQuery<KpiConfiguration> jpql = queryBuilder
             .<KpiConfiguration>createQuery()
             .from(qKpiConfiguration)
-            .leftJoin(qKpiConfiguration.module, QModule.module)
+            .leftJoin(qKpiConfiguration.module, qModule)
             .where(qKpiConfiguration.module.code.eq(code.code));
 
-        JPQLQuery<KpiConfigurationDTO> jpqlResponse = jpql.select(createKpiConfigurationProjection(qKpiConfiguration));
+        JPQLQuery<KpiConfigurationDTO> jpqlResponse = jpql.select(createKpiConfigurationProjection(qKpiConfiguration, qModule));
 
         return Optional.ofNullable(jpqlResponse.fetchOne());
     }
@@ -82,11 +114,16 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
 
         QKpiConfiguration qKpiConfiguration = QKpiConfiguration.kpiConfiguration;
 
-        JPQLQuery<KpiConfiguration> query = queryBuilder.<KpiConfiguration>createQuery().from(qKpiConfiguration);
+        QModule qModule = QModule.module;
+
+        JPQLQuery<KpiConfiguration> query = queryBuilder
+            .<KpiConfiguration>createQuery()
+            .from(qKpiConfiguration)
+            .leftJoin(qKpiConfiguration.module, qModule);
 
         long total = query.fetchCount();
 
-        JPQLQuery<KpiConfigurationDTO> jpqlQuery = query.select(createKpiConfigurationProjection(qKpiConfiguration));
+        JPQLQuery<KpiConfigurationDTO> jpqlQuery = query.select(createKpiConfigurationProjection(qKpiConfiguration, qModule));
 
         jpqlQuery.offset(pageable.getOffset());
         jpqlQuery.limit(pageable.getPageSize());
@@ -109,18 +146,190 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
         return new PageImpl<>(results, pageable, total);
     }
 
-    private com.querydsl.core.types.Expression<KpiConfigurationDTO> createKpiConfigurationProjection(QKpiConfiguration qKpiConfiguration) {
+    private com.querydsl.core.types.Expression<KpiConfigurationDTO> createKpiConfigurationProjection(
+        QKpiConfiguration qKpiConfiguration,
+        QModule qModule
+    ) {
         return Projections.fields(
             KpiConfigurationDTO.class,
             qKpiConfiguration.id.as(FIELD_ID),
             qKpiConfiguration.module.id.as(FIELD_MODULE_ID),
-            qKpiConfiguration.module.code.as(FIELD_MODULE_CODE),
+            qModule.code.as(FIELD_MODULE_CODE),
             qKpiConfiguration.excludePlannedShutdown.as(FIELD_EXCLUDE_PLANNED_SHUTDOWN),
             qKpiConfiguration.excludeUnplannedShutdown.as(FIELD_EXCLUDE_UNPLANNED_SHUTDOWN),
             qKpiConfiguration.eligibilityThreshold.as(FIELD_ELIGIBILITY_THRESHOLD),
             qKpiConfiguration.tolerance.as(FIELD_TOLERANCE),
             qKpiConfiguration.averageTimeLimit.as(FIELD_AVERAGE_TIME_LIMIT),
-            qKpiConfiguration.evaluationType.as(FIELD_EVALUATION_TYPE)
+            qKpiConfiguration.evaluationType.as(FIELD_EVALUATION_TYPE),
+            qModule.name.as(FIELD_MODULE_NAME),
+            qModule.configExcludePlannedShutdown.as(FIELD_CONFIG_EXCLUDE_PLANNED_SHUTDOWN),
+            qModule.configExcludeUnplannedShutdown.as(FIELD_CONFIG_EXCLUDE_UNPLANNED_SHUTDOWN),
+            qModule.configEligibilityThreshold.as(FIELD_CONFIG_ELIGIBILITY_THRESHOLD),
+            qModule.configTolerance.as(FIELD_CONFIG_TOLERANCE),
+            qModule.configAverageTimeLimit.as(FIELD_CONFIG_AVERAGE_TIME_LIMIT),
+            qModule.configEvaluationType.as(FIELD_CONFIG_EVALUATION_TYPE)
         );
+    }
+
+    /**
+     * Save a new kpi configuration.
+     *
+     * @param kpiConfigurationToCreate the kpi configuration to save.
+     * @return the persisted kpi configuration.
+     */
+    @Override
+    public KpiConfigurationDTO saveNew(KpiConfigurationRequestBean kpiConfigurationToCreate) {
+        AuthUser loggedUser = userUtils.getLoggedUser();
+
+        //Il codice deve corrispondere ad un modulo che esista realmente
+        Module module = moduleRepository
+            .findByCode(kpiConfigurationToCreate.getModuleCode())
+            .orElseThrow(() ->
+                new GenericServiceException(
+                    String.format("Module with code %s does not exist", kpiConfigurationToCreate.getModuleCode()),
+                    "module",
+                    "kpiConfiguration.moduleNotExists"
+                )
+            );
+
+        //Non possono esistere due configurazioni asssociate allo stesso modulo
+        ModuleCode code = ModuleCode.fromCode(kpiConfigurationToCreate.getModuleCode());
+        findKpiConfigurationByCode(code)
+            .filter(kpiConfigurationDTO -> !kpiConfigurationDTO.getId().equals(kpiConfigurationToCreate.getId()))
+            .ifPresent(kpiConfigurationDTO -> {
+                throw new GenericServiceException(
+                    String.format(
+                        "Kpi configuration cannot be updated or created because the module %s has already a kpi configurations",
+                        kpiConfigurationToCreate.getModuleCode()
+                    ),
+                    "module",
+                    "module.cannotBeUpdated"
+                );
+            });
+
+        KpiConfiguration kpiConfiguration = new KpiConfiguration();
+        kpiConfiguration.setModule(module);
+
+        if (module.getConfigAverageTimeLimit()) {
+            kpiConfiguration.setAverageTimeLimit(kpiConfigurationToCreate.getAverageTimeLimit());
+        }
+        if (module.getConfigEligibilityThreshold()) {
+            kpiConfiguration.setEligibilityThreshold(kpiConfigurationToCreate.getEligibilityThreshold());
+        }
+        if (module.getConfigEvaluationType()) {
+            kpiConfiguration.setEvaluationType(kpiConfigurationToCreate.getEvaluationType());
+        }
+        if (module.getConfigExcludePlannedShutdown()) {
+            kpiConfiguration.setExcludePlannedShutdown(kpiConfigurationToCreate.getExcludePlannedShutdown());
+        }
+        if (module.getConfigExcludeUnplannedShutdown()) {
+            kpiConfiguration.setExcludeUnplannedShutdown(kpiConfigurationToCreate.getExcludeUnplannedShutdown());
+        }
+        if (module.getConfigTolerance()) {
+            kpiConfiguration.setTolerance(kpiConfigurationToCreate.getTolerance());
+        }
+
+        kpiConfiguration = kpiConfigurationRepository.save(kpiConfiguration);
+
+        LOGGER.info("Creation of kpi configuration with identification {} by user {}", kpiConfiguration.getId(), loggedUser.getLogin());
+
+        return kpiConfigurationMapper.toDto(kpiConfiguration);
+    }
+
+    @Override
+    public KpiConfigurationDTO update(KpiConfigurationRequestBean kpiConfigurationToUpdate) {
+        String loginUtenteLoggato = SecurityUtils.getCurrentUserLogin()
+            .orElseThrow(() -> new RuntimeException(CURRENT_USER_LOGIN_NOT_FOUND));
+
+        //Il codice deve corrispondere ad un modulo che esista realmente
+        Module module = moduleRepository
+            .findByCode(kpiConfigurationToUpdate.getModuleCode())
+            .orElseThrow(() ->
+                new GenericServiceException(
+                    String.format("Module with code %s does not exist", kpiConfigurationToUpdate.getModuleCode()),
+                    "module",
+                    "kpiConfiguration.moduleNotExists"
+                )
+            );
+
+        //Non possono esistere due configurazioni asssociate allo stesso modulo
+        ModuleCode code = ModuleCode.fromCode(kpiConfigurationToUpdate.getModuleCode());
+        findKpiConfigurationByCode(code)
+            .filter(kpiConfigurationDTO -> !kpiConfigurationDTO.getId().equals(kpiConfigurationToUpdate.getId()))
+            .ifPresent(kpiConfigurationDTO -> {
+                throw new GenericServiceException(
+                    String.format(
+                        "Kpi configuration with id %s cannot be updated because the module %s has already a kpi configurations",
+                        kpiConfigurationToUpdate.getModuleCode()
+                    ),
+                    "module",
+                    "module.cannotBeUpdated"
+                );
+            });
+
+        return Optional.of(kpiConfigurationRepository.findById(kpiConfigurationToUpdate.getId()))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .map(kpiConfiguration -> {
+                kpiConfiguration.setModule(module);
+                if (module.getConfigAverageTimeLimit()) {
+                    kpiConfiguration.setAverageTimeLimit(kpiConfigurationToUpdate.getAverageTimeLimit());
+                }
+                if (module.getConfigEligibilityThreshold()) {
+                    kpiConfiguration.setEligibilityThreshold(kpiConfigurationToUpdate.getEligibilityThreshold());
+                }
+                if (module.getConfigEvaluationType()) {
+                    kpiConfiguration.setEvaluationType(kpiConfigurationToUpdate.getEvaluationType());
+                }
+                if (module.getConfigExcludePlannedShutdown()) {
+                    kpiConfiguration.setExcludePlannedShutdown(kpiConfigurationToUpdate.getExcludePlannedShutdown());
+                }
+                if (module.getConfigExcludeUnplannedShutdown()) {
+                    kpiConfiguration.setExcludeUnplannedShutdown(kpiConfigurationToUpdate.getExcludeUnplannedShutdown());
+                }
+                if (module.getConfigTolerance()) {
+                    kpiConfiguration.setTolerance(kpiConfigurationToUpdate.getTolerance());
+                }
+
+                kpiConfigurationRepository.save(kpiConfiguration);
+
+                LOGGER.info("Updating of kpiConfiguration with identification {} by user {}", kpiConfiguration.getId(), loginUtenteLoggato);
+
+                return kpiConfiguration;
+            })
+            .map(kpiConfigurationMapper::toDto)
+            .orElseThrow(() ->
+                new GenericServiceException(
+                    String.format("kpiConfiguration with id %s not exist", kpiConfigurationToUpdate.getId()),
+                    "kpiConfiguration",
+                    "kpiConfiguration.notExists"
+                )
+            );
+    }
+
+    @Override
+    public KpiConfigurationDTO delete(Long id) {
+        return Optional.of(kpiConfigurationRepository.findById(id))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .map(kpiConfiguration -> {
+                String loginUtenteLoggato = SecurityUtils.getCurrentUserLogin()
+                    .orElseThrow(() -> new RuntimeException("current user login not found"));
+                kpiConfigurationRepository.deleteById(id);
+                LOGGER.info(
+                    "Physical deleting of kpi configuration with identification {} by user {}",
+                    kpiConfiguration.getId(),
+                    loginUtenteLoggato
+                );
+                return kpiConfiguration;
+            })
+            .map(kpiConfigurationMapper::toDto)
+            .orElseThrow(() ->
+                new GenericServiceException(
+                    String.format("kpi configuration with id %s not exist", id),
+                    KPI_CONFIGURATION,
+                    "kpiConfiguration.notExists"
+                )
+            );
     }
 }

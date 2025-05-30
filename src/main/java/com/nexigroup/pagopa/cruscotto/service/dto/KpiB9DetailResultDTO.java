@@ -4,11 +4,9 @@ import com.nexigroup.pagopa.cruscotto.domain.KpiB9DetailResult;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.service.validation.ValidationGroups;
-
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDate;
-
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,10 +18,9 @@ import lombok.Setter;
 @Setter
 public class KpiB9DetailResultDTO implements Serializable {
 
-	private static final long serialVersionUID = 1L;
-	
+    private static final long serialVersionUID = 1L;
 
-	private Long id;
+    private Long id;
 
     @NotNull(groups = { ValidationGroups.KpiB9Job.class })
     private Long instanceId;
@@ -48,9 +45,9 @@ public class KpiB9DetailResultDTO implements Serializable {
 
     @NotNull(groups = { ValidationGroups.KpiB9Job.class })
     private Long totRes;
-    
+
     @NotNull(groups = { ValidationGroups.KpiB9Job.class })
-    private Long resKo;    
+    private Long resKo;
 
     @NotNull(groups = { ValidationGroups.KpiB9Job.class })
     private Double resKoPercentage;
@@ -60,13 +57,36 @@ public class KpiB9DetailResultDTO implements Serializable {
 
     private Long kpiB9ResultId;
 
-    
     @Override
-	public String toString() {
-		return "KpiB9DetailResultDTO [id=" + id + ", instanceId=" + instanceId + ", instanceModuleId="
-				+ instanceModuleId + ", analysisDate=" + analysisDate + ", stationId=" + stationId + ", evaluationType="
-				+ evaluationType + ", evaluationStartDate=" + evaluationStartDate + ", evaluationEndDate="
-				+ evaluationEndDate + ", totRes=" + totRes + ", resKo=" + resKo + ", resKoPercentage=" + resKoPercentage
-				+ ", outcome=" + outcome + ", kpiB9ResultId=" + kpiB9ResultId + "]";
-	}
+    public String toString() {
+        return (
+            "KpiB9DetailResultDTO [id=" +
+            id +
+            ", instanceId=" +
+            instanceId +
+            ", instanceModuleId=" +
+            instanceModuleId +
+            ", analysisDate=" +
+            analysisDate +
+            ", stationId=" +
+            stationId +
+            ", evaluationType=" +
+            evaluationType +
+            ", evaluationStartDate=" +
+            evaluationStartDate +
+            ", evaluationEndDate=" +
+            evaluationEndDate +
+            ", totRes=" +
+            totRes +
+            ", resKo=" +
+            resKo +
+            ", resKoPercentage=" +
+            resKoPercentage +
+            ", outcome=" +
+            outcome +
+            ", kpiB9ResultId=" +
+            kpiB9ResultId +
+            "]"
+        );
+    }
 }

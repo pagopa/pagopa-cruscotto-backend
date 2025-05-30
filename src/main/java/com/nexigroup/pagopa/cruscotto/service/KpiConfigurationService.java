@@ -2,6 +2,7 @@ package com.nexigroup.pagopa.cruscotto.service;
 
 import com.nexigroup.pagopa.cruscotto.domain.KpiConfiguration;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
+import com.nexigroup.pagopa.cruscotto.service.bean.KpiConfigurationRequestBean;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiConfigurationDTO;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -26,4 +27,26 @@ public interface KpiConfigurationService {
      * @return a paginated list of {@link KpiConfigurationDTO} containing the details of KPI configurations
      */
     Page<KpiConfigurationDTO> findAll(Pageable pageable);
+
+    /**
+     * Delete one kpi configuration by id.
+     *
+     * @param id the id of the kpi configuration.
+     */
+    KpiConfigurationDTO delete(Long id);
+
+    /**
+     * Save a new kpi configuration.
+     *
+     * @param KpiConfigurationToCreate the entity to save.
+     * @return the persisted entity.
+     */
+    KpiConfigurationDTO saveNew(KpiConfigurationRequestBean KpiConfigurationToCreate);
+
+    /**
+     * Update one kpi configuration by id.
+     *
+     * @param kpiConfiguration the kpi configuration to be updated.
+     */
+    KpiConfigurationDTO update(KpiConfigurationRequestBean kpiConfiguration);
 }
