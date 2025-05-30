@@ -206,20 +206,33 @@ public class KpiA1Job extends QuartzJobBean {
                                     AtomicReference<Long> totTimeoutReqPeriod = new AtomicReference<>(0L);
                                     List<KpiA1AnalyticDataDTO> kpiA1AnalyticDataDTOS = new ArrayList<>();
                                     List<KpiA1DetailResultDTO> kpiA1DetailResultDTOS = new ArrayList<>();
+                                    AtomicReference<LocalDate> firstDayOfMonth = new AtomicReference<>();
+                                    AtomicReference<LocalDate> lastDayOfMonth = new AtomicReference<>();
+                                    
                                     instanceDTO
                                         .getAnalysisPeriodStartDate()
                                         .datesUntil(instanceDTO.getAnalysisPeriodEndDate().plusDays(1))
                                         .forEach(date -> {
                                             LOGGER.info("Date {}", date);
 
-                                            LocalDate firstDayOfMonth = date.with(TemporalAdjusters.firstDayOfMonth());
-                                            LocalDate lastDayOfMonth = date.with(TemporalAdjusters.lastDayOfMonth());
                                             Month currentMonth = date.getMonth();
 
-                                            if (date.isEqual(firstDayOfMonth)) {
-                                                totReqMonth.set(0L);
-                                                totTimeoutReqMonth.set(0L);
-                                                kpiA1AnalyticDataDTOS.clear();
+                                            if (prevMonth.get() == null || prevMonth.get().compareTo(currentMonth) != 0) {
+                                               	
+                                           		if(prevMonth.get() == null) {
+                                           			firstDayOfMonth.set(instanceDTO.getAnalysisPeriodStartDate());                                            		
+                                           		} else {
+                                           			firstDayOfMonth.set(date.with(TemporalAdjusters.firstDayOfMonth()));
+                                           			totReqMonth.set(0L);
+                                           			totTimeoutReqMonth.set(0L);
+                                           			kpiA1AnalyticDataDTOS.clear();
+                                           		}
+                                           	
+                                           		if(currentMonth.compareTo(instanceDTO.getAnalysisPeriodEndDate().getMonth()) == 0) {
+                                           			lastDayOfMonth.set(instanceDTO.getAnalysisPeriodEndDate());
+                                           		} else {
+                                           			lastDayOfMonth.set(date.with(TemporalAdjusters.lastDayOfMonth()));
+                                           		}
                                             }
 
                                             List<PagoPaRecordedTimeoutDTO> pagoPaRecordedTimeoutDTOS =
@@ -280,7 +293,7 @@ public class KpiA1Job extends QuartzJobBean {
 
                                             kpiA1AnalyticDataDTOS.add(kpiA1AnalyticDataDTO);
 
-                                            if (date.isEqual(lastDayOfMonth)) {
+                                            if (date.isEqual(lastDayOfMonth.get())) {
                                                 totReqPeriod.set(totReqPeriod.get() + totReqMonth.get());
                                                 totTimeoutReqPeriod.set(totTimeoutReqPeriod.get() + totTimeoutReqMonth.get());
 
@@ -296,8 +309,8 @@ public class KpiA1Job extends QuartzJobBean {
                                                 kpiA1DetailResultDTO.setStationId(idStation);
                                                 kpiA1DetailResultDTO.setMethod(method);
                                                 kpiA1DetailResultDTO.setEvaluationType(EvaluationType.MESE);
-                                                kpiA1DetailResultDTO.setEvaluationStartDate(firstDayOfMonth);
-                                                kpiA1DetailResultDTO.setEvaluationEndDate(lastDayOfMonth);
+                                                kpiA1DetailResultDTO.setEvaluationStartDate(firstDayOfMonth.get());
+                                                kpiA1DetailResultDTO.setEvaluationEndDate(lastDayOfMonth.get());
                                                 kpiA1DetailResultDTO.setTotReq(totReqMonth.get());
                                                 kpiA1DetailResultDTO.setReqTimeout(totTimeoutReqMonth.get());
                                                 kpiA1DetailResultDTO.setTimeoutPercentage(roundToNDecimalPlaces(percTimeoutReqMonth));

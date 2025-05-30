@@ -217,30 +217,50 @@ public class KpiB2Job extends QuartzJobBean {
                                     AtomicReference<Double> totPeriodOverTimeLimit = new AtomicReference<>(0.0);
                                     List<KpiB2AnalyticDataDTO> kpiB2AnalyticDataDTOS = new ArrayList<>();
                                     List<KpiB2DetailResultDTO> kpiB2DetailResultDTOS = new ArrayList<>();
+                                    AtomicReference<LocalDate> firstDayOfMonth = new AtomicReference<>();
+                                    AtomicReference<LocalDate> lastDayOfMonth = new AtomicReference<>();
+                                    
                                     instanceDTO
                                         .getAnalysisPeriodStartDate()
                                         .datesUntil(instanceDTO.getAnalysisPeriodEndDate().plusDays(1))
                                         .forEach(date -> {
                                             LOGGER.info("Date {}", date);
 
-                                            LocalDate firstDayOfMonth = date.with(TemporalAdjusters.firstDayOfMonth());
-                                            LocalDate lastDayOfMonth = date.with(TemporalAdjusters.lastDayOfMonth());
+                                //            LocalDate firstDayOfMonth; // date.with(TemporalAdjusters.firstDayOfMonth());
+                                 //           LocalDate lastDayOfMonth; // date.with(TemporalAdjusters.lastDayOfMonth());
                                             Month currentMonth = date.getMonth();
 
-                                            if (date.isEqual(firstDayOfMonth)) {
+                                          /*  if (date.isEqual(firstDayOfMonth)) {
                                                 totMonthWeight.set(0.0);
                                                 totMonthOverTimeLimit.set(0.0);
                                                 kpiB2AnalyticDataDTOS.clear();
-                                            }
+                                            } */
 
                                             if (prevMonth.get() == null || prevMonth.get().compareTo(currentMonth) != 0) {
+                                            	
+                                            	if(prevMonth.get() == null) {
+                                            		firstDayOfMonth.set(instanceDTO.getAnalysisPeriodStartDate());                                            		
+                                            	} else {
+                                            	//if(prevMonth.get().compareTo(currentMonth) != 0) {
+                                            		firstDayOfMonth.set(date.with(TemporalAdjusters.firstDayOfMonth()));
+                                            		totMonthWeight.set(0.0);
+                                                    totMonthOverTimeLimit.set(0.0);
+                                                    kpiB2AnalyticDataDTOS.clear();
+                                            	}
+                                            	
+                                            	if(currentMonth.compareTo(instanceDTO.getAnalysisPeriodEndDate().getMonth()) == 0) {
+                                            		lastDayOfMonth.set(instanceDTO.getAnalysisPeriodEndDate());
+                                            	} else {
+                                            		lastDayOfMonth.set(date.with(TemporalAdjusters.lastDayOfMonth()));
+                                            	}
+                                            	
                                                 totRecordMonth.set(
                                                     pagoPaRecordedTimeoutService.sumRecordIntoPeriodForPartnerStationAndMethod(
                                                         instanceDTO.getPartnerFiscalCode(),
                                                         station,
                                                         method,
-                                                        firstDayOfMonth,
-                                                        lastDayOfMonth
+                                                        firstDayOfMonth.get(),
+                                                        lastDayOfMonth.get()
                                                     )
                                                 );
 
@@ -318,7 +338,7 @@ public class KpiB2Job extends QuartzJobBean {
 
                                             kpiB2AnalyticDataDTOS.add(kpiB2AnalyticDataDTO);
 
-                                            if (date.isEqual(lastDayOfMonth)) {
+                                            if (date.isEqual(lastDayOfMonth.get())) {
                                                 long sumTotReqMontly = 0;
                                                 double sumWeightsMontly = 0L;
 
@@ -339,8 +359,8 @@ public class KpiB2Job extends QuartzJobBean {
                                                 kpiB2DetailResultDTO.setStationId(idStation);
                                                 kpiB2DetailResultDTO.setMethod(method);
                                                 kpiB2DetailResultDTO.setEvaluationType(EvaluationType.MESE);
-                                                kpiB2DetailResultDTO.setEvaluationStartDate(firstDayOfMonth);
-                                                kpiB2DetailResultDTO.setEvaluationEndDate(lastDayOfMonth);
+                                                kpiB2DetailResultDTO.setEvaluationStartDate(firstDayOfMonth.get());
+                                                kpiB2DetailResultDTO.setEvaluationEndDate(lastDayOfMonth.get());
                                                 kpiB2DetailResultDTO.setTotReq(sumTotReqMontly);
                                                 kpiB2DetailResultDTO.setAvgTime(roundToNDecimalPlaces(weightedAverageMontly));
                                                 kpiB2DetailResultDTO.setOverTimeLimit(roundToNDecimalPlaces(totMonthOverTimeLimit.get()));
