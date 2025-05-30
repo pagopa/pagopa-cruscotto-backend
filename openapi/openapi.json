@@ -19,9 +19,7 @@
   "paths": {
     "/api/shutdowns": {
       "get": {
-        "tags": [
-          "anag-shutdown-resource"
-        ],
+        "tags": ["anag-shutdown-resource"],
         "operationId": "getAllShutdowns",
         "parameters": [
           {
@@ -119,9 +117,7 @@
         }
       },
       "put": {
-        "tags": [
-          "anag-shutdown-resource"
-        ],
+        "tags": ["anag-shutdown-resource"],
         "operationId": "updateShutdown",
         "requestBody": {
           "content": {
@@ -147,9 +143,7 @@
         }
       },
       "post": {
-        "tags": [
-          "anag-shutdown-resource"
-        ],
+        "tags": ["anag-shutdown-resource"],
         "operationId": "createAShutdown",
         "requestBody": {
           "content": {
@@ -175,11 +169,118 @@
         }
       }
     },
+    "/api/kpi-configurations": {
+      "get": {
+        "tags": ["kpi-configuration-resources"],
+        "operationId": "getAllKpiConfigurations",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Zero-based page index (0..N)",
+            "required": false,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "The size of the page to be returned",
+            "required": false,
+            "schema": {
+              "minimum": 1,
+              "type": "integer",
+              "default": 20
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiConfigurationDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["kpi-configuration-resources"],
+        "operationId": "updateKpiConfiguration",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KpiConfigurationRequestBean"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/KpiConfigurationDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["kpi-configuration-resources"],
+        "operationId": "createAKpiConfiguration",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KpiConfigurationRequestBean"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/KpiConfigurationDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/instances": {
       "get": {
-        "tags": [
-          "instance-resource"
-        ],
+        "tags": ["instance-resource"],
         "operationId": "getAllInstances",
         "parameters": [
           {
@@ -197,12 +298,7 @@
             "required": false,
             "schema": {
               "type": "string",
-              "enum": [
-                "BOZZA",
-                "PIANIFICATA",
-                "IN_ESECUZIONE",
-                "ESEGUITA"
-              ]
+              "enum": ["BOZZA", "PIANIFICATA", "IN_ESECUZIONE", "ESEGUITA"]
             }
           },
           {
@@ -293,9 +389,7 @@
         }
       },
       "put": {
-        "tags": [
-          "instance-resource"
-        ],
+        "tags": ["instance-resource"],
         "operationId": "updateInstance",
         "requestBody": {
           "content": {
@@ -321,9 +415,7 @@
         }
       },
       "post": {
-        "tags": [
-          "instance-resource"
-        ],
+        "tags": ["instance-resource"],
         "operationId": "createAInstance",
         "requestBody": {
           "content": {
@@ -351,9 +443,7 @@
     },
     "/api/instances/update-status/{id}": {
       "put": {
-        "tags": [
-          "instance-resource"
-        ],
+        "tags": ["instance-resource"],
         "operationId": "updateInstanceStatus",
         "parameters": [
           {
@@ -375,9 +465,7 @@
     },
     "/api/auth-users": {
       "get": {
-        "tags": [
-          "auth-user-resource"
-        ],
+        "tags": ["auth-user-resource"],
         "operationId": "getAllAuthUsers",
         "parameters": [
           {
@@ -432,9 +520,7 @@
         }
       },
       "put": {
-        "tags": [
-          "auth-user-resource"
-        ],
+        "tags": ["auth-user-resource"],
         "operationId": "updateAuthUser",
         "requestBody": {
           "content": {
@@ -460,9 +546,7 @@
         }
       },
       "post": {
-        "tags": [
-          "auth-user-resource"
-        ],
+        "tags": ["auth-user-resource"],
         "operationId": "createAuthUser",
         "requestBody": {
           "content": {
@@ -490,9 +574,7 @@
     },
     "/api/auth-users/changeState/{id}": {
       "put": {
-        "tags": [
-          "auth-user-resource"
-        ],
+        "tags": ["auth-user-resource"],
         "operationId": "changeState",
         "parameters": [
           {
@@ -514,9 +596,7 @@
     },
     "/api/auth-permissions": {
       "get": {
-        "tags": [
-          "auth-permission-resource"
-        ],
+        "tags": ["auth-permission-resource"],
         "operationId": "getAllAuthPermissions",
         "parameters": [
           {
@@ -591,9 +671,7 @@
         }
       },
       "put": {
-        "tags": [
-          "auth-permission-resource"
-        ],
+        "tags": ["auth-permission-resource"],
         "operationId": "updateAuthPermission",
         "requestBody": {
           "content": {
@@ -619,9 +697,7 @@
         }
       },
       "post": {
-        "tags": [
-          "auth-permission-resource"
-        ],
+        "tags": ["auth-permission-resource"],
         "operationId": "createAuthPermission",
         "requestBody": {
           "content": {
@@ -649,9 +725,7 @@
     },
     "/api/auth-groups": {
       "get": {
-        "tags": [
-          "auth-group-resource"
-        ],
+        "tags": ["auth-group-resource"],
         "operationId": "getAllAuthGroups",
         "parameters": [
           {
@@ -726,9 +800,7 @@
         }
       },
       "put": {
-        "tags": [
-          "auth-group-resource"
-        ],
+        "tags": ["auth-group-resource"],
         "operationId": "updateAuthGroup",
         "requestBody": {
           "content": {
@@ -754,9 +826,7 @@
         }
       },
       "post": {
-        "tags": [
-          "auth-group-resource"
-        ],
+        "tags": ["auth-group-resource"],
         "operationId": "createAuthGroup",
         "requestBody": {
           "content": {
@@ -784,9 +854,7 @@
     },
     "/api/auth-groups/aggiorna-livello-visibilita": {
       "put": {
-        "tags": [
-          "auth-group-resource"
-        ],
+        "tags": ["auth-group-resource"],
         "operationId": "aggiornaLivelloVisibilitaGruppi",
         "requestBody": {
           "content": {
@@ -810,9 +878,7 @@
     },
     "/api/auth-functions": {
       "get": {
-        "tags": [
-          "auth-function-resource"
-        ],
+        "tags": ["auth-function-resource"],
         "operationId": "getAllAuthFunctions",
         "parameters": [
           {
@@ -887,9 +953,7 @@
         }
       },
       "put": {
-        "tags": [
-          "auth-function-resource"
-        ],
+        "tags": ["auth-function-resource"],
         "operationId": "updateAuthFunction",
         "requestBody": {
           "content": {
@@ -915,9 +979,7 @@
         }
       },
       "post": {
-        "tags": [
-          "auth-function-resource"
-        ],
+        "tags": ["auth-function-resource"],
         "operationId": "createAuthFunction",
         "requestBody": {
           "content": {
@@ -945,9 +1007,7 @@
     },
     "/api/logout": {
       "post": {
-        "tags": [
-          "logout-resource"
-        ],
+        "tags": ["logout-resource"],
         "operationId": "logout",
         "responses": {
           "200": {
@@ -965,9 +1025,7 @@
     },
     "/api/authenticate": {
       "post": {
-        "tags": [
-          "login-controller"
-        ],
+        "tags": ["login-controller"],
         "operationId": "authorize",
         "requestBody": {
           "content": {
@@ -995,9 +1053,7 @@
     },
     "/api/auth-users/reset": {
       "post": {
-        "tags": [
-          "auth-user-resource"
-        ],
+        "tags": ["auth-user-resource"],
         "operationId": "resetPasswordUser",
         "requestBody": {
           "content": {
@@ -1018,9 +1074,7 @@
     },
     "/api/auth-groups/{idGroup}/associa-funzioni": {
       "post": {
-        "tags": [
-          "auth-group-resource"
-        ],
+        "tags": ["auth-group-resource"],
         "operationId": "aggiungiAssociazioneFunzione",
         "parameters": [
           {
@@ -1055,9 +1109,7 @@
     },
     "/api/auth-functions/{idFunction}/associa-permessi": {
       "post": {
-        "tags": [
-          "auth-function-resource"
-        ],
+        "tags": ["auth-function-resource"],
         "operationId": "aggiungiAssociazioneFunzione_1",
         "parameters": [
           {
@@ -1092,9 +1144,7 @@
     },
     "/api/account": {
       "get": {
-        "tags": [
-          "account-resource"
-        ],
+        "tags": ["account-resource"],
         "operationId": "getAccount",
         "responses": {
           "200": {
@@ -1110,9 +1160,7 @@
         }
       },
       "post": {
-        "tags": [
-          "account-resource"
-        ],
+        "tags": ["account-resource"],
         "operationId": "saveAccount",
         "requestBody": {
           "content": {
@@ -1133,9 +1181,7 @@
     },
     "/api/account/reset-password/init": {
       "post": {
-        "tags": [
-          "account-resource"
-        ],
+        "tags": ["account-resource"],
         "operationId": "requestPasswordReset",
         "requestBody": {
           "content": {
@@ -1156,9 +1202,7 @@
     },
     "/api/account/reset-password/finish": {
       "post": {
-        "tags": [
-          "account-resource"
-        ],
+        "tags": ["account-resource"],
         "operationId": "finishPasswordReset",
         "requestBody": {
           "content": {
@@ -1179,9 +1223,7 @@
     },
     "/api/account/change-password/expired": {
       "post": {
-        "tags": [
-          "account-resource"
-        ],
+        "tags": ["account-resource"],
         "operationId": "changePassword",
         "requestBody": {
           "content": {
@@ -1202,9 +1244,7 @@
     },
     "/api/taxonomies": {
       "get": {
-        "tags": [
-          "taxonomy-resource"
-        ],
+        "tags": ["taxonomy-resource"],
         "operationId": "getAllTaxonomy",
         "parameters": [
           {
@@ -1271,9 +1311,7 @@
     },
     "/api/taxonomies/{id}": {
       "get": {
-        "tags": [
-          "taxonomy-resource"
-        ],
+        "tags": ["taxonomy-resource"],
         "operationId": "getTaxonomy",
         "parameters": [
           {
@@ -1302,9 +1340,7 @@
     },
     "/api/stations": {
       "get": {
-        "tags": [
-          "anag-station-resource"
-        ],
+        "tags": ["anag-station-resource"],
         "operationId": "getAllStations",
         "parameters": [
           {
@@ -1370,9 +1406,7 @@
     },
     "/api/shutdowns/{id}": {
       "get": {
-        "tags": [
-          "anag-shutdown-resource"
-        ],
+        "tags": ["anag-shutdown-resource"],
         "operationId": "getShutdown",
         "parameters": [
           {
@@ -1399,9 +1433,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "anag-shutdown-resource"
-        ],
+        "tags": ["anag-shutdown-resource"],
         "operationId": "deleteShutdown",
         "parameters": [
           {
@@ -1423,9 +1455,7 @@
     },
     "/api/partners": {
       "get": {
-        "tags": [
-          "anag-partner-resource"
-        ],
+        "tags": ["anag-partner-resource"],
         "operationId": "getAllPartners",
         "parameters": [
           {
@@ -1488,239 +1518,10 @@
         }
       }
     },
-    "/api/language/{language}": {
+    "/api/modules/no-configuration": {
       "get": {
-        "tags": [
-          "account-resource"
-        ],
-        "operationId": "setLanguageCookie",
-        "parameters": [
-          {
-            "name": "language",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/kpi-results/b2/module/{moduleId}": {
-      "get": {
-        "tags": [
-          "kpi-result-resource"
-        ],
-        "operationId": "getKpiB2Results",
-        "parameters": [
-          {
-            "name": "moduleId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiB2ResultDTO"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/kpi-results/a2/module/{moduleId}": {
-      "get": {
-        "tags": [
-          "kpi-result-resource"
-        ],
-        "operationId": "getKpiA2Results",
-        "parameters": [
-          {
-            "name": "moduleId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiA2ResultDTO"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/kpi-results/a1/module/{moduleId}": {
-      "get": {
-        "tags": [
-          "kpi-result-resource"
-        ],
-        "operationId": "getKpiA1Results",
-        "parameters": [
-          {
-            "name": "moduleId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiA1ResultDTO"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/kpi-detail-results/b2/module/{resultId}": {
-      "get": {
-        "tags": [
-          "kpi-detail-result-resource"
-        ],
-        "operationId": "getKpiB2DetailResults",
-        "parameters": [
-          {
-            "name": "resultId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiB2DetailResultDTO"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/kpi-detail-results/a2/module/{resultId}": {
-      "get": {
-        "tags": [
-          "kpi-detail-result-resource"
-        ],
-        "operationId": "getKpiA2DetailResults",
-        "parameters": [
-          {
-            "name": "resultId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiA2DetailResultDTO"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/kpi-detail-results/a1/module/{resultId}": {
-      "get": {
-        "tags": [
-          "kpi-detail-result-resource"
-        ],
-        "operationId": "getKpiA1DetailResults",
-        "parameters": [
-          {
-            "name": "resultId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiA1DetailResultDTO"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/kpi-configurations": {
-      "get": {
-        "tags": [
-          "kpi-configuration-resources"
-        ],
-        "operationId": "getAllKpiConfigurations",
+        "tags": ["anag-module-resource"],
+        "operationId": "getAllModulesWithoutConfiguration",
         "parameters": [
           {
             "name": "page",
@@ -1765,7 +1566,220 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/KpiConfigurationDTO"
+                    "$ref": "#/components/schemas/ModuleDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/language/{language}": {
+      "get": {
+        "tags": ["account-resource"],
+        "operationId": "setLanguageCookie",
+        "parameters": [
+          {
+            "name": "language",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/kpi-results/b2/module/{moduleId}": {
+      "get": {
+        "tags": ["kpi-result-resource"],
+        "operationId": "getKpiB2Results",
+        "parameters": [
+          {
+            "name": "moduleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiB2ResultDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-results/a2/module/{moduleId}": {
+      "get": {
+        "tags": ["kpi-result-resource"],
+        "operationId": "getKpiA2Results",
+        "parameters": [
+          {
+            "name": "moduleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiA2ResultDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-results/a1/module/{moduleId}": {
+      "get": {
+        "tags": ["kpi-result-resource"],
+        "operationId": "getKpiA1Results",
+        "parameters": [
+          {
+            "name": "moduleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiA1ResultDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-detail-results/b2/module/{resultId}": {
+      "get": {
+        "tags": ["kpi-detail-result-resource"],
+        "operationId": "getKpiB2DetailResults",
+        "parameters": [
+          {
+            "name": "resultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiB2DetailResultDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-detail-results/a2/module/{resultId}": {
+      "get": {
+        "tags": ["kpi-detail-result-resource"],
+        "operationId": "getKpiA2DetailResults",
+        "parameters": [
+          {
+            "name": "resultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiA2DetailResultDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-detail-results/a1/module/{resultId}": {
+      "get": {
+        "tags": ["kpi-detail-result-resource"],
+        "operationId": "getKpiA1DetailResults",
+        "parameters": [
+          {
+            "name": "resultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiA1DetailResultDTO"
                   }
                 }
               }
@@ -1776,9 +1790,7 @@
     },
     "/api/kpi-configurations/{moduleCode}": {
       "get": {
-        "tags": [
-          "kpi-configuration-resources"
-        ],
+        "tags": ["kpi-configuration-resources"],
         "operationId": "getKpiConfiguration",
         "parameters": [
           {
@@ -1807,9 +1819,7 @@
     },
     "/api/kpi-analytic-data/b2/module/{detailResultId}": {
       "get": {
-        "tags": [
-          "kpi-analytic-data-resource"
-        ],
+        "tags": ["kpi-analytic-data-resource"],
         "operationId": "getKpiB2AnalyticDataResults",
         "parameters": [
           {
@@ -1841,9 +1851,7 @@
     },
     "/api/kpi-analytic-data/a2/module/{detailResultId}": {
       "get": {
-        "tags": [
-          "kpi-analytic-data-resource"
-        ],
+        "tags": ["kpi-analytic-data-resource"],
         "operationId": "getKpiA2AnalyticDataResults",
         "parameters": [
           {
@@ -1875,9 +1883,7 @@
     },
     "/api/kpi-analytic-data/a1/module/{detailResultId}": {
       "get": {
-        "tags": [
-          "kpi-analytic-data-resource"
-        ],
+        "tags": ["kpi-analytic-data-resource"],
         "operationId": "getKpiA1AnalyticDataResults",
         "parameters": [
           {
@@ -1909,9 +1915,7 @@
     },
     "/api/jobs/scheduler/update": {
       "get": {
-        "tags": [
-          "job-controller-resources"
-        ],
+        "tags": ["job-controller-resources"],
         "operationId": "updateJob",
         "parameters": [
           {
@@ -1948,9 +1952,7 @@
     },
     "/api/jobs/scheduler/stop": {
       "get": {
-        "tags": [
-          "job-controller-resources"
-        ],
+        "tags": ["job-controller-resources"],
         "operationId": "stopJob",
         "parameters": [
           {
@@ -1979,9 +1981,7 @@
     },
     "/api/jobs/scheduler/start": {
       "get": {
-        "tags": [
-          "job-controller-resources"
-        ],
+        "tags": ["job-controller-resources"],
         "operationId": "startJobNow",
         "parameters": [
           {
@@ -2010,9 +2010,7 @@
     },
     "/api/jobs/scheduler/resume": {
       "get": {
-        "tags": [
-          "job-controller-resources"
-        ],
+        "tags": ["job-controller-resources"],
         "operationId": "resume",
         "parameters": [
           {
@@ -2041,9 +2039,7 @@
     },
     "/api/jobs/scheduler/pause": {
       "get": {
-        "tags": [
-          "job-controller-resources"
-        ],
+        "tags": ["job-controller-resources"],
         "operationId": "pause",
         "parameters": [
           {
@@ -2072,9 +2068,7 @@
     },
     "/api/jobs/scheduler/jobs": {
       "get": {
-        "tags": [
-          "job-controller-resources"
-        ],
+        "tags": ["job-controller-resources"],
         "operationId": "getAllJobs",
         "responses": {
           "200": {
@@ -2095,9 +2089,7 @@
     },
     "/api/instances/{id}": {
       "get": {
-        "tags": [
-          "instance-resource"
-        ],
+        "tags": ["instance-resource"],
         "operationId": "getInstance",
         "parameters": [
           {
@@ -2124,9 +2116,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "instance-resource"
-        ],
+        "tags": ["instance-resource"],
         "operationId": "deleteInstance",
         "parameters": [
           {
@@ -2148,9 +2138,7 @@
     },
     "/api/instance-modules/{id}": {
       "get": {
-        "tags": [
-          "instance-module-resource"
-        ],
+        "tags": ["instance-module-resource"],
         "operationId": "getInstanceModuleById",
         "parameters": [
           {
@@ -2179,9 +2167,7 @@
     },
     "/api/auth-users/{login}": {
       "get": {
-        "tags": [
-          "auth-user-resource"
-        ],
+        "tags": ["auth-user-resource"],
         "operationId": "getAuthUser",
         "parameters": [
           {
@@ -2207,9 +2193,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "auth-user-resource"
-        ],
+        "tags": ["auth-user-resource"],
         "operationId": "deleteAuthUser",
         "parameters": [
           {
@@ -2230,9 +2214,7 @@
     },
     "/api/auth-users/{id}/view": {
       "get": {
-        "tags": [
-          "auth-user-resource"
-        ],
+        "tags": ["auth-user-resource"],
         "operationId": "getAuthUserById",
         "parameters": [
           {
@@ -2261,9 +2243,7 @@
     },
     "/api/auth-permissions/{id}": {
       "get": {
-        "tags": [
-          "auth-permission-resource"
-        ],
+        "tags": ["auth-permission-resource"],
         "operationId": "getAuthPermission",
         "parameters": [
           {
@@ -2290,9 +2270,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "auth-permission-resource"
-        ],
+        "tags": ["auth-permission-resource"],
         "operationId": "deleteAuthPermission",
         "parameters": [
           {
@@ -2314,9 +2292,7 @@
     },
     "/api/auth-permissions/auth-function/{idFunction}": {
       "get": {
-        "tags": [
-          "auth-permission-resource"
-        ],
+        "tags": ["auth-permission-resource"],
         "operationId": "getAllAuthFunctionsSelected",
         "parameters": [
           {
@@ -2382,9 +2358,7 @@
     },
     "/api/auth-permissions/auth-function/{idFunction}/associabili": {
       "get": {
-        "tags": [
-          "auth-permission-resource"
-        ],
+        "tags": ["auth-permission-resource"],
         "operationId": "getAllAuthFunctionsAssociabili",
         "parameters": [
           {
@@ -2458,9 +2432,7 @@
     },
     "/api/auth-groups/{id}": {
       "get": {
-        "tags": [
-          "auth-group-resource"
-        ],
+        "tags": ["auth-group-resource"],
         "operationId": "getAuthGroup",
         "parameters": [
           {
@@ -2487,9 +2459,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "auth-group-resource"
-        ],
+        "tags": ["auth-group-resource"],
         "operationId": "deleteAuthGroup",
         "parameters": [
           {
@@ -2511,9 +2481,7 @@
     },
     "/api/auth-groups/{idGroup}/rimuovi-funzione/{funzioneId}": {
       "get": {
-        "tags": [
-          "auth-group-resource"
-        ],
+        "tags": ["auth-group-resource"],
         "operationId": "rimuoviAssociazioneFunzione",
         "parameters": [
           {
@@ -2544,9 +2512,7 @@
     },
     "/api/auth-groups/detail/{id}": {
       "get": {
-        "tags": [
-          "auth-group-resource"
-        ],
+        "tags": ["auth-group-resource"],
         "operationId": "getAuthGroupWithFunction",
         "parameters": [
           {
@@ -2575,9 +2541,7 @@
     },
     "/api/auth-functions/{id}": {
       "get": {
-        "tags": [
-          "auth-function-resource"
-        ],
+        "tags": ["auth-function-resource"],
         "operationId": "getAuthFunction",
         "parameters": [
           {
@@ -2604,9 +2568,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "auth-function-resource"
-        ],
+        "tags": ["auth-function-resource"],
         "operationId": "deleteAuthFunction",
         "parameters": [
           {
@@ -2628,9 +2590,7 @@
     },
     "/api/auth-functions/{idFunction}/rimuovi-permesso/{idPermesso}": {
       "get": {
-        "tags": [
-          "auth-function-resource"
-        ],
+        "tags": ["auth-function-resource"],
         "operationId": "rimuoviAssociazioneFunzione_1",
         "parameters": [
           {
@@ -2661,9 +2621,7 @@
     },
     "/api/auth-functions/detail/{id}": {
       "get": {
-        "tags": [
-          "auth-function-resource"
-        ],
+        "tags": ["auth-function-resource"],
         "operationId": "getAuthFunctionWithPermission",
         "parameters": [
           {
@@ -2692,9 +2650,7 @@
     },
     "/api/auth-functions/auth-group/{idGroup}": {
       "get": {
-        "tags": [
-          "auth-function-resource"
-        ],
+        "tags": ["auth-function-resource"],
         "operationId": "getAllAuthFunctions_1",
         "parameters": [
           {
@@ -2760,9 +2716,7 @@
     },
     "/api/auth-functions/auth-group/{idGroup}/associabili": {
       "get": {
-        "tags": [
-          "auth-function-resource"
-        ],
+        "tags": ["auth-function-resource"],
         "operationId": "getAllAuthFunctionsAssociabili_1",
         "parameters": [
           {
@@ -2834,11 +2788,31 @@
         }
       }
     },
+    "/api/kpi-configurations/{id}": {
+      "delete": {
+        "tags": ["kpi-configuration-resources"],
+        "operationId": "deleteKpiConfiguration",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/management/loggers/{name}": {
       "get": {
-        "tags": [
-          "Actuator"
-        ],
+        "tags": ["Actuator"],
         "summary": "Actuator web endpoint 'loggers-name'",
         "operationId": "loggerLevels",
         "parameters": [
@@ -2878,9 +2852,7 @@
         }
       },
       "post": {
-        "tags": [
-          "Actuator"
-        ],
+        "tags": ["Actuator"],
         "summary": "Actuator web endpoint 'loggers-name'",
         "operationId": "configureLogLevel",
         "parameters": [
@@ -2898,15 +2870,7 @@
             "application/json": {
               "schema": {
                 "type": "string",
-                "enum": [
-                  "TRACE",
-                  "DEBUG",
-                  "INFO",
-                  "WARN",
-                  "ERROR",
-                  "FATAL",
-                  "OFF"
-                ]
+                "enum": ["TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "OFF"]
               }
             }
           }
@@ -2923,9 +2887,7 @@
     },
     "/management": {
       "get": {
-        "tags": [
-          "Actuator"
-        ],
+        "tags": ["Actuator"],
         "summary": "Actuator root web endpoint",
         "operationId": "links",
         "responses": {
@@ -2972,9 +2934,7 @@
     },
     "/management/threaddump": {
       "get": {
-        "tags": [
-          "Actuator"
-        ],
+        "tags": ["Actuator"],
         "summary": "Actuator web endpoint 'threaddump'",
         "operationId": "threadDump",
         "responses": {
@@ -3008,9 +2968,7 @@
     },
     "/management/prometheus": {
       "get": {
-        "tags": [
-          "Actuator"
-        ],
+        "tags": ["Actuator"],
         "summary": "Actuator web endpoint 'prometheus'",
         "operationId": "scrape",
         "parameters": [
@@ -3019,10 +2977,7 @@
             "in": "query",
             "schema": {
               "type": "string",
-              "enum": [
-                "CONTENT_TYPE_004",
-                "CONTENT_TYPE_OPENMETRICS_100"
-              ]
+              "enum": ["CONTENT_TYPE_004", "CONTENT_TYPE_OPENMETRICS_100"]
             }
           },
           {
@@ -3054,9 +3009,7 @@
     },
     "/management/loggers": {
       "get": {
-        "tags": [
-          "Actuator"
-        ],
+        "tags": ["Actuator"],
         "summary": "Actuator web endpoint 'loggers'",
         "operationId": "loggers",
         "responses": {
@@ -3085,9 +3038,7 @@
     },
     "/management/liquibase": {
       "get": {
-        "tags": [
-          "Actuator"
-        ],
+        "tags": ["Actuator"],
         "summary": "Actuator web endpoint 'liquibase'",
         "operationId": "liquibaseBeans",
         "responses": {
@@ -3116,9 +3067,7 @@
     },
     "/management/jhiopenapigroups": {
       "get": {
-        "tags": [
-          "Actuator"
-        ],
+        "tags": ["Actuator"],
         "summary": "Actuator web endpoint 'jhiopenapigroups'",
         "operationId": "allOpenApi",
         "responses": {
@@ -3147,9 +3096,7 @@
     },
     "/management/jhimetrics": {
       "get": {
-        "tags": [
-          "Actuator"
-        ],
+        "tags": ["Actuator"],
         "summary": "Actuator web endpoint 'jhimetrics'",
         "operationId": "allMetrics",
         "responses": {
@@ -3178,9 +3125,7 @@
     },
     "/management/info": {
       "get": {
-        "tags": [
-          "Actuator"
-        ],
+        "tags": ["Actuator"],
         "summary": "Actuator web endpoint 'info'",
         "operationId": "info",
         "responses": {
@@ -3209,9 +3154,7 @@
     },
     "/management/health": {
       "get": {
-        "tags": [
-          "Actuator"
-        ],
+        "tags": ["Actuator"],
         "summary": "Actuator web endpoint 'health'",
         "operationId": "health",
         "responses": {
@@ -3240,9 +3183,7 @@
     },
     "/management/env": {
       "get": {
-        "tags": [
-          "Actuator"
-        ],
+        "tags": ["Actuator"],
         "summary": "Actuator web endpoint 'env'",
         "operationId": "environment",
         "parameters": [
@@ -3280,9 +3221,7 @@
     },
     "/management/env/{toMatch}": {
       "get": {
-        "tags": [
-          "Actuator"
-        ],
+        "tags": ["Actuator"],
         "summary": "Actuator web endpoint 'env-toMatch'",
         "operationId": "environmentEntry",
         "parameters": [
@@ -3324,9 +3263,7 @@
     },
     "/management/configprops": {
       "get": {
-        "tags": [
-          "Actuator"
-        ],
+        "tags": ["Actuator"],
         "summary": "Actuator web endpoint 'configprops'",
         "operationId": "configurationProperties",
         "responses": {
@@ -3355,9 +3292,7 @@
     },
     "/management/configprops/{prefix}": {
       "get": {
-        "tags": [
-          "Actuator"
-        ],
+        "tags": ["Actuator"],
         "summary": "Actuator web endpoint 'configprops-prefix'",
         "operationId": "configurationPropertiesWithPrefix",
         "parameters": [
@@ -3399,9 +3334,7 @@
     },
     "/management/caches": {
       "get": {
-        "tags": [
-          "Actuator"
-        ],
+        "tags": ["Actuator"],
         "summary": "Actuator web endpoint 'caches'",
         "operationId": "caches",
         "responses": {
@@ -3428,9 +3361,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "Actuator"
-        ],
+        "tags": ["Actuator"],
         "summary": "Actuator web endpoint 'caches'",
         "operationId": "clearCaches",
         "responses": {
@@ -3442,9 +3373,7 @@
     },
     "/management/caches/{cache}": {
       "get": {
-        "tags": [
-          "Actuator"
-        ],
+        "tags": ["Actuator"],
         "summary": "Actuator web endpoint 'caches-cache'",
         "operationId": "cache",
         "parameters": [
@@ -3491,9 +3420,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "Actuator"
-        ],
+        "tags": ["Actuator"],
         "summary": "Actuator web endpoint 'caches-cache'",
         "operationId": "clearCache",
         "parameters": [
@@ -3525,9 +3452,7 @@
     },
     "/v3/api-docs/springdocDefault": {
       "get": {
-        "tags": [
-          "Api Docs"
-        ],
+        "tags": ["Api Docs"],
         "summary": "Api Docs 'springdocDefault'",
         "operationId": "apiDocSpring",
         "responses": {
@@ -3546,9 +3471,7 @@
     },
     "/v3/api-docs/management": {
       "get": {
-        "tags": [
-          "Api Docs"
-        ],
+        "tags": ["Api Docs"],
         "summary": "Api Docs 'management'",
         "operationId": "apiDocManagement",
         "responses": {
@@ -3569,12 +3492,7 @@
   "components": {
     "schemas": {
       "ShutdownRequestBean": {
-        "required": [
-          "partnerId",
-          "shutdownEndDate",
-          "shutdownStartDate",
-          "stationId"
-        ],
+        "required": ["partnerId", "shutdownEndDate", "shutdownStartDate", "stationId"],
         "type": "object",
         "properties": {
           "id": {
@@ -3616,10 +3534,7 @@
           },
           "typePlanned": {
             "type": "string",
-            "enum": [
-              "PROGRAMMATO",
-              "NON_PROGRAMMATO"
-            ]
+            "enum": ["PROGRAMMATO", "NON_PROGRAMMATO"]
           },
           "standInd": {
             "type": "boolean"
@@ -3659,13 +3574,102 @@
           }
         }
       },
+      "KpiConfigurationRequestBean": {
+        "required": ["moduleCode"],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "moduleCode": {
+            "type": "string"
+          },
+          "excludePlannedShutdown": {
+            "type": "boolean"
+          },
+          "excludeUnplannedShutdown": {
+            "type": "boolean"
+          },
+          "eligibilityThreshold": {
+            "type": "number",
+            "format": "double"
+          },
+          "tolerance": {
+            "type": "number",
+            "format": "double"
+          },
+          "averageTimeLimit": {
+            "type": "number",
+            "format": "double"
+          },
+          "evaluationType": {
+            "type": "string",
+            "enum": ["MESE", "TOTALE"]
+          }
+        }
+      },
+      "KpiConfigurationDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "moduleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "moduleCode": {
+            "type": "string"
+          },
+          "moduleName": {
+            "type": "string"
+          },
+          "excludePlannedShutdown": {
+            "type": "boolean"
+          },
+          "excludeUnplannedShutdown": {
+            "type": "boolean"
+          },
+          "eligibilityThreshold": {
+            "type": "number",
+            "format": "double"
+          },
+          "tolerance": {
+            "type": "number",
+            "format": "double"
+          },
+          "averageTimeLimit": {
+            "type": "number",
+            "format": "double"
+          },
+          "evaluationType": {
+            "type": "string",
+            "enum": ["MESE", "TOTALE"]
+          },
+          "configExcludePlannedShutdown": {
+            "type": "boolean"
+          },
+          "configExcludeUnplannedShutdown": {
+            "type": "boolean"
+          },
+          "configEligibilityThreshold": {
+            "type": "boolean"
+          },
+          "configTolerance": {
+            "type": "boolean"
+          },
+          "configAverageTimeLimit": {
+            "type": "boolean"
+          },
+          "configEvaluationType": {
+            "type": "boolean"
+          }
+        }
+      },
       "InstanceRequestBean": {
-        "required": [
-          "analysisPeriodEndDate",
-          "analysisPeriodStartDate",
-          "partnerId",
-          "predictedDateAnalysis"
-        ],
+        "required": ["analysisPeriodEndDate", "analysisPeriodStartDate", "partnerId", "predictedDateAnalysis"],
         "type": "object",
         "properties": {
           "id": {
@@ -3737,12 +3741,7 @@
           },
           "status": {
             "type": "string",
-            "enum": [
-              "BOZZA",
-              "PIANIFICATA",
-              "IN_ESECUZIONE",
-              "ESEGUITA"
-            ]
+            "enum": ["BOZZA", "PIANIFICATA", "IN_ESECUZIONE", "ESEGUITA"]
           },
           "lastAnalysisDate": {
             "type": "string",
@@ -3750,11 +3749,7 @@
           },
           "lastAnalysisOutcome": {
             "type": "string",
-            "enum": [
-              "STANDBY",
-              "OK",
-              "KO"
-            ]
+            "enum": ["STANDBY", "OK", "KO"]
           },
           "instanceModules": {
             "uniqueItems": true,
@@ -3785,21 +3780,14 @@
           },
           "analysisType": {
             "type": "string",
-            "enum": [
-              "AUTOMATICA",
-              "MANUALE"
-            ]
+            "enum": ["AUTOMATICA", "MANUALE"]
           },
           "allowManualOutcome": {
             "type": "boolean"
           },
           "automaticOutcome": {
             "type": "string",
-            "enum": [
-              "STANDBY",
-              "OK",
-              "KO"
-            ]
+            "enum": ["STANDBY", "OK", "KO"]
           },
           "automaticOutcomeDate": {
             "type": "string",
@@ -3807,18 +3795,11 @@
           },
           "manualOutcome": {
             "type": "string",
-            "enum": [
-              "STANDBY",
-              "OK",
-              "KO"
-            ]
+            "enum": ["STANDBY", "OK", "KO"]
           },
           "status": {
             "type": "string",
-            "enum": [
-              "ATTIVO",
-              "NON_ATTIVO"
-            ]
+            "enum": ["ATTIVO", "NON_ATTIVO"]
           },
           "assignedUserId": {
             "type": "integer",
@@ -3837,12 +3818,7 @@
         }
       },
       "AuthUserUpdateRequestBean": {
-        "required": [
-          "firstName",
-          "groupId",
-          "id",
-          "lastName"
-        ],
+        "required": ["firstName", "groupId", "id", "lastName"],
         "type": "object",
         "properties": {
           "id": {
@@ -3879,10 +3855,7 @@
         }
       },
       "AuthUserDTO": {
-        "required": [
-          "groupId",
-          "login"
-        ],
+        "required": ["groupId", "login"],
         "type": "object",
         "properties": {
           "id": {
@@ -3962,10 +3935,7 @@
           },
           "authenticationType": {
             "type": "string",
-            "enum": [
-              "FORM_LOGIN",
-              "OAUHT2"
-            ]
+            "enum": ["FORM_LOGIN", "OAUHT2"]
           },
           "deletedDate": {
             "type": "string",
@@ -3974,10 +3944,7 @@
         }
       },
       "AuthPermissionDTO": {
-        "required": [
-          "modulo",
-          "nome"
-        ],
+        "required": ["modulo", "nome"],
         "type": "object",
         "properties": {
           "id": {
@@ -4000,11 +3967,7 @@
         }
       },
       "AuthFunctionDTO": {
-        "required": [
-          "descrizione",
-          "modulo",
-          "nome"
-        ],
+        "required": ["descrizione", "modulo", "nome"],
         "type": "object",
         "properties": {
           "id": {
@@ -4046,10 +4009,7 @@
         }
       },
       "AuthGroupDTO": {
-        "required": [
-          "descrizione",
-          "nome"
-        ],
+        "required": ["descrizione", "nome"],
         "type": "object",
         "properties": {
           "id": {
@@ -4080,10 +4040,7 @@
         }
       },
       "AuthGroupUpdateRequestBean": {
-        "required": [
-          "id",
-          "livelloVisibilita"
-        ],
+        "required": ["id", "livelloVisibilita"],
         "type": "object",
         "properties": {
           "id": {
@@ -4096,10 +4053,7 @@
         }
       },
       "LoginVM": {
-        "required": [
-          "password",
-          "username"
-        ],
+        "required": ["password", "username"],
         "type": "object",
         "properties": {
           "username": {
@@ -4118,12 +4072,7 @@
         }
       },
       "AuthUserCreateRequestBean": {
-        "required": [
-          "firstName",
-          "groupId",
-          "lastName",
-          "login"
-        ],
+        "required": ["firstName", "groupId", "lastName", "login"],
         "type": "object",
         "properties": {
           "login": {
@@ -4192,9 +4141,7 @@
         }
       },
       "AuthGroup": {
-        "required": [
-          "livelloVisibilita"
-        ],
+        "required": ["livelloVisibilita"],
         "type": "object",
         "properties": {
           "id": {
@@ -4251,12 +4198,7 @@
         }
       },
       "AuthUser": {
-        "required": [
-          "activated",
-          "authenticationType",
-          "blocked",
-          "login"
-        ],
+        "required": ["activated", "authenticationType", "blocked", "login"],
         "type": "object",
         "properties": {
           "id": {
@@ -4324,10 +4266,7 @@
           },
           "authenticationType": {
             "type": "string",
-            "enum": [
-              "FORM_LOGIN",
-              "OAUHT2"
-            ]
+            "enum": ["FORM_LOGIN", "OAUHT2"]
           },
           "group": {
             "$ref": "#/components/schemas/AuthGroup"
@@ -4371,9 +4310,7 @@
         }
       },
       "PasswordChangeRequestBean": {
-        "required": [
-          "newPassword"
-        ],
+        "required": ["newPassword"],
         "type": "object",
         "properties": {
           "currentPassword": {
@@ -4385,9 +4322,7 @@
         }
       },
       "TaxonomyDTO": {
-        "required": [
-          "takingsIdentifier"
-        ],
+        "required": ["takingsIdentifier"],
         "type": "object",
         "properties": {
           "id": {
@@ -4452,13 +4387,7 @@
         }
       },
       "AnagStationDTO": {
-        "required": [
-          "name",
-          "partnerFiscalCode",
-          "paymentOption",
-          "primitiveVersion",
-          "status"
-        ],
+        "required": ["name", "partnerFiscalCode", "paymentOption", "primitiveVersion", "status"],
         "type": "object",
         "properties": {
           "id": {
@@ -4494,10 +4423,7 @@
           },
           "status": {
             "type": "string",
-            "enum": [
-              "ATTIVA",
-              "NON_ATTIVA"
-            ]
+            "enum": ["ATTIVA", "NON_ATTIVA"]
           },
           "deactivationDate": {
             "type": "string",
@@ -4506,11 +4432,7 @@
         }
       },
       "AnagPartnerDTO": {
-        "required": [
-          "fiscalCode",
-          "name",
-          "status"
-        ],
+        "required": ["fiscalCode", "name", "status"],
         "type": "object",
         "properties": {
           "id": {
@@ -4525,10 +4447,7 @@
           },
           "status": {
             "type": "string",
-            "enum": [
-              "ATTIVO",
-              "NON_ATTIVO"
-            ]
+            "enum": ["ATTIVO", "NON_ATTIVO"]
           },
           "qualified": {
             "type": "boolean"
@@ -4536,6 +4455,53 @@
           "deactivationDate": {
             "type": "string",
             "format": "date"
+          }
+        }
+      },
+      "ModuleDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "analysisType": {
+            "type": "string",
+            "enum": ["AUTOMATICA", "MANUALE"]
+          },
+          "allowManualOutcome": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["ATTIVO", "NON_ATTIVO"]
+          },
+          "configExcludePlannedShutdown": {
+            "type": "boolean"
+          },
+          "configExcludeUnplannedShutdown": {
+            "type": "boolean"
+          },
+          "configEligibilityThreshold": {
+            "type": "boolean"
+          },
+          "configTolerance": {
+            "type": "boolean"
+          },
+          "configAverageTimeLimit": {
+            "type": "boolean"
+          },
+          "configEvaluationType": {
+            "type": "boolean"
           }
         }
       },
@@ -4590,30 +4556,16 @@
           },
           "evaluationType": {
             "type": "string",
-            "enum": [
-              "MESE",
-              "TOTALE"
-            ]
+            "enum": ["MESE", "TOTALE"]
           },
           "outcome": {
             "type": "string",
-            "enum": [
-              "OK",
-              "KO",
-              "RUNNING",
-              "STANDBY"
-            ]
+            "enum": ["OK", "KO", "RUNNING", "STANDBY"]
           }
         }
       },
       "KpiA2ResultDTO": {
-        "required": [
-          "analysisDate",
-          "instanceId",
-          "instanceModuleId",
-          "outcome",
-          "tolerance"
-        ],
+        "required": ["analysisDate", "instanceId", "instanceModuleId", "outcome", "tolerance"],
         "type": "object",
         "properties": {
           "id": {
@@ -4638,12 +4590,7 @@
           },
           "outcome": {
             "type": "string",
-            "enum": [
-              "OK",
-              "KO",
-              "RUNNING",
-              "STANDBY"
-            ]
+            "enum": ["OK", "KO", "RUNNING", "STANDBY"]
           }
         }
       },
@@ -4693,19 +4640,11 @@
           },
           "evaluationType": {
             "type": "string",
-            "enum": [
-              "MESE",
-              "TOTALE"
-            ]
+            "enum": ["MESE", "TOTALE"]
           },
           "outcome": {
             "type": "string",
-            "enum": [
-              "OK",
-              "KO",
-              "RUNNING",
-              "STANDBY"
-            ]
+            "enum": ["OK", "KO", "RUNNING", "STANDBY"]
           }
         }
       },
@@ -4754,10 +4693,7 @@
           },
           "evaluationType": {
             "type": "string",
-            "enum": [
-              "MESE",
-              "TOTALE"
-            ]
+            "enum": ["MESE", "TOTALE"]
           },
           "evaluationStartDate": {
             "type": "string",
@@ -4781,12 +4717,7 @@
           },
           "outcome": {
             "type": "string",
-            "enum": [
-              "OK",
-              "KO",
-              "RUNNING",
-              "STANDBY"
-            ]
+            "enum": ["OK", "KO", "RUNNING", "STANDBY"]
           },
           "kpiB2ResultId": {
             "type": "integer",
@@ -4846,12 +4777,7 @@
           },
           "outcome": {
             "type": "string",
-            "enum": [
-              "OK",
-              "KO",
-              "RUNNING",
-              "STANDBY"
-            ]
+            "enum": ["OK", "KO", "RUNNING", "STANDBY"]
           },
           "kpiA2ResultId": {
             "type": "integer",
@@ -4904,10 +4830,7 @@
           },
           "evaluationType": {
             "type": "string",
-            "enum": [
-              "MESE",
-              "TOTALE"
-            ]
+            "enum": ["MESE", "TOTALE"]
           },
           "evaluationStartDate": {
             "type": "string",
@@ -4931,57 +4854,11 @@
           },
           "outcome": {
             "type": "string",
-            "enum": [
-              "OK",
-              "KO",
-              "RUNNING",
-              "STANDBY"
-            ]
+            "enum": ["OK", "KO", "RUNNING", "STANDBY"]
           },
           "kpiA1ResultId": {
             "type": "integer",
             "format": "int64"
-          }
-        }
-      },
-      "KpiConfigurationDTO": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "moduleId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "moduleCode": {
-            "type": "string"
-          },
-          "excludePlannedShutdown": {
-            "type": "boolean"
-          },
-          "excludeUnplannedShutdown": {
-            "type": "boolean"
-          },
-          "eligibilityThreshold": {
-            "type": "number",
-            "format": "double"
-          },
-          "tolerance": {
-            "type": "number",
-            "format": "double"
-          },
-          "averageTimeLimit": {
-            "type": "number",
-            "format": "double"
-          },
-          "evaluationType": {
-            "type": "string",
-            "enum": [
-              "MESE",
-              "TOTALE"
-            ]
           }
         }
       },
@@ -5053,14 +4930,7 @@
         }
       },
       "KpiA2AnalyticDataDTO": {
-        "required": [
-          "analysisDate",
-          "evaluationDate",
-          "instanceId",
-          "instanceModuleId",
-          "totIncorrectPayments",
-          "totPayments"
-        ],
+        "required": ["analysisDate", "evaluationDate", "instanceId", "instanceModuleId", "totIncorrectPayments", "totPayments"],
         "type": "object",
         "properties": {
           "id": {
