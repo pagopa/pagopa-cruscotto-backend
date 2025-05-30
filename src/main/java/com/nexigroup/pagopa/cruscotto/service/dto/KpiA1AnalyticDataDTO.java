@@ -4,11 +4,10 @@ import com.nexigroup.pagopa.cruscotto.domain.KpiA1AnalyticData;
 import com.nexigroup.pagopa.cruscotto.service.validation.ValidationGroups;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.io.Serializable;
-import java.time.LocalDate;
 import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 /**
  * A DTO for the {@link KpiA1AnalyticData} entity.
@@ -16,6 +15,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
+@ToString
 public class KpiA1AnalyticDataDTO implements Serializable {
 
     private static final long serialVersionUID = 5141899331669875400L;
@@ -33,6 +33,8 @@ public class KpiA1AnalyticDataDTO implements Serializable {
 
     @NotNull(groups = { ValidationGroups.KpiA1Job.class })
     private Long stationId;
+
+    private String stationName;
 
     @NotNull(groups = { ValidationGroups.KpiA1Job.class })
     private String method;
@@ -53,37 +55,4 @@ public class KpiA1AnalyticDataDTO implements Serializable {
     private Long reqTimeoutValid;
 
     private Long kpiA1DetailResultId;
-
-    @Override
-    public String toString() {
-        return (
-            "KpiA1AnalyticDataDTO{" +
-            "id=" +
-            id +
-            ", instanceId=" +
-            instanceId +
-            ", instanceModuleId=" +
-            instanceModuleId +
-            ", analysisDate=" +
-            analysisDate +
-            ", stationId=" +
-            stationId +
-            ", method='" +
-            method +
-            '\'' +
-            ", evaluationDate=" +
-            evaluationDate +
-            ", totReq=" +
-            totReq +
-            ", reqOk=" +
-            reqOk +
-            ", reqTimeoutReal=" +
-            reqTimeoutReal +
-            ", reqTimeoutValid=" +
-            reqTimeoutValid +
-            ", kpiA1DetailResultId=" +
-            kpiA1DetailResultId +
-            '}'
-        );
-    }
 }

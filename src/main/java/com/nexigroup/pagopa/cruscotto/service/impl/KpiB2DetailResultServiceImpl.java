@@ -5,6 +5,8 @@ import com.nexigroup.pagopa.cruscotto.repository.*;
 import com.nexigroup.pagopa.cruscotto.service.KpiB2DetailResultService;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2DetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
+import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.JPQLQuery;
 import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -136,6 +138,35 @@ public class KpiB2DetailResultServiceImpl implements KpiB2DetailResultService {
 
     @Override
     public List<KpiB2DetailResultDTO> findByResultId(long resultId) {
-        return kpiB2DetailResultRepository.findByKpiB2ResultId(resultId);
+        final QKpiB2DetailResult qKpiB2DetailResult = QKpiB2DetailResult.kpiB2DetailResult;
+        final QAnagStation qAnagStation = QAnagStation.anagStation;
+
+        JPQLQuery<KpiB2DetailResultDTO> query = queryBuilder
+            .createQuery()
+            .from(qKpiB2DetailResult)
+            .leftJoin(qKpiB2DetailResult.station, qAnagStation)
+            .where(qKpiB2DetailResult.kpiB2Result.id.eq(resultId))
+            .select(
+                Projections.fields(
+                    KpiB2DetailResultDTO.class,
+                    qKpiB2DetailResult.id.as("id"),
+                    qKpiB2DetailResult.instance.id.as("instanceId"),
+                    qKpiB2DetailResult.instanceModule.id.as("instanceModuleId"),
+                    qKpiB2DetailResult.analysisDate.as("analysisDate"),
+                    qKpiB2DetailResult.station.id.as("stationId"),
+                    qKpiB2DetailResult.method.as("method"),
+                    qKpiB2DetailResult.evaluationType.as("evaluationType"),
+                    qKpiB2DetailResult.evaluationStartDate.as("evaluationStartDate"),
+                    qKpiB2DetailResult.evaluationEndDate.as("evaluationEndDate"),
+                    qKpiB2DetailResult.totReq.as("totReq"),
+                    qKpiB2DetailResult.avgTime.as("avgTime"),
+                    qKpiB2DetailResult.overTimeLimit.as("overTimeLimit"),
+                    qKpiB2DetailResult.outcome.as("outcome"),
+                    qKpiB2DetailResult.kpiB2Result.id.as("kpiB2ResultId"),
+                    qAnagStation.name.as("stationName")
+                )
+            );
+
+        return query.fetch();
     }
 }

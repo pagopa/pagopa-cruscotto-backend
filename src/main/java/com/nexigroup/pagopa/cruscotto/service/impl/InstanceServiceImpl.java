@@ -1,12 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
-import com.nexigroup.pagopa.cruscotto.domain.AnagPartner;
-import com.nexigroup.pagopa.cruscotto.domain.AuthUser;
-import com.nexigroup.pagopa.cruscotto.domain.Instance;
-import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
+import com.nexigroup.pagopa.cruscotto.domain.*;
 import com.nexigroup.pagopa.cruscotto.domain.Module;
-import com.nexigroup.pagopa.cruscotto.domain.QInstance;
-import com.nexigroup.pagopa.cruscotto.domain.QInstanceModule;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisOutcome;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.InstanceStatus;
@@ -26,10 +21,7 @@ import com.nexigroup.pagopa.cruscotto.service.qdsl.QdslUtility;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import com.nexigroup.pagopa.cruscotto.service.util.UserUtils;
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.Order;
-import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.QBean;
+import com.querydsl.core.types.*;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAUpdateClause;
@@ -129,8 +121,33 @@ public class InstanceServiceImpl implements InstanceService {
         if (StringUtils.isNotBlank(filter.getPartnerId())) {
             builder.and(QInstance.instance.partner.id.eq(Long.valueOf(filter.getPartnerId())));
         }
+        if (filter.getStatus() != null) {
+            builder.and(QInstance.instance.status.eq(filter.getStatus()));
+        }
 
-        JPQLQuery<Instance> jpql = queryBuilder.<Instance>createQuery().from(QInstance.instance).where(builder);
+        if (filter.getPredictedAnalysisStartDate() != null) {
+            LocalDate predictedAnalysisStartDate = LocalDate.parse(filter.getPredictedAnalysisStartDate(), formatter);
+            builder.and(QInstance.instance.predictedDateAnalysis.goe(predictedAnalysisStartDate));
+        }
+        if (filter.getPredictedAnalysisEndDate() != null) {
+            LocalDate predictedAnalysisEndDate = LocalDate.parse(filter.getPredictedAnalysisEndDate(), formatter);
+            builder.and(QInstance.instance.predictedDateAnalysis.loe(predictedAnalysisEndDate));
+        }
+
+        if (filter.getAnalysisStartDate() != null) {
+            LocalDate analysisStartDate = LocalDate.parse(filter.getAnalysisStartDate(), formatter);
+            builder.and(QInstance.instance.analysisPeriodStartDate.goe(analysisStartDate));
+        }
+        if (filter.getAnalysisEndDate() != null) {
+            LocalDate analysisEndDate = LocalDate.parse(filter.getAnalysisEndDate(), formatter);
+            builder.and(QInstance.instance.analysisPeriodEndDate.loe(analysisEndDate));
+        }
+
+        JPQLQuery<Instance> jpql = queryBuilder
+            .<Instance>createQuery()
+            .from(QInstance.instance)
+            .leftJoin(QInstance.instance.partner, QAnagPartner.anagPartner)
+            .where(builder);
 
         long size = jpql.fetchCount();
 
@@ -139,8 +156,9 @@ public class InstanceServiceImpl implements InstanceService {
                 InstanceDTO.class,
                 QInstance.instance.id.as("id"),
                 QInstance.instance.instanceIdentification.as("instanceIdentification"),
-                QInstance.instance.partner.id.as("partnerId"),
-                QInstance.instance.partner.name.as("partnerName"),
+                QAnagPartner.anagPartner.id.as("partnerId"),
+                QAnagPartner.anagPartner.name.as("partnerName"),
+                QAnagPartner.anagPartner.fiscalCode.as("partnerFiscalCode"),
                 QInstance.instance.applicationDate.as("applicationDate"),
                 QInstance.instance.predictedDateAnalysis.as("predictedDateAnalysis"),
                 QInstance.instance.assignedUser.id.as("assignedUserId"),

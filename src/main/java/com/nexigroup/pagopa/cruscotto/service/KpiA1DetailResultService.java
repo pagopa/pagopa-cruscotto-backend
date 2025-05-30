@@ -13,5 +13,5 @@ public interface KpiA1DetailResultService {
 
     int deleteAllByInstanceModule(long instanceModuleId);
 
-    List<KpiA1DetailResultDTO> findByInstanceModuleId(long instanceModuleId);
+    List<KpiA1DetailResultDTO> findByResultId(long resultId);
 }

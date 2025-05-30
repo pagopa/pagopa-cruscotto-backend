@@ -43,38 +43,43 @@ public class KpiDetailResultResource {
     }
 
     /**
-     * {@code GET  /kpi-detail-results/a1/module/{moduleId}} : get the kpiA1DetailResultDTOs associated to the "id" instanceModule of type A1.
+     * Retrieves the KPI detail results of type A1 associated with the specified result ID.
      *
-     * @param moduleId the id of the instanceModuleDTO the kpi detail results to retrieve are associated to
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the KpiA1DetailResultDTOs, or with status {@code 404 (Not Found)}.
+     * @param resultId the ID of the instanceModuleDTO for which the KPI detail results are to be retrieved
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of KpiA1DetailResultDTOs in the body,
+     *         or with status {@code 404 (Not Found)} if no results are found
      */
-    @GetMapping("kpi-detail-results/a1/module/{moduleId}")
+    @GetMapping("kpi-detail-results/a1/module/{resultId}")
     //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_DETAIL_FUNCTION + "\")")
-    public ResponseEntity<List<KpiA1DetailResultDTO>> getKpiA1DetailResults(@PathVariable Long moduleId) {
-        log.debug("REST request to get kpi detail results of instanceModule : {} of type a1", moduleId);
-        List<KpiA1DetailResultDTO> kpiA1DetailResults = kpiA1DetailResultService.findByInstanceModuleId(moduleId);
+    public ResponseEntity<List<KpiA1DetailResultDTO>> getKpiA1DetailResults(@PathVariable Long resultId) {
+        log.debug("REST request to get kpi detail results of instanceModule : {} of type a1", resultId);
+        List<KpiA1DetailResultDTO> kpiA1DetailResults = kpiA1DetailResultService.findByResultId(resultId);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(kpiA1DetailResults));
     }
 
     /**
-     * {@code GET  /kpi-results/a2/module/{moduleId}} : get the kpiA2DetailResultDTOs associated to the "id" instanceModule of type A2.
+     * {@code GET  /kpi-detail-results/a2/module/{resultId}} : get the KpiA2DetailResultDTOs
+     * associated with the "resultId" of type A2.
      *
-     * @param moduleId the id of the instanceModuleDTO the kpi detail results to retrieve are associated to
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the KpiA2DetailResultDTOs, or with status {@code 404 (Not Found)}.
+     * @param resultId the id of the instanceModuleDTO for which the KPI detail results are to be retrieved
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of KpiA2DetailResultDTOs in the body,
+     *         or with status {@code 404 (Not Found)} if no results are found
      */
-    @GetMapping("kpi-detail-results/a2/module/{moduleId}")
+    @GetMapping("kpi-detail-results/a2/module/{resultId}")
     //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_DETAIL_FUNCTION + "\")")
-    public ResponseEntity<List<KpiA2DetailResultDTO>> getKpiA2DetailResults(@PathVariable Long moduleId) {
-        log.debug("REST request to get kpi detail results of instanceModule : {} of type a2", moduleId);
-        List<KpiA2DetailResultDTO> kpiA2DetailResults = kpiA2DetailResultService.findByInstanceModuleId(moduleId);
+    public ResponseEntity<List<KpiA2DetailResultDTO>> getKpiA2DetailResults(@PathVariable Long resultId) {
+        log.debug("REST request to get kpi detail results of instanceModule : {} of type a2", resultId);
+        List<KpiA2DetailResultDTO> kpiA2DetailResults = kpiA2DetailResultService.findByResultId(resultId);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(kpiA2DetailResults));
     }
 
     /**
-     * {@code GET  /kpi-detial-results/b2/module/{moduleId}} : get the kpiB2DetailResultDTOs associated to the "id" instanceModule of type B2.
+     * {@code GET  /kpi-detail-results/b2/module/{resultId}} : get the KpiB2DetailResultDTOs
+     * associated with the "resultId" of type B2.
      *
-     * @param resultId the id of the instanceModuleDTO the kpi detail results to retrieve are associated to
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the KpiB2DetailResultDTOs, or with status {@code 404 (Not Found)}.
+     * @param resultId the id of the instanceModuleDTO for which the KPI detail results are to be retrieved
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of KpiB2DetailResultDTOs in the body,
+     *         or with status {@code 404 (Not Found)} if no results are found
      */
     @GetMapping("kpi-detail-results/b2/module/{resultId}")
     //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_DETAIL_FUNCTION + "\")")

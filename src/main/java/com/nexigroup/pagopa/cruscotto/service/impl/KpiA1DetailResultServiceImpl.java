@@ -16,8 +16,11 @@ import com.nexigroup.pagopa.cruscotto.service.KpiA1DetailResultService;
 import com.nexigroup.pagopa.cruscotto.service.KpiA1DetailResultService;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA1DetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA1DetailResultDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2DetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
+import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.JPQLQuery;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
@@ -120,40 +123,42 @@ public class KpiA1DetailResultServiceImpl implements KpiA1DetailResultService {
         return kpiA1DetailResult;
     }
 
-    private static @NotNull KpiA1DetailResultDTO getKpiA1DetailResultDTO(KpiA1DetailResult kpiA1DetailResult) {
-        KpiA1DetailResultDTO kpiA1DetailResultDTO = new KpiA1DetailResultDTO();
-        kpiA1DetailResultDTO.setId(kpiA1DetailResult.getId());
-        kpiA1DetailResultDTO.setInstanceId(kpiA1DetailResult.getInstance() != null ? kpiA1DetailResult.getInstance().getId() : null);
-        kpiA1DetailResultDTO.setInstanceModuleId(
-            kpiA1DetailResult.getInstanceModule() != null ? kpiA1DetailResult.getInstanceModule().getId() : null
-        );
-        kpiA1DetailResultDTO.setAnalysisDate(kpiA1DetailResult.getAnalysisDate());
-        kpiA1DetailResultDTO.setStationId(kpiA1DetailResult.getStation() != null ? kpiA1DetailResult.getStation().getId() : null);
-        kpiA1DetailResultDTO.setMethod(kpiA1DetailResult.getMethod());
-        kpiA1DetailResultDTO.setEvaluationType(kpiA1DetailResult.getEvaluationType());
-        kpiA1DetailResultDTO.setEvaluationStartDate(kpiA1DetailResult.getEvaluationStartDate());
-        kpiA1DetailResultDTO.setEvaluationEndDate(kpiA1DetailResult.getEvaluationEndDate());
-        kpiA1DetailResultDTO.setTotReq(kpiA1DetailResult.getTotReq());
-        kpiA1DetailResultDTO.setReqTimeout(kpiA1DetailResult.getReqTimeout());
-        kpiA1DetailResultDTO.setTimeoutPercentage(kpiA1DetailResult.getTimeoutPercentage());
-        kpiA1DetailResultDTO.setOutcome(kpiA1DetailResult.getOutcome());
-        kpiA1DetailResultDTO.setKpiA1ResultId(
-            kpiA1DetailResult.getKpiA1Result() != null ? kpiA1DetailResult.getKpiA1Result().getId() : null
-        );
-        return kpiA1DetailResultDTO;
-    }
-
     @Override
     public int deleteAllByInstanceModule(long instanceModuleId) {
         return kpiA1DetailResultRepository.deleteAllByInstanceModuleId(instanceModuleId);
     }
 
     @Override
-    public List<KpiA1DetailResultDTO> findByInstanceModuleId(long instanceModuleId) {
-        return kpiA1DetailResultRepository
-            .selectByInstanceModuleId(instanceModuleId)
-            .stream()
-            .map(KpiA1DetailResultServiceImpl::getKpiA1DetailResultDTO)
-            .collect(Collectors.toList());
+    public List<KpiA1DetailResultDTO> findByResultId(long resultId) {
+        final QKpiA1DetailResult qKpiA1DetailResult = QKpiA1DetailResult.kpiA1DetailResult;
+        final QAnagStation qAnagStation = QAnagStation.anagStation;
+
+        JPQLQuery<KpiA1DetailResultDTO> query = queryBuilder
+            .createQuery()
+            .from(qKpiA1DetailResult)
+            .leftJoin(qKpiA1DetailResult.station, qAnagStation)
+            .where(qKpiA1DetailResult.kpiA1Result.id.eq(resultId))
+            .select(
+                Projections.fields(
+                    KpiA1DetailResultDTO.class,
+                    qKpiA1DetailResult.id.as("id"),
+                    qKpiA1DetailResult.instance.id.as("instanceId"),
+                    qKpiA1DetailResult.instanceModule.id.as("instanceModuleId"),
+                    qKpiA1DetailResult.analysisDate.as("analysisDate"),
+                    qKpiA1DetailResult.station.id.as("stationId"),
+                    qAnagStation.name.as("stationName"),
+                    qKpiA1DetailResult.method.as("method"),
+                    qKpiA1DetailResult.evaluationType.as("evaluationType"),
+                    qKpiA1DetailResult.evaluationStartDate.as("evaluationStartDate"),
+                    qKpiA1DetailResult.evaluationEndDate.as("evaluationEndDate"),
+                    qKpiA1DetailResult.totReq.as("totReq"),
+                    qKpiA1DetailResult.reqTimeout.as("reqTimeout"),
+                    qKpiA1DetailResult.timeoutPercentage.as("timeoutPercentage"),
+                    qKpiA1DetailResult.outcome.as("outcome"),
+                    qKpiA1DetailResult.kpiA1Result.id.as("kpiA1ResultId")
+                )
+            );
+
+        return query.fetch();
     }
 }
