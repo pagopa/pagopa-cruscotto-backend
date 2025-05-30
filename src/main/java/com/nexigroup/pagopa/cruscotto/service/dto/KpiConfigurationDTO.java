@@ -27,6 +27,8 @@ public class KpiConfigurationDTO implements Serializable {
 
     private String moduleCode;
 
+    private String moduleName;
+
     private Boolean excludePlannedShutdown;
 
     private Boolean excludeUnplannedShutdown;
@@ -38,4 +40,16 @@ public class KpiConfigurationDTO implements Serializable {
     private Double averageTimeLimit;
 
     private EvaluationType evaluationType;
+
+    private Boolean configExcludePlannedShutdown;
+
+    private Boolean configExcludeUnplannedShutdown;
+
+    private Boolean configEligibilityThreshold;
+
+    private Boolean configTolerance;
+
+    private Boolean configAverageTimeLimit;
+
+    private Boolean configEvaluationType;
 }

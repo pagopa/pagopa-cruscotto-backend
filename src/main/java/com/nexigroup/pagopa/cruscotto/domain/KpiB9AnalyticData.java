@@ -1,17 +1,6 @@
 package com.nexigroup.pagopa.cruscotto.domain;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import java.io.Serializable;
-import java.time.LocalDate;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -23,8 +12,16 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 /**
  * A KpiB9AnalyticData.
@@ -39,9 +36,9 @@ import lombok.Setter;
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class KpiB9AnalyticData implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	@Id
+    @Id
     @Column(name = "CO_ID")
     @SequenceGenerator(name = "SQCRUSC8_KPIB9ANALDATA", sequenceName = "SQCRUSC8_KPIB9ANALDATA", allocationSize = 1)
     @GeneratedValue(generator = "SQCRUSC8_KPIB9ANALDATA", strategy = GenerationType.SEQUENCE)
@@ -76,10 +73,10 @@ public class KpiB9AnalyticData implements Serializable {
     @NotNull
     @Column(name = "CO_TOT_RES", nullable = false)
     private Long totRes;
-    
+
     @NotNull
     @Column(name = "CO_RES_OK", nullable = false)
-    private Long resOk;    
+    private Long resOk;
 
     @NotNull
     @Column(name = "CO_RES_KO_REAL", nullable = false)
@@ -95,7 +92,6 @@ public class KpiB9AnalyticData implements Serializable {
     @JoinColumn(name = "CO_KPI_B9_DETAIL_RESULT_ID", nullable = false)
     private KpiB9DetailResult kpiB9DetailResult;
 
-    
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -111,10 +107,31 @@ public class KpiB9AnalyticData implements Serializable {
     }
 
     @Override
-	public String toString() {
-		return "KpiB9AnalyticData [id=" + id + ", instance=" + instance + ", instanceModule=" + instanceModule
-				+ ", analysisDate=" + analysisDate + ", station=" + station + ", evaluationDate=" + evaluationDate
-				+ ", totRes=" + totRes + ", resOk=" + resOk + ", resKoReal=" + resKoReal + ", resKoValid="
-				+ resKoValid + ", kpiB9DetailResult=" + kpiB9DetailResult + "]";
-	}
+    public String toString() {
+        return (
+            "KpiB9AnalyticData [id=" +
+            id +
+            ", instance=" +
+            instance +
+            ", instanceModule=" +
+            instanceModule +
+            ", analysisDate=" +
+            analysisDate +
+            ", station=" +
+            station +
+            ", evaluationDate=" +
+            evaluationDate +
+            ", totRes=" +
+            totRes +
+            ", resOk=" +
+            resOk +
+            ", resKoReal=" +
+            resKoReal +
+            ", resKoValid=" +
+            resKoValid +
+            ", kpiB9DetailResult=" +
+            kpiB9DetailResult +
+            "]"
+        );
+    }
 }
