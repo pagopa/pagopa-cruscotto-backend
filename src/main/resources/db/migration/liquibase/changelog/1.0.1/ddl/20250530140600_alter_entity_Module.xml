@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+  <changeSet id="20250530140600-1" author="system" context="ddl">
+    <addColumn tableName="TAXONOMY">
+      <column name="fl_config_exclude_planned_shutdown" type="boolean"  defaultValueBoolean="false">
+        <constraints nullable="false"/>
+      </column>
+      <column name="fl_config_exclude_unplanned_shutdown" type="boolean"  defaultValueBoolean="false">
+        <constraints nullable="false"/>
+      </column>
+      <column name="fl_config_eligibility_threshold" type="boolean"  defaultValueBoolean="false">
+        <constraints nullable="false"/>
+      </column>
+      <column name="fl_config_tolerance" type="boolean"  defaultValueBoolean="false">
+        <constraints nullable="false"/>
+      </column>
+      <column name="fl_config_average_time_limit" type="boolean"  defaultValueBoolean="false">
+        <constraints nullable="false"/>
+      </column>
+      <column name="fl_config_evaluation_type" type="boolean"  defaultValueBoolean="false">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+</databaseChangeLog>
