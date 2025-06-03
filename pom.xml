@@ -6,7 +6,7 @@
 
   <groupId>com.nexigroup.pagopa.cruscotto</groupId>
   <artifactId>pagopa-cruscotto-backend</artifactId>
-  <version>0.3.9</version>
+  <version>0.4.4</version>
   <packaging>jar</packaging>
   <name>PagoPa Cruscotto Backend</name>
   <description>PagoPa Cruscotto Backend</description>
@@ -361,7 +361,7 @@
 	  <dependency>
       <groupId>commons-beanutils</groupId>
       <artifactId>commons-beanutils</artifactId>
-      <version>1.10.0</version>
+      <version>1.11.0</version>
 	  </dependency>
     <dependency>
       <groupId>com.github.gavlyukovskiy</groupId>
