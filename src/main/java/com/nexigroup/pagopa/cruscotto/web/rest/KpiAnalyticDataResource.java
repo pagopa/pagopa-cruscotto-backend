@@ -32,14 +32,18 @@ public class KpiAnalyticDataResource {
 
     private final KpiB2AnalyticDataService kpiB2AnalyticDataService;
 
+    private final KpiB9AnalyticDataService kpiB9AnalyticDataService;
+
     public KpiAnalyticDataResource(
         KpiA1AnalyticDataService kpiA1AnalyticDataService,
         KpiB2AnalyticDataService kpiB2AnalyticDataService,
-        KpiA2AnalyticDataService kpiA2AnalyticDataService
+        KpiA2AnalyticDataService kpiA2AnalyticDataService,
+        KpiB9AnalyticDataService kpiB9AnalyticDataService
     ) {
         this.kpiA1AnalyticDataService = kpiA1AnalyticDataService;
         this.kpiB2AnalyticDataService = kpiB2AnalyticDataService;
         this.kpiA2AnalyticDataService = kpiA2AnalyticDataService;
+        this.kpiB9AnalyticDataService = kpiB9AnalyticDataService;
     }
 
     /**
@@ -88,5 +92,21 @@ public class KpiAnalyticDataResource {
         log.debug("REST request to get kpi analytic data of instanceModule : {} of type b2", detailResultId);
         List<KpiB2AnalyticDataDTO> kpiB2AnalyticData = kpiB2AnalyticDataService.findByDetailResultId(detailResultId);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(kpiB2AnalyticData));
+    }
+
+    /**
+     * {@code GET  /kpi-analytic-data/b9/module/{detailResultId}} : Retrieves the KpiB9AnalyticDataDTOs
+     * associated with the specified "detailResultId" of instanceModule.
+     *
+     * @param detailResultId the identifier of the instanceModule for which the kpi analytic data of type B9 should be retrieved
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the body containing the list of KpiB9AnalyticDataDTOs,
+     *         or with status {@code 404 (Not Found)} if no data is found for the provided id.
+     */
+    @GetMapping("kpi-analytic-data/b9/module/{detailResultId}")
+    //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_DETAIL_FUNCTION + "\")")
+    public ResponseEntity<List<KpiB9AnalyticDataDTO>> getKpiB9AnalyticDataResults(@PathVariable Long detailResultId) {
+        log.debug("REST request to get kpi analytic data of instanceModule : {} of type b9", detailResultId);
+        List<KpiB9AnalyticDataDTO> kpiB9AnalyticData = kpiB9AnalyticDataService.findByDetailResultId(detailResultId);
+        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(kpiB9AnalyticData));
     }
 }
