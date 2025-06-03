@@ -1,28 +1,66 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
+import com.nexigroup.pagopa.cruscotto.domain.QQrtzLogTriggerExecuted;
+import com.nexigroup.pagopa.cruscotto.domain.QTaxonomy;
+import com.nexigroup.pagopa.cruscotto.domain.QrtzLogTriggerExecuted;
+import com.nexigroup.pagopa.cruscotto.domain.Taxonomy;
 import com.nexigroup.pagopa.cruscotto.service.JobService;
 import com.nexigroup.pagopa.cruscotto.service.dto.JobsDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.QrtzLogTriggerExecutedDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.TaxonomyDTO;
+import com.nexigroup.pagopa.cruscotto.service.filter.JobExecutionFilter;
+import com.nexigroup.pagopa.cruscotto.service.qdsl.QdslUtility;
+import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import com.nexigroup.pagopa.cruscotto.service.util.JobUtils;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.QBean;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.JPQLQuery;
+import jakarta.transaction.Transactional;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.quartz.*;
 import org.quartz.Trigger.TriggerState;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Service;
 
 @Service
+@Transactional
 public class JobServiceImpl implements JobService {
+
+    private static final String ID_FIELD = "id";
+    private static final String FIRE_INSTANCE_ID_FIELD = "fireInstanceId";
+    private static final String SCHEDULED_TIME_FIELD = "scheduledTime";
+    private static final String TRIGGER_GROUP_FIELD = "triggerGroup";
+    private static final String TRIGGER_NAME_FIELD = "triggerName";
+    private static final String INIT_FIRED_TIME_FIELD = "initFiredTime";
+    private static final String END_FIRED_TIME_FIELD = "endFiredTime";
+    private static final String STATE_FIELD_FIELD = "state";
+    private static final String MESSAGE_EXCEPTION_FIELD = "messageException";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JobServiceImpl.class);
 
     private final SchedulerFactoryBean schedulerFactoryBean;
 
-    public JobServiceImpl(SchedulerFactoryBean schedulerFactoryBean) {
+    private final QueryBuilder queryBuilder;
+
+    public JobServiceImpl(SchedulerFactoryBean schedulerFactoryBean, QueryBuilder queryBuilder) {
         this.schedulerFactoryBean = schedulerFactoryBean;
+        this.queryBuilder = queryBuilder;
     }
 
     /**
@@ -203,6 +241,7 @@ public class JobServiceImpl implements JobService {
                     }
 
                     JobsDTO jobs = new JobsDTO();
+                    jobs.setSchedulerName(scheduler.getSchedulerName());
                     jobs.setJobName(jobName);
                     jobs.setGroupName(jobGroup);
                     jobs.setScheduleTime(scheduleTime);
@@ -267,5 +306,82 @@ public class JobServiceImpl implements JobService {
             LOGGER.debug("SchedulerException while checking job with name and group exist:{}", e.getMessage());
         }
         return null;
+    }
+
+    /**
+     * Retrieves a paginated list of QrtzLogTriggerExecutedDTO based on the given filter criteria.
+     *
+     * @param filter the filter criteria to apply when retrieving the log trigger executions
+     * @param pageable the pagination information, including page number and size
+     * @return a paginated list of QrtzLogTriggerExecutedDTO that match the filter criteria
+     */
+    @Override
+    public Page<QrtzLogTriggerExecutedDTO> findAll(JobExecutionFilter filter, Pageable pageable) {
+        QQrtzLogTriggerExecuted qQrtzLogTriggerExecuted = QQrtzLogTriggerExecuted.qrtzLogTriggerExecuted;
+
+        BooleanBuilder predicate = new BooleanBuilder();
+
+        if (StringUtils.isNotBlank(filter.getSchedulerName())) {
+            predicate.and(qQrtzLogTriggerExecuted.schedulerName.eq(filter.getSchedulerName()));
+        }
+
+        if (StringUtils.isNotBlank(filter.getJobGroup())) {
+            predicate.and(qQrtzLogTriggerExecuted.jobGroup.eq(filter.getJobGroup()));
+        }
+
+        if (StringUtils.isNotBlank(filter.getJobName())) {
+            predicate.and(qQrtzLogTriggerExecuted.jobName.eq(filter.getJobName()));
+        }
+
+        JPQLQuery<QrtzLogTriggerExecuted> jpql = queryBuilder
+            .<QrtzLogTriggerExecuted>createQuery()
+            .from(qQrtzLogTriggerExecuted)
+            .where(predicate);
+
+        long size = jpql.fetchCount();
+
+        jpql.offset(pageable.getOffset());
+        jpql.limit(pageable.getPageSize());
+
+        pageable
+            .getSortOr(Sort.by(Sort.Direction.DESC, "scheduledTime"))
+            .forEach(order -> {
+                jpql.orderBy(
+                    new OrderSpecifier<>(
+                        order.isAscending() ? Order.ASC : Order.DESC,
+                        Expressions.stringPath(order.getProperty()),
+                        QdslUtility.toQueryDslNullHandling(order.getNullHandling())
+                    )
+                );
+            });
+
+        List<QrtzLogTriggerExecuted> list = jpql.fetch();
+
+        List<QrtzLogTriggerExecutedDTO> result = new ArrayList<>();
+        if (list != null && !list.isEmpty()) {
+            list.forEach(item -> {
+                result.add(convertQrtzLogTriggerExecutedToDTO(item));
+            });
+        }
+
+        return new PageImpl<>(result, pageable, size);
+    }
+
+    private QrtzLogTriggerExecutedDTO convertQrtzLogTriggerExecutedToDTO(QrtzLogTriggerExecuted qrtzLogTriggerExecuted) {
+        QrtzLogTriggerExecutedDTO qrtzLogTriggerExecutedDTO = new QrtzLogTriggerExecutedDTO();
+        qrtzLogTriggerExecutedDTO.setId(qrtzLogTriggerExecuted.getId());
+        qrtzLogTriggerExecutedDTO.setFireInstanceId(qrtzLogTriggerExecuted.getFireInstanceId());
+        qrtzLogTriggerExecutedDTO.setScheduledTime(qrtzLogTriggerExecuted.getScheduledTime());
+        qrtzLogTriggerExecutedDTO.setTriggerGroup(qrtzLogTriggerExecuted.getTriggerGroup());
+        qrtzLogTriggerExecutedDTO.setTriggerName(qrtzLogTriggerExecuted.getTriggerName());
+        qrtzLogTriggerExecutedDTO.setInitFiredTime(qrtzLogTriggerExecuted.getInitFiredTime());
+        qrtzLogTriggerExecutedDTO.setEndFiredTime(qrtzLogTriggerExecuted.getEndFiredTime());
+        qrtzLogTriggerExecutedDTO.setState(qrtzLogTriggerExecuted.getState());
+        qrtzLogTriggerExecutedDTO.setMessageException(
+            qrtzLogTriggerExecuted.getMessageException() != null
+                ? new String(qrtzLogTriggerExecuted.getMessageException(), StandardCharsets.UTF_8)
+                : null
+        );
+        return qrtzLogTriggerExecutedDTO;
     }
 }
