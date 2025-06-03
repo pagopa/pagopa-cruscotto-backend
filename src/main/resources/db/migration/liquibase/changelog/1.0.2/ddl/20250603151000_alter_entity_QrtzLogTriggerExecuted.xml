@@ -8,7 +8,7 @@
 
 
   <changeSet id="20250603151000-1" author="system" context="ddl">
-    <createSequence sequenceName="SQ${project_name}_QRTZLOGTRIGEXEC" startValue="3000" cacheSize="20"/>
+    <createSequence sequenceName="SQ${project_name}_QRTZLOGTRIGEXEC" startValue="3000" cacheSize="20" cycle="true"/>
   </changeSet>
 
   <changeSet id="20250603151000-2" author="system" context="ddl">
