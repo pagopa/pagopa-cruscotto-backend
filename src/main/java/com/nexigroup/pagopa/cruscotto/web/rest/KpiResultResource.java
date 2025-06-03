@@ -3,9 +3,11 @@ package com.nexigroup.pagopa.cruscotto.web.rest;
 import com.nexigroup.pagopa.cruscotto.service.KpiA1ResultService;
 import com.nexigroup.pagopa.cruscotto.service.KpiA2ResultService;
 import com.nexigroup.pagopa.cruscotto.service.KpiB2ResultService;
+import com.nexigroup.pagopa.cruscotto.service.KpiB9ResultService;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA1ResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA2ResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2ResultDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiB9ResultDTO;
 import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
@@ -33,14 +35,18 @@ public class KpiResultResource {
 
     private final KpiB2ResultService kpiB2ResultService;
 
+    private final KpiB9ResultService kpiB9ResultService;
+
     public KpiResultResource(
         KpiA1ResultService kpiA1ResultService,
         KpiB2ResultService kpiB2ResultService,
-        KpiA2ResultService kpiA2ResultService
+        KpiA2ResultService kpiA2ResultService,
+        KpiB9ResultService kpiB9ResultService
     ) {
         this.kpiA1ResultService = kpiA1ResultService;
         this.kpiB2ResultService = kpiB2ResultService;
         this.kpiA2ResultService = kpiA2ResultService;
+        this.kpiB9ResultService = kpiB9ResultService;
     }
 
     /**
@@ -83,5 +89,19 @@ public class KpiResultResource {
         log.debug("REST request to get kpi results of instanceModule : {} of type b2", moduleId);
         List<KpiB2ResultDTO> kpiB2Results = kpiB2ResultService.findByInstanceModuleId(moduleId);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(kpiB2Results));
+    }
+
+    /**
+     * {@code GET  /kpi-results/b9/module/{moduleId}} : get the kpiB9ResultDTOs associated to the "id" instanceModule of type B9.
+     *
+     * @param moduleId the id of the instanceModuleDTO the kpi results to retrieve are associated to
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the KpiB9ResultDTOs, or with status {@code 404 (Not Found)}.
+     */
+    @GetMapping("kpi-results/b9/module/{moduleId}")
+    //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_DETAIL_FUNCTION + "\")") // Sbloccare se necessario
+    public ResponseEntity<List<KpiB9ResultDTO>> getKpiB9Results(@PathVariable Long moduleId) {
+        log.debug("REST request to get kpi results of instanceModule : {} of type b9", moduleId);
+        List<KpiB9ResultDTO> kpiB9Results = kpiB9ResultService.findByInstanceModuleId(moduleId);
+        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(kpiB9Results));
     }
 }

@@ -13,5 +13,5 @@ public interface KpiB9AnalyticDataService {
 
     int deleteAllByInstanceModule(long instanceModuleId);
 
-    List<KpiB9AnalyticDataDTO> findByInstanceModuleId(long instanceModuleId);
+    List<KpiB9AnalyticDataDTO> findByDetailResultId(long detailResultId);
 }

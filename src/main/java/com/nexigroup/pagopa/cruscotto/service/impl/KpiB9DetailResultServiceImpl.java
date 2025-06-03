@@ -1,20 +1,13 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
-import com.nexigroup.pagopa.cruscotto.domain.AnagStation;
-import com.nexigroup.pagopa.cruscotto.domain.Instance;
-import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
-import com.nexigroup.pagopa.cruscotto.domain.KpiB9DetailResult;
-import com.nexigroup.pagopa.cruscotto.domain.KpiB9Result;
-import com.nexigroup.pagopa.cruscotto.repository.AnagStationRepository;
-import com.nexigroup.pagopa.cruscotto.repository.InstanceModuleRepository;
-import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
-import com.nexigroup.pagopa.cruscotto.repository.KpiB9DetailResultRepository;
-import com.nexigroup.pagopa.cruscotto.repository.KpiB9ResultRepository;
+import com.nexigroup.pagopa.cruscotto.domain.*;
+import com.nexigroup.pagopa.cruscotto.repository.*;
 import com.nexigroup.pagopa.cruscotto.service.KpiB9DetailResultService;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB9DetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
+import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.JPQLQuery;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -142,11 +135,35 @@ public class KpiB9DetailResultServiceImpl implements KpiB9DetailResultService {
     }
 
     @Override
-    public List<KpiB9DetailResultDTO> findByInstanceModuleId(long instanceModuleId) {
-        return kpiB9DetailResultRepository
-            .selectByInstanceModuleId(instanceModuleId)
-            .stream()
-            .map(KpiB9DetailResultServiceImpl::getKpiB9DetailResultDTO)
-            .collect(Collectors.toList());
+    public List<KpiB9DetailResultDTO> findByResultId(long resultId) {
+        final QKpiB9DetailResult qKpiB9DetailResult = QKpiB9DetailResult.kpiB9DetailResult;
+        final QAnagStation qAnagStation = QAnagStation.anagStation;
+
+        JPQLQuery<KpiB9DetailResultDTO> query = queryBuilder
+            .createQuery()
+            .from(qKpiB9DetailResult)
+            .leftJoin(qKpiB9DetailResult.station, qAnagStation)
+            .where(qKpiB9DetailResult.kpiB9Result.id.eq(resultId))
+            .select(
+                Projections.fields(
+                    KpiB9DetailResultDTO.class,
+                    qKpiB9DetailResult.id.as("id"),
+                    qKpiB9DetailResult.instance.id.as("instanceId"),
+                    qKpiB9DetailResult.instanceModule.id.as("instanceModuleId"),
+                    qKpiB9DetailResult.analysisDate.as("analysisDate"),
+                    qKpiB9DetailResult.station.id.as("stationId"),
+                    qKpiB9DetailResult.evaluationType.as("evaluationType"),
+                    qKpiB9DetailResult.evaluationStartDate.as("evaluationStartDate"),
+                    qKpiB9DetailResult.evaluationEndDate.as("evaluationEndDate"),
+                    qKpiB9DetailResult.totRes.as("totRes"),
+                    qKpiB9DetailResult.resKo.as("resKo"),
+                    qKpiB9DetailResult.resKoPercentage.as("resKoPercentage"),
+                    qKpiB9DetailResult.outcome.as("outcome"),
+                    qKpiB9DetailResult.kpiB9Result.id.as("kpiB9ResultId"),
+                    qAnagStation.name.as("stationName")
+                )
+            );
+
+        return query.fetch();
     }
 }

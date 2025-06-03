@@ -1,20 +1,13 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
-import com.nexigroup.pagopa.cruscotto.domain.AnagStation;
-import com.nexigroup.pagopa.cruscotto.domain.Instance;
-import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
-import com.nexigroup.pagopa.cruscotto.domain.KpiB9AnalyticData;
-import com.nexigroup.pagopa.cruscotto.domain.KpiB9DetailResult;
-import com.nexigroup.pagopa.cruscotto.repository.AnagStationRepository;
-import com.nexigroup.pagopa.cruscotto.repository.InstanceModuleRepository;
-import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
-import com.nexigroup.pagopa.cruscotto.repository.KpiB9AnalyticDataRepository;
-import com.nexigroup.pagopa.cruscotto.repository.KpiB9DetailResultRepository;
+import com.nexigroup.pagopa.cruscotto.domain.*;
+import com.nexigroup.pagopa.cruscotto.repository.*;
 import com.nexigroup.pagopa.cruscotto.service.KpiB9AnalyticDataService;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB9AnalyticDataDTO;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
+import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.JPQLQuery;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -142,11 +135,32 @@ public class KpiB9AnalyticDataServiceImpl implements KpiB9AnalyticDataService {
     }
 
     @Override
-    public List<KpiB9AnalyticDataDTO> findByInstanceModuleId(long instanceModuleId) {
-        return kpiB9AnalyticDataRepository
-            .selectByInstanceModuleId(instanceModuleId)
-            .stream()
-            .map(KpiB9AnalyticDataServiceImpl::getkpiB9AnalyticDataDTO)
-            .collect(Collectors.toList());
+    public List<KpiB9AnalyticDataDTO> findByDetailResultId(long detailResultId) {
+        final QKpiB9AnalyticData qKpiB9AnalyticData = QKpiB9AnalyticData.kpiB9AnalyticData;
+        final QAnagStation qAnagStation = QAnagStation.anagStation;
+
+        JPQLQuery<KpiB9AnalyticDataDTO> query = queryBuilder
+            .createQuery()
+            .from(qKpiB9AnalyticData)
+            .leftJoin(qKpiB9AnalyticData.station, qAnagStation)
+            .where(qKpiB9AnalyticData.kpiB9DetailResult.id.eq(detailResultId))
+            .select(
+                Projections.fields(
+                    KpiB9AnalyticDataDTO.class,
+                    qKpiB9AnalyticData.id.as("id"),
+                    qKpiB9AnalyticData.instance.id.as("instanceId"),
+                    qKpiB9AnalyticData.instanceModule.id.as("instanceModuleId"),
+                    qKpiB9AnalyticData.analysisDate.as("analysisDate"),
+                    qKpiB9AnalyticData.station.id.as("stationId"),
+                    qKpiB9AnalyticData.evaluationDate.as("evaluationDate"),
+                    qKpiB9AnalyticData.kpiB9DetailResult.id.as("kpiB9DetailResultId"),
+                    qKpiB9AnalyticData.totRes.as("totRes"),
+                    qKpiB9AnalyticData.resOk.as("resOk"),
+                    qKpiB9AnalyticData.resKoReal.as("resKoReal"),
+                    qKpiB9AnalyticData.resKoValid.as("resKoValid"),
+                    qAnagStation.name.as("stationName")
+                )
+            );
+        return query.fetch();
     }
 }
