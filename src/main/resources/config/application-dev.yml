@@ -13,7 +13,7 @@
 logging:
   level:
     ROOT: DEBUG
-    com.nexigroup.pagopa.cruscotto: INFO
+    com.nexigroup.pagopa.cruscotto: DEBUG
 #    org.hibernate.stat: off
 #    org.hibernate.engine.internal.StatisticalLoggingSessionEventListener: info
 #    org.springframework.orm.jpa: DEBUG
@@ -160,3 +160,4 @@ decorator:
     p6spy:
       multiline: true
       logging: slf4j
+      enable-logging: false

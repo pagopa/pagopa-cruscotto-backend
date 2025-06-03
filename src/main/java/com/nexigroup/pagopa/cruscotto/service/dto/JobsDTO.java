@@ -1,15 +1,21 @@
 package com.nexigroup.pagopa.cruscotto.service.dto;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
+@ToString
 public class JobsDTO implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 9163988528260290579L;
+
+    private String schedulerName;
 
     private String jobName;
 
@@ -24,30 +30,4 @@ public class JobsDTO implements Serializable {
     private String jobStatus;
 
     private String cron;
-
-    @Override
-    public String toString() {
-        return (
-            "JobsDTO{" +
-            "jobName='" +
-            jobName +
-            '\'' +
-            ", groupName='" +
-            groupName +
-            '\'' +
-            ", scheduleTime=" +
-            scheduleTime +
-            ", lastFiredTime=" +
-            lastFiredTime +
-            ", nextFireTime=" +
-            nextFireTime +
-            ", jobStatus='" +
-            jobStatus +
-            '\'' +
-            ", cron='" +
-            cron +
-            '\'' +
-            '}'
-        );
-    }
 }

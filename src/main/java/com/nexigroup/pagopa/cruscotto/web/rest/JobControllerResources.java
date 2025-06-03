@@ -7,20 +7,32 @@ import com.cronutils.parser.CronParser;
 import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
 import com.nexigroup.pagopa.cruscotto.service.JobService;
 import com.nexigroup.pagopa.cruscotto.service.dto.JobsDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.QrtzLogTriggerExecutedDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.TaxonomyDTO;
+import com.nexigroup.pagopa.cruscotto.service.filter.JobExecutionFilter;
+import com.nexigroup.pagopa.cruscotto.service.filter.TaxonomyFilter;
 import com.nexigroup.pagopa.cruscotto.web.rest.errors.BadRequestAlertException;
 import com.nexigroup.pagopa.cruscotto.web.rest.errors.JobErrorCode;
 import com.nexigroup.pagopa.cruscotto.web.rest.util.HeaderJobUtil;
+import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.Valid;
 import java.util.Date;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import tech.jhipster.web.util.PaginationUtil;
 
 @RestController
 @RequestMapping("/api/jobs/scheduler/")
@@ -179,5 +191,17 @@ public class JobControllerResources {
 
         List<JobsDTO> list = jobService.getAllJobs();
         return ResponseEntity.ok().body(list);
+    }
+
+    @GetMapping("executions")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_STRUMENTI_CONTROLLO + "\")")
+    public ResponseEntity<List<QrtzLogTriggerExecutedDTO>> getAllExecution(
+        @Parameter(description = "Filtro", required = false) @Valid @ParameterObject JobExecutionFilter filter,
+        @Parameter(description = "Pageable", required = true) @ParameterObject Pageable pageable
+    ) {
+        log.debug("REST request to get Executons job by filter: {}", filter);
+        Page<QrtzLogTriggerExecutedDTO> page = jobService.findAll(filter, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 }
