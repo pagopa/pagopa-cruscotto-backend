@@ -141,6 +141,8 @@ public class ApplicationProperties {
     public static class Quartz {
 
         private Boolean exposeSchedulerInRepository;
+
+        private Boolean activeDbLog;
     }
 
     @Setter
