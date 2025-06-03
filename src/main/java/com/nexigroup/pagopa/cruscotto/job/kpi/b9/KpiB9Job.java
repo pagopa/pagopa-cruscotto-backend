@@ -198,8 +198,8 @@ public class KpiB9Job extends QuartzJobBean {
                                 LOGGER.info("Found {} rows of maintenance", maintenance.size());
 
                                 AtomicReference<Month> prevMonth = new AtomicReference<>();
-                                AtomicReference<Long> totResMonth = new AtomicReference<>();
-                                AtomicReference<Long> totResKoMonth = new AtomicReference<>();
+                                AtomicReference<Long> totResMonth = new AtomicReference<>(0L);
+                                AtomicReference<Long> totResKoMonth = new AtomicReference<>(0L);
                                 AtomicReference<Long> totResPeriod = new AtomicReference<>(0L);
                                 AtomicReference<Long> totResKoPeriod = new AtomicReference<>(0L);
                                 List<KpiB9AnalyticDataDTO> kpiB9AnalyticDataDTOS = new ArrayList<>();
