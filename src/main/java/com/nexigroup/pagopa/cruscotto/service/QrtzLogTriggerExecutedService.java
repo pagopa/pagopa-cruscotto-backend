@@ -3,6 +3,7 @@ package com.nexigroup.pagopa.cruscotto.service;
 import com.nexigroup.pagopa.cruscotto.domain.QrtzLogTriggerExecuted;
 import com.nexigroup.pagopa.cruscotto.service.dto.QrtzLogTriggerExecutedDTO;
 import java.time.Instant;
+import java.util.List;
 
 /**
  * Service Interface for managing {@link QrtzLogTriggerExecuted}.
@@ -32,4 +33,8 @@ public interface QrtzLogTriggerExecutedService {
      * @param exception serialized byte array representing exception details, if any occurred during execution
      */
     void jobWasExecuted(String fireInstanceId, Instant endFiredTime, byte[] exception);
+
+    List<Long> findByScheduledTimeBefore(Instant scheduledTime);
+
+    void deleteById(Long id);
 }
