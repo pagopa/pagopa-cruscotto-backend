@@ -260,7 +260,6 @@ public class JobServiceImpl implements JobService {
                     list.add(jobs);
 
                     LOGGER.debug("Job details:");
-                    LOGGER.debug("Job Name:{}, Group Name:{}, Schedule Time:{}", jobName, groupName, scheduleTime);
                 }
             }
         } catch (SchedulerException e) {
