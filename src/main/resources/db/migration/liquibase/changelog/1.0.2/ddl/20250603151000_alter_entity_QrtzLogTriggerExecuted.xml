@@ -13,7 +13,7 @@
 
   <changeSet id="20250603151000-2" author="system" context="ddl">
  	<createTable tableName="QRTZ_LOG_TRIGGER_EXECUTED">
- 	  <column name="CO_ID" type="bigint">
+ 	  <column name="ID" type="bigint">
         <constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_QRTZLOGTRIGEXEC"/>
       </column>
 	  <column name="SCHED_NAME" type="VARCHAR(120)">

@@ -1,12 +1,13 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
-import com.nexigroup.pagopa.cruscotto.domain.Instance;
 import com.nexigroup.pagopa.cruscotto.domain.QrtzLogTriggerExecuted;
 import com.nexigroup.pagopa.cruscotto.repository.QrtzLogTriggerExecutedRepository;
 import com.nexigroup.pagopa.cruscotto.service.QrtzLogTriggerExecutedService;
 import com.nexigroup.pagopa.cruscotto.service.dto.QrtzLogTriggerExecutedDTO;
 import com.nexigroup.pagopa.cruscotto.service.mapper.QrtzLogTriggerExecutedMapper;
 import java.time.Instant;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -90,5 +91,17 @@ public class QrtzLogTriggerExecutedServiceImpl implements QrtzLogTriggerExecuted
         qrtzLogTriggerExecuted.setState(exception != null ? "ERROR" : "COMPLETED");
 
         qrtzLogTriggerExecutedRepository.save(qrtzLogTriggerExecuted);
+    }
+
+    @Override
+    public List<Long> findByScheduledTimeBefore(Instant scheduledTime) {
+        return this.qrtzLogTriggerExecutedRepository.findByScheduledTimeBefore(scheduledTime)
+            .stream()
+            .map(QrtzLogTriggerExecuted::getId)
+            .collect(Collectors.toList());
+    }
+
+    public void deleteById(Long id) {
+        qrtzLogTriggerExecutedRepository.deleteById(id);
     }
 }
