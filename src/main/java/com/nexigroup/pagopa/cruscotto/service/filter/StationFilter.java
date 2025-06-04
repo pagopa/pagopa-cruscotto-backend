@@ -1,16 +1,20 @@
 package com.nexigroup.pagopa.cruscotto.service.filter;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.io.Serializable;
 
 @Getter
 @Setter
 public class StationFilter implements Serializable {
 
-    @Pattern(regexp = "^[0-9]{0,25}$")
+	@Serial
+	private static final long serialVersionUID = 4769113909045723465L;
+	
+	@Pattern(regexp = "^[0-9]{0,25}$")
     private String partnerId;
 
 
