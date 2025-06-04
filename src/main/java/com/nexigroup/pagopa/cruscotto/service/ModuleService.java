@@ -1,10 +1,9 @@
 package com.nexigroup.pagopa.cruscotto.service;
 
 import com.nexigroup.pagopa.cruscotto.domain.Module;
+import com.nexigroup.pagopa.cruscotto.service.bean.ModuleRequestBean;
 import com.nexigroup.pagopa.cruscotto.service.dto.ModuleDTO;
 import java.util.Optional;
-
-import com.nexigroup.pagopa.cruscotto.service.filter.InstanceFilter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -26,4 +25,8 @@ public interface ModuleService {
     void delete(Long id);
 
     Page<ModuleDTO> findAllWithoutConfiguration(Pageable pageable);
+
+    ModuleDTO saveNew(ModuleRequestBean moduleToCreate);
+
+    ModuleDTO update(ModuleRequestBean moduleToUpdate);
 }
