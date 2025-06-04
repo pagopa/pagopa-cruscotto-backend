@@ -4,7 +4,10 @@ import com.nexigroup.pagopa.cruscotto.domain.Module;
 import com.nexigroup.pagopa.cruscotto.domain.QKpiConfiguration;
 import com.nexigroup.pagopa.cruscotto.domain.QModule;
 import com.nexigroup.pagopa.cruscotto.repository.ModuleRepository;
+import com.nexigroup.pagopa.cruscotto.security.SecurityUtils;
+import com.nexigroup.pagopa.cruscotto.service.GenericServiceException;
 import com.nexigroup.pagopa.cruscotto.service.ModuleService;
+import com.nexigroup.pagopa.cruscotto.service.bean.ModuleRequestBean;
 import com.nexigroup.pagopa.cruscotto.service.dto.ModuleDTO;
 import com.nexigroup.pagopa.cruscotto.service.mapper.ModuleMapper;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QdslUtility;
@@ -14,6 +17,8 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPQLQuery;
+
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,6 +37,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class ModuleServiceImpl implements ModuleService {
+
+    private static final String CURRENT_USER_LOGIN_NOT_FOUND = "Current user login not found";
+    private static final String MODULE = "module";
 
     private final Logger log = LoggerFactory.getLogger(ModuleServiceImpl.class);
 
@@ -150,6 +158,83 @@ public class ModuleServiceImpl implements ModuleService {
 
         return new PageImpl<>(list, pageable, size);
     }
+
+    /**
+     * Save a new module.
+     *
+     * @param moduleToCreate the entity to save.
+     * @return the persisted entity.
+     */
+    @Override
+    public ModuleDTO saveNew(ModuleRequestBean moduleToCreate) {
+
+        String loginUtenteLoggato = SecurityUtils.getCurrentUserLogin()
+            .orElseThrow(() -> new RuntimeException(CURRENT_USER_LOGIN_NOT_FOUND));
+
+        Module module = new Module();
+        module.setCode(moduleToCreate.getCode());
+        module.setName(moduleToCreate.getName());
+        module.setDescription(moduleToCreate.getDescription());
+        module.setAnalysisType(moduleToCreate.getAnalysisType());
+        module.setAllowManualOutcome(moduleToCreate.getAllowManualOutcome());
+        module.setStatus(moduleToCreate.getStatus());
+        module.setCreatedBy(loginUtenteLoggato);
+        module.setCreatedDate(Instant.now());
+        module.setConfigExcludePlannedShutdown(false);
+        module.setConfigExcludeUnplannedShutdown(false);
+        module.setConfigEligibilityThreshold(false);
+        module.setConfigTolerance(false);
+        module.setConfigAverageTimeLimit(false);
+        module.setConfigEvaluationType(false);
+
+        module = moduleRepository.save(module);
+
+        log.info("Creation of module with identification {} by user {}", module.getId(), loginUtenteLoggato);
+
+        return moduleMapper.toDto(module);
+    }
+
+    /**
+     * Update a module.
+     *
+     * @param moduleToUpdate the entity to update.
+     * @return the persisted entity.
+     */
+    @Override
+    public ModuleDTO update(ModuleRequestBean moduleToUpdate) {
+        return Optional.of(moduleRepository.findById(moduleToUpdate.getId()))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .map(module -> {
+                String loginUtenteLoggato = SecurityUtils.getCurrentUserLogin()
+                    .orElseThrow(() -> new RuntimeException(CURRENT_USER_LOGIN_NOT_FOUND));
+
+                module.setCode(moduleToUpdate.getCode());
+                module.setName(moduleToUpdate.getName());
+                module.setDescription(moduleToUpdate.getDescription());
+                module.setAnalysisType(moduleToUpdate.getAnalysisType());
+                module.setAllowManualOutcome(moduleToUpdate.getAllowManualOutcome());
+                module.setStatus(moduleToUpdate.getStatus());
+                moduleRepository.save(module);
+
+                log.info(
+                    "Updating of module with identification {} by user {}",
+                    module.getId(),
+                    loginUtenteLoggato
+                );
+
+                return module;
+            })
+            .map(moduleMapper::toDto)
+            .orElseThrow(() ->
+                new GenericServiceException(
+                    String.format("Module with id %s not exist", moduleToUpdate.getId()),
+                    MODULE,
+                    "module.notExists"
+                )
+            );
+    }
+
     private com.querydsl.core.types.Expression<ModuleDTO> createModuleProjection() {
         return Projections.fields(
             ModuleDTO.class,
