@@ -48,4 +48,16 @@ public class AnagModuleResource {
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
+
+    @GetMapping("/modules")
+    //    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_LIST_FUNCTION + "\")")
+    public ResponseEntity<List<ModuleDTO>> getAllModules(
+        @Parameter(description = "Pageable", required = true) @ParameterObject Pageable pageable
+    ) {
+        log.debug("REST request to get all modules");
+        Page<ModuleDTO> page = moduleService.findAll(pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
 }
