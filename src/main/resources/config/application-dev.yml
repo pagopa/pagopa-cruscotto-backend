@@ -150,6 +150,9 @@ application:
       enabled: false
       cron: 0 0/2 08-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
       limit: 20
+    clear-log-job:
+      cron: 0 0/20 05-6 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
+      days: 7
 
   liquibase:
     async-start: false
@@ -160,4 +163,4 @@ decorator:
     p6spy:
       multiline: true
       logging: slf4j
-      enable-logging: false
+      enable-logging: true
