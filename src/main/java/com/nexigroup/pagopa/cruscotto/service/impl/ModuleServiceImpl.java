@@ -16,6 +16,7 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPQLQuery;
 import java.util.List;
 import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -44,6 +45,48 @@ public class ModuleServiceImpl implements ModuleService {
         this.moduleRepository = moduleRepository;
         this.moduleMapper = moduleMapper;
         this.queryBuilder = queryBuilder;
+    }
+
+    /**
+     * Get all the module
+     *
+     * @param pageable the pagination information.
+     * @return the list of entities.
+     */
+    @Override
+    public Page<ModuleDTO> findAll(Pageable pageable) {
+        log.debug("Request to get all module");
+
+        QModule qModule = QModule.module;
+
+        JPQLQuery<Module> query = queryBuilder
+            .<Module>createQuery()
+            .from(qModule);
+
+
+        long total = query.fetchCount();
+
+        JPQLQuery<ModuleDTO> jpqlQuery = query.select(createModuleProjection());
+
+        jpqlQuery.offset(pageable.getOffset());
+        jpqlQuery.limit(pageable.getPageSize());
+
+        pageable
+            .getSort()
+            .stream()
+            .forEach(order -> {
+                jpqlQuery.orderBy(
+                    new OrderSpecifier<>(
+                        order.isAscending() ? com.querydsl.core.types.Order.ASC : com.querydsl.core.types.Order.DESC,
+                        Expressions.stringPath(order.getProperty()),
+                        QdslUtility.toQueryDslNullHandling(order.getNullHandling())
+                    )
+                );
+            });
+
+        List<ModuleDTO> results = jpqlQuery.fetch();
+
+        return new PageImpl<>(results, pageable, total);
     }
 
     /**
@@ -86,24 +129,7 @@ public class ModuleServiceImpl implements ModuleService {
 
         long size = jpql.fetchCount();
 
-        JPQLQuery<ModuleDTO> jpqlSelected = jpql.select(
-            Projections.fields(
-                ModuleDTO.class,
-                QModule.module.id.as("id"),
-                QModule.module.code.as("code"),
-                QModule.module.name.as("name"),
-                QModule.module.description.as("description"),
-                QModule.module.analysisType.as("analysisType"),
-                QModule.module.allowManualOutcome.as("allowManualOutcome"),
-                QModule.module.status.as("status"),
-                QModule.module.configExcludePlannedShutdown.as("configExcludePlannedShutdown"),
-                QModule.module.configExcludeUnplannedShutdown.as("configExcludeUnplannedShutdown"),
-                QModule.module.configEligibilityThreshold.as("configEligibilityThreshold"),
-                QModule.module.configTolerance.as("configTolerance"),
-                QModule.module.configAverageTimeLimit.as("configAverageTimeLimit"),
-                QModule.module.configEvaluationType.as("configEvaluationType")
-            )
-        );
+        JPQLQuery<ModuleDTO> jpqlSelected = jpql.select(createModuleProjection());
 
         jpqlSelected.offset(pageable.getOffset());
         jpqlSelected.limit(pageable.getPageSize());
@@ -124,4 +150,23 @@ public class ModuleServiceImpl implements ModuleService {
 
         return new PageImpl<>(list, pageable, size);
     }
+    private com.querydsl.core.types.Expression<ModuleDTO> createModuleProjection() {
+        return Projections.fields(
+            ModuleDTO.class,
+            QModule.module.id.as("id"),
+            QModule.module.code.as("code"),
+            QModule.module.name.as("name"),
+            QModule.module.description.as("description"),
+            QModule.module.analysisType.as("analysisType"),
+            QModule.module.allowManualOutcome.as("allowManualOutcome"),
+            QModule.module.status.as("status"),
+            QModule.module.configExcludePlannedShutdown.as("configExcludePlannedShutdown"),
+            QModule.module.configExcludeUnplannedShutdown.as("configExcludeUnplannedShutdown"),
+            QModule.module.configEligibilityThreshold.as("configEligibilityThreshold"),
+            QModule.module.configTolerance.as("configTolerance"),
+            QModule.module.configAverageTimeLimit.as("configAverageTimeLimit"),
+            QModule.module.configEvaluationType.as("configEvaluationType")
+        );
+    }
+
 }
