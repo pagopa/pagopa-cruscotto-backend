@@ -66,6 +66,7 @@ public class PagoPaCruscottoBackendApp {
      * @param args the command line arguments.
      */
     public static void main(String[] args) {
+        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Berlin"));
         SpringApplication app = new SpringApplication(PagoPaCruscottoBackendApp.class);
         DefaultProfileUtil.addDefaultProfile(app);
         Environment env = app.run(args).getEnvironment();
