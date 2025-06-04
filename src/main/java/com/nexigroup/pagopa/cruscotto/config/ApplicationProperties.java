@@ -63,6 +63,8 @@ public class ApplicationProperties {
         private KpiB2Job kpiB2Job = new KpiB2Job();
 
         private KpiB9Job kpiB9Job = new KpiB9Job();
+
+        private ClearLogJob clearLogJob = new ClearLogJob();
     }
 
     @Getter
@@ -134,6 +136,15 @@ public class ApplicationProperties {
         private String cron;
 
         private int limit;
+    }
+
+    @Getter
+    @Setter
+    public static class ClearLogJob {
+
+        private String cron;
+
+        private Integer days;
     }
 
     @Getter
