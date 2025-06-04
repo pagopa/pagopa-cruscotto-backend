@@ -165,3 +165,4 @@ __TEMP/*
 **/.terraform
 *.env
 **/charts/*
+*.BCK
