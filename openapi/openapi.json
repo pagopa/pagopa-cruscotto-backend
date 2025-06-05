@@ -8,7 +8,7 @@
       "name": "unlicensed",
       "url": ""
     },
-    "version": "0.3.9"
+    "version": "0.4.14"
   },
   "servers": [
     {
@@ -162,6 +162,115 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/AnagPlannedShutdownDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-configurations": {
+      "get": {
+        "tags": ["kpi-configuration-resources"],
+        "operationId": "getAllKpiConfigurations",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Zero-based page index (0..N)",
+            "required": false,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "The size of the page to be returned",
+            "required": false,
+            "schema": {
+              "minimum": 1,
+              "type": "integer",
+              "default": 20
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiConfigurationDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["kpi-configuration-resources"],
+        "operationId": "updateKpiConfiguration",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KpiConfigurationRequestBean"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/KpiConfigurationDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["kpi-configuration-resources"],
+        "operationId": "createAKpiConfiguration",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KpiConfigurationRequestBean"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/KpiConfigurationDTO"
                 }
               }
             }
@@ -1409,6 +1518,63 @@
         }
       }
     },
+    "/api/modules/no-configuration": {
+      "get": {
+        "tags": ["anag-module-resource"],
+        "operationId": "getAllModulesWithoutConfiguration",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Zero-based page index (0..N)",
+            "required": false,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "The size of the page to be returned",
+            "required": false,
+            "schema": {
+              "minimum": 1,
+              "type": "integer",
+              "default": 20
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ModuleDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/language/{language}": {
       "get": {
         "tags": ["account-resource"],
@@ -1426,6 +1592,38 @@
         "responses": {
           "200": {
             "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/kpi-results/b9/module/{moduleId}": {
+      "get": {
+        "tags": ["kpi-result-resource"],
+        "operationId": "getKpiB9Results",
+        "parameters": [
+          {
+            "name": "moduleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiB9ResultDTO"
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -1518,6 +1716,38 @@
                   "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/KpiA1ResultDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-detail-results/b9/module/{resultId}": {
+      "get": {
+        "tags": ["kpi-detail-result-resource"],
+        "operationId": "getKpiB9DetailResults",
+        "parameters": [
+          {
+            "name": "resultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiB9DetailResultDTO"
                   }
                 }
               }
@@ -1622,63 +1852,6 @@
         }
       }
     },
-    "/api/kpi-configurations": {
-      "get": {
-        "tags": ["kpi-configuration-resources"],
-        "operationId": "getAllKpiConfigurations",
-        "parameters": [
-          {
-            "name": "page",
-            "in": "query",
-            "description": "Zero-based page index (0..N)",
-            "required": false,
-            "schema": {
-              "minimum": 0,
-              "type": "integer",
-              "default": 0
-            }
-          },
-          {
-            "name": "size",
-            "in": "query",
-            "description": "The size of the page to be returned",
-            "required": false,
-            "schema": {
-              "minimum": 1,
-              "type": "integer",
-              "default": 20
-            }
-          },
-          {
-            "name": "sort",
-            "in": "query",
-            "description": "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.",
-            "required": false,
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiConfigurationDTO"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/kpi-configurations/{moduleCode}": {
       "get": {
         "tags": ["kpi-configuration-resources"],
@@ -1701,6 +1874,38 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/KpiConfigurationDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-analytic-data/b9/module/{detailResultId}": {
+      "get": {
+        "tags": ["kpi-analytic-data-resource"],
+        "operationId": "getKpiB9AnalyticDataResults",
+        "parameters": [
+          {
+            "name": "detailResultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiB9AnalyticDataDTO"
+                  }
                 }
               }
             }
@@ -1970,6 +2175,93 @@
                   "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/JobsDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jobs/scheduler/executions": {
+      "get": {
+        "tags": ["job-controller-resources"],
+        "operationId": "getAllExecution",
+        "parameters": [
+          {
+            "name": "schedulerName",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "maxLength": 120,
+              "minLength": 0,
+              "type": "string"
+            }
+          },
+          {
+            "name": "jobName",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "maxLength": 200,
+              "minLength": 0,
+              "type": "string"
+            }
+          },
+          {
+            "name": "jobGroup",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "maxLength": 200,
+              "minLength": 0,
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Zero-based page index (0..N)",
+            "required": false,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "The size of the page to be returned",
+            "required": false,
+            "schema": {
+              "minimum": 1,
+              "type": "integer",
+              "default": 20
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/QrtzLogTriggerExecutedDTO"
                   }
                 }
               }
@@ -2675,6 +2967,28 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/kpi-configurations/{id}": {
+      "delete": {
+        "tags": ["kpi-configuration-resources"],
+        "operationId": "deleteKpiConfiguration",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -3440,6 +3754,100 @@
           },
           "stationName": {
             "type": "string"
+          }
+        }
+      },
+      "KpiConfigurationRequestBean": {
+        "required": ["moduleCode"],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "moduleCode": {
+            "type": "string"
+          },
+          "excludePlannedShutdown": {
+            "type": "boolean"
+          },
+          "excludeUnplannedShutdown": {
+            "type": "boolean"
+          },
+          "eligibilityThreshold": {
+            "type": "number",
+            "format": "double"
+          },
+          "tolerance": {
+            "type": "number",
+            "format": "double"
+          },
+          "averageTimeLimit": {
+            "type": "number",
+            "format": "double"
+          },
+          "evaluationType": {
+            "type": "string",
+            "enum": ["MESE", "TOTALE"]
+          }
+        }
+      },
+      "KpiConfigurationDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "moduleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "moduleCode": {
+            "type": "string"
+          },
+          "moduleName": {
+            "type": "string"
+          },
+          "excludePlannedShutdown": {
+            "type": "boolean"
+          },
+          "excludeUnplannedShutdown": {
+            "type": "boolean"
+          },
+          "eligibilityThreshold": {
+            "type": "number",
+            "format": "double"
+          },
+          "tolerance": {
+            "type": "number",
+            "format": "double"
+          },
+          "averageTimeLimit": {
+            "type": "number",
+            "format": "double"
+          },
+          "evaluationType": {
+            "type": "string",
+            "enum": ["MESE", "TOTALE"]
+          },
+          "configExcludePlannedShutdown": {
+            "type": "boolean"
+          },
+          "configExcludeUnplannedShutdown": {
+            "type": "boolean"
+          },
+          "configEligibilityThreshold": {
+            "type": "boolean"
+          },
+          "configTolerance": {
+            "type": "boolean"
+          },
+          "configAverageTimeLimit": {
+            "type": "boolean"
+          },
+          "configEvaluationType": {
+            "type": "boolean"
           }
         }
       },
@@ -4233,6 +4641,107 @@
           }
         }
       },
+      "ModuleDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "analysisType": {
+            "type": "string",
+            "enum": ["AUTOMATICA", "MANUALE"]
+          },
+          "allowManualOutcome": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["ATTIVO", "NON_ATTIVO"]
+          },
+          "configExcludePlannedShutdown": {
+            "type": "boolean"
+          },
+          "configExcludeUnplannedShutdown": {
+            "type": "boolean"
+          },
+          "configEligibilityThreshold": {
+            "type": "boolean"
+          },
+          "configTolerance": {
+            "type": "boolean"
+          },
+          "configAverageTimeLimit": {
+            "type": "boolean"
+          },
+          "configEvaluationType": {
+            "type": "boolean"
+          }
+        }
+      },
+      "KpiB9ResultDTO": {
+        "required": [
+          "analysisDate",
+          "eligibilityThreshold",
+          "evaluationType",
+          "excludePlannedShutdown",
+          "excludeUnplannedShutdown",
+          "instanceId",
+          "instanceModuleId",
+          "outcome",
+          "tolerance"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceModuleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "analysisDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "excludePlannedShutdown": {
+            "type": "boolean"
+          },
+          "excludeUnplannedShutdown": {
+            "type": "boolean"
+          },
+          "eligibilityThreshold": {
+            "type": "number",
+            "format": "double"
+          },
+          "tolerance": {
+            "type": "number",
+            "format": "double"
+          },
+          "evaluationType": {
+            "type": "string",
+            "enum": ["MESE", "TOTALE"]
+          },
+          "outcome": {
+            "type": "string",
+            "enum": ["OK", "KO", "RUNNING", "STANDBY"]
+          }
+        }
+      },
       "KpiB2ResultDTO": {
         "required": [
           "analysisDate",
@@ -4373,6 +4882,76 @@
           "outcome": {
             "type": "string",
             "enum": ["OK", "KO", "RUNNING", "STANDBY"]
+          }
+        }
+      },
+      "KpiB9DetailResultDTO": {
+        "required": [
+          "analysisDate",
+          "evaluationEndDate",
+          "evaluationStartDate",
+          "evaluationType",
+          "instanceId",
+          "instanceModuleId",
+          "outcome",
+          "resKo",
+          "resKoPercentage",
+          "stationId",
+          "totRes"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceModuleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "analysisDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "stationId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "evaluationType": {
+            "type": "string",
+            "enum": ["MESE", "TOTALE"]
+          },
+          "evaluationStartDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "evaluationEndDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "totRes": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "resKo": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "resKoPercentage": {
+            "type": "number",
+            "format": "double"
+          },
+          "outcome": {
+            "type": "string",
+            "enum": ["OK", "KO", "RUNNING", "STANDBY"]
+          },
+          "kpiB9ResultId": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },
@@ -4590,41 +5169,63 @@
           }
         }
       },
-      "KpiConfigurationDTO": {
+      "KpiB9AnalyticDataDTO": {
+        "required": [
+          "analysisDate",
+          "evaluationDate",
+          "instanceId",
+          "instanceModuleId",
+          "resKoReal",
+          "resKoValid",
+          "resOk",
+          "stationId",
+          "totRes"
+        ],
         "type": "object",
         "properties": {
           "id": {
             "type": "integer",
             "format": "int64"
           },
-          "moduleId": {
+          "instanceId": {
             "type": "integer",
             "format": "int64"
           },
-          "moduleCode": {
-            "type": "string"
+          "instanceModuleId": {
+            "type": "integer",
+            "format": "int64"
           },
-          "excludePlannedShutdown": {
-            "type": "boolean"
-          },
-          "excludeUnplannedShutdown": {
-            "type": "boolean"
-          },
-          "eligibilityThreshold": {
-            "type": "number",
-            "format": "double"
-          },
-          "tolerance": {
-            "type": "number",
-            "format": "double"
-          },
-          "averageTimeLimit": {
-            "type": "number",
-            "format": "double"
-          },
-          "evaluationType": {
+          "analysisDate": {
             "type": "string",
-            "enum": ["MESE", "TOTALE"]
+            "format": "date"
+          },
+          "stationId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "evaluationDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "totRes": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "resOk": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "resKoReal": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "resKoValid": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "kpiB9DetailResultId": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },
@@ -4803,6 +5404,9 @@
       "JobsDTO": {
         "type": "object",
         "properties": {
+          "schedulerName": {
+            "type": "string"
+          },
           "jobName": {
             "type": "string"
           },
@@ -4825,6 +5429,51 @@
             "type": "string"
           },
           "cron": {
+            "type": "string"
+          }
+        }
+      },
+      "QrtzLogTriggerExecutedDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "fireInstanceId": {
+            "type": "string"
+          },
+          "schedulerName": {
+            "type": "string"
+          },
+          "jobName": {
+            "type": "string"
+          },
+          "jobGroup": {
+            "type": "string"
+          },
+          "scheduledTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "triggerGroup": {
+            "type": "string"
+          },
+          "triggerName": {
+            "type": "string"
+          },
+          "initFiredTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endFiredTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "state": {
+            "type": "string"
+          },
+          "messageException": {
             "type": "string"
           }
         }
