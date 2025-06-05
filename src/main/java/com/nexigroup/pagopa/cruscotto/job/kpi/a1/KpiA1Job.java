@@ -250,13 +250,13 @@ public class KpiA1Job extends QuartzJobBean {
                                             long sumValidTimeouReqtDaily = 0;
 
                                             for (PagoPaRecordedTimeoutDTO pagoPaRecordedTimeoutDTO : pagoPaRecordedTimeoutDTOS) {
-                                                LOGGER.info("PagoPaRecordedTimeoutDTO: {}", pagoPaRecordedTimeoutDTO);
+                                                LOGGER.debug("PagoPaRecordedTimeoutDTO: {}", pagoPaRecordedTimeoutDTO);
 
                                                 sumTotReqDaily = sumTotReqDaily + pagoPaRecordedTimeoutDTO.getTotReq();
                                                 sumOkReqDaily = sumOkReqDaily + pagoPaRecordedTimeoutDTO.getReqOk();
                                                 sumRealTimeoutReqDaily = sumRealTimeoutReqDaily + pagoPaRecordedTimeoutDTO.getReqTimeout();
 
-                                                LOGGER.info("sumTotReqDaily: {}", sumTotReqDaily);
+                                                LOGGER.debug("sumTotReqDaily: {}", sumTotReqDaily);
 
                                                 boolean exclude = maintenance
                                                     .stream()
