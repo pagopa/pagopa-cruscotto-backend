@@ -122,9 +122,9 @@ application:
 
   liquibase:
     async-start: false
-    dbVersion: 1.0.0
+    dbVersion: 1.0.2
 
 decorator:
   datasource:
     p6spy:
-      enable-logging: true
+      enable-logging: false

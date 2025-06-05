@@ -100,6 +100,7 @@ public class KpiB2ResultServiceImpl implements KpiB2ResultService {
         kpiB2ResultDTO.setTolerance(kpiB2Result.getTolerance());
         kpiB2ResultDTO.setEvaluationType(kpiB2Result.getEvaluationType());
         kpiB2ResultDTO.setOutcome(kpiB2Result.getOutcome());
+        kpiB2ResultDTO.setAverageTimeLimit(kpiB2Result.getAverageTimeLimit());
         return kpiB2ResultDTO;
     }
 
