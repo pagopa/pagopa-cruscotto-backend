@@ -51,7 +51,6 @@ jobs:
         run: |
           helm uninstall ${{ env.APP_NAME }}${{inputs.suffix_name}} -n ${{ vars.NAMESPACE }}
 
-
   update_openapi:
     needs: [deploy]
     runs-on: ubuntu-latest

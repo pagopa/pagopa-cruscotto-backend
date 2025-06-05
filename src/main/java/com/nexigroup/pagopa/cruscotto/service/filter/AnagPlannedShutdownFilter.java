@@ -3,9 +3,12 @@ package com.nexigroup.pagopa.cruscotto.service.filter;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.TypePlanned;
 import com.nexigroup.pagopa.cruscotto.service.validation.ValidEnum;
 import com.nexigroup.pagopa.cruscotto.service.validation.ValidRangeDate;
+
+import java.io.Serial;
+import java.io.Serializable;
+
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -21,7 +24,10 @@ import lombok.ToString;
 )
 public class AnagPlannedShutdownFilter implements Serializable {
 
-    @Pattern(regexp = "^[0-9]{0,25}$")
+	@Serial
+	private static final long serialVersionUID = -5601562316832913296L;
+
+	@Pattern(regexp = "^[0-9]{0,25}$")
     private String partnerId;
 
     @ValidEnum(enumClass = TypePlanned.class)
