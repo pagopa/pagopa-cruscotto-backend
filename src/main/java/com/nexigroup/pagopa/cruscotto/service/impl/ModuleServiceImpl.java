@@ -180,12 +180,12 @@ public class ModuleServiceImpl implements ModuleService {
         module.setStatus(moduleToCreate.getStatus());
         module.setCreatedBy(loginUtenteLoggato);
         module.setCreatedDate(Instant.now());
-        module.setConfigExcludePlannedShutdown(false);
-        module.setConfigExcludeUnplannedShutdown(false);
-        module.setConfigEligibilityThreshold(false);
-        module.setConfigTolerance(false);
-        module.setConfigAverageTimeLimit(false);
-        module.setConfigEvaluationType(false);
+        module.setConfigExcludePlannedShutdown(moduleToCreate.getConfigExcludePlannedShutdown());
+        module.setConfigExcludeUnplannedShutdown(moduleToCreate.getConfigExcludeUnplannedShutdown());
+        module.setConfigEligibilityThreshold(moduleToCreate.getConfigEligibilityThreshold());
+        module.setConfigTolerance(moduleToCreate.getConfigTolerance());
+        module.setConfigAverageTimeLimit(moduleToCreate.getConfigAverageTimeLimit());
+        module.setConfigEvaluationType(moduleToCreate.getConfigEvaluationType());
 
         module = moduleRepository.save(module);
 
@@ -215,6 +215,12 @@ public class ModuleServiceImpl implements ModuleService {
                 module.setAnalysisType(moduleToUpdate.getAnalysisType());
                 module.setAllowManualOutcome(moduleToUpdate.getAllowManualOutcome());
                 module.setStatus(moduleToUpdate.getStatus());
+                module.setConfigExcludePlannedShutdown(moduleToUpdate.getConfigExcludePlannedShutdown());
+                module.setConfigExcludeUnplannedShutdown(moduleToUpdate.getConfigExcludeUnplannedShutdown());
+                module.setConfigEligibilityThreshold(moduleToUpdate.getConfigEligibilityThreshold());
+                module.setConfigTolerance(moduleToUpdate.getConfigTolerance());
+                module.setConfigAverageTimeLimit(moduleToUpdate.getConfigAverageTimeLimit());
+                module.setConfigEvaluationType(moduleToUpdate.getConfigEvaluationType());
                 moduleRepository.save(module);
 
                 log.info(
