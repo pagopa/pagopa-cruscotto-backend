@@ -2,9 +2,11 @@ package com.nexigroup.pagopa.cruscotto.service.filter;
 
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.InstanceStatus;
 import com.nexigroup.pagopa.cruscotto.service.validation.ValidRangeDate;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
+
+import java.io.Serial;
 import java.io.Serializable;
+
+import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,13 +25,16 @@ import lombok.Setter;
             maxDate = "analysisEndDate",
             pattern = "dd/MM/yyyy",
             equalsIsValid = false,
-            field = "FIELD@FIELD@analysisStartDateEndDate"
+            field = "FIELD@analysisStartDateEndDate"
         ),
     }
 )
 public class InstanceFilter implements Serializable {
 
-    @Pattern(regexp = "^[0-9]{0,25}$")
+	@Serial
+	private static final long serialVersionUID = -5682277704081342570L;
+
+	@Pattern(regexp = "^[0-9]{0,25}$")
     private String partnerId;
 
     private InstanceStatus status;
