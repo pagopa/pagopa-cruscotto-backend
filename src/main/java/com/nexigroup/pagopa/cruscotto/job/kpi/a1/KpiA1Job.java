@@ -1,20 +1,5 @@
 package com.nexigroup.pagopa.cruscotto.job.kpi.a1;
 
-import org.apache.commons.lang3.BooleanUtils;
-import org.jetbrains.annotations.NotNull;
-import org.quartz.DisallowConcurrentExecution;
-import org.quartz.JobDetail;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobKey;
-import org.quartz.Scheduler;
-import org.quartz.SimpleScheduleBuilder;
-import org.quartz.Trigger;
-import org.quartz.TriggerBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.quartz.QuartzJobBean;
-import org.springframework.stereotype.Component;
-
 import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
@@ -38,7 +23,6 @@ import com.nexigroup.pagopa.cruscotto.service.dto.KpiA1DetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA1ResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiConfigurationDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.PagoPaRecordedTimeoutDTO;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
@@ -50,8 +34,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
-
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.BooleanUtils;
+import org.jetbrains.annotations.NotNull;
+import org.quartz.DisallowConcurrentExecution;
+import org.quartz.JobDetail;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
+import org.quartz.SimpleScheduleBuilder;
+import org.quartz.Trigger;
+import org.quartz.TriggerBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.quartz.QuartzJobBean;
+import org.springframework.stereotype.Component;
 
 @Component
 @AllArgsConstructor
@@ -213,7 +210,7 @@ public class KpiA1Job extends QuartzJobBean {
                                     List<KpiA1DetailResultDTO> kpiA1DetailResultDTOS = new ArrayList<>();
                                     AtomicReference<LocalDate> firstDayOfMonth = new AtomicReference<>();
                                     AtomicReference<LocalDate> lastDayOfMonth = new AtomicReference<>();
-                                    
+
                                     instanceDTO
                                         .getAnalysisPeriodStartDate()
                                         .datesUntil(instanceDTO.getAnalysisPeriodEndDate().plusDays(1))
@@ -223,21 +220,20 @@ public class KpiA1Job extends QuartzJobBean {
                                             Month currentMonth = date.getMonth();
 
                                             if (prevMonth.get() == null || prevMonth.get().compareTo(currentMonth) != 0) {
-                                               	
-                                           		if(prevMonth.get() == null) {
-                                           			firstDayOfMonth.set(instanceDTO.getAnalysisPeriodStartDate());                                            		
-                                           		} else {
-                                           			firstDayOfMonth.set(date.with(TemporalAdjusters.firstDayOfMonth()));
-                                           			totReqMonth.set(0L);
-                                           			totTimeoutReqMonth.set(0L);
-                                           			kpiA1AnalyticDataDTOS.clear();
-                                           		}
-                                           	
-                                           		if(currentMonth.compareTo(instanceDTO.getAnalysisPeriodEndDate().getMonth()) == 0) {
-                                           			lastDayOfMonth.set(instanceDTO.getAnalysisPeriodEndDate());
-                                           		} else {
-                                           			lastDayOfMonth.set(date.with(TemporalAdjusters.lastDayOfMonth()));
-                                           		}
+                                                if (prevMonth.get() == null) {
+                                                    firstDayOfMonth.set(instanceDTO.getAnalysisPeriodStartDate());
+                                                } else {
+                                                    firstDayOfMonth.set(date.with(TemporalAdjusters.firstDayOfMonth()));
+                                                    totReqMonth.set(0L);
+                                                    totTimeoutReqMonth.set(0L);
+                                                    kpiA1AnalyticDataDTOS.clear();
+                                                }
+
+                                                if (currentMonth.compareTo(instanceDTO.getAnalysisPeriodEndDate().getMonth()) == 0) {
+                                                    lastDayOfMonth.set(instanceDTO.getAnalysisPeriodEndDate());
+                                                } else {
+                                                    lastDayOfMonth.set(date.with(TemporalAdjusters.lastDayOfMonth()));
+                                                }
                                             }
 
                                             List<PagoPaRecordedTimeoutDTO> pagoPaRecordedTimeoutDTOS =
@@ -254,9 +250,13 @@ public class KpiA1Job extends QuartzJobBean {
                                             long sumValidTimeouReqtDaily = 0;
 
                                             for (PagoPaRecordedTimeoutDTO pagoPaRecordedTimeoutDTO : pagoPaRecordedTimeoutDTOS) {
+                                                LOGGER.info("PagoPaRecordedTimeoutDTO: {}", pagoPaRecordedTimeoutDTO);
+
                                                 sumTotReqDaily = sumTotReqDaily + pagoPaRecordedTimeoutDTO.getTotReq();
                                                 sumOkReqDaily = sumOkReqDaily + pagoPaRecordedTimeoutDTO.getReqOk();
                                                 sumRealTimeoutReqDaily = sumRealTimeoutReqDaily + pagoPaRecordedTimeoutDTO.getReqTimeout();
+
+                                                LOGGER.info("sumTotReqDaily: {}", sumTotReqDaily);
 
                                                 boolean exclude = maintenance
                                                     .stream()
