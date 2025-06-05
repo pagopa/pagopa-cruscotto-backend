@@ -32,4 +32,22 @@ public class ModuleRequestBean {
 
     @NotNull
     private ModuleStatus status;
+
+    @NotNull
+    private Boolean configAverageTimeLimit;
+
+    @NotNull
+    private Boolean configEligibilityThreshold;
+
+    @NotNull
+    private Boolean configEvaluationType;
+
+    @NotNull
+    private Boolean configExcludePlannedShutdown;
+
+    @NotNull
+    private Boolean configExcludeUnplannedShutdown;
+
+    @NotNull
+    private Boolean configTolerance;
 }
