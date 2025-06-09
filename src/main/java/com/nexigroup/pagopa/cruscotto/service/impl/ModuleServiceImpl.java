@@ -2,6 +2,7 @@ package com.nexigroup.pagopa.cruscotto.service.impl;
 
 import com.nexigroup.pagopa.cruscotto.domain.*;
 import com.nexigroup.pagopa.cruscotto.domain.Module;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleStatus;
 import com.nexigroup.pagopa.cruscotto.repository.ModuleRepository;
 import com.nexigroup.pagopa.cruscotto.security.SecurityUtils;
@@ -120,7 +121,7 @@ public class ModuleServiceImpl implements ModuleService {
         Optional<Module> moduleOptional = moduleRepository.findOneByIdAndNotDeleted(id);
         Module module = moduleOptional.orElse(null);
 
-        if (module != null) {
+        if (module != null && module.getAnalysisType().equals(AnalysisType.MANUALE)) {
             module.setDeleted(Boolean.TRUE);
             module.setDeletedDate(ZonedDateTime.now());
             module.setStatus(ModuleStatus.NON_ATTIVO);
@@ -203,7 +204,7 @@ public class ModuleServiceImpl implements ModuleService {
         module.setCode(moduleToCreate.getCode());
         module.setName(moduleToCreate.getName());
         module.setDescription(moduleToCreate.getDescription());
-        module.setAnalysisType(moduleToCreate.getAnalysisType());
+        module.setAnalysisType(AnalysisType.MANUALE);
         module.setAllowManualOutcome(moduleToCreate.getAllowManualOutcome());
         module.setStatus(moduleToCreate.getStatus());
         module.setCreatedBy(loginUtenteLoggato);
@@ -251,7 +252,7 @@ public class ModuleServiceImpl implements ModuleService {
                 module.setCode(moduleToUpdate.getCode());
                 module.setName(moduleToUpdate.getName());
                 module.setDescription(moduleToUpdate.getDescription());
-                module.setAnalysisType(moduleToUpdate.getAnalysisType());
+                module.setAnalysisType(AnalysisType.MANUALE);
                 module.setAllowManualOutcome(moduleToUpdate.getAllowManualOutcome());
                 module.setStatus(moduleToUpdate.getStatus());
                 module.setConfigExcludePlannedShutdown(moduleToUpdate.getConfigExcludePlannedShutdown());
