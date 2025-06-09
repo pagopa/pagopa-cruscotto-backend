@@ -1,18 +1,15 @@
 package com.nexigroup.pagopa.cruscotto.web.rest;
 
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.service.KpiConfigurationService;
 import com.nexigroup.pagopa.cruscotto.service.bean.KpiConfigurationRequestBean;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiConfigurationDTO;
 import com.nexigroup.pagopa.cruscotto.web.rest.errors.BadRequestAlertException;
 import io.swagger.v3.oas.annotations.Parameter;
-
+import jakarta.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
-
-import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springdoc.core.annotations.ParameterObject;
@@ -74,9 +71,7 @@ public class KpiConfigurationResources {
         @Parameter(description = "Codice del modulo") @PathVariable String moduleCode
     ) {
         log.debug("REST request to get KPI Configuration : {}", moduleCode);
-        Optional<KpiConfigurationDTO> kpiConfigurationDTO = kpiConfigurationService.findKpiConfigurationByCode(
-            ModuleCode.fromCode(moduleCode)
-        );
+        Optional<KpiConfigurationDTO> kpiConfigurationDTO = kpiConfigurationService.findKpiConfigurationByCode(moduleCode);
         return ResponseUtil.wrapOrNotFound(kpiConfigurationDTO);
     }
 
@@ -89,7 +84,9 @@ public class KpiConfigurationResources {
      */
     @PostMapping("/kpi-configurations")
     //  @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_ADMIN_INSTANCE + "\")")
-    public ResponseEntity<KpiConfigurationDTO> createAKpiConfiguration(@Valid @RequestBody KpiConfigurationRequestBean kpiConfigurationToCreate) throws URISyntaxException {
+    public ResponseEntity<KpiConfigurationDTO> createAKpiConfiguration(
+        @Valid @RequestBody KpiConfigurationRequestBean kpiConfigurationToCreate
+    ) throws URISyntaxException {
         log.debug("REST request to save kpi configuration : {}", kpiConfigurationToCreate);
 
         if (kpiConfigurationToCreate.getId() != null) {
@@ -114,7 +111,9 @@ public class KpiConfigurationResources {
      */
     @PutMapping("/kpi-configurations")
     //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_ADMIN_INSTANCE + "\")")
-    public ResponseEntity<KpiConfigurationDTO> updateKpiConfiguration(@Valid @RequestBody KpiConfigurationRequestBean kpiConfigurationToUpdate) {
+    public ResponseEntity<KpiConfigurationDTO> updateKpiConfiguration(
+        @Valid @RequestBody KpiConfigurationRequestBean kpiConfigurationToUpdate
+    ) {
         log.debug("REST request to update kpi configuration : {}", kpiConfigurationToUpdate);
         if (kpiConfigurationToUpdate.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -124,7 +123,6 @@ public class KpiConfigurationResources {
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
-
 
     /**
      * {@code DELETE  /kpi-configuration/:id} : delete the "id" kpi configuration.
