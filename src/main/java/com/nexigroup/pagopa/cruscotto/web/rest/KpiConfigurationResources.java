@@ -1,15 +1,5 @@
 package com.nexigroup.pagopa.cruscotto.web.rest;
 
-import com.nexigroup.pagopa.cruscotto.service.KpiConfigurationService;
-import com.nexigroup.pagopa.cruscotto.service.bean.KpiConfigurationRequestBean;
-import com.nexigroup.pagopa.cruscotto.service.dto.KpiConfigurationDTO;
-import com.nexigroup.pagopa.cruscotto.web.rest.errors.BadRequestAlertException;
-import io.swagger.v3.oas.annotations.Parameter;
-import jakarta.validation.Valid;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springdoc.core.annotations.ParameterObject;
@@ -18,8 +8,30 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
+import com.nexigroup.pagopa.cruscotto.service.KpiConfigurationService;
+import com.nexigroup.pagopa.cruscotto.service.bean.KpiConfigurationRequestBean;
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiConfigurationDTO;
+import com.nexigroup.pagopa.cruscotto.web.rest.errors.BadRequestAlertException;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Optional;
+
+import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.Valid;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
@@ -39,6 +51,7 @@ public class KpiConfigurationResources {
     private static final String ENTITY_NAME = "kpiConfiguration";
 
     private final KpiConfigurationService kpiConfigurationService;
+    
 
     public KpiConfigurationResources(KpiConfigurationService kpiConfigurationService) {
         this.kpiConfigurationService = kpiConfigurationService;
@@ -51,6 +64,7 @@ public class KpiConfigurationResources {
      * @return a ResponseEntity containing a list of KpiConfigurationDTO objects and HTTP headers for pagination
      */
     @GetMapping("/kpi-configurations")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.KPI_CONFIGURATION_LIST + "\")")
     public ResponseEntity<List<KpiConfigurationDTO>> getAllKpiConfigurations(
         @Parameter(description = "Pageable", required = true) @ParameterObject Pageable pageable
     ) {
@@ -67,6 +81,7 @@ public class KpiConfigurationResources {
      * @return a ResponseEntity containing the KpiConfigurationDTO if found, or a 404 status if no configuration exists for the specified module code
      */
     @GetMapping("/kpi-configurations/{moduleCode}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.KPI_CONFIGURATION_DETAIL + "\")")
     public ResponseEntity<KpiConfigurationDTO> getKpiConfiguration(
         @Parameter(description = "Codice del modulo") @PathVariable String moduleCode
     ) {
@@ -83,10 +98,8 @@ public class KpiConfigurationResources {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/kpi-configurations")
-    //  @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_ADMIN_INSTANCE + "\")")
-    public ResponseEntity<KpiConfigurationDTO> createAKpiConfiguration(
-        @Valid @RequestBody KpiConfigurationRequestBean kpiConfigurationToCreate
-    ) throws URISyntaxException {
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.KPI_CONFIGURATION_CREATION + "\")")
+    public ResponseEntity<KpiConfigurationDTO> createAKpiConfiguration(@Valid @RequestBody KpiConfigurationRequestBean kpiConfigurationToCreate) throws URISyntaxException {
         log.debug("REST request to save kpi configuration : {}", kpiConfigurationToCreate);
 
         if (kpiConfigurationToCreate.getId() != null) {
@@ -110,10 +123,8 @@ public class KpiConfigurationResources {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/kpi-configurations")
-    //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_ADMIN_INSTANCE + "\")")
-    public ResponseEntity<KpiConfigurationDTO> updateKpiConfiguration(
-        @Valid @RequestBody KpiConfigurationRequestBean kpiConfigurationToUpdate
-    ) {
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.KPI_CONFIGURATION_MODIFICATION + "\")")
+    public ResponseEntity<KpiConfigurationDTO> updateKpiConfiguration(@Valid @RequestBody KpiConfigurationRequestBean kpiConfigurationToUpdate) {
         log.debug("REST request to update kpi configuration : {}", kpiConfigurationToUpdate);
         if (kpiConfigurationToUpdate.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -131,7 +142,7 @@ public class KpiConfigurationResources {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/kpi-configurations/{id}")
-    //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_DELETE_FUNCTION + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.KPI_CONFIGURATION_DELETION + "\")")
     public ResponseEntity<Void> deleteKpiConfiguration(@PathVariable Long id) {
         log.debug("REST request to delete kpi configuration : {}", id);
         kpiConfigurationService.delete(id);

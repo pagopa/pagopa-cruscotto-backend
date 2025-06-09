@@ -1,5 +1,18 @@
 package com.nexigroup.pagopa.cruscotto.web.rest;
 
+import org.apache.commons.lang3.EnumUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
 import com.nexigroup.pagopa.cruscotto.domain.AuthUser;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AuthenticationType;
@@ -19,19 +32,14 @@ import com.nexigroup.pagopa.cruscotto.web.rest.errors.BadRequestAlertException;
 import com.nexigroup.pagopa.cruscotto.web.rest.errors.EmailAlreadyUsedException;
 import com.nexigroup.pagopa.cruscotto.web.rest.errors.InvalidPasswordException;
 import com.nexigroup.pagopa.cruscotto.web.rest.vm.KeyAndPasswordVM;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
+
 import java.security.Principal;
 import java.time.ZonedDateTime;
 import java.util.Optional;
-import org.apache.commons.lang3.EnumUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 
 /**
  * REST controller for managing the current user's account.
@@ -64,6 +72,7 @@ public class AccountResource {
     private final MailService mailService;
 
     private final ApplicationProperties properties;
+    
 
     public AccountResource(
         AuthUserService authUserService,
@@ -144,7 +153,7 @@ public class AccountResource {
      * @throws RuntimeException {@code 500 (Internal Server Error)} if the authUser login wasn't found.
      */
     @PostMapping("/account")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_MODIFICA_PROFILO_ACCOUNT + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ACCOUNT_MANAGEMENT + "\")")
     public void saveAccount(@Valid @RequestBody AuthUserAccountDTO authUserDTO) {
         AuthenticationType authenticationType = SecurityUtils.getAuthenticationTypeUserLogin()
             .orElseThrow(() -> new RuntimeException("Authentication Type not found"));
@@ -183,7 +192,7 @@ public class AccountResource {
      * @throws InvalidPasswordException {@code 400 (Bad Request)} if the new password is incorrect.
      */
     @PostMapping(path = "/account/change-password/expired")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_MODIFICA_PASSWORD + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.CHANGE_PASSWORD_EXPIRED + "\")")
     public void changePassword(@Valid @RequestBody PasswordChangeRequestBean passwordChangeRequestBean) {
         AuthenticationType authenticationType = SecurityUtils.getAuthenticationTypeUserLogin()
             .orElseThrow(() -> new RuntimeException("Authentication Type not found"));
