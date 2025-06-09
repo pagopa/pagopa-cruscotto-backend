@@ -1,20 +1,5 @@
 package com.nexigroup.pagopa.cruscotto.job.kpi.b9;
 
-import org.apache.commons.lang3.BooleanUtils;
-import org.jetbrains.annotations.NotNull;
-import org.quartz.DisallowConcurrentExecution;
-import org.quartz.JobDetail;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobKey;
-import org.quartz.Scheduler;
-import org.quartz.SimpleScheduleBuilder;
-import org.quartz.Trigger;
-import org.quartz.TriggerBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.quartz.QuartzJobBean;
-import org.springframework.stereotype.Component;
-
 import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
@@ -38,7 +23,6 @@ import com.nexigroup.pagopa.cruscotto.service.dto.KpiB9DetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB9ResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiConfigurationDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.PagoPaPaymentReceiptDTO;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
@@ -49,8 +33,21 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
-
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.BooleanUtils;
+import org.jetbrains.annotations.NotNull;
+import org.quartz.DisallowConcurrentExecution;
+import org.quartz.JobDetail;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
+import org.quartz.SimpleScheduleBuilder;
+import org.quartz.Trigger;
+import org.quartz.TriggerBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.quartz.QuartzJobBean;
+import org.springframework.stereotype.Component;
 
 @Component
 @AllArgsConstructor
@@ -81,18 +78,15 @@ public class KpiB9Job extends QuartzJobBean {
 
     private final Scheduler scheduler;
 
-    
     @Override
     protected void executeInternal(@NotNull JobExecutionContext context) {
-    	
         LOGGER.info("Start calculate kpi B.9 Job");
 
-        try {        	
-
-			if (!applicationProperties.getJob().getKpiB9Job().isEnabled()) {
-				LOGGER.info("Job calculate kpi B.9 disabled. Exit...");
-				return;
-			}
+        try {
+            if (!applicationProperties.getJob().getKpiB9Job().isEnabled()) {
+                LOGGER.info("Job calculate kpi B.9 disabled. Exit...");
+                return;
+            }
 
             List<InstanceDTO> instanceDTOS = instanceService.findInstanceToCalculate(
                 ModuleCode.B9,
@@ -103,12 +97,14 @@ public class KpiB9Job extends QuartzJobBean {
                 LOGGER.info("No instance to calculate B.9. Exit....");
             } else {
                 KpiConfigurationDTO kpiConfigurationDTO = kpiConfigurationService
-                    .findKpiConfigurationByCode(ModuleCode.B9)
+                    .findKpiConfigurationByCode(ModuleCode.B9.code)
                     .orElseThrow(() -> new NullPointerException("KPI B.9 Configuration not found"));
 
                 LOGGER.info("Kpi configuration {}", kpiConfigurationDTO);
 
-                Double eligibilityThreshold = kpiConfigurationDTO.getEligibilityThreshold() != null ? kpiConfigurationDTO.getEligibilityThreshold() : 0.0;
+                Double eligibilityThreshold = kpiConfigurationDTO.getEligibilityThreshold() != null
+                    ? kpiConfigurationDTO.getEligibilityThreshold()
+                    : 0.0;
                 Double tolerance = kpiConfigurationDTO.getTolerance() != null ? kpiConfigurationDTO.getTolerance() : 0.0;
 
                 instanceDTOS.forEach(instanceDTO -> {
@@ -151,8 +147,12 @@ public class KpiB9Job extends QuartzJobBean {
                         kpiB9ResultDTO.setInstanceId(instanceDTO.getId());
                         kpiB9ResultDTO.setInstanceModuleId(instanceModuleDTO.getId());
                         kpiB9ResultDTO.setAnalysisDate(LocalDate.now());
-                        kpiB9ResultDTO.setExcludePlannedShutdown(BooleanUtils.toBooleanDefaultIfNull(kpiConfigurationDTO.getExcludePlannedShutdown(), false));
-                        kpiB9ResultDTO.setExcludeUnplannedShutdown(BooleanUtils.toBooleanDefaultIfNull(kpiConfigurationDTO.getExcludeUnplannedShutdown(), false));
+                        kpiB9ResultDTO.setExcludePlannedShutdown(
+                            BooleanUtils.toBooleanDefaultIfNull(kpiConfigurationDTO.getExcludePlannedShutdown(), false)
+                        );
+                        kpiB9ResultDTO.setExcludeUnplannedShutdown(
+                            BooleanUtils.toBooleanDefaultIfNull(kpiConfigurationDTO.getExcludeUnplannedShutdown(), false)
+                        );
                         kpiB9ResultDTO.setEligibilityThreshold(eligibilityThreshold);
                         kpiB9ResultDTO.setTolerance(tolerance);
                         kpiB9ResultDTO.setEvaluationType(kpiConfigurationDTO.getEvaluationType());
@@ -165,7 +165,7 @@ public class KpiB9Job extends QuartzJobBean {
                         if (stations.isEmpty()) {
                             LOGGER.info("No stations found");
                         } else {
-                            stations.forEach((station) -> {
+                            stations.forEach(station -> {
                                 LOGGER.info("Station {}", station);
 
                                 long idStation = anagStationService.findIdByNameOrCreate(station, instanceDTO.getPartnerId());
@@ -206,140 +206,144 @@ public class KpiB9Job extends QuartzJobBean {
                                 List<KpiB9DetailResultDTO> kpiB9DetailResultDTOS = new ArrayList<>();
                                 AtomicReference<LocalDate> firstDayOfMonth = new AtomicReference<>();
                                 AtomicReference<LocalDate> lastDayOfMonth = new AtomicReference<>();
-                                
-                                instanceDTO.getAnalysisPeriodStartDate()
-                                    	   .datesUntil(instanceDTO.getAnalysisPeriodEndDate().plusDays(1))
-                                    	   .forEach(date -> {
-                                    		   LOGGER.info("Date {}", date);
 
-                                    		   Month currentMonth = date.getMonth();
-                                    		   
-                                    		   if (prevMonth.get() == null || prevMonth.get().compareTo(currentMonth) != 0) {
-                                               	
-                                               		if(prevMonth.get() == null) {
-                                               			firstDayOfMonth.set(instanceDTO.getAnalysisPeriodStartDate());                                            		
-                                               		} else {
-                                               			firstDayOfMonth.set(date.with(TemporalAdjusters.firstDayOfMonth()));
-                                               			totResMonth.set(0L);
-                                               			totResKoMonth.set(0L);
-                                               			kpiB9AnalyticDataDTOS.clear();
-                                               		}
-                                               	
-                                               		if(currentMonth.compareTo(instanceDTO.getAnalysisPeriodEndDate().getMonth()) == 0) {
-                                               			lastDayOfMonth.set(instanceDTO.getAnalysisPeriodEndDate());
-                                               		} else {
-                                               			lastDayOfMonth.set(date.with(TemporalAdjusters.lastDayOfMonth()));
-                                               		}
-                                    		   }
-                                    		   
-                                    		   List<PagoPaPaymentReceiptDTO> pagoPaPaymentReceiptDTOS =
-                                    				   pagoPaPaymentReceiptService.findAllRecordIntoDayForPartnerAndStation(
-                                                           instanceDTO.getPartnerFiscalCode(),
-                                                           station,
-                                                           date
-                                                       );
+                                instanceDTO
+                                    .getAnalysisPeriodStartDate()
+                                    .datesUntil(instanceDTO.getAnalysisPeriodEndDate().plusDays(1))
+                                    .forEach(date -> {
+                                        LOGGER.info("Date {}", date);
 
-                                    		   long sumTotResDaily = 0;
-                                    		   long sumResOkDaily = 0;
-                                    		   long sumRealResKoDaily = 0;
-                                    		   long sumValidResKoDaily = 0;                                    		  
+                                        Month currentMonth = date.getMonth();
 
-                                    		   for (PagoPaPaymentReceiptDTO pagoPaPaymentReceiptDTO : pagoPaPaymentReceiptDTOS) {
-                                    			   sumTotResDaily = sumTotResDaily + pagoPaPaymentReceiptDTO.getTotRes();
-                                    			   sumResOkDaily = sumResOkDaily + pagoPaPaymentReceiptDTO.getResOk(); 
-                                    			   sumRealResKoDaily = sumRealResKoDaily + pagoPaPaymentReceiptDTO.getResKo();                                   			
+                                        if (prevMonth.get() == null || prevMonth.get().compareTo(currentMonth) != 0) {
+                                            if (prevMonth.get() == null) {
+                                                firstDayOfMonth.set(instanceDTO.getAnalysisPeriodStartDate());
+                                            } else {
+                                                firstDayOfMonth.set(date.with(TemporalAdjusters.firstDayOfMonth()));
+                                                totResMonth.set(0L);
+                                                totResKoMonth.set(0L);
+                                                kpiB9AnalyticDataDTOS.clear();
+                                            }
 
-                                    			   boolean exclude = maintenance.stream()
-                                    					   						.map(anagPlannedShutdownDTO -> {
-                                    					   							Boolean excludePlanned = isInstantInRangeInclusive(
-                                    					   														pagoPaPaymentReceiptDTO.getStartDate(),
-                                    					   														anagPlannedShutdownDTO.getShutdownStartDate(),
-                                    					   														anagPlannedShutdownDTO.getShutdownEndDate()
-                                    					   													 ) &&
-                                    					   													 isInstantInRangeInclusive(
-                                    					   															 pagoPaPaymentReceiptDTO.getEndDate(),
-                                    					   															 anagPlannedShutdownDTO.getShutdownStartDate(),
-                                    					   															 anagPlannedShutdownDTO.getShutdownEndDate()
-                                    					   													 );
-                                    					   							return excludePlanned;
-                                    					   						})
-                                    					   						.anyMatch(Boolean::booleanValue);
-                                    			   if (!exclude) {
-                                    				   sumValidResKoDaily = sumValidResKoDaily + pagoPaPaymentReceiptDTO.getResKo();
-                                    			   }
-                                    		   }
+                                            if (currentMonth.compareTo(instanceDTO.getAnalysisPeriodEndDate().getMonth()) == 0) {
+                                                lastDayOfMonth.set(instanceDTO.getAnalysisPeriodEndDate());
+                                            } else {
+                                                lastDayOfMonth.set(date.with(TemporalAdjusters.lastDayOfMonth()));
+                                            }
+                                        }
 
-                                    		   totResMonth.set(totResMonth.get() + sumTotResDaily);
-                                    		   totResKoMonth.set(totResKoMonth.get() + sumValidResKoDaily);
+                                        List<PagoPaPaymentReceiptDTO> pagoPaPaymentReceiptDTOS =
+                                            pagoPaPaymentReceiptService.findAllRecordIntoDayForPartnerAndStation(
+                                                instanceDTO.getPartnerFiscalCode(),
+                                                station,
+                                                date
+                                            );
 
-                                    		   KpiB9AnalyticDataDTO kpiB9AnalyticDataDTO = new KpiB9AnalyticDataDTO();
-                                    		   kpiB9AnalyticDataDTO.setInstanceId(instanceDTO.getId());
-                                    		   kpiB9AnalyticDataDTO.setInstanceModuleId(instanceModuleDTO.getId());
-                                    		   kpiB9AnalyticDataDTO.setAnalysisDate(LocalDate.now());
-                                    		   kpiB9AnalyticDataDTO.setStationId(idStation);
-                                    		   kpiB9AnalyticDataDTO.setEvaluationDate(date);
-                                    		   kpiB9AnalyticDataDTO.setTotRes(sumTotResDaily);
-                                    		   kpiB9AnalyticDataDTO.setResOk(sumResOkDaily);
-                                    		   kpiB9AnalyticDataDTO.setResKoReal(sumRealResKoDaily);
-                                    		   kpiB9AnalyticDataDTO.setResKoValid(sumValidResKoDaily);
+                                        long sumTotResDaily = 0;
+                                        long sumResOkDaily = 0;
+                                        long sumRealResKoDaily = 0;
+                                        long sumValidResKoDaily = 0;
 
-                                    		   kpiB9AnalyticDataDTOS.add(kpiB9AnalyticDataDTO);
+                                        for (PagoPaPaymentReceiptDTO pagoPaPaymentReceiptDTO : pagoPaPaymentReceiptDTOS) {
+                                            sumTotResDaily = sumTotResDaily + pagoPaPaymentReceiptDTO.getTotRes();
+                                            sumResOkDaily = sumResOkDaily + pagoPaPaymentReceiptDTO.getResOk();
+                                            sumRealResKoDaily = sumRealResKoDaily + pagoPaPaymentReceiptDTO.getResKo();
 
-                                    		   if (date.isEqual(lastDayOfMonth.get())) {
-                                    			   totResPeriod.set(totResPeriod.get() + totResMonth.get());
-                                    			   totResKoPeriod.set(totResKoPeriod.get() + totResKoMonth.get());
+                                            boolean exclude = maintenance
+                                                .stream()
+                                                .map(anagPlannedShutdownDTO -> {
+                                                    Boolean excludePlanned =
+                                                        isInstantInRangeInclusive(
+                                                            pagoPaPaymentReceiptDTO.getStartDate(),
+                                                            anagPlannedShutdownDTO.getShutdownStartDate(),
+                                                            anagPlannedShutdownDTO.getShutdownEndDate()
+                                                        ) &&
+                                                        isInstantInRangeInclusive(
+                                                            pagoPaPaymentReceiptDTO.getEndDate(),
+                                                            anagPlannedShutdownDTO.getShutdownStartDate(),
+                                                            anagPlannedShutdownDTO.getShutdownEndDate()
+                                                        );
+                                                    return excludePlanned;
+                                                })
+                                                .anyMatch(Boolean::booleanValue);
+                                            if (!exclude) {
+                                                sumValidResKoDaily = sumValidResKoDaily + pagoPaPaymentReceiptDTO.getResKo();
+                                            }
+                                        }
 
-                                    			   Long totResMonthValue = totResMonth.get();
-                                    			   double percResKoMonth = totResMonthValue.compareTo(0L) > 0
-                                    					   						? (double) (totResKoMonth.get() * 100) / totResMonthValue
-                                    					   						: 0.0;
+                                        totResMonth.set(totResMonth.get() + sumTotResDaily);
+                                        totResKoMonth.set(totResKoMonth.get() + sumValidResKoDaily);
 
-                                    			   KpiB9DetailResultDTO kpiB9DetailResultDTO = new KpiB9DetailResultDTO();
-                                    			   kpiB9DetailResultDTO.setInstanceId(instanceDTO.getId());
-                                    			   kpiB9DetailResultDTO.setInstanceModuleId(instanceModuleDTO.getId());
-                                    			   kpiB9DetailResultDTO.setAnalysisDate(LocalDate.now());
-                                    			   kpiB9DetailResultDTO.setStationId(idStation);
-                                    			   kpiB9DetailResultDTO.setEvaluationType(EvaluationType.MESE);
-                                    			   kpiB9DetailResultDTO.setEvaluationStartDate(firstDayOfMonth.get());
-                                    			   kpiB9DetailResultDTO.setEvaluationEndDate(lastDayOfMonth.get());
-                                    			   kpiB9DetailResultDTO.setTotRes(totResMonth.get());
-                                    			   kpiB9DetailResultDTO.setResKo(totResKoMonth.get());
-                                    			   kpiB9DetailResultDTO.setResKoPercentage(roundToNDecimalPlaces(percResKoMonth));
-                                    			   kpiB9DetailResultDTO.setKpiB9ResultId(kpiB9ResultRef.get().getId());
+                                        KpiB9AnalyticDataDTO kpiB9AnalyticDataDTO = new KpiB9AnalyticDataDTO();
+                                        kpiB9AnalyticDataDTO.setInstanceId(instanceDTO.getId());
+                                        kpiB9AnalyticDataDTO.setInstanceModuleId(instanceModuleDTO.getId());
+                                        kpiB9AnalyticDataDTO.setAnalysisDate(LocalDate.now());
+                                        kpiB9AnalyticDataDTO.setStationId(idStation);
+                                        kpiB9AnalyticDataDTO.setEvaluationDate(date);
+                                        kpiB9AnalyticDataDTO.setTotRes(sumTotResDaily);
+                                        kpiB9AnalyticDataDTO.setResOk(sumResOkDaily);
+                                        kpiB9AnalyticDataDTO.setResKoReal(sumRealResKoDaily);
+                                        kpiB9AnalyticDataDTO.setResKoValid(sumValidResKoDaily);
 
-                                    			   OutcomeStatus outcomeStatus = OutcomeStatus.OK;
+                                        kpiB9AnalyticDataDTOS.add(kpiB9AnalyticDataDTO);
 
-                                    			   if (percResKoMonth > (eligibilityThreshold + tolerance)) {
-                                    				   outcomeStatus = OutcomeStatus.KO;
-                                    			   }
+                                        if (date.isEqual(lastDayOfMonth.get())) {
+                                            totResPeriod.set(totResPeriod.get() + totResMonth.get());
+                                            totResKoPeriod.set(totResKoPeriod.get() + totResKoMonth.get());
 
-                                    			   if (kpiConfigurationDTO.getEvaluationType().compareTo(EvaluationType.MESE) == 0 &&
-                                    				   outcomeStatus.compareTo(OutcomeStatus.KO) == 0) {
-                                    				   kpiB9ResultFinalOutcome.set(OutcomeStatus.KO);
-                                    			   }
+                                            Long totResMonthValue = totResMonth.get();
+                                            double percResKoMonth = totResMonthValue.compareTo(0L) > 0
+                                                ? (double) (totResKoMonth.get() * 100) / totResMonthValue
+                                                : 0.0;
 
-                                    			   kpiB9DetailResultDTO.setOutcome(outcomeStatus);
+                                            KpiB9DetailResultDTO kpiB9DetailResultDTO = new KpiB9DetailResultDTO();
+                                            kpiB9DetailResultDTO.setInstanceId(instanceDTO.getId());
+                                            kpiB9DetailResultDTO.setInstanceModuleId(instanceModuleDTO.getId());
+                                            kpiB9DetailResultDTO.setAnalysisDate(LocalDate.now());
+                                            kpiB9DetailResultDTO.setStationId(idStation);
+                                            kpiB9DetailResultDTO.setEvaluationType(EvaluationType.MESE);
+                                            kpiB9DetailResultDTO.setEvaluationStartDate(firstDayOfMonth.get());
+                                            kpiB9DetailResultDTO.setEvaluationEndDate(lastDayOfMonth.get());
+                                            kpiB9DetailResultDTO.setTotRes(totResMonth.get());
+                                            kpiB9DetailResultDTO.setResKo(totResKoMonth.get());
+                                            kpiB9DetailResultDTO.setResKoPercentage(roundToNDecimalPlaces(percResKoMonth));
+                                            kpiB9DetailResultDTO.setKpiB9ResultId(kpiB9ResultRef.get().getId());
 
-                                    			   kpiB9DetailResultDTO = kpiB9DetailResultService.save(kpiB9DetailResultDTO);
+                                            OutcomeStatus outcomeStatus = OutcomeStatus.OK;
 
-                                    			   kpiB9DetailResultDTOS.add(kpiB9DetailResultDTO);
+                                            if (percResKoMonth > (eligibilityThreshold + tolerance)) {
+                                                outcomeStatus = OutcomeStatus.KO;
+                                            }
 
-                                    			   KpiB9DetailResultDTO finalKpiB9DetailResultDTO = kpiB9DetailResultDTO;
+                                            if (
+                                                kpiConfigurationDTO.getEvaluationType().compareTo(EvaluationType.MESE) == 0 &&
+                                                outcomeStatus.compareTo(OutcomeStatus.KO) == 0
+                                            ) {
+                                                kpiB9ResultFinalOutcome.set(OutcomeStatus.KO);
+                                            }
 
-                                    			   kpiB9AnalyticDataDTOS.forEach(kpiB9AnalyticData -> {
-                                    				   kpiB9AnalyticData.setKpiB9DetailResultId(finalKpiB9DetailResultDTO.getId());
-                                    			   });
+                                            kpiB9DetailResultDTO.setOutcome(outcomeStatus);
 
-                                    			   kpiB9AnalyticDataService.saveAll(kpiB9AnalyticDataDTOS);
-                                    		   }
+                                            kpiB9DetailResultDTO = kpiB9DetailResultService.save(kpiB9DetailResultDTO);
 
-                                    		   prevMonth.set(currentMonth);
-                                    	   });
+                                            kpiB9DetailResultDTOS.add(kpiB9DetailResultDTO);
+
+                                            KpiB9DetailResultDTO finalKpiB9DetailResultDTO = kpiB9DetailResultDTO;
+
+                                            kpiB9AnalyticDataDTOS.forEach(kpiB9AnalyticData -> {
+                                                kpiB9AnalyticData.setKpiB9DetailResultId(finalKpiB9DetailResultDTO.getId());
+                                            });
+
+                                            kpiB9AnalyticDataService.saveAll(kpiB9AnalyticDataDTOS);
+                                        }
+
+                                        prevMonth.set(currentMonth);
+                                    });
 
                                 Long totResPeriodValue = totResPeriod.get();
                                 double percResKoPeriod = totResPeriodValue.compareTo(0L) > 0
-						                     				? (double) (totResKoPeriod.get() * 100) / totResPeriodValue
-						                                    : 0.0;
+                                    ? (double) (totResKoPeriod.get() * 100) / totResPeriodValue
+                                    : 0.0;
 
                                 KpiB9DetailResultDTO kpiB9DetailResultDTO = new KpiB9DetailResultDTO();
                                 kpiB9DetailResultDTO.setInstanceId(instanceDTO.getId());
@@ -360,8 +364,10 @@ public class KpiB9Job extends QuartzJobBean {
                                     outcomeStatus = OutcomeStatus.KO;
                                 }
 
-                                if (kpiConfigurationDTO.getEvaluationType().compareTo(EvaluationType.TOTALE) == 0 &&
-                                    outcomeStatus.compareTo(OutcomeStatus.KO) == 0) {
+                                if (
+                                    kpiConfigurationDTO.getEvaluationType().compareTo(EvaluationType.TOTALE) == 0 &&
+                                    outcomeStatus.compareTo(OutcomeStatus.KO) == 0
+                                ) {
                                     kpiB9ResultFinalOutcome.set(OutcomeStatus.KO);
                                 }
 
