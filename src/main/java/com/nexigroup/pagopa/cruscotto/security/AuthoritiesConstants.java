@@ -95,6 +95,14 @@ public final class AuthoritiesConstants {
     
     public static final String MODULE_LIST = "GTW.MODULE_LIST";
     
+    public static final String MODULE_DETAIL = "GTW.MODULE_DETAIL";
+    
+    public static final String MODULE_CREATION = "GTW.MODULE_CREATION";    
+
+    public static final String MODULE_MODIFICATION = "GTW.MODULE_MODIFICATION";
+
+    public static final String MODULE_DELETION = "GTW.MODULE_DELETION";    
+    
     public static final String INSTANCE_LIST = "GTW.INSTANCE_LIST";    
     
     public static final String INSTANCE_DETAIL = "GTW.INSTANCE_DETAIL";
