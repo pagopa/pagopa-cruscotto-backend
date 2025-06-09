@@ -1,8 +1,8 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
+import com.nexigroup.pagopa.cruscotto.domain.*;
 import com.nexigroup.pagopa.cruscotto.domain.Module;
-import com.nexigroup.pagopa.cruscotto.domain.QKpiConfiguration;
-import com.nexigroup.pagopa.cruscotto.domain.QModule;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleStatus;
 import com.nexigroup.pagopa.cruscotto.repository.ModuleRepository;
 import com.nexigroup.pagopa.cruscotto.security.SecurityUtils;
 import com.nexigroup.pagopa.cruscotto.service.GenericServiceException;
@@ -19,6 +19,7 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPQLQuery;
 
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -69,7 +70,7 @@ public class ModuleServiceImpl implements ModuleService {
 
         JPQLQuery<Module> query = queryBuilder
             .<Module>createQuery()
-            .from(qModule);
+            .from(qModule).where(qModule.deleted.eq(false).and(qModule.deletedDate.isNull()));;
 
 
         long total = query.fetchCount();
@@ -109,13 +110,25 @@ public class ModuleServiceImpl implements ModuleService {
     }
 
     /**
-     * Deletes the Module entity with the specified ID from the repository.
+     * Logically deletes the Module entity with the specified ID from the repository.
      *
      * @param id the ID of the Module entity to be deleted
      */
     @Override
-    public void delete(Long id) {
-        moduleRepository.deleteById(id);
+    public boolean deleteModule(Long id) {
+
+        Optional<Module> moduleOptional = moduleRepository.findOneByIdAndNotDeleted(id);
+        Module module = moduleOptional.orElse(null);
+
+        if (module != null) {
+            module.setDeleted(Boolean.TRUE);
+            module.setDeletedDate(ZonedDateTime.now());
+            module.setStatus(ModuleStatus.NON_ATTIVO);
+            moduleRepository.save(module);
+            log.debug("Logically deleted module: {}", module);
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -128,12 +141,13 @@ public class ModuleServiceImpl implements ModuleService {
     public Page<ModuleDTO> findAllWithoutConfiguration(Pageable pageable) {
         log.debug("Request to get all Module without configuration");
 
+        QModule module = QModule.module;
         JPQLQuery<Module> jpql = queryBuilder
             .<Module>createQuery()
-            .from(QModule.module)
+            .from(module)
             .leftJoin(QKpiConfiguration.kpiConfiguration)
-            .on(QKpiConfiguration.kpiConfiguration.module.id.eq(QModule.module.id))
-            .where(QKpiConfiguration.kpiConfiguration.id.isNull());
+            .on(QKpiConfiguration.kpiConfiguration.module.id.eq(module.id))
+            .where(QKpiConfiguration.kpiConfiguration.id.isNull().and(module.deleted.eq(false)).and(module.deletedDate.isNull()));
 
         long size = jpql.fetchCount();
 
@@ -170,6 +184,20 @@ public class ModuleServiceImpl implements ModuleService {
 
         String loginUtenteLoggato = SecurityUtils.getCurrentUserLogin()
             .orElseThrow(() -> new RuntimeException(CURRENT_USER_LOGIN_NOT_FOUND));
+
+        //Un modulo con lo stesso codice non deve già esistere
+        moduleRepository.findByCode(moduleToCreate.getCode())
+            .filter(module -> module.getCode().equals(moduleToCreate.getCode()))
+            .ifPresent(module -> {
+                throw new GenericServiceException(
+                    String.format(
+                        "Module cannot be cannot be created. The code %s is already assigned to an existing module",
+                        moduleToCreate.getCode()
+                    ),
+                    "module",
+                    "module.cannotBeCreated"
+                );
+            });
 
         Module module = new Module();
         module.setCode(moduleToCreate.getCode());
@@ -208,6 +236,17 @@ public class ModuleServiceImpl implements ModuleService {
             .map(module -> {
                 String loginUtenteLoggato = SecurityUtils.getCurrentUserLogin()
                     .orElseThrow(() -> new RuntimeException(CURRENT_USER_LOGIN_NOT_FOUND));
+
+                if(!module.getCode().equals(moduleToUpdate.getCode())){
+                    throw new GenericServiceException(
+                        String.format(
+                            "Module cannot be cannot be updated. The module code %s cannot be modified",
+                            module.getCode()
+                        ),
+                        "module",
+                        "module.cannotBeUpdated"
+                    );
+                }
 
                 module.setCode(moduleToUpdate.getCode());
                 module.setName(moduleToUpdate.getName());

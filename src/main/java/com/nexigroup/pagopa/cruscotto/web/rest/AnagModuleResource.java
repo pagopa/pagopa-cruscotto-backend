@@ -1,5 +1,6 @@
 package com.nexigroup.pagopa.cruscotto.web.rest;
 
+import com.nexigroup.pagopa.cruscotto.security.SecurityUtils;
 import com.nexigroup.pagopa.cruscotto.service.ModuleService;
 import com.nexigroup.pagopa.cruscotto.service.bean.ModuleRequestBean;
 import com.nexigroup.pagopa.cruscotto.service.dto.ModuleDTO;
@@ -138,11 +139,17 @@ public class AnagModuleResource {
     @DeleteMapping("/modules/{id}")
     //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_DELETE_FUNCTION + "\")")
     public ResponseEntity<Void> deleteModule(@PathVariable Long id) {
-        log.debug("REST request to delete module : {}", id);
-        moduleService.delete(id);
+        log.info("REST request to delete module: {}", id);
+
+        SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new RuntimeException("Current user login not found"));
+
+        if (!moduleService.deleteModule(id)) {
+            throw new BadRequestAlertException("Stato modulo incompatibile con l'operazione richiesta", ENTITY_NAME, "module.notDeletable");
+        }
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
     }
+
 
 }

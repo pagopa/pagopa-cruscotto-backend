@@ -22,7 +22,7 @@ public interface ModuleService {
 
     Optional<ModuleDTO> findOne(Long id);
 
-    void delete(Long id);
+    boolean deleteModule(Long id);
 
     Page<ModuleDTO> findAllWithoutConfiguration(Pageable pageable);
 
