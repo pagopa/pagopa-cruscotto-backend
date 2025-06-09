@@ -18,6 +18,7 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPQLQuery;
+import java.text.DecimalFormat;
 import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -209,11 +210,13 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
         KpiConfiguration kpiConfiguration = new KpiConfiguration();
         kpiConfiguration.setModule(module);
 
+        DecimalFormat df = new DecimalFormat("0.00");
+
         if (module.getConfigAverageTimeLimit()) {
-            kpiConfiguration.setAverageTimeLimit(kpiConfigurationToCreate.getAverageTimeLimit());
+            kpiConfiguration.setAverageTimeLimit(Math.round(kpiConfigurationToCreate.getAverageTimeLimit() * 100.0) / 100.0);
         }
         if (module.getConfigEligibilityThreshold()) {
-            kpiConfiguration.setEligibilityThreshold(kpiConfigurationToCreate.getEligibilityThreshold());
+            kpiConfiguration.setEligibilityThreshold(Math.round(kpiConfigurationToCreate.getEligibilityThreshold() * 100.0) / 100.0);
         }
         if (module.getConfigEvaluationType()) {
             kpiConfiguration.setEvaluationType(kpiConfigurationToCreate.getEvaluationType());
@@ -225,7 +228,7 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
             kpiConfiguration.setExcludeUnplannedShutdown(kpiConfigurationToCreate.getExcludeUnplannedShutdown());
         }
         if (module.getConfigTolerance()) {
-            kpiConfiguration.setTolerance(kpiConfigurationToCreate.getTolerance());
+            kpiConfiguration.setTolerance(Math.round(kpiConfigurationToCreate.getTolerance() * 100.0) / 100.0);
         }
 
         kpiConfiguration = kpiConfigurationRepository.save(kpiConfiguration);
@@ -271,10 +274,12 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
             .map(kpiConfiguration -> {
                 kpiConfiguration.setModule(module);
                 if (module.getConfigAverageTimeLimit()) {
-                    kpiConfiguration.setAverageTimeLimit(kpiConfigurationToUpdate.getAverageTimeLimit());
+                    kpiConfiguration.setAverageTimeLimit(Math.round(kpiConfigurationToUpdate.getAverageTimeLimit() * 100.0) / 100.0);
                 }
                 if (module.getConfigEligibilityThreshold()) {
-                    kpiConfiguration.setEligibilityThreshold(kpiConfigurationToUpdate.getEligibilityThreshold());
+                    kpiConfiguration.setEligibilityThreshold(
+                        Math.round(kpiConfigurationToUpdate.getEligibilityThreshold() * 100.0) / 100.0
+                    );
                 }
                 if (module.getConfigEvaluationType()) {
                     kpiConfiguration.setEvaluationType(kpiConfigurationToUpdate.getEvaluationType());
@@ -286,7 +291,7 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
                     kpiConfiguration.setExcludeUnplannedShutdown(kpiConfigurationToUpdate.getExcludeUnplannedShutdown());
                 }
                 if (module.getConfigTolerance()) {
-                    kpiConfiguration.setTolerance(kpiConfigurationToUpdate.getTolerance());
+                    kpiConfiguration.setTolerance(Math.round(kpiConfigurationToUpdate.getTolerance() * 100.0) / 100.0);
                 }
 
                 kpiConfigurationRepository.save(kpiConfiguration);
