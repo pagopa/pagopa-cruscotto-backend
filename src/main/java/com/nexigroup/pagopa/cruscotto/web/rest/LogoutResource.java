@@ -1,13 +1,5 @@
 package com.nexigroup.pagopa.cruscotto.web.rest;
 
-import com.nexigroup.pagopa.cruscotto.config.Constants;
-import com.nexigroup.pagopa.cruscotto.security.helper.CookieHelper;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
-import java.security.Principal;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +7,15 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.nexigroup.pagopa.cruscotto.config.Constants;
+
+import java.security.Principal;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * REST controller for managing global OIDC logout.

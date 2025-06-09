@@ -1,5 +1,16 @@
 package com.nexigroup.pagopa.cruscotto.web.rest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
 import com.nexigroup.pagopa.cruscotto.service.KpiA1ResultService;
 import com.nexigroup.pagopa.cruscotto.service.KpiA2ResultService;
 import com.nexigroup.pagopa.cruscotto.service.KpiB2ResultService;
@@ -8,13 +19,10 @@ import com.nexigroup.pagopa.cruscotto.service.dto.KpiA1ResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA2ResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2ResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB9ResultDTO;
+
 import java.util.List;
 import java.util.Optional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+
 import tech.jhipster.web.util.ResponseUtil;
 
 /**
@@ -56,7 +64,7 @@ public class KpiResultResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the KpiA1ResultDTOs, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("kpi-results/a1/module/{moduleId}")
-    //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_DETAIL_FUNCTION + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.KPI_A1_RESULT_DETAIL + "\")")
     public ResponseEntity<List<KpiA1ResultDTO>> getKpiA1Results(@PathVariable Long moduleId) {
         log.debug("REST request to get kpi results of instanceModule : {} of type a1", moduleId);
         List<KpiA1ResultDTO> kpiA1Results = kpiA1ResultService.findByInstanceModuleId(moduleId);
@@ -70,7 +78,7 @@ public class KpiResultResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the KpiA2ResultDTOs, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("kpi-results/a2/module/{moduleId}")
-    //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_DETAIL_FUNCTION + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.KPI_A2_RESULT_DETAIL + "\")")
     public ResponseEntity<List<KpiA2ResultDTO>> getKpiA2Results(@PathVariable Long moduleId) {
         log.debug("REST request to get kpi results of instanceModule : {} of type a2", moduleId);
         List<KpiA2ResultDTO> kpiA2Results = kpiA2ResultService.findByInstanceModuleId(moduleId);
@@ -84,7 +92,7 @@ public class KpiResultResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the KpiB2ResultDTOs, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("kpi-results/b2/module/{moduleId}")
-    //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_DETAIL_FUNCTION + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.KPI_B2_RESULT_DETAIL + "\")")
     public ResponseEntity<List<KpiB2ResultDTO>> getKpiB2Results(@PathVariable Long moduleId) {
         log.debug("REST request to get kpi results of instanceModule : {} of type b2", moduleId);
         List<KpiB2ResultDTO> kpiB2Results = kpiB2ResultService.findByInstanceModuleId(moduleId);
@@ -98,7 +106,7 @@ public class KpiResultResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the KpiB9ResultDTOs, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("kpi-results/b9/module/{moduleId}")
-    //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_DETAIL_FUNCTION + "\")") // Sbloccare se necessario
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.KPI_B9_RESULT_DETAIL + "\")")
     public ResponseEntity<List<KpiB9ResultDTO>> getKpiB9Results(@PathVariable Long moduleId) {
         log.debug("REST request to get kpi results of instanceModule : {} of type b9", moduleId);
         List<KpiB9ResultDTO> kpiB9Results = kpiB9ResultService.findByInstanceModuleId(moduleId);

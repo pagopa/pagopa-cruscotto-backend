@@ -1,17 +1,5 @@
 package com.nexigroup.pagopa.cruscotto.web.rest;
 
-import com.nexigroup.pagopa.cruscotto.domain.AuthPermission;
-import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
-import com.nexigroup.pagopa.cruscotto.service.AuthPermissionService;
-import com.nexigroup.pagopa.cruscotto.service.dto.AuthPermissionDTO;
-import com.nexigroup.pagopa.cruscotto.service.filter.AuthPermissionFilter;
-import com.nexigroup.pagopa.cruscotto.web.rest.errors.BadRequestAlertException;
-import io.swagger.v3.oas.annotations.Parameter;
-import jakarta.validation.Valid;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springdoc.core.annotations.ParameterObject;
@@ -21,8 +9,31 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import com.nexigroup.pagopa.cruscotto.domain.AuthPermission;
+import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
+import com.nexigroup.pagopa.cruscotto.service.AuthPermissionService;
+import com.nexigroup.pagopa.cruscotto.service.dto.AuthPermissionDTO;
+import com.nexigroup.pagopa.cruscotto.service.filter.AuthPermissionFilter;
+import com.nexigroup.pagopa.cruscotto.web.rest.errors.BadRequestAlertException;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Optional;
+
+import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.Valid;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
@@ -55,7 +66,7 @@ public class AuthPermissionResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/auth-permissions")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_ADMIN_CREATE_PERMISSION + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.PERMISSION_CREATION + "\")")
     public ResponseEntity<AuthPermissionDTO> createAuthPermission(@Valid @RequestBody AuthPermissionDTO authPermissionDTO)
         throws URISyntaxException {
         log.debug("REST request to save AuthPermission : {}", authPermissionDTO);
@@ -78,7 +89,7 @@ public class AuthPermissionResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/auth-permissions")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_ADMIN_UPDATE_PERMISSION + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.PERMISSION_MODIFICATION + "\")")
     public ResponseEntity<AuthPermissionDTO> updateAuthPermission(@Valid @RequestBody AuthPermissionDTO authPermissionDTO)
         throws URISyntaxException {
         log.debug("REST request to update AuthPermission : {}", authPermissionDTO);
@@ -101,7 +112,7 @@ public class AuthPermissionResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of authPermissions in body.
      */
     @GetMapping("/auth-permissions")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_ADMIN_LIST_PERMISSION + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.PERMISSION_LIST + "\")")
     public ResponseEntity<List<AuthPermissionDTO>> getAllAuthPermissions(
         @Parameter(description = "Filtro", required = false) @Valid @ParameterObject AuthPermissionFilter filter,
         @Parameter(description = "Pageable", required = true) @ParameterObject Pageable pageable
@@ -120,7 +131,7 @@ public class AuthPermissionResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of authPermissions in body.
      */
     @GetMapping("/auth-permissions/auth-function/{idFunction}")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_ELENCO_PERMESSI_ASSOCIATI_A_FUNZIONE + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.PERMISSION_LIST_ASSOCIATED_WITH_FUNCTION + "\")")
     public ResponseEntity<List<AuthPermissionDTO>> getAllAuthFunctionsSelected(
         @PathVariable Long idFunction,
         @Parameter(description = "Pageable", required = true) @ParameterObject Pageable pageable
@@ -139,7 +150,7 @@ public class AuthPermissionResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of authPermissions in body.
      */
     @GetMapping("/auth-permissions/auth-function/{idFunction}/associabili")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_ELENCO_PERMESSI_ASSOCIABILI_A_FUNZIONE + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.PERMISSION_LIST_ASSOCIABLE_WITH_FUNCTION + "\")")
     public ResponseEntity<List<AuthPermissionDTO>> getAllAuthFunctionsAssociabili(
         @PathVariable Long idFunction,
         @RequestParam Optional<String> nameFilter,
@@ -158,7 +169,7 @@ public class AuthPermissionResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the authPermissionDTO, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/auth-permissions/{id}")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_ADMIN_DETAIL_PERMISSION + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.PERMISSION_DETAIL + "\")")
     public ResponseEntity<AuthPermissionDTO> getAuthPermission(@PathVariable Long id) {
         log.debug("REST request to get AuthPermission : {}", id);
         Optional<AuthPermissionDTO> authPermissionDTO = authPermissionService.findOne(id);
@@ -172,7 +183,7 @@ public class AuthPermissionResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/auth-permissions/{id}")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_ADMIN_DELETE_PERMISSION + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.PERMISSION_DELETION + "\")")
     public ResponseEntity<Void> deleteAuthPermission(@PathVariable Long id) {
         log.debug("REST request to delete AuthPermission : {}", id);
         authPermissionService.delete(id);

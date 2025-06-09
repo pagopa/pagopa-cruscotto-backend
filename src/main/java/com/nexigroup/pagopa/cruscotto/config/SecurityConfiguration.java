@@ -2,14 +2,6 @@ package com.nexigroup.pagopa.cruscotto.config;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
-import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
-import com.nexigroup.pagopa.cruscotto.security.jwt.CustomBearerTokenAuthenticationEntryPoint;
-import com.nexigroup.pagopa.cruscotto.security.jwt.CustomOAuth2AccessDeniedHandler;
-import com.nexigroup.pagopa.cruscotto.security.oauth2.JwtGrantedAuthorityConverter;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import java.util.Arrays;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -21,10 +13,14 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
+
+import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
+import com.nexigroup.pagopa.cruscotto.security.jwt.CustomBearerTokenAuthenticationEntryPoint;
+import com.nexigroup.pagopa.cruscotto.security.jwt.CustomOAuth2AccessDeniedHandler;
+import com.nexigroup.pagopa.cruscotto.security.oauth2.JwtGrantedAuthorityConverter;
 
 @Configuration
 @EnableMethodSecurity(securedEnabled = true)
@@ -77,12 +73,12 @@ public class SecurityConfiguration {
                     .requestMatchers(mvc.pattern("/api/account/reset-password/init")).permitAll()
                     .requestMatchers(mvc.pattern("/api/account/reset-password/finish")).permitAll()
                     .requestMatchers(mvc.pattern("/api/**")).authenticated()
-                    .requestMatchers(mvc.pattern("/v3/api-docs/**")).hasAuthority(AuthoritiesConstants.GTW_STRUMENTI_CONTROLLO)
+                    .requestMatchers(mvc.pattern("/v3/api-docs/**")).hasAuthority(AuthoritiesConstants.CONTROL_TOOLS)
                     .requestMatchers(mvc.pattern("/management/health")).permitAll()
                     .requestMatchers(mvc.pattern("/management/health/**")).permitAll()
                     .requestMatchers(mvc.pattern("/management/info")).permitAll()
                     .requestMatchers(mvc.pattern("/management/prometheus")).permitAll()
-                    .requestMatchers(mvc.pattern("/management/**")).hasAuthority(AuthoritiesConstants.GTW_STRUMENTI_CONTROLLO)
+                    .requestMatchers(mvc.pattern("/management/**")).hasAuthority(AuthoritiesConstants.CONTROL_TOOLS)
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .exceptionHandling(exceptions ->
