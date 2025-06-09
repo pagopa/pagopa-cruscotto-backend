@@ -1,18 +1,17 @@
 package com.nexigroup.pagopa.cruscotto.web.rest;
 
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisType;
 import com.nexigroup.pagopa.cruscotto.security.SecurityUtils;
 import com.nexigroup.pagopa.cruscotto.service.ModuleService;
 import com.nexigroup.pagopa.cruscotto.service.bean.ModuleRequestBean;
 import com.nexigroup.pagopa.cruscotto.service.dto.ModuleDTO;
 import com.nexigroup.pagopa.cruscotto.web.rest.errors.BadRequestAlertException;
 import io.swagger.v3.oas.annotations.Parameter;
-
+import jakarta.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
-
-import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springdoc.core.annotations.ParameterObject;
@@ -99,6 +98,9 @@ public class AnagModuleResource {
             throw new BadRequestAlertException("A new module cannot already have an ID", ENTITY_NAME, "idexists");
         }
 
+        // force to Manual Type
+        module.setAnalysisType(AnalysisType.MANUALE);
+
         ModuleDTO result = moduleService.saveNew(module);
 
         return ResponseEntity.created(new URI("/api/modules/" + result.getId()))
@@ -116,12 +118,15 @@ public class AnagModuleResource {
      **/
     @PutMapping("/modules")
     //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_ADMIN_module + "\")")
-    public ResponseEntity<ModuleDTO> updateModule(@Valid @RequestBody ModuleRequestBean moduleToUpdate)  {
+    public ResponseEntity<ModuleDTO> updateModule(@Valid @RequestBody ModuleRequestBean moduleToUpdate) {
         log.debug("REST request to update module : {}", moduleToUpdate);
 
         if (moduleToUpdate.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
+
+        // force to Manual Type
+        moduleToUpdate.setAnalysisType(AnalysisType.MANUALE);
 
         ModuleDTO result = moduleService.update(moduleToUpdate);
 
@@ -150,6 +155,4 @@ public class AnagModuleResource {
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
     }
-
-
 }

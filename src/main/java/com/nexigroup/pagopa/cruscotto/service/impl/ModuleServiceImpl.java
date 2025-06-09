@@ -18,12 +18,10 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPQLQuery;
-
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -71,16 +69,15 @@ public class ModuleServiceImpl implements ModuleService {
 
         JPQLQuery<Module> query = queryBuilder
             .<Module>createQuery()
-            .from(qModule).where(qModule.deleted.eq(false).and(qModule.deletedDate.isNull()));;
-
-
+            .from(qModule)
+            .where(qModule.deleted.eq(false).and(qModule.deletedDate.isNull()));
         long total = query.fetchCount();
 
         JPQLQuery<ModuleDTO> jpqlQuery = query.select(createModuleProjection());
 
         jpqlQuery.offset(pageable.getOffset());
-        jpqlQuery.limit(pageable.getPageSize());
 
+        jpqlQuery.limit(pageable.getPageSize());
         pageable
             .getSort()
             .stream()
@@ -117,11 +114,11 @@ public class ModuleServiceImpl implements ModuleService {
      */
     @Override
     public boolean deleteModule(Long id) {
+        Module module = moduleRepository
+            .findOneByIdAndNotDeleted(id)
+            .orElseThrow(() -> new GenericServiceException(String.format("Module with id %s not exist", id), MODULE, "module.notExists"));
 
-        Optional<Module> moduleOptional = moduleRepository.findOneByIdAndNotDeleted(id);
-        Module module = moduleOptional.orElse(null);
-
-        if (module != null && module.getAnalysisType().equals(AnalysisType.MANUALE)) {
+        if (module.getAnalysisType().equals(AnalysisType.MANUALE)) {
             module.setDeleted(Boolean.TRUE);
             module.setDeletedDate(ZonedDateTime.now());
             module.setStatus(ModuleStatus.NON_ATTIVO);
@@ -129,6 +126,7 @@ public class ModuleServiceImpl implements ModuleService {
             log.debug("Logically deleted module: {}", module);
             return true;
         }
+
         return false;
     }
 
@@ -182,12 +180,12 @@ public class ModuleServiceImpl implements ModuleService {
      */
     @Override
     public ModuleDTO saveNew(ModuleRequestBean moduleToCreate) {
-
         String loginUtenteLoggato = SecurityUtils.getCurrentUserLogin()
             .orElseThrow(() -> new RuntimeException(CURRENT_USER_LOGIN_NOT_FOUND));
 
         //Un modulo con lo stesso codice non deve già esistere
-        moduleRepository.findByCode(moduleToCreate.getCode())
+        moduleRepository
+            .findByCode(moduleToCreate.getCode())
             .filter(module -> module.getCode().equals(moduleToCreate.getCode()))
             .ifPresent(module -> {
                 throw new GenericServiceException(
@@ -204,7 +202,7 @@ public class ModuleServiceImpl implements ModuleService {
         module.setCode(moduleToCreate.getCode());
         module.setName(moduleToCreate.getName());
         module.setDescription(moduleToCreate.getDescription());
-        module.setAnalysisType(AnalysisType.MANUALE);
+        module.setAnalysisType(moduleToCreate.getAnalysisType());
         module.setAllowManualOutcome(moduleToCreate.getAllowManualOutcome());
         module.setStatus(moduleToCreate.getStatus());
         module.setCreatedBy(loginUtenteLoggato);
@@ -238,12 +236,9 @@ public class ModuleServiceImpl implements ModuleService {
                 String loginUtenteLoggato = SecurityUtils.getCurrentUserLogin()
                     .orElseThrow(() -> new RuntimeException(CURRENT_USER_LOGIN_NOT_FOUND));
 
-                if(!module.getCode().equals(moduleToUpdate.getCode())){
+                if (!module.getCode().equals(moduleToUpdate.getCode())) {
                     throw new GenericServiceException(
-                        String.format(
-                            "Module cannot be cannot be updated. The module code %s cannot be modified",
-                            module.getCode()
-                        ),
+                        String.format("Module cannot be cannot be updated. The module code %s cannot be modified", module.getCode()),
                         "module",
                         "module.cannotBeUpdated"
                     );
@@ -252,7 +247,7 @@ public class ModuleServiceImpl implements ModuleService {
                 module.setCode(moduleToUpdate.getCode());
                 module.setName(moduleToUpdate.getName());
                 module.setDescription(moduleToUpdate.getDescription());
-                module.setAnalysisType(AnalysisType.MANUALE);
+                module.setAnalysisType(moduleToUpdate.getAnalysisType());
                 module.setAllowManualOutcome(moduleToUpdate.getAllowManualOutcome());
                 module.setStatus(moduleToUpdate.getStatus());
                 module.setConfigExcludePlannedShutdown(moduleToUpdate.getConfigExcludePlannedShutdown());
@@ -263,11 +258,7 @@ public class ModuleServiceImpl implements ModuleService {
                 module.setConfigEvaluationType(moduleToUpdate.getConfigEvaluationType());
                 moduleRepository.save(module);
 
-                log.info(
-                    "Updating of module with identification {} by user {}",
-                    module.getId(),
-                    loginUtenteLoggato
-                );
+                log.info("Updating of module with identification {} by user {}", module.getId(), loginUtenteLoggato);
 
                 return module;
             })
@@ -299,5 +290,4 @@ public class ModuleServiceImpl implements ModuleService {
             QModule.module.configEvaluationType.as("configEvaluationType")
         );
     }
-
 }
