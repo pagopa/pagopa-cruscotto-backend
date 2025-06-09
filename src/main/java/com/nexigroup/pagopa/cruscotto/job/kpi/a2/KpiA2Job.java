@@ -92,7 +92,7 @@ public class KpiA2Job extends QuartzJobBean {
                 LOGGER.info("No instance to calculate A.2. Exit....");
             } else {
                 KpiConfigurationDTO kpiConfigurationDTO = kpiConfigurationService
-                    .findKpiConfigurationByCode(ModuleCode.A2)
+                    .findKpiConfigurationByCode(ModuleCode.A2.code)
                     .orElseThrow(() -> new NullPointerException("KPI A.2 Configuration not found"));
 
                 LOGGER.info("Kpi configuration {}", kpiConfigurationDTO);

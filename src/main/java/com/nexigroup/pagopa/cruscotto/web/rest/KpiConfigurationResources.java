@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
 import com.nexigroup.pagopa.cruscotto.service.KpiConfigurationService;
 import com.nexigroup.pagopa.cruscotto.service.bean.KpiConfigurationRequestBean;
@@ -87,9 +86,7 @@ public class KpiConfigurationResources {
         @Parameter(description = "Codice del modulo") @PathVariable String moduleCode
     ) {
         log.debug("REST request to get KPI Configuration : {}", moduleCode);
-        Optional<KpiConfigurationDTO> kpiConfigurationDTO = kpiConfigurationService.findKpiConfigurationByCode(
-            ModuleCode.fromCode(moduleCode)
-        );
+        Optional<KpiConfigurationDTO> kpiConfigurationDTO = kpiConfigurationService.findKpiConfigurationByCode(moduleCode);
         return ResponseUtil.wrapOrNotFound(kpiConfigurationDTO);
     }
 
@@ -137,7 +134,6 @@ public class KpiConfigurationResources {
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
-
 
     /**
      * {@code DELETE  /kpi-configuration/:id} : delete the "id" kpi configuration.
