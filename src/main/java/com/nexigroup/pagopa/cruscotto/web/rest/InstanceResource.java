@@ -1,17 +1,5 @@
 package com.nexigroup.pagopa.cruscotto.web.rest;
 
-import com.nexigroup.pagopa.cruscotto.service.InstanceService;
-import com.nexigroup.pagopa.cruscotto.service.bean.InstanceRequestBean;
-import com.nexigroup.pagopa.cruscotto.service.dto.InstanceDTO;
-import com.nexigroup.pagopa.cruscotto.service.filter.InstanceFilter;
-import com.nexigroup.pagopa.cruscotto.service.validation.InstanceRequestValidator;
-import com.nexigroup.pagopa.cruscotto.web.rest.errors.BadRequestAlertException;
-import io.swagger.v3.oas.annotations.Parameter;
-import jakarta.validation.Valid;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springdoc.core.annotations.ParameterObject;
@@ -20,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,6 +18,21 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
+import com.nexigroup.pagopa.cruscotto.service.InstanceService;
+import com.nexigroup.pagopa.cruscotto.service.bean.InstanceRequestBean;
+import com.nexigroup.pagopa.cruscotto.service.dto.InstanceDTO;
+import com.nexigroup.pagopa.cruscotto.service.filter.InstanceFilter;
+import com.nexigroup.pagopa.cruscotto.web.rest.errors.BadRequestAlertException;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Optional;
+
+import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.Valid;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
@@ -61,7 +65,7 @@ public class InstanceResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/instances")
-    //  @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_ADMIN_INSTANCE + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTANCE_CREATION + "\")")
     public ResponseEntity<InstanceDTO> createAInstance(@Valid @RequestBody InstanceRequestBean instance) throws URISyntaxException {
         log.debug("REST request to save Instance : {}", instance);
 
@@ -86,7 +90,7 @@ public class InstanceResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/instances")
-    //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_ADMIN_INSTANCE + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTANCE_MODIFICATION + "\")")
     public ResponseEntity<InstanceDTO> updateInstance(@Valid @RequestBody InstanceRequestBean instance) throws URISyntaxException {
         log.debug("REST request to update Instance : {}", instance);
 
@@ -109,7 +113,7 @@ public class InstanceResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of instances in body.
      */
     @GetMapping("/instances")
-    //    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_LIST_FUNCTION + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTANCE_LIST + "\")")
     public ResponseEntity<List<InstanceDTO>> getAllInstances(
         @Parameter(description = "Filtro", required = false) @Valid @ParameterObject InstanceFilter filter,
         @Parameter(description = "Pageable", required = true) @ParameterObject Pageable pageable
@@ -127,7 +131,7 @@ public class InstanceResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the instanceDTO, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/instances/{id}")
-    //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_DETAIL_FUNCTION + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTANCE_DETAIL + "\")")
     public ResponseEntity<InstanceDTO> getInstance(@PathVariable Long id) {
         log.debug("REST request to get Instance : {}", id);
         Optional<InstanceDTO> instance = instanceService.findOne(id);
@@ -141,7 +145,7 @@ public class InstanceResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/instances/{id}")
-    //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_DELETE_FUNCTION + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTANCE_DELETION + "\")")
     public ResponseEntity<Void> deleteInstance(@PathVariable Long id) {
         log.debug("REST request to delete Instance : {}", id);
         InstanceDTO result = instanceService.delete(id);
@@ -151,7 +155,7 @@ public class InstanceResource {
     }
 
     @PutMapping("/instances/update-status/{id}")
-    //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_ADMIN_INSTANCE + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTANCE_MODIFICATION + "\")")
     public ResponseEntity<Void> updateInstanceStatus(@PathVariable Long id) {
         log.debug("REST request to update status od instance {}: ", id);
 
