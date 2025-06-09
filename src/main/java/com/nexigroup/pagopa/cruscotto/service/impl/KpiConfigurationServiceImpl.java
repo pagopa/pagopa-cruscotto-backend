@@ -86,7 +86,7 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
      * @return an {@link Optional} containing the {@link KpiConfigurationDTO} if found, or an empty {@link Optional} if no configuration exists for the specified code
      */
     @Override
-    public Optional<KpiConfigurationDTO> findKpiConfigurationByCode(ModuleCode code) {
+    public Optional<KpiConfigurationDTO> findKpiConfigurationByCode(String code) {
         QKpiConfiguration qKpiConfiguration = QKpiConfiguration.kpiConfiguration;
         QModule qModule = QModule.module;
 
@@ -94,7 +94,7 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
             .<KpiConfiguration>createQuery()
             .from(qKpiConfiguration)
             .leftJoin(qKpiConfiguration.module, qModule)
-            .where(qKpiConfiguration.module.code.eq(code.code));
+            .where(qKpiConfiguration.module.code.eq(code));
 
         JPQLQuery<KpiConfigurationDTO> jpqlResponse = jpql.select(createKpiConfigurationProjection(qKpiConfiguration, qModule));
 
@@ -181,7 +181,7 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
     public KpiConfigurationDTO saveNew(KpiConfigurationRequestBean kpiConfigurationToCreate) {
         AuthUser loggedUser = userUtils.getLoggedUser();
 
-        //Il codice deve corrispondere ad un modulo che esista realmente
+        //Il codice deve corrispondere ad un modulo che esiste realmente
         Module module = moduleRepository
             .findByCode(kpiConfigurationToCreate.getModuleCode())
             .orElseThrow(() ->
@@ -193,8 +193,7 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
             );
 
         //Non possono esistere due configurazioni asssociate allo stesso modulo
-        ModuleCode code = ModuleCode.fromCode(kpiConfigurationToCreate.getModuleCode());
-        findKpiConfigurationByCode(code)
+        findKpiConfigurationByCode(kpiConfigurationToCreate.getModuleCode())
             .filter(kpiConfigurationDTO -> !kpiConfigurationDTO.getId().equals(kpiConfigurationToCreate.getId()))
             .ifPresent(kpiConfigurationDTO -> {
                 throw new GenericServiceException(
@@ -253,8 +252,7 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
             );
 
         //Non possono esistere due configurazioni asssociate allo stesso modulo
-        ModuleCode code = ModuleCode.fromCode(kpiConfigurationToUpdate.getModuleCode());
-        findKpiConfigurationByCode(code)
+        findKpiConfigurationByCode(kpiConfigurationToUpdate.getModuleCode())
             .filter(kpiConfigurationDTO -> !kpiConfigurationDTO.getId().equals(kpiConfigurationToUpdate.getId()))
             .ifPresent(kpiConfigurationDTO -> {
                 throw new GenericServiceException(
