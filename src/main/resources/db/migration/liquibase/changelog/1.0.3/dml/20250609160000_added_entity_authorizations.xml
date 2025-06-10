@@ -19,29 +19,32 @@
 	  DELETE FROM ${database.defaultSchemaName}.AUTH_FUNCTION;
 	  DELETE FROM ${database.defaultSchemaName}.AUTH_GROUP;
 	  
-	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP (CO_ID, TE_NOME, TE_DESCRIZIONE, FL_LIVELLO_VISIBILITA) VALUES(1, 'ROLE_SUPER_ADMIN', 'Gruppo degli amministratori', 1);	  
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP (CO_ID, TE_NOME, TE_DESCRIZIONE, FL_LIVELLO_VISIBILITA) VALUES(1, 'NEXI', 'Gruppo degli amministratori Nexi', 1);	 
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP (CO_ID, TE_NOME, TE_DESCRIZIONE, FL_LIVELLO_VISIBILITA) VALUES(2, 'PAGOPA_AMMINISTRATIVA', 'Gruppo degli amministratori Pagopa', 2);	 
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP (CO_ID, TE_NOME, TE_DESCRIZIONE, FL_LIVELLO_VISIBILITA) VALUES(3, 'PAGOPA_DISPOSITIVA', 'Gruppo degli utenti con funzioni dispositive', 3);	 
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP (CO_ID, TE_NOME, TE_DESCRIZIONE, FL_LIVELLO_VISIBILITA) VALUES(4, 'PAGOPA_INFORMATIVA', 'Gruppo degli utenti con funzioni consultative', 4);	  
 
 	  UPDATE ${database.defaultSchemaName}.AUTH_USER SET CO_AUTH_GROUP_ID = 1;
 	  
 	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10018, 'MODULE_MANAGEMENT', 'GTW', 'Funzioni di gestione dei moduli');
-	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10017, 'MODULE_INQUIRY', 'GTW', 'Funzioni di inquiry sui moduli');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10017, 'MODULE_INQUIRY', 'GTW', 'Funzioni di consultazione dei moduli');
 	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10016, 'PERMISSION_MANAGEMENT', 'GTW', 'Funzioni di gestione dei permessi');
-	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10015, 'PERMISSION_INQUIRY', 'GTW', 'Funzioni di inquiry sui permessi');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10015, 'PERMISSION_INQUIRY', 'GTW', 'Funzioni di consultazione dei permessi');
 	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10014, 'GROUP_MANAGEMENT', 'GTW', 'Funzioni di gestione dei gruppi');
-	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10013, 'GROUP_INQUIRY', 'GTW', 'Funzioni di inquiry sui gruppi');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10013, 'GROUP_INQUIRY', 'GTW', 'Funzioni di consultazione dei gruppi');
 	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10012, 'USER_MANAGEMENT', 'GTW', 'Funzioni di gestione degli utenti');
-	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10011, 'USER_INQUIRY', 'GTW', 'Funzioni di inquiry sugli utenti');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10011, 'USER_INQUIRY', 'GTW', 'Funzioni di consultazione degli utenti');
 	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10010, 'KPI_CONFIGURATION_MANAGEMENT', 'GTW', 'Funzioni di gestione delle configurazioni dei kpi');
-	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10009, 'KPI_CONFIGURATION_INQUIRY', 'GTW', 'Funzioni di inquiry sulle configurazioni dei kpi');
-	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10008, 'TAXONOMY_INQUIRY', 'GTW', 'Funzioni di inquiry sulla tassonomia');
-	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10007, 'SHUTDOWN_MANAGEMENT', 'GTW', 'Funzioni di inquiry dei fermi');
-	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10006, 'SHUTDOWN_INQUIRY', 'GTW', 'Funzioni di inquiry sui fermi');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10009, 'KPI_CONFIGURATION_INQUIRY', 'GTW', 'Funzioni di consultazione delle configurazioni dei kpi');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10008, 'TAXONOMY_INQUIRY', 'GTW', 'Funzioni di consultazione della tassonomia');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10007, 'SHUTDOWN_MANAGEMENT', 'GTW', 'Funzioni di gestione dei fermi');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10006, 'SHUTDOWN_INQUIRY', 'GTW', 'Funzioni di consultazione dei fermi');
 	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10005, 'INSTANCE_MANAGEMENT', 'GTW', 'Funzioni di gestione delle istanze');
-	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10004, 'INSTANCE_INQUIRY', 'GTW', 'Funzioni di inquiry sulle istanze');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10004, 'INSTANCE_INQUIRY', 'GTW', 'Funzioni di consultazione delle istanze');
 	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10003, 'FUNCTION_MANAGEMENT', 'GTW', 'Funzioni di gestione delle funzioni');
-	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10002, 'FUNCTION_INQUIRY', 'GTW', 'Funzioni di inquiry sulle funzioni');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10002, 'FUNCTION_INQUIRY', 'GTW', 'Funzioni di consultazione delle funzioni');
 	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10001, 'JOB_MANAGEMENT', 'GTW', 'Funzioni di gestione dei jobs');
-	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10000, 'JOB_INQUIRY', 'GTW', 'Funzioni di inquiry sui jobs');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10000, 'JOB_INQUIRY', 'GTW', 'Funzioni di consultazione dei jobs');
 	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(9999, 'CONTROL_TOOLS', 'GTW', 'Strumenti di controllo');
 	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(9998, 'BASIC_FUNCTIONS', 'GTW', 'Funzioni di base');
 	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(9996, 'SWAGGER', 'GTW', 'Elenco servizi rest');
@@ -119,29 +122,6 @@
 	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(9996, 'APP_INFO', 'GTW');
 	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(9995, 'PASSWORD_MODIFICATION', 'GTW');
 	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(9994, 'ACCOUNT_MODIFICATION', 'GTW');
-
-	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10018, 1);
-	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10017, 1);
-	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10016, 1);
-	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10015, 1);
-	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10014, 1);
-	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10013, 1);
-	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10012, 1);
-	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10011, 1);
-	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10010, 1);
-	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10009, 1);
-	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10008, 1);
-	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10007, 1);
-	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10006, 1);
-	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10005, 1);
-	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10004, 1);
-	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10003, 1);
-	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10002, 1);
-	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10001, 1);
-	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10000, 1);
-	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(9999, 1);
-	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(9998, 1);
-	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(9996, 1);
 	  
 	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10065, 10018);
 	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10067, 10018);
@@ -221,7 +201,61 @@
 	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(9998, 9998);
 	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(9996, 9998);
 	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(9995, 9998);
-	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(9994, 9998);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(9994, 9998);	  
+
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10018, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10017, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10016, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10015, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10014, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10013, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10012, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10011, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10010, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10009, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10008, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10007, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10006, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10005, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10004, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10003, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10002, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10001, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10000, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(9999, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(9998, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(9996, 1);
+	  
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10018, 2);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10017, 2);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10012, 2);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10011, 2);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10010, 2);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10009, 2);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10008, 2);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10007, 2);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10006, 2);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10005, 2);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10004, 2);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(9998, 2);
+	  
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10018, 3);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10017, 3);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10010, 3);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10009, 3);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10008, 3);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10007, 3);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10006, 3);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10005, 3);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10004, 3);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(9998, 3);
+	  
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10017, 4);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10009, 4);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10008, 4);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10006, 4);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10004, 4);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(9998, 4);	  
 	  
 	  ALTER SEQUENCE ${database.defaultSchemaName}.SQCRUSC8_AUTHFUNC RESTART WITH 20000;
 	  ALTER SEQUENCE ${database.defaultSchemaName}.SQCRUSC8_AUTHPERM RESTART WITH 20000;	  
