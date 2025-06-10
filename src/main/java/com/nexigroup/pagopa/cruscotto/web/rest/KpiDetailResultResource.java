@@ -1,17 +1,28 @@
 package com.nexigroup.pagopa.cruscotto.web.rest;
 
-import com.nexigroup.pagopa.cruscotto.service.*;
-import com.nexigroup.pagopa.cruscotto.service.dto.*;
-import java.util.List;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
+import com.nexigroup.pagopa.cruscotto.service.KpiA1DetailResultService;
+import com.nexigroup.pagopa.cruscotto.service.KpiA2DetailResultService;
+import com.nexigroup.pagopa.cruscotto.service.KpiB2DetailResultService;
+import com.nexigroup.pagopa.cruscotto.service.KpiB9DetailResultService;
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiA1DetailResultDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiA2DetailResultDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2DetailResultDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiB9DetailResultDTO;
+
+import java.util.List;
+import java.util.Optional;
+
 import tech.jhipster.web.util.ResponseUtil;
 
 /**
@@ -34,6 +45,7 @@ public class KpiDetailResultResource {
 
     private final KpiB9DetailResultService kpiB9DetailResultService;
 
+    
     public KpiDetailResultResource(
         KpiA1DetailResultService kpiA1DetailResultService,
         KpiB2DetailResultService kpiB2DetailResultService,
@@ -54,7 +66,7 @@ public class KpiDetailResultResource {
      *         or with status {@code 404 (Not Found)} if no results are found
      */
     @GetMapping("kpi-detail-results/a1/module/{resultId}")
-    //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_DETAIL_FUNCTION + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.KPI_A1_DETAIL_RESULT_DETAIL + "\")")
     public ResponseEntity<List<KpiA1DetailResultDTO>> getKpiA1DetailResults(@PathVariable Long resultId) {
         log.debug("REST request to get kpi detail results of instanceModule : {} of type a1", resultId);
         List<KpiA1DetailResultDTO> kpiA1DetailResults = kpiA1DetailResultService.findByResultId(resultId);
@@ -70,7 +82,7 @@ public class KpiDetailResultResource {
      *         or with status {@code 404 (Not Found)} if no results are found
      */
     @GetMapping("kpi-detail-results/a2/module/{resultId}")
-    //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_DETAIL_FUNCTION + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.KPI_A2_DETAIL_RESULT_DETAIL + "\")")
     public ResponseEntity<List<KpiA2DetailResultDTO>> getKpiA2DetailResults(@PathVariable Long resultId) {
         log.debug("REST request to get kpi detail results of instanceModule : {} of type a2", resultId);
         List<KpiA2DetailResultDTO> kpiA2DetailResults = kpiA2DetailResultService.findByResultId(resultId);
@@ -86,7 +98,7 @@ public class KpiDetailResultResource {
      *         or with status {@code 404 (Not Found)} if no results are found
      */
     @GetMapping("kpi-detail-results/b2/module/{resultId}")
-    //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_DETAIL_FUNCTION + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.KPI_B2_DETAIL_RESULT_DETAIL + "\")")
     public ResponseEntity<List<KpiB2DetailResultDTO>> getKpiB2DetailResults(@PathVariable Long resultId) {
         log.debug("REST request to get kpi detail results of instanceModule : {} of type b2", resultId);
         List<KpiB2DetailResultDTO> kpiB2DetailResults = kpiB2DetailResultService.findByResultId(resultId);
@@ -102,7 +114,7 @@ public class KpiDetailResultResource {
      *         or with status {@code 404 (Not Found)} if no results are found
      */
     @GetMapping("kpi-detail-results/b9/module/{resultId}")
-    //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_DETAIL_FUNCTION + "\")") // Sblocca se necessario
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.KPI_B9_DETAIL_RESULT_DETAIL + "\")")
     public ResponseEntity<List<KpiB9DetailResultDTO>> getKpiB9DetailResults(@PathVariable Long resultId) {
         log.debug("REST request to get kpi detail results of instanceModule : {} of type b9", resultId);
         List<KpiB9DetailResultDTO> kpiB9DetailResults = kpiB9DetailResultService.findByResultId(resultId);
