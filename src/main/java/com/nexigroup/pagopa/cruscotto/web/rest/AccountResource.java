@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
+import com.nexigroup.pagopa.cruscotto.config.Constants;
 import com.nexigroup.pagopa.cruscotto.domain.AuthUser;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AuthenticationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.Language;
@@ -130,7 +131,7 @@ public class AccountResource {
             // cancello le autorizzazioni dell'utente e assegno
             authUserDTO.getAuthorities().clear();
 
-            authUserDTO.getAuthorities().add(AuthoritiesConstants.CHANGE_PASSWORD_EXPIRED);
+            authUserDTO.getAuthorities().add(Constants.FUNCTION_CHANGE_PASSWORD_EXPIRED);
         }
         String lang = "it";
         if (authUserDTO != null) {
@@ -153,7 +154,7 @@ public class AccountResource {
      * @throws RuntimeException {@code 500 (Internal Server Error)} if the authUser login wasn't found.
      */
     @PostMapping("/account")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ACCOUNT_MANAGEMENT + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ACCOUNT_MODIFICATION + "\")")
     public void saveAccount(@Valid @RequestBody AuthUserAccountDTO authUserDTO) {
         AuthenticationType authenticationType = SecurityUtils.getAuthenticationTypeUserLogin()
             .orElseThrow(() -> new RuntimeException("Authentication Type not found"));
@@ -184,16 +185,10 @@ public class AccountResource {
             AuthenticationType.FORM_LOGIN
         );
     }
-
-    /**
-     * {@code POST  /account/change-password/expired} : changes the current authUser's password.
-     *
-     * @param passwordChangeRequestBean current and new password.
-     * @throws InvalidPasswordException {@code 400 (Bad Request)} if the new password is incorrect.
-     */
-    @PostMapping(path = "/account/change-password/expired")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.CHANGE_PASSWORD_EXPIRED + "\")")
-    public void changePassword(@Valid @RequestBody PasswordChangeRequestBean passwordChangeRequestBean) {
+    
+	@PostMapping(path = "/account/change-password")
+	@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.PASSWORD_MODIFICATION + "\")")
+	public void changePassword(@Valid @RequestBody PasswordChangeRequestBean passwordChangeRequestBean) {
         AuthenticationType authenticationType = SecurityUtils.getAuthenticationTypeUserLogin()
             .orElseThrow(() -> new RuntimeException("Authentication Type not found"));
 
