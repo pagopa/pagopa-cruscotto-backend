@@ -1,23 +1,5 @@
 package com.nexigroup.pagopa.cruscotto.web.rest;
 
-import com.cronutils.model.CronType;
-import com.cronutils.model.definition.CronDefinition;
-import com.cronutils.model.definition.CronDefinitionBuilder;
-import com.cronutils.parser.CronParser;
-import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
-import com.nexigroup.pagopa.cruscotto.service.JobService;
-import com.nexigroup.pagopa.cruscotto.service.dto.JobsDTO;
-import com.nexigroup.pagopa.cruscotto.service.dto.QrtzLogTriggerExecutedDTO;
-import com.nexigroup.pagopa.cruscotto.service.dto.TaxonomyDTO;
-import com.nexigroup.pagopa.cruscotto.service.filter.JobExecutionFilter;
-import com.nexigroup.pagopa.cruscotto.service.filter.TaxonomyFilter;
-import com.nexigroup.pagopa.cruscotto.web.rest.errors.BadRequestAlertException;
-import com.nexigroup.pagopa.cruscotto.web.rest.errors.JobErrorCode;
-import com.nexigroup.pagopa.cruscotto.web.rest.util.HeaderJobUtil;
-import io.swagger.v3.oas.annotations.Parameter;
-import jakarta.validation.Valid;
-import java.util.Date;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springdoc.core.annotations.ParameterObject;
@@ -32,6 +14,25 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import com.cronutils.model.CronType;
+import com.cronutils.model.definition.CronDefinition;
+import com.cronutils.model.definition.CronDefinitionBuilder;
+import com.cronutils.parser.CronParser;
+import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
+import com.nexigroup.pagopa.cruscotto.service.JobService;
+import com.nexigroup.pagopa.cruscotto.service.dto.JobsDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.QrtzLogTriggerExecutedDTO;
+import com.nexigroup.pagopa.cruscotto.service.filter.JobExecutionFilter;
+import com.nexigroup.pagopa.cruscotto.web.rest.errors.BadRequestAlertException;
+import com.nexigroup.pagopa.cruscotto.web.rest.errors.JobErrorCode;
+import com.nexigroup.pagopa.cruscotto.web.rest.util.HeaderJobUtil;
+
+import java.util.Date;
+import java.util.List;
+
+import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.Valid;
 import tech.jhipster.web.util.PaginationUtil;
 
 @RestController
@@ -46,13 +47,14 @@ public class JobControllerResources {
     private String applicationName;
 
     private final JobService jobService;
+    
 
     public JobControllerResources(JobService jobService) {
         this.jobService = jobService;
     }
 
     @GetMapping("pause")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_STRUMENTI_CONTROLLO + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.JOB_MODIFICATION + "\")")
     public ResponseEntity<Integer> pause(@RequestParam("jobName") String jobName) {
         log.debug("REST request to pause job : {}", jobName);
 
@@ -76,7 +78,7 @@ public class JobControllerResources {
     }
 
     @GetMapping("resume")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_STRUMENTI_CONTROLLO + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.JOB_MODIFICATION + "\")")
     public ResponseEntity<Integer> resume(@RequestParam("jobName") String jobName) {
         log.debug("REST request to resume job : {}", jobName);
 
@@ -104,7 +106,7 @@ public class JobControllerResources {
     }
 
     @GetMapping("stop")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_STRUMENTI_CONTROLLO + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.JOB_MODIFICATION + "\")")
     public ResponseEntity<Integer> stopJob(@RequestParam("jobName") String jobName) {
         log.debug("REST request to stop job : {}", jobName);
 
@@ -128,7 +130,7 @@ public class JobControllerResources {
     }
 
     @GetMapping("start")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_STRUMENTI_CONTROLLO + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.JOB_MODIFICATION + "\")")
     public ResponseEntity<Integer> startJobNow(@RequestParam("jobName") String jobName) {
         log.debug("REST request to start job now: {}", jobName);
 
@@ -151,7 +153,7 @@ public class JobControllerResources {
     }
 
     @GetMapping("update")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_STRUMENTI_CONTROLLO + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.JOB_MODIFICATION + "\")")
     public ResponseEntity<Integer> updateJob(
         @RequestParam("jobName") String jobName,
         @RequestParam("cronExpression") String cronExpression
@@ -185,7 +187,7 @@ public class JobControllerResources {
     }
 
     @GetMapping("jobs")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_STRUMENTI_CONTROLLO + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.JOB_LIST + "\")")
     public ResponseEntity<List<JobsDTO>> getAllJobs() {
         log.debug("REST request to get all Jobs");
 
@@ -194,7 +196,7 @@ public class JobControllerResources {
     }
 
     @GetMapping("executions")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_STRUMENTI_CONTROLLO + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.JOB_DETAIL + "\")")
     public ResponseEntity<List<QrtzLogTriggerExecutedDTO>> getAllExecution(
         @Parameter(description = "Filtro", required = false) @Valid @ParameterObject JobExecutionFilter filter,
         @Parameter(description = "Pageable", required = true) @ParameterObject Pageable pageable

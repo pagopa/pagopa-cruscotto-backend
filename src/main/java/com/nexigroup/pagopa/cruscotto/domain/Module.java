@@ -6,16 +6,16 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
+import java.time.ZonedDateTime;
+
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Cache;
@@ -95,6 +95,12 @@ public class Module extends AbstractAuditingEntity<Long> implements Serializable
     @NotNull
     @Column(name = "FL_CONFIG_EVALUATION_TYPE", nullable = false)
     private Boolean configEvaluationType;
+
+    @Column(name = "FL_DELETED", nullable = false)
+    private boolean deleted;
+
+    @Column(name = "DT_DELETED_DATE")
+    private ZonedDateTime deletedDate = null;
 
     @Override
     public boolean equals(Object o) {

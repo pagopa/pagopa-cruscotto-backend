@@ -18,6 +18,7 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPQLQuery;
+import java.text.DecimalFormat;
 import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,7 +87,7 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
      * @return an {@link Optional} containing the {@link KpiConfigurationDTO} if found, or an empty {@link Optional} if no configuration exists for the specified code
      */
     @Override
-    public Optional<KpiConfigurationDTO> findKpiConfigurationByCode(ModuleCode code) {
+    public Optional<KpiConfigurationDTO> findKpiConfigurationByCode(String code) {
         QKpiConfiguration qKpiConfiguration = QKpiConfiguration.kpiConfiguration;
         QModule qModule = QModule.module;
 
@@ -94,7 +95,7 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
             .<KpiConfiguration>createQuery()
             .from(qKpiConfiguration)
             .leftJoin(qKpiConfiguration.module, qModule)
-            .where(qKpiConfiguration.module.code.eq(code.code));
+            .where(qKpiConfiguration.module.code.eq(code));
 
         JPQLQuery<KpiConfigurationDTO> jpqlResponse = jpql.select(createKpiConfigurationProjection(qKpiConfiguration, qModule));
 
@@ -181,7 +182,7 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
     public KpiConfigurationDTO saveNew(KpiConfigurationRequestBean kpiConfigurationToCreate) {
         AuthUser loggedUser = userUtils.getLoggedUser();
 
-        //Il codice deve corrispondere ad un modulo che esista realmente
+        //Il codice deve corrispondere ad un modulo che esiste realmente
         Module module = moduleRepository
             .findByCode(kpiConfigurationToCreate.getModuleCode())
             .orElseThrow(() ->
@@ -193,8 +194,7 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
             );
 
         //Non possono esistere due configurazioni asssociate allo stesso modulo
-        ModuleCode code = ModuleCode.fromCode(kpiConfigurationToCreate.getModuleCode());
-        findKpiConfigurationByCode(code)
+        findKpiConfigurationByCode(kpiConfigurationToCreate.getModuleCode())
             .filter(kpiConfigurationDTO -> !kpiConfigurationDTO.getId().equals(kpiConfigurationToCreate.getId()))
             .ifPresent(kpiConfigurationDTO -> {
                 throw new GenericServiceException(
@@ -210,11 +210,13 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
         KpiConfiguration kpiConfiguration = new KpiConfiguration();
         kpiConfiguration.setModule(module);
 
+        DecimalFormat df = new DecimalFormat("0.00");
+
         if (module.getConfigAverageTimeLimit()) {
-            kpiConfiguration.setAverageTimeLimit(kpiConfigurationToCreate.getAverageTimeLimit());
+            kpiConfiguration.setAverageTimeLimit(Math.round(kpiConfigurationToCreate.getAverageTimeLimit() * 100.0) / 100.0);
         }
         if (module.getConfigEligibilityThreshold()) {
-            kpiConfiguration.setEligibilityThreshold(kpiConfigurationToCreate.getEligibilityThreshold());
+            kpiConfiguration.setEligibilityThreshold(Math.round(kpiConfigurationToCreate.getEligibilityThreshold() * 100.0) / 100.0);
         }
         if (module.getConfigEvaluationType()) {
             kpiConfiguration.setEvaluationType(kpiConfigurationToCreate.getEvaluationType());
@@ -226,7 +228,7 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
             kpiConfiguration.setExcludeUnplannedShutdown(kpiConfigurationToCreate.getExcludeUnplannedShutdown());
         }
         if (module.getConfigTolerance()) {
-            kpiConfiguration.setTolerance(kpiConfigurationToCreate.getTolerance());
+            kpiConfiguration.setTolerance(Math.round(kpiConfigurationToCreate.getTolerance() * 100.0) / 100.0);
         }
 
         kpiConfiguration = kpiConfigurationRepository.save(kpiConfiguration);
@@ -253,8 +255,7 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
             );
 
         //Non possono esistere due configurazioni asssociate allo stesso modulo
-        ModuleCode code = ModuleCode.fromCode(kpiConfigurationToUpdate.getModuleCode());
-        findKpiConfigurationByCode(code)
+        findKpiConfigurationByCode(kpiConfigurationToUpdate.getModuleCode())
             .filter(kpiConfigurationDTO -> !kpiConfigurationDTO.getId().equals(kpiConfigurationToUpdate.getId()))
             .ifPresent(kpiConfigurationDTO -> {
                 throw new GenericServiceException(
@@ -273,10 +274,12 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
             .map(kpiConfiguration -> {
                 kpiConfiguration.setModule(module);
                 if (module.getConfigAverageTimeLimit()) {
-                    kpiConfiguration.setAverageTimeLimit(kpiConfigurationToUpdate.getAverageTimeLimit());
+                    kpiConfiguration.setAverageTimeLimit(Math.round(kpiConfigurationToUpdate.getAverageTimeLimit() * 100.0) / 100.0);
                 }
                 if (module.getConfigEligibilityThreshold()) {
-                    kpiConfiguration.setEligibilityThreshold(kpiConfigurationToUpdate.getEligibilityThreshold());
+                    kpiConfiguration.setEligibilityThreshold(
+                        Math.round(kpiConfigurationToUpdate.getEligibilityThreshold() * 100.0) / 100.0
+                    );
                 }
                 if (module.getConfigEvaluationType()) {
                     kpiConfiguration.setEvaluationType(kpiConfigurationToUpdate.getEvaluationType());
@@ -288,7 +291,7 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
                     kpiConfiguration.setExcludeUnplannedShutdown(kpiConfigurationToUpdate.getExcludeUnplannedShutdown());
                 }
                 if (module.getConfigTolerance()) {
-                    kpiConfiguration.setTolerance(kpiConfigurationToUpdate.getTolerance());
+                    kpiConfiguration.setTolerance(Math.round(kpiConfigurationToUpdate.getTolerance() * 100.0) / 100.0);
                 }
 
                 kpiConfigurationRepository.save(kpiConfiguration);
