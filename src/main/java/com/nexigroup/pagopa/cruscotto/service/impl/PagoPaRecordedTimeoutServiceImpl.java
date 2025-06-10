@@ -4,6 +4,7 @@ import com.nexigroup.pagopa.cruscotto.domain.PagoPaRecordedTimeout;
 import com.nexigroup.pagopa.cruscotto.domain.QPagoPaRecordedTimeout;
 import com.nexigroup.pagopa.cruscotto.service.PagoPaRecordedTimeoutService;
 import com.nexigroup.pagopa.cruscotto.service.dto.PagoPaRecordedTimeoutDTO;
+import com.nexigroup.pagopa.cruscotto.service.qdsl.QdslUtility;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Order;
@@ -17,8 +18,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.querydsl.jpa.JPQLQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -155,5 +161,61 @@ public class PagoPaRecordedTimeoutServiceImpl implements PagoPaRecordedTimeoutSe
             )
             .orderBy(new OrderSpecifier<>(Order.ASC, Expressions.stringPath("startDate")))
             .fetch();
+    }
+
+    /**
+     * Get all the pagopa recorded timeout
+     *
+     * @param pageable the pagination information.
+     * @return the list of pagopa recorded timeout.
+     */
+    @Override
+    public Page<PagoPaRecordedTimeoutDTO> findAll(Pageable pageable) {
+        LOGGER.debug("Request to get all pagopa recorded timeout");
+
+        QPagoPaRecordedTimeout qPagoPaRecordedTimeout = QPagoPaRecordedTimeout.pagoPaRecordedTimeout;
+
+        JPQLQuery<PagoPaRecordedTimeout> query = queryBuilder
+            .<PagoPaRecordedTimeout>createQuery()
+            .from(qPagoPaRecordedTimeout);
+
+        long total = query.fetchCount();
+
+        JPQLQuery<PagoPaRecordedTimeoutDTO> jpqlQuery = query.select(createPagoPaRecordedTimeoutProjection());
+
+        jpqlQuery.offset(pageable.getOffset());
+
+        jpqlQuery.limit(pageable.getPageSize());
+        pageable
+            .getSort()
+            .stream()
+            .forEach(order -> {
+                jpqlQuery.orderBy(
+                    new OrderSpecifier<>(
+                        order.isAscending() ? com.querydsl.core.types.Order.ASC : com.querydsl.core.types.Order.DESC,
+                        Expressions.stringPath(order.getProperty()),
+                        QdslUtility.toQueryDslNullHandling(order.getNullHandling())
+                    )
+                );
+            });
+
+        List<PagoPaRecordedTimeoutDTO> results = jpqlQuery.fetch();
+
+        return new PageImpl<>(results, pageable, total);
+    }
+
+    private com.querydsl.core.types.Expression<PagoPaRecordedTimeoutDTO> createPagoPaRecordedTimeoutProjection() {
+        return Projections.fields(
+            PagoPaRecordedTimeoutDTO.class,
+            QPagoPaRecordedTimeout.pagoPaRecordedTimeout.id.as("id"),
+            QPagoPaRecordedTimeout.pagoPaRecordedTimeout.cfPartner.as("cfPartner"),
+            QPagoPaRecordedTimeout.pagoPaRecordedTimeout.station.as("station"),
+            QPagoPaRecordedTimeout.pagoPaRecordedTimeout.method.as("method"),
+            QPagoPaRecordedTimeout.pagoPaRecordedTimeout.startDate.as("startDate"),
+            QPagoPaRecordedTimeout.pagoPaRecordedTimeout.endDate.as("endDate"),
+            QPagoPaRecordedTimeout.pagoPaRecordedTimeout.totReq.as("totReq"),
+            QPagoPaRecordedTimeout.pagoPaRecordedTimeout.reqOk.as("reqOk"),
+            QPagoPaRecordedTimeout.pagoPaRecordedTimeout.avgTime.as("avgTime"),
+            QPagoPaRecordedTimeout.pagoPaRecordedTimeout.reqTimeout.as("reqTimeout"));
     }
 }
