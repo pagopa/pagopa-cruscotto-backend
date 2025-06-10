@@ -1,15 +1,22 @@
 package com.nexigroup.pagopa.cruscotto.security;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.stereotype.Component;
+
+import com.nexigroup.pagopa.cruscotto.config.Constants;
 import com.nexigroup.pagopa.cruscotto.domain.AuthGroup;
 import com.nexigroup.pagopa.cruscotto.domain.AuthPermission;
 import com.nexigroup.pagopa.cruscotto.repository.AuthGroupRepository;
 import com.nexigroup.pagopa.cruscotto.repository.AuthPermissionRepository;
-import java.util.*;
-import java.util.stream.Collectors;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.stereotype.Component;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.cache.Cache;
 import javax.cache.CacheManager;
@@ -52,18 +59,23 @@ public class GrantAuthoritiesLoad {
                 .stream()
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Group is not defined"));
+            
+            if(groupAuthority.getAuthority() != null && groupAuthority.getAuthority().compareTo(Constants.ROLE_PASSWORD_EXPIRED) == 0) {
+            	grantedAuthoritiesConverted.add(new SimpleGrantedAuthority(AuthoritiesConstants.PASSWORD_MODIFICATION));
+			} else {
 
-            Optional<AuthGroup> group = authGroupRepository.findOneByNome(groupAuthority.getAuthority());
-
-            AuthGroup authGroup = group.orElseThrow(() -> new IllegalArgumentException("Group not found"));
-
-            List<AuthPermission> functions = authPermissionRepository.findAllPermissionsByGroupId(authGroup.getId());
-
-            grantedAuthoritiesConverted = functions
-                .stream()
-                .map(function -> new SimpleGrantedAuthority(function.getModulo() + "." + function.getNome()))
-                .collect(Collectors.toSet());
-
+	            Optional<AuthGroup> group = authGroupRepository.findOneByNome(groupAuthority.getAuthority());
+	
+	            AuthGroup authGroup = group.orElseThrow(() -> new IllegalArgumentException("Group not found"));
+	
+	            List<AuthPermission> functions = authPermissionRepository.findAllPermissionsByGroupId(authGroup.getId());
+	
+	            grantedAuthoritiesConverted = functions
+	                .stream()
+	                .map(function -> new SimpleGrantedAuthority(function.getModulo() + "." + function.getNome()))
+	                .collect(Collectors.toSet());
+			}
+            
             cache.put(key, grantedAuthoritiesConverted);
         }
 
