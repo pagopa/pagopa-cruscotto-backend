@@ -2,6 +2,9 @@ package com.nexigroup.pagopa.cruscotto.service;
 
 import com.nexigroup.pagopa.cruscotto.domain.PagoPaRecordedTimeout;
 import com.nexigroup.pagopa.cruscotto.service.dto.PagoPaRecordedTimeoutDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -34,4 +37,7 @@ public interface PagoPaRecordedTimeoutService {
         String method,
         LocalDate day
     );
+
+    Page<PagoPaRecordedTimeoutDTO> findAll(Pageable pageable);
+
 }
