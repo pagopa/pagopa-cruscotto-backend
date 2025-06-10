@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+
+  <changeSet id="20250609160000-1" author="system" context="dml">
+	<validCheckSum>ANY</validCheckSum>
+	<sql splitStatements="true" stripComments="true">
+	
+	  UPDATE ${database.defaultSchemaName}.AUTH_USER SET CO_AUTH_GROUP_ID = NULL;
+	  
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_PERMISSION;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_FUNCTION;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_GROUP;
+	  
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP (CO_ID, TE_NOME, TE_DESCRIZIONE, FL_LIVELLO_VISIBILITA) VALUES(1, 'ROLE_SUPER_ADMIN', 'Gruppo degli amministratori', 1);	  
+
+	  UPDATE ${database.defaultSchemaName}.AUTH_USER SET CO_AUTH_GROUP_ID = 1;
+	  
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10018, 'MODULE_MANAGEMENT', 'GTW', 'Funzioni di gestione dei moduli');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10017, 'MODULE_INQUIRY', 'GTW', 'Funzioni di inquiry sui moduli');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10016, 'PERMISSION_MANAGEMENT', 'GTW', 'Funzioni di gestione dei permessi');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10015, 'PERMISSION_INQUIRY', 'GTW', 'Funzioni di inquiry sui permessi');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10014, 'GROUP_MANAGEMENT', 'GTW', 'Funzioni di gestione dei gruppi');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10013, 'GROUP_INQUIRY', 'GTW', 'Funzioni di inquiry sui gruppi');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10012, 'USER_MANAGEMENT', 'GTW', 'Funzioni di gestione degli utenti');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10011, 'USER_INQUIRY', 'GTW', 'Funzioni di inquiry sugli utenti');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10010, 'KPI_CONFIGURATION_MANAGEMENT', 'GTW', 'Funzioni di gestione delle configurazioni dei kpi');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10009, 'KPI_CONFIGURATION_INQUIRY', 'GTW', 'Funzioni di inquiry sulle configurazioni dei kpi');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10008, 'TAXONOMY_INQUIRY', 'GTW', 'Funzioni di inquiry sulla tassonomia');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10007, 'SHUTDOWN_MANAGEMENT', 'GTW', 'Funzioni di inquiry dei fermi');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10006, 'SHUTDOWN_INQUIRY', 'GTW', 'Funzioni di inquiry sui fermi');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10005, 'INSTANCE_MANAGEMENT', 'GTW', 'Funzioni di gestione delle istanze');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10004, 'INSTANCE_INQUIRY', 'GTW', 'Funzioni di inquiry sulle istanze');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10003, 'FUNCTION_MANAGEMENT', 'GTW', 'Funzioni di gestione delle funzioni');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10002, 'FUNCTION_INQUIRY', 'GTW', 'Funzioni di inquiry sulle funzioni');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10001, 'JOB_MANAGEMENT', 'GTW', 'Funzioni di gestione dei jobs');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10000, 'JOB_INQUIRY', 'GTW', 'Funzioni di inquiry sui jobs');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(9999, 'CONTROL_TOOLS', 'GTW', 'Strumenti di controllo');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(9998, 'BASIC_FUNCTIONS', 'GTW', 'Funzioni di base');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(9996, 'SWAGGER', 'GTW', 'Elenco servizi rest');
+	  
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10063, 'GROUP_MODIFICATION_FUNCTION_DISASSOCIATION', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10064, 'MODULE_DETAIL', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10065, 'MODULE_CREATION', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10066, 'MODULE_MODIFICATION', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10067, 'MODULE_DELETION', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10062, 'GROUP_MODIFICATION_FUNCTION_ASSOCIATION', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10061, 'FUNCTION_LIST_ASSOCIABLE_WITH_GROUP', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10060, 'FUNCTION_LIST_ASSOCIATED_WITH_GROUP', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10059, 'FUNCTION_MODIFICATION_PERMISSION_DISASSOCIATION', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10058, 'FUNCTION_MODIFICATION_PERMISSION_ASSOCIATION', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10057, 'PERMISSION_LIST_ASSOCIABLE_WITH_FUNCTION', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10056, 'PERMISSION_LIST_ASSOCIATED_WITH_FUNCTION', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10055, 'PERMISSION_DELETION', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10054, 'PERMISSION_MODIFICATION', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10053, 'PERMISSION_CREATION', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10052, 'PERMISSION_DETAIL', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10051, 'PERMISSION_LIST', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10050, 'GROUP_DELETION', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10049, 'GROUP_MODIFICATION', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10048, 'GROUP_CREATION', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10047, 'GROUP_DETAIL', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10046, 'GROUP_LIST', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10045, 'USER_DELETION', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10044, 'USER_MODIFICATION', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10043, 'USER_CREATION', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10042, 'USER_DETAIL', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10041, 'USER_LIST', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10040, 'KPI_CONFIGURATION_DELETION', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10039, 'KPI_CONFIGURATION_MODIFICATION', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10038, 'KPI_CONFIGURATION_CREATION', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10037, 'KPI_CONFIGURATION_DETAIL', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10036, 'KPI_CONFIGURATION_LIST', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10035, 'MODULE_LIST', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10034, 'TAXONOMY_DETAIL', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10033, 'TAXONOMY_LIST', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10032, 'STATION_LIST', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10031, 'SHUTDOWN_DELETION', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10030, 'SHUTDOWN_MODIFICATION', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10029, 'SHUTDOWN_CREATION', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10028, 'SHUTDOWN_DETAIL', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10027, 'SHUTDOWN_LIST', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10026, 'KPI_B9_RESULT_DETAIL', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10025, 'KPI_B2_RESULT_DETAIL', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10024, 'KPI_A2_RESULT_DETAIL', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10023, 'KPI_A1_RESULT_DETAIL', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10022, 'KPI_B9_DETAIL_RESULT_DETAIL', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10021, 'KPI_B2_DETAIL_RESULT_DETAIL', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10020, 'KPI_A2_DETAIL_RESULT_DETAIL', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10019, 'KPI_A1_DETAIL_RESULT_DETAIL', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10018, 'KPI_B9_ANALITIC_DATA_DETAIL', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10017, 'KPI_B2_ANALITIC_DATA_DETAIL', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10016, 'KPI_A2_ANALITIC_DATA_DETAIL', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10015, 'KPI_A1_ANALITIC_DATA_DETAIL', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10014, 'INSTANCE_MODULE_DETAIL', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10013, 'PARTNER_LIST', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10012, 'INSTANCE_DELETION', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10011, 'INSTANCE_MODIFICATION', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10010, 'INSTANCE_CREATION', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10009, 'INSTANCE_DETAIL', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10008, 'INSTANCE_LIST', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10007, 'FUNCTION_DELETION', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10006, 'FUNCTION_MODIFICATION', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10005, 'FUNCTION_CREATION', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10004, 'FUNCTION_DETAIL', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10003, 'FUNCTION_LIST', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10002, 'JOB_MODIFICATION', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10001, 'JOB_DETAIL', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10000, 'JOB_LIST', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(9999, 'CONTROL_TOOLS', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(9998, 'ACCOUNT_INFO', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(9996, 'APP_INFO', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(9995, 'PASSWORD_MODIFICATION', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(9994, 'ACCOUNT_MODIFICATION', 'GTW');
+
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10018, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10017, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10016, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10015, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10014, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10013, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10012, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10011, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10010, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10009, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10008, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10007, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10006, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10005, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10004, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10003, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10002, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10001, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10000, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(9999, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(9998, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(9996, 1);
+	  
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10065, 10018);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10067, 10018);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10066, 10018);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10064, 10017);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10035, 10017);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10055, 10016);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10053, 10016);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10054, 10016);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10051, 10015);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10052, 10015);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10050, 10014);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10063, 10014);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10062, 10014);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10061, 10014);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10060, 10014);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10049, 10014);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10048, 10014);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10047, 10013);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10046, 10013);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10045, 10012);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10046, 10012);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10043, 10012);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10044, 10012);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10046, 10011);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10041, 10011);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10042, 10011);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10038, 10010);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10035, 10010);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10039, 10010);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10040, 10010);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10037, 10009);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10036, 10009);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10033, 10008);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10034, 10008);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10030, 10007);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10032, 10007);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10013, 10007);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10031, 10007);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10029, 10007);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10028, 10006);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10013, 10006);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10027, 10006);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10011, 10005);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10012, 10005);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10013, 10005);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10010, 10005);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10016, 10004);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10008, 10004);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10009, 10004);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10013, 10004);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10014, 10004);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10015, 10004);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10017, 10004);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10018, 10004);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10019, 10004);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10020, 10004);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10021, 10004);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10022, 10004);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10023, 10004);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10024, 10004);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10025, 10004);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10026, 10004);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10057, 10003);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10059, 10003);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10058, 10003);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10006, 10003);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10005, 10003);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10007, 10003);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10056, 10003);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10004, 10002);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10003, 10002);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10002, 10001);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10001, 10000);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10000, 10000);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(9999, 9999);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(9998, 9998);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(9996, 9998);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(9995, 9998);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(9994, 9998);
+	  
+	  ALTER SEQUENCE ${database.defaultSchemaName}.SQCRUSC8_AUTHFUNC RESTART WITH 20000;
+	  ALTER SEQUENCE ${database.defaultSchemaName}.SQCRUSC8_AUTHPERM RESTART WITH 20000;	  
+
+	</sql>
+	<rollback>
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_PERMISSION;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_FUNCTION;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_GROUP;
+	</rollback>
+  </changeSet>
+
+</databaseChangeLog>

@@ -13,19 +13,17 @@ public final class AuthoritiesConstants {
 
     public static final String ANONYMOUS = "ROLE_ANONYMOUS";
 
-    public static final String CHANGE_PASSWORD_EXPIRED = "CHANGE_PASSWORD_EXPIRED";
-
     public static final String ACCOUNT_INFO = "GTW.ACCOUNT_INFO";
 
-    public static final String PASSWORD_MANAGEMENT = "GTW.PASSWORD_MANAGEMENT";
-
-    public static final String ACCOUNT_MANAGEMENT = "GTW.ACCOUNT_MANAGEMENT";
+    public static final String ACCOUNT_MODIFICATION = "GTW.ACCOUNT_MODIFICATION";
+    
+    public static final String PASSWORD_MODIFICATION = "GTW.PASSWORD_MODIFICATION";
 
     public static final String AUDIT = "GTW.AUDIT";
 
     public static final String CONTROL_TOOLS = "GTW.CONTROL_TOOLS";
 
-    public static final String INFO_APP = "GTW.INFO_APP";
+    public static final String APP_INFO = "GTW.APP_INFO";
     
     public static final String FUNCTION_LIST = "GTW.FUNCTION_LIST";  
     
