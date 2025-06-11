@@ -1,17 +1,5 @@
 package com.nexigroup.pagopa.cruscotto.web.rest;
 
-import com.nexigroup.pagopa.cruscotto.domain.AnagPlannedShutdown;
-import com.nexigroup.pagopa.cruscotto.service.AnagPlannedShutdownService;
-import com.nexigroup.pagopa.cruscotto.service.bean.ShutdownRequestBean;
-import com.nexigroup.pagopa.cruscotto.service.dto.AnagPlannedShutdownDTO;
-import com.nexigroup.pagopa.cruscotto.service.filter.AnagPlannedShutdownFilter;
-import com.nexigroup.pagopa.cruscotto.web.rest.errors.BadRequestAlertException;
-import io.swagger.v3.oas.annotations.Parameter;
-import jakarta.validation.Valid;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springdoc.core.annotations.ParameterObject;
@@ -20,8 +8,32 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import com.nexigroup.pagopa.cruscotto.domain.AnagPlannedShutdown;
+import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
+import com.nexigroup.pagopa.cruscotto.service.AnagPlannedShutdownService;
+import com.nexigroup.pagopa.cruscotto.service.bean.ShutdownRequestBean;
+import com.nexigroup.pagopa.cruscotto.service.dto.AnagPlannedShutdownDTO;
+import com.nexigroup.pagopa.cruscotto.service.filter.AnagPlannedShutdownFilter;
+import com.nexigroup.pagopa.cruscotto.web.rest.errors.BadRequestAlertException;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Optional;
+
+import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.Valid;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
@@ -53,7 +65,7 @@ public class AnagShutdownResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of shutdowns in body.
      */
     @GetMapping("/shutdowns")
-    //    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_LIST_FUNCTION + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.SHUTDOWN_LIST + "\")")
     public ResponseEntity<List<AnagPlannedShutdownDTO>> getAllShutdowns(
         @Parameter(description = "Filter", required = false) @Valid @ParameterObject AnagPlannedShutdownFilter filter,
         @Parameter(description = "Pageable", required = true) @ParameterObject Pageable pageable
@@ -71,7 +83,7 @@ public class AnagShutdownResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the anagPlannedShutdownDTO, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/shutdowns/{id}")
-    //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_DETAIL_FUNCTION + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.SHUTDOWN_DETAIL + "\")")
     public ResponseEntity<AnagPlannedShutdownDTO> getShutdown(@PathVariable Long id) {
         log.debug("REST request to get Shutdown : {}", id);
         Optional<AnagPlannedShutdownDTO> shutdown = anagPlannedShutdownService.findOne(id);
@@ -87,7 +99,7 @@ public class AnagShutdownResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/shutdowns")
-    //  @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_ADMIN_INSTANCE + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.SHUTDOWN_CREATION + "\")")
     public ResponseEntity<AnagPlannedShutdownDTO> createAShutdown(@Valid @RequestBody ShutdownRequestBean shutdownRequestBean)
         throws URISyntaxException {
         log.debug("REST request to save Shutdown : {}", shutdownRequestBean);
@@ -113,7 +125,7 @@ public class AnagShutdownResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/shutdowns")
-    //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_ADMIN_INSTANCE + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.SHUTDOWN_MODIFICATION + "\")")
     public ResponseEntity<AnagPlannedShutdownDTO> updateShutdown(@Valid @RequestBody ShutdownRequestBean shutdownRequestBean)
         throws URISyntaxException {
         log.debug("REST request to update Shutdown : {}", shutdownRequestBean);
@@ -136,7 +148,7 @@ public class AnagShutdownResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/shutdowns/{id}")
-    //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_DELETE_FUNCTION + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.SHUTDOWN_DELETION + "\")")
     public ResponseEntity<Void> deleteShutdown(@PathVariable Long id) {
         log.debug("REST request to delete shutdown : {}", id);
         anagPlannedShutdownService.delete(id);

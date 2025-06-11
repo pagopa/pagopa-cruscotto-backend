@@ -22,4 +22,8 @@ public interface ModuleRepository extends JpaRepository<Module, Long>, JpaSpecif
 
     @Query("SELECT module FROM Module module WHERE module.code =:code")
     Optional<Module> findByCode(@Param("code") String code);
+
+    @Query("Select m from Module m where m.id = :id and m.deleted = false")
+    Optional<Module> findOneByIdAndNotDeleted(@Param("id") Long id);
+
 }

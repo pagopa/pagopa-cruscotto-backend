@@ -1,11 +1,5 @@
 package com.nexigroup.pagopa.cruscotto.web.rest;
 
-import com.nexigroup.pagopa.cruscotto.domain.AnagPartner;
-import com.nexigroup.pagopa.cruscotto.service.AnagPartnerService;
-import com.nexigroup.pagopa.cruscotto.service.dto.AnagPartnerDTO;
-import io.swagger.v3.oas.annotations.Parameter;
-import java.util.List;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springdoc.core.annotations.ParameterObject;
@@ -14,11 +8,22 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import com.nexigroup.pagopa.cruscotto.domain.AnagPartner;
+import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
+import com.nexigroup.pagopa.cruscotto.service.AnagPartnerService;
+import com.nexigroup.pagopa.cruscotto.service.dto.AnagPartnerDTO;
+
+import java.util.List;
+import java.util.Optional;
+
+import io.swagger.v3.oas.annotations.Parameter;
 import tech.jhipster.web.util.PaginationUtil;
 
 /**
@@ -48,7 +53,7 @@ public class AnagPartnerResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of partners in body.
      */
     @GetMapping("/partners")
-    //    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_LIST_FUNCTION + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.PARTNER_LIST + "\")")
     public ResponseEntity<List<AnagPartnerDTO>> getAllPartners(
         @RequestParam("name") Optional<String> nameFilter,
         @Parameter(description = "Pageable", required = true) @ParameterObject Pageable pageable

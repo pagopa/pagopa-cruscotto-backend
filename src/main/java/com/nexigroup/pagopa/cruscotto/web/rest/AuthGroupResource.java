@@ -1,23 +1,5 @@
 package com.nexigroup.pagopa.cruscotto.web.rest;
 
-import com.nexigroup.pagopa.cruscotto.domain.AuthGroup;
-import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
-import com.nexigroup.pagopa.cruscotto.service.AuthFunctionService;
-import com.nexigroup.pagopa.cruscotto.service.AuthGroupService;
-import com.nexigroup.pagopa.cruscotto.service.bean.AuthGroupUpdateRequestBean;
-import com.nexigroup.pagopa.cruscotto.service.dto.AuthFunctionDTO;
-import com.nexigroup.pagopa.cruscotto.service.dto.AuthGroupDTO;
-import com.nexigroup.pagopa.cruscotto.service.filter.AuthGroupFilter;
-import com.nexigroup.pagopa.cruscotto.web.rest.errors.BadRequestAlertException;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.Valid;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springdoc.core.annotations.ParameterObject;
@@ -28,8 +10,35 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import com.nexigroup.pagopa.cruscotto.domain.AuthGroup;
+import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
+import com.nexigroup.pagopa.cruscotto.service.AuthFunctionService;
+import com.nexigroup.pagopa.cruscotto.service.AuthGroupService;
+import com.nexigroup.pagopa.cruscotto.service.bean.AuthGroupUpdateRequestBean;
+import com.nexigroup.pagopa.cruscotto.service.dto.AuthFunctionDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.AuthGroupDTO;
+import com.nexigroup.pagopa.cruscotto.service.filter.AuthGroupFilter;
+import com.nexigroup.pagopa.cruscotto.web.rest.errors.BadRequestAlertException;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.Valid;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
@@ -65,7 +74,7 @@ public class AuthGroupResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/auth-groups")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_CREATE_GROUP + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GROUP_CREATION + "\")")
     public ResponseEntity<AuthGroupDTO> createAuthGroup(@Valid @RequestBody AuthGroupDTO authGroupDTO) throws URISyntaxException {
         log.info("REST request to save AuthGroup : {}", authGroupDTO);
         if (authGroupDTO.getId() != null) {
@@ -87,7 +96,7 @@ public class AuthGroupResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/auth-groups")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_UPDATE_GROUP + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GROUP_MODIFICATION + "\")")
     public ResponseEntity<AuthGroupDTO> updateAuthGroup(@Valid @RequestBody AuthGroupDTO authGroupDTO) throws URISyntaxException {
         log.info("REST request to update AuthGroup : {}", authGroupDTO);
         if (authGroupDTO.getId() == null) {
@@ -108,7 +117,7 @@ public class AuthGroupResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of authGroups in body.
      */
     @GetMapping("/auth-groups")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_LIST_GROUP + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GROUP_LIST + "\")")
     public ResponseEntity<List<AuthGroupDTO>> getAllAuthGroups(
         @Parameter(description = "Filter", required = false) @Valid @ParameterObject AuthGroupFilter filter,
         @Parameter(description = "Pageable", required = true) @ParameterObject Pageable pageable
@@ -126,7 +135,7 @@ public class AuthGroupResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the authGroupDTO, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/auth-groups/{id}")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_DETAIL_GROUP + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GROUP_DETAIL + "\")")
     public ResponseEntity<AuthGroupDTO> getAuthGroup(@PathVariable Long id) {
         log.info("REST request to get AuthGroup : {}", id);
         Optional<AuthGroupDTO> authGroupDTO = authGroupService.findOne(id);
@@ -140,7 +149,7 @@ public class AuthGroupResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the authGroupDTO, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/auth-groups/detail/{id}")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_DETAIL_GROUP + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GROUP_DETAIL + "\")")
     public ResponseEntity<AuthGroupDTO> getAuthGroupWithFunction(@PathVariable Long id) {
         log.info("REST request to get AuthGroup : {}", id);
         Optional<AuthGroupDTO> authGroupDTO = authGroupService.findOneWithEagerRelationships(id);
@@ -154,7 +163,7 @@ public class AuthGroupResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/auth-groups/{id}")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_DELETE_GROUP + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GROUP_DELETION + "\")")
     public ResponseEntity<Void> deleteAuthGroup(@PathVariable Long id) {
         log.info("REST request to delete AuthGroup : {}", id);
         authGroupService.delete(id);
@@ -164,7 +173,7 @@ public class AuthGroupResource {
     }
 
     @PostMapping("/auth-groups/{idGroup}/associa-funzioni")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_UPDATE_GROUP_ASSOCIA_FUNZIONE + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GROUP_MODIFICATION_FUNCTION_ASSOCIATION + "\")")
     public ResponseEntity<Void> aggiungiAssociazioneFunzione(@PathVariable Long idGroup, @Valid @RequestBody AuthFunctionDTO[] funzioni)
         throws URISyntaxException {
         log.info("REST request to save function da associare al gruppo");
@@ -197,7 +206,7 @@ public class AuthGroupResource {
     }
 
     @GetMapping("/auth-groups/{idGroup}/rimuovi-funzione/{funzioneId}")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_UPDATE_GROUP_RIMUOVI_FUNZIONE + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GROUP_MODIFICATION_FUNCTION_DISASSOCIATION + "\")")
     public ResponseEntity<Void> rimuoviAssociazioneFunzione(@PathVariable Long idGroup, @PathVariable Long funzioneId)
         throws URISyntaxException {
         log.info("Rimuovi associazione funzione (id) {} al gruppo (id) {}", funzioneId, idGroup);
@@ -211,7 +220,7 @@ public class AuthGroupResource {
     }
 
     @PutMapping("/auth-groups/aggiorna-livello-visibilita")
-    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.GTW_CREATE_GROUP + "\", \"" + AuthoritiesConstants.GTW_UPDATE_GROUP + "\")")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.GROUP_CREATION + "\", \"" + AuthoritiesConstants.GROUP_MODIFICATION + "\")")
     public ResponseEntity<Void> aggiornaLivelloVisibilitaGruppi(@Valid @RequestBody AuthGroupUpdateRequestBean[] authGroups)
         throws URISyntaxException {
         log.info("REST request to update groups visibility level");

@@ -1,17 +1,28 @@
 package com.nexigroup.pagopa.cruscotto.web.rest;
 
-import com.nexigroup.pagopa.cruscotto.service.*;
-import com.nexigroup.pagopa.cruscotto.service.dto.*;
-import java.util.List;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
+import com.nexigroup.pagopa.cruscotto.service.KpiA1AnalyticDataService;
+import com.nexigroup.pagopa.cruscotto.service.KpiA2AnalyticDataService;
+import com.nexigroup.pagopa.cruscotto.service.KpiB2AnalyticDataService;
+import com.nexigroup.pagopa.cruscotto.service.KpiB9AnalyticDataService;
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiA1AnalyticDataDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiA2AnalyticDataDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2AnalyticDataDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiB9AnalyticDataDTO;
+
+import java.util.List;
+import java.util.Optional;
+
 import tech.jhipster.web.util.ResponseUtil;
 
 /**
@@ -33,6 +44,7 @@ public class KpiAnalyticDataResource {
     private final KpiB2AnalyticDataService kpiB2AnalyticDataService;
 
     private final KpiB9AnalyticDataService kpiB9AnalyticDataService;
+    
 
     public KpiAnalyticDataResource(
         KpiA1AnalyticDataService kpiA1AnalyticDataService,
@@ -55,7 +67,7 @@ public class KpiAnalyticDataResource {
      *         or with status {@code 404 (Not Found)} if no data is found for the provided id.
      */
     @GetMapping("kpi-analytic-data/a1/module/{detailResultId}")
-    //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_DETAIL_FUNCTION + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.KPI_A1_ANALITIC_DATA_DETAIL + "\")")
     public ResponseEntity<List<KpiA1AnalyticDataDTO>> getKpiA1AnalyticDataResults(@PathVariable Long detailResultId) {
         log.debug("REST request to get kpi analytic data of instanceModule : {} of type a1", detailResultId);
         List<KpiA1AnalyticDataDTO> kpiA1AnalyticData = kpiA1AnalyticDataService.findByDetailResultId(detailResultId);
@@ -71,7 +83,7 @@ public class KpiAnalyticDataResource {
      *         or with status {@code 404 (Not Found)} if no data is found for the provided id.
      */
     @GetMapping("kpi-analytic-data/a2/module/{detailResultId}")
-    //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_DETAIL_FUNCTION + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.KPI_A2_ANALITIC_DATA_DETAIL + "\")")
     public ResponseEntity<List<KpiA2AnalyticDataDTO>> getKpiA2AnalyticDataResults(@PathVariable Long detailResultId) {
         log.debug("REST request to get kpi analytic data of instanceModule : {} of type a2", detailResultId);
         List<KpiA2AnalyticDataDTO> kpiA2AnalyticData = kpiA2AnalyticDataService.findByDetailResultId(detailResultId);
@@ -87,7 +99,7 @@ public class KpiAnalyticDataResource {
      *         or with status {@code 404 (Not Found)} if no data is found for the provided id.
      */
     @GetMapping("kpi-analytic-data/b2/module/{detailResultId}")
-    //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_DETAIL_FUNCTION + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.KPI_B2_ANALITIC_DATA_DETAIL + "\")")
     public ResponseEntity<List<KpiB2AnalyticDataDTO>> getKpiB2AnalyticDataResults(@PathVariable Long detailResultId) {
         log.debug("REST request to get kpi analytic data of instanceModule : {} of type b2", detailResultId);
         List<KpiB2AnalyticDataDTO> kpiB2AnalyticData = kpiB2AnalyticDataService.findByDetailResultId(detailResultId);
@@ -103,7 +115,7 @@ public class KpiAnalyticDataResource {
      *         or with status {@code 404 (Not Found)} if no data is found for the provided id.
      */
     @GetMapping("kpi-analytic-data/b9/module/{detailResultId}")
-    //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_DETAIL_FUNCTION + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.KPI_B9_ANALITIC_DATA_DETAIL + "\")")
     public ResponseEntity<List<KpiB9AnalyticDataDTO>> getKpiB9AnalyticDataResults(@PathVariable Long detailResultId) {
         log.debug("REST request to get kpi analytic data of instanceModule : {} of type b9", detailResultId);
         List<KpiB9AnalyticDataDTO> kpiB9AnalyticData = kpiB9AnalyticDataService.findByDetailResultId(detailResultId);

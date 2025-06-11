@@ -13,6 +13,8 @@ public final class Constants {
     public static final String ANONYMOUS_USER = "anonymoususer";
 
     public static final String ROLE_PASSWORD_EXPIRED = "ROLE_PASSWORD_EXPIRED";
+    
+    public static final String FUNCTION_CHANGE_PASSWORD_EXPIRED = "CHANGE_PASSWORD_EXPIRED";
 
     public static final String KEYCLOAK = "keycloak";
 

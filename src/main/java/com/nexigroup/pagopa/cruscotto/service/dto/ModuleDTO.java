@@ -3,6 +3,8 @@ package com.nexigroup.pagopa.cruscotto.service.dto;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleStatus;
 import java.io.Serializable;
+import java.time.ZonedDateTime;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -42,4 +44,8 @@ public class ModuleDTO implements Serializable {
     private Boolean configAverageTimeLimit;
 
     private Boolean configEvaluationType;
+
+    private boolean deleted;
+
+    private ZonedDateTime deletedDate;
 }
