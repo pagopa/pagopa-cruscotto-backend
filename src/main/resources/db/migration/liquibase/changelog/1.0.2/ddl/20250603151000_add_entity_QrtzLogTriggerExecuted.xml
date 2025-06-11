@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+
+  <changeSet id="20250603151000-1" author="system" context="ddl">
+    <createSequence sequenceName="SQ${project_name}_QRTZLOGTRIGEXEC" startValue="3000" cacheSize="20" cycle="true"/>
+  </changeSet>
+
+  <changeSet id="20250603151000-2" author="system" context="ddl">
+ 	  <createTable tableName="QRTZ_LOG_TRIGGER_EXECUTED">
+      <column name="ID" type="bigint">
+          <constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_QRTZLOGTRIGEXEC"/>
+        </column>
+      <column name="SCHED_NAME" type="VARCHAR(120)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="JOB_NAME" type="VARCHAR(200)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="JOB_GROUP" type="VARCHAR(200)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="SCHEDULED_TIME" type="DATETIME">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TRIGGER_NAME" type="VARCHAR(200)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TRIGGER_GROUP" type="VARCHAR(200)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="INIT_FIRED_TIME" type="DATETIME">
+        <constraints nullable="true"/>
+      </column>
+      <column name="END_FIRED_TIME" type="DATETIME">
+        <constraints nullable="true"/>
+      </column>
+      <column name="STATE" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="MESSAGE_EXCEPTION" type="${blob_type}">
+        <constraints nullable="true"/>
+      </column>
+      <column name="FIRE_INSTANCE_ID" type="VARCHAR(250)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <rollback>
+      DROP TABLE ${database.defaultSchemaName}.QRTZ_LOG_TRIGGER_EXECUTED CASCADE CONSTRAINTS;
+    </rollback>
+  </changeSet>
+
+</databaseChangeLog>

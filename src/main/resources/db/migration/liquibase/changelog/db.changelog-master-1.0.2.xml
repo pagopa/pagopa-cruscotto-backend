@@ -6,6 +6,6 @@
 
   <include file="db.changelog-master-1.0.1.xml"  relativeToChangelogFile="true"/>
 
-  <include file="1.0.2/ddl/20250603151000_alter_entity_QrtzLogTriggerExecuted.xml" relativeToChangelogFile="true"/>
+  <include file="1.0.2/ddl/20250603151000_add_entity_QrtzLogTriggerExecuted.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>
