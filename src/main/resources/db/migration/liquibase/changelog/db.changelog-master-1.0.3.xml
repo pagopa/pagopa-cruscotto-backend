@@ -7,5 +7,6 @@
   <include file="db.changelog-master-1.0.2.xml"  relativeToChangelogFile="true"/>
 
   <include file="1.0.3/dml/20250609160000_added_entity_authorizations.xml" relativeToChangelogFile="true"/>
+  <include file="1.0.3/ddl/20250611100000_alter_entity_Module.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>
