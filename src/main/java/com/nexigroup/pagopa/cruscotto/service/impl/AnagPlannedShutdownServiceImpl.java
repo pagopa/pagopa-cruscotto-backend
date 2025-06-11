@@ -1,17 +1,5 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
-import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.nexigroup.pagopa.cruscotto.domain.AnagPartner;
 import com.nexigroup.pagopa.cruscotto.domain.AnagPlannedShutdown;
 import com.nexigroup.pagopa.cruscotto.domain.AnagStation;
@@ -38,7 +26,6 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPQLQuery;
-
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -48,6 +35,17 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service Implementation for managing {@link AnagPlannedShutdown}.
@@ -327,6 +325,7 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
             partnerExample.setFiscalCode(anagPlannedShutdownDTO.getPartnerFiscalCode());
             partnerExample.setCreatedDate(null);
             partnerExample.setLastModifiedDate(null);
+            partnerExample.setDeactivationDate(null);
 
             AnagPartner partner = anagPartnerRepository
                 .findOne(Example.of(partnerExample))
@@ -342,6 +341,7 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
             stationExample.setName(anagPlannedShutdownDTO.getStationName());
             stationExample.setCreatedDate(null);
             stationExample.setLastModifiedDate(null);
+            stationExample.setDeactivationDate(null);
 
             AnagStation station = anagStationRepository
                 .findOne(Example.of(stationExample))

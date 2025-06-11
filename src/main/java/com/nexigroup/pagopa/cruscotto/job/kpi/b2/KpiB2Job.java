@@ -98,7 +98,7 @@ public class KpiB2Job extends QuartzJobBean {
                 LOGGER.info("No instance to calculate B.2. Exit....");
             } else {
                 KpiConfigurationDTO kpiConfigurationDTO = kpiConfigurationService
-                    .findKpiConfigurationByCode(ModuleCode.B2)
+                    .findKpiConfigurationByCode(ModuleCode.B2.code)
                     .orElseThrow(() -> new NullPointerException("KPI B.2 Configuration not found"));
 
                 LOGGER.info("Kpi configuration {}", kpiConfigurationDTO);
@@ -223,41 +223,40 @@ public class KpiB2Job extends QuartzJobBean {
                                     List<KpiB2DetailResultDTO> kpiB2DetailResultDTOS = new ArrayList<>();
                                     AtomicReference<LocalDate> firstDayOfMonth = new AtomicReference<>();
                                     AtomicReference<LocalDate> lastDayOfMonth = new AtomicReference<>();
-                                    
+
                                     instanceDTO
                                         .getAnalysisPeriodStartDate()
                                         .datesUntil(instanceDTO.getAnalysisPeriodEndDate().plusDays(1))
                                         .forEach(date -> {
                                             LOGGER.info("Date {}", date);
 
-                                //            LocalDate firstDayOfMonth; // date.with(TemporalAdjusters.firstDayOfMonth());
-                                 //           LocalDate lastDayOfMonth; // date.with(TemporalAdjusters.lastDayOfMonth());
+                                            //            LocalDate firstDayOfMonth; // date.with(TemporalAdjusters.firstDayOfMonth());
+                                            //           LocalDate lastDayOfMonth; // date.with(TemporalAdjusters.lastDayOfMonth());
                                             Month currentMonth = date.getMonth();
 
-                                          /*  if (date.isEqual(firstDayOfMonth)) {
+                                            /*  if (date.isEqual(firstDayOfMonth)) {
                                                 totMonthWeight.set(0.0);
                                                 totMonthOverTimeLimit.set(0.0);
                                                 kpiB2AnalyticDataDTOS.clear();
                                             } */
 
                                             if (prevMonth.get() == null || prevMonth.get().compareTo(currentMonth) != 0) {
-                                            	
-                                            	if(prevMonth.get() == null) {
-                                            		firstDayOfMonth.set(instanceDTO.getAnalysisPeriodStartDate());                                            		
-                                            	} else {
-                                            	//if(prevMonth.get().compareTo(currentMonth) != 0) {
-                                            		firstDayOfMonth.set(date.with(TemporalAdjusters.firstDayOfMonth()));
-                                            		totMonthWeight.set(0.0);
+                                                if (prevMonth.get() == null) {
+                                                    firstDayOfMonth.set(instanceDTO.getAnalysisPeriodStartDate());
+                                                } else {
+                                                    //if(prevMonth.get().compareTo(currentMonth) != 0) {
+                                                    firstDayOfMonth.set(date.with(TemporalAdjusters.firstDayOfMonth()));
+                                                    totMonthWeight.set(0.0);
                                                     totMonthOverTimeLimit.set(0.0);
                                                     kpiB2AnalyticDataDTOS.clear();
-                                            	}
-                                            	
-                                            	if(currentMonth.compareTo(instanceDTO.getAnalysisPeriodEndDate().getMonth()) == 0) {
-                                            		lastDayOfMonth.set(instanceDTO.getAnalysisPeriodEndDate());
-                                            	} else {
-                                            		lastDayOfMonth.set(date.with(TemporalAdjusters.lastDayOfMonth()));
-                                            	}
-                                            	
+                                                }
+
+                                                if (currentMonth.compareTo(instanceDTO.getAnalysisPeriodEndDate().getMonth()) == 0) {
+                                                    lastDayOfMonth.set(instanceDTO.getAnalysisPeriodEndDate());
+                                                } else {
+                                                    lastDayOfMonth.set(date.with(TemporalAdjusters.lastDayOfMonth()));
+                                                }
+
                                                 totRecordMonth.set(
                                                     pagoPaRecordedTimeoutService.sumRecordIntoPeriodForPartnerStationAndMethod(
                                                         instanceDTO.getPartnerFiscalCode(),

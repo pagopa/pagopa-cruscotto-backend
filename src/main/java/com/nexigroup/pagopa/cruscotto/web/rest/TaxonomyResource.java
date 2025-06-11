@@ -1,13 +1,5 @@
 package com.nexigroup.pagopa.cruscotto.web.rest;
 
-import com.nexigroup.pagopa.cruscotto.service.TaxonomyService;
-import com.nexigroup.pagopa.cruscotto.service.dto.AnagPlannedShutdownDTO;
-import com.nexigroup.pagopa.cruscotto.service.dto.TaxonomyDTO;
-import com.nexigroup.pagopa.cruscotto.service.filter.TaxonomyFilter;
-import io.swagger.v3.oas.annotations.Parameter;
-import jakarta.validation.Valid;
-import java.util.List;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springdoc.core.annotations.ParameterObject;
@@ -16,8 +8,23 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
+import com.nexigroup.pagopa.cruscotto.service.TaxonomyService;
+import com.nexigroup.pagopa.cruscotto.service.dto.TaxonomyDTO;
+import com.nexigroup.pagopa.cruscotto.service.filter.TaxonomyFilter;
+
+import java.util.List;
+import java.util.Optional;
+
+import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.Valid;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
 
@@ -36,6 +43,7 @@ public class TaxonomyResource {
     private String applicationName;
 
     private final TaxonomyService taxonomyService;
+    
 
     public TaxonomyResource(TaxonomyService taxonomyService) {
         this.taxonomyService = taxonomyService;
@@ -49,7 +57,7 @@ public class TaxonomyResource {
      * @return a ResponseEntity containing a list of TaxonomyDTO objects and pagination headers
      */
     @GetMapping("/taxonomies")
-    //    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_LIST_FUNCTION + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.TAXONOMY_LIST + "\")")
     public ResponseEntity<List<TaxonomyDTO>> getAllTaxonomy(
         @Parameter(description = "Filtro", required = false) @Valid @ParameterObject TaxonomyFilter filter,
         @Parameter(description = "Pageable", required = true) @ParameterObject Pageable pageable
@@ -67,7 +75,7 @@ public class TaxonomyResource {
      * @return a {@link ResponseEntity} containing the {@link TaxonomyDTO}, or an empty {@link ResponseEntity} if not found
      */
     @GetMapping("/taxonomies/{id}")
-    //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_DETAIL_FUNCTION + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.TAXONOMY_DETAIL + "\")")
     public ResponseEntity<TaxonomyDTO> getTaxonomy(@PathVariable Long id) {
         log.debug("REST request to get Taxonomy : {}", id);
         Optional<TaxonomyDTO> shutdown = taxonomyService.findOne(id);
