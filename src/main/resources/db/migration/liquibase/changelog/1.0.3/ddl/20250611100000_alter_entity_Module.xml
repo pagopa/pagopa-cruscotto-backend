@@ -7,7 +7,7 @@
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
 
-  <changeSet id="20250611100000-1" author="system" context="dml">
+  <changeSet id="20250611100000-1" author="system" context="ddl">
     <addColumn tableName="MODULE">
       <column name="FL_DELETED" type="boolean"  defaultValueBoolean="false">
         <constraints nullable="false"/>
