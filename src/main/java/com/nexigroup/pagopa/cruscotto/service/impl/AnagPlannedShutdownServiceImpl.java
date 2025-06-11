@@ -321,14 +321,8 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
     @Override
     public void saveAll(List<AnagPlannedShutdownDTO> anagPlannedShutdownDTOS) {
         anagPlannedShutdownDTOS.forEach(anagPlannedShutdownDTO -> {
-            AnagPartner partnerExample = new AnagPartner();
-            partnerExample.setFiscalCode(anagPlannedShutdownDTO.getPartnerFiscalCode());
-            partnerExample.setCreatedDate(null);
-            partnerExample.setLastModifiedDate(null);
-            partnerExample.setDeactivationDate(null);
-
             AnagPartner partner = anagPartnerRepository
-                .findOne(Example.of(partnerExample))
+                .findOneByFiscalCode(anagPlannedShutdownDTO.getPartnerFiscalCode())
                 .orElseGet(() -> {
                     AnagPartner partnerSaved = new AnagPartner();
                     partnerSaved.setFiscalCode(anagPlannedShutdownDTO.getPartnerFiscalCode());
@@ -337,14 +331,8 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
                     return anagPartnerRepository.save(partnerSaved);
                 });
 
-            AnagStation stationExample = new AnagStation();
-            stationExample.setName(anagPlannedShutdownDTO.getStationName());
-            stationExample.setCreatedDate(null);
-            stationExample.setLastModifiedDate(null);
-            stationExample.setDeactivationDate(null);
-
             AnagStation station = anagStationRepository
-                .findOne(Example.of(stationExample))
+                .findOneByName(anagPlannedShutdownDTO.getStationName())
                 .orElseGet(() -> {
                     AnagStation stationSaved = new AnagStation();
                     stationSaved.setName(anagPlannedShutdownDTO.getStationName());
