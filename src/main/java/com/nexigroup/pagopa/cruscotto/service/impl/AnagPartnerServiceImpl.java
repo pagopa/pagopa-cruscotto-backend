@@ -1,7 +1,6 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
 import com.nexigroup.pagopa.cruscotto.domain.AnagPartner;
-import com.nexigroup.pagopa.cruscotto.domain.Instance;
 import com.nexigroup.pagopa.cruscotto.domain.QAnagPartner;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.PartnerStatus;
 import com.nexigroup.pagopa.cruscotto.repository.AnagPartnerRepository;
@@ -10,7 +9,6 @@ import com.nexigroup.pagopa.cruscotto.service.dto.AnagPartnerDTO;
 import com.nexigroup.pagopa.cruscotto.service.mapper.AnagPartnerMapper;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QdslUtility;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
-import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
@@ -23,7 +21,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,12 +38,15 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
 
     private final AnagPartnerRepository anagPartnerRepository;
 
+    private final AnagPartnerMapper anagPartnerMapper;
+
     @Value("${spring.jpa.properties.hibernate.jdbc.batch_size:100}")
     private String batchSize;
 
-    public AnagPartnerServiceImpl(QueryBuilder queryBuilder, AnagPartnerRepository anagPartnerRepository) {
+    public AnagPartnerServiceImpl(QueryBuilder queryBuilder, AnagPartnerRepository anagPartnerRepository, AnagPartnerMapper anagPartnerMapper) {
         this.queryBuilder = queryBuilder;
         this.anagPartnerRepository = anagPartnerRepository;
+        this.anagPartnerMapper = anagPartnerMapper;
     }
 
     /**
@@ -73,7 +73,13 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
                 QAnagPartner.anagPartner.id.as("id"),
                 QAnagPartner.anagPartner.fiscalCode.as("fiscalCode"),
                 QAnagPartner.anagPartner.name.as("name"),
-                QAnagPartner.anagPartner.status.as("status")
+                QAnagPartner.anagPartner.status.as("status"),
+                QAnagPartner.anagPartner.qualified.as("qualified"),
+                QAnagPartner.anagPartner.deactivationDate.as("deactivationDate"),
+                QAnagPartner.anagPartner.createdBy.as("createdBy"),
+                QAnagPartner.anagPartner.createdDate.as("createdDate"),
+                QAnagPartner.anagPartner.lastModifiedBy.as("lastModifiedBy"),
+                QAnagPartner.anagPartner.lastModifiedDate.as("lastModifiedDate")
             )
         );
 
@@ -125,5 +131,16 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
                 anagPartnerRepository.flush();
             }
         });
+    }
+
+    /**
+     * Find a single AnagPartner entity based on its unique identifier.
+     *
+     * @param id the unique identifier of the AnagPartner to retrieve
+     * @return an {@link Optional} containing the {@link AnagPartnerDTO} if a matching entity exists, or an empty {@link Optional} if not found
+     */
+    @Override
+    public Optional<AnagPartnerDTO> findOne(Long id) {
+        return anagPartnerRepository.findById(id).map(anagPartnerMapper::toDto);
     }
 }

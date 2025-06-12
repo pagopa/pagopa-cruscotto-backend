@@ -7,6 +7,7 @@ import com.nexigroup.pagopa.cruscotto.repository.AnagStationRepository;
 import com.nexigroup.pagopa.cruscotto.service.AnagStationService;
 import com.nexigroup.pagopa.cruscotto.service.dto.AnagStationDTO;
 import com.nexigroup.pagopa.cruscotto.service.filter.StationFilter;
+import com.nexigroup.pagopa.cruscotto.service.mapper.AnagStationMapper;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QdslUtility;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import com.querydsl.core.BooleanBuilder;
@@ -17,6 +18,7 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPQLQuery;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -41,17 +43,21 @@ public class AnagStationServiceImpl implements AnagStationService {
 
     private final QueryBuilder queryBuilder;
 
+    private final AnagStationMapper anagStationMapper;
+
     @Value("${spring.jpa.properties.hibernate.jdbc.batch_size:100}")
     private String batchSize;
 
     public AnagStationServiceImpl(
         AnagStationRepository anagStationRepository,
         AnagPartnerRepository anagPartnerRepository,
-        QueryBuilder queryBuilder
+        QueryBuilder queryBuilder,
+        AnagStationMapper anagStationMapper
     ) {
         this.anagStationRepository = anagStationRepository;
         this.anagPartnerRepository = anagPartnerRepository;
         this.queryBuilder = queryBuilder;
+        this.anagStationMapper = anagStationMapper;
     }
 
     @Override
@@ -158,8 +164,13 @@ public class AnagStationServiceImpl implements AnagStationService {
                 QAnagStation.anagStation.typeConnection.as("typeConnection"),
                 QAnagStation.anagStation.primitiveVersion.as("primitiveVersion"),
                 QAnagStation.anagStation.paymentOption.as("paymentOption"),
+                QAnagStation.anagStation.associatedInstitutes.as("associatedInstitutes"),
                 QAnagStation.anagStation.status.as("status"),
-                QAnagStation.anagStation.deactivationDate.as("deactivationDate")
+                QAnagStation.anagStation.deactivationDate.as("deactivationDate"),
+                QAnagStation.anagStation.createdBy.as("createdBy"),
+                QAnagStation.anagStation.createdDate.as("createdDate"),
+                QAnagStation.anagStation.lastModifiedBy.as("lastModifiedBy"),
+                QAnagStation.anagStation.lastModifiedDate.as("lastModifiedDate")
             )
         );
 
@@ -182,4 +193,16 @@ public class AnagStationServiceImpl implements AnagStationService {
 
         return new PageImpl<>(list, pageable, size);
     }
+
+    /**
+     * Find a single AnagStation entity based on its unique identifier.
+     *
+     * @param id the unique identifier of the AnagStation to retrieve
+     * @return an {@link Optional} containing the {@link AnagStationDTO} if a matching entity exists, or an empty {@link Optional} if not found
+     */
+    @Override
+    public Optional<AnagStationDTO> findOne(Long id) {
+        return anagStationRepository.findById(id).map(anagStationMapper::toDto);
+    }
+
 }

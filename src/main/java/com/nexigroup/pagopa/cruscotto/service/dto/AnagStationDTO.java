@@ -4,8 +4,8 @@ import com.nexigroup.pagopa.cruscotto.domain.AnagStation;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.StationStatus;
 import com.nexigroup.pagopa.cruscotto.service.validation.ValidationGroups;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import java.io.Serializable;
+import java.time.Instant;
 import java.time.LocalDate;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -43,8 +43,18 @@ public class AnagStationDTO implements Serializable {
     @NotNull(groups = { ValidationGroups.StationJob.class })
     private Boolean paymentOption = Boolean.FALSE;
 
+    private Integer associatedInstitutes;
+
     @NotNull(groups = { ValidationGroups.StationJob.class })
     private StationStatus status;
 
     private LocalDate deactivationDate;
+
+    private String createdBy;
+
+    private Instant createdDate;
+
+    private String lastModifiedBy;
+
+    private Instant lastModifiedDate;
 }

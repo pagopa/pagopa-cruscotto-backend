@@ -9,10 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.nexigroup.pagopa.cruscotto.domain.AnagPartner;
@@ -25,6 +22,7 @@ import java.util.Optional;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import tech.jhipster.web.util.PaginationUtil;
+import tech.jhipster.web.util.ResponseUtil;
 
 /**
  * REST controller for managing {@link AnagPartner}.
@@ -62,5 +60,18 @@ public class AnagPartnerResource {
         Page<AnagPartnerDTO> page = anagPartnerService.findAll(nameFilter.orElse(null), pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    /**
+     * Retrieves the partner for the given ID.
+     *
+     * @param id the unique identifier of the partner to retrieve
+     * @return a {@link ResponseEntity} containing the {@link AnagPartnerDTO}, or an empty {@link ResponseEntity} if not found
+     */
+    @GetMapping("/partners/{id}")
+    public ResponseEntity<AnagPartnerDTO> getPartner(@PathVariable Long id) {
+        log.debug("REST request to get Partner : {}", id);
+        Optional<AnagPartnerDTO> partner = anagPartnerService.findOne(id);
+        return ResponseUtil.wrapOrNotFound(partner);
     }
 }
