@@ -3,6 +3,7 @@ package com.nexigroup.pagopa.cruscotto.web.rest;
 import com.nexigroup.pagopa.cruscotto.service.PagoPaRecordedTimeoutService;
 import com.nexigroup.pagopa.cruscotto.service.dto.PagoPaRecordedTimeoutDTO;
 import io.swagger.v3.oas.annotations.Parameter;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springdoc.core.annotations.ParameterObject;
@@ -17,10 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.PaginationUtil;
 
-import java.util.List;
-
 /**
- * REST controller for managing {@link 'PagoPaRecordedTimeout'}.
+ * REST controller for managing PagoPaRecordedTimeout entities.
+ * This resource provides an API endpoint to retrieve all recorded timeout data related to PagoPa.
  */
 @RestController
 @RequestMapping("/api")
@@ -28,26 +28,25 @@ public class PagoPaRecordedTimeoutResource {
 
     private final Logger log = LoggerFactory.getLogger(PagoPaRecordedTimeoutResource.class);
 
-    private static final String ENTITY_NAME = "pagopa_recorded_timeout";
-
-    @Value("${jhipster.clientApp.name}")
-    private String applicationName;
-
     private final PagoPaRecordedTimeoutService pagoPaRecordedTimeoutService;
 
     public PagoPaRecordedTimeoutResource(PagoPaRecordedTimeoutService pagoPaRecordedTimeoutService) {
         this.pagoPaRecordedTimeoutService = pagoPaRecordedTimeoutService;
     }
 
-    @GetMapping("/pagoPaRecordedTimeouts")
-    //@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.MODULE_LIST + "\")")
+    /**
+     * Retrieves all PagoPa recorded timeout data with pagination support.
+     *
+     * @param pageable the pagination information including page number, size, and sorting details.
+     * @return a {@link ResponseEntity} containing a list of {@link PagoPaRecordedTimeoutDTO} objects and pagination headers.
+     */
+    @GetMapping("/pago-pa/recorded-timeout")
     public ResponseEntity<List<PagoPaRecordedTimeoutDTO>> getAllPagoPaRecordedTimeout(
         @Parameter(description = "Pageable", required = true) @ParameterObject Pageable pageable
     ) {
-        log.debug("REST request to get all pagopa recorded timeout");
+        log.debug("REST request to get all pagoPA recorded timeout");
         Page<PagoPaRecordedTimeoutDTO> page = pagoPaRecordedTimeoutService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
-
 }
