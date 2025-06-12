@@ -19,6 +19,9 @@ public interface AnagStationMapper extends EntityMapper<AnagStationDTO, AnagStat
     @Mapping(target = "anagPlannedShutdowns", ignore = true)
     AnagStation toEntity(AnagStationDTO anagStationDTO);
 
+    @Mapping(source = "anagPartner.id", target = "partnerId")
+    @Mapping(source = "anagPartner.name", target = "partnerName")
+    @Mapping(source = "anagPartner.fiscalCode", target = "partnerFiscalCode")
     AnagStationDTO toDto(AnagStation anagStation);
 
     default AnagStation fromId(Long id) {
