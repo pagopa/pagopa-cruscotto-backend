@@ -10,6 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -21,10 +22,12 @@ import com.nexigroup.pagopa.cruscotto.service.dto.AnagStationDTO;
 import com.nexigroup.pagopa.cruscotto.service.filter.StationFilter;
 
 import java.util.List;
+import java.util.Optional;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import tech.jhipster.web.util.PaginationUtil;
+import tech.jhipster.web.util.ResponseUtil;
 
 /**
  * REST controller for managing {@link AnagStation}.
@@ -63,5 +66,18 @@ public class AnagStationResource {
         Page<AnagStationDTO> page = anagStationService.findAll(filter, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    /**
+     * Retrieves the station for the given ID.
+     *
+     * @param id the unique identifier of the station to retrieve
+     * @return a {@link ResponseEntity} containing the {@link AnagStationDTO}, or an empty {@link ResponseEntity} if not found
+     */
+    @GetMapping("/stations/{id}")
+    public ResponseEntity<AnagStationDTO> getStation(@PathVariable Long id) {
+        log.debug("REST request to get station : {}", id);
+        Optional<AnagStationDTO> anagStation = anagStationService.findOne(id);
+        return ResponseUtil.wrapOrNotFound(anagStation);
     }
 }
