@@ -4,6 +4,7 @@ import com.nexigroup.pagopa.cruscotto.domain.PagoPaTaxonomyAggregatePosition;
 import com.nexigroup.pagopa.cruscotto.domain.QPagoPaTaxonomyAggregatePosition;
 import com.nexigroup.pagopa.cruscotto.service.PagoPaTaxonomyAggregatePositionService;
 import com.nexigroup.pagopa.cruscotto.service.dto.PagoPaTaxonomyAggregatePositionDTO;
+import com.nexigroup.pagopa.cruscotto.service.qdsl.QdslUtility;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
@@ -13,8 +14,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+
+import com.querydsl.jpa.JPQLQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,4 +75,58 @@ public class PagoPaTaxonomyAggregatePositionServiceImpl implements PagoPaTaxonom
             .orderBy(new OrderSpecifier<>(Order.ASC, Expressions.stringPath("startDate")))
             .fetch();
     }
+
+    /**
+     * Get all the pagopa taxonomy aggregate position
+     *
+     * @param pageable the pagination information.
+     * @return the list of pagopa taxonomy aggregate position.
+     */
+    @Override
+    public Page<PagoPaTaxonomyAggregatePositionDTO> findAll(Pageable pageable) {
+        LOGGER.debug("Request to get all pagopa taxonomy aggregate positions");
+
+        QPagoPaTaxonomyAggregatePosition qPagoPaTaxonomyAggregatePosition = QPagoPaTaxonomyAggregatePosition.pagoPaTaxonomyAggregatePosition;
+
+        JPQLQuery<PagoPaTaxonomyAggregatePosition> query = queryBuilder
+            .<PagoPaTaxonomyAggregatePosition>createQuery()
+            .from(qPagoPaTaxonomyAggregatePosition);
+
+        long total = query.fetchCount();
+
+        JPQLQuery<PagoPaTaxonomyAggregatePositionDTO> jpqlQuery = query.select(createPagoPaTaxonomyAggregatePositionProjection());
+
+        jpqlQuery.offset(pageable.getOffset());
+
+        jpqlQuery.limit(pageable.getPageSize());
+        pageable
+            .getSort()
+            .stream()
+            .forEach(order -> {
+                jpqlQuery.orderBy(
+                    new OrderSpecifier<>(
+                        order.isAscending() ? com.querydsl.core.types.Order.ASC : com.querydsl.core.types.Order.DESC,
+                        Expressions.stringPath(order.getProperty()),
+                        QdslUtility.toQueryDslNullHandling(order.getNullHandling())
+                    )
+                );
+            });
+
+        List<PagoPaTaxonomyAggregatePositionDTO> results = jpqlQuery.fetch();
+
+        return new PageImpl<>(results, pageable, total);
+    }
+
+    private com.querydsl.core.types.Expression<PagoPaTaxonomyAggregatePositionDTO> createPagoPaTaxonomyAggregatePositionProjection() {
+        return Projections.fields(
+            PagoPaTaxonomyAggregatePositionDTO.class,
+            QPagoPaTaxonomyAggregatePosition.pagoPaTaxonomyAggregatePosition.id.as("id"),
+            QPagoPaTaxonomyAggregatePosition.pagoPaTaxonomyAggregatePosition.cfPartner.as("cfPartner"),
+            QPagoPaTaxonomyAggregatePosition.pagoPaTaxonomyAggregatePosition.station.as("station"),
+            QPagoPaTaxonomyAggregatePosition.pagoPaTaxonomyAggregatePosition.transferCategory.as("transferCategory"),
+            QPagoPaTaxonomyAggregatePosition.pagoPaTaxonomyAggregatePosition.startDate.as("startDate"),
+            QPagoPaTaxonomyAggregatePosition.pagoPaTaxonomyAggregatePosition.endDate.as("endDate"),
+            QPagoPaTaxonomyAggregatePosition.pagoPaTaxonomyAggregatePosition.total.as("total"));
+    }
+
 }

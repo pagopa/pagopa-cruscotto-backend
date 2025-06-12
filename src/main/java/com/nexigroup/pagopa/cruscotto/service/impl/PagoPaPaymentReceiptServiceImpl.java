@@ -4,6 +4,7 @@ import com.nexigroup.pagopa.cruscotto.domain.PagoPaPaymentReceipt;
 import com.nexigroup.pagopa.cruscotto.domain.QPagoPaPaymentReceipt;
 import com.nexigroup.pagopa.cruscotto.service.PagoPaPaymentReceiptService;
 import com.nexigroup.pagopa.cruscotto.service.dto.PagoPaPaymentReceiptDTO;
+import com.nexigroup.pagopa.cruscotto.service.qdsl.QdslUtility;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
@@ -13,8 +14,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+
+import com.querydsl.jpa.JPQLQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -101,4 +107,61 @@ public class PagoPaPaymentReceiptServiceImpl implements PagoPaPaymentReceiptServ
             .orderBy(new OrderSpecifier<>(Order.ASC, Expressions.stringPath("startDate")))
             .fetch();
     }
+
+    /**
+     * Get all the pagopa payment receipts
+     *
+     * @param pageable the pagination information.
+     * @return the list of pagopa payment receipts.
+     */
+    @Override
+    public Page<PagoPaPaymentReceiptDTO> findAll(Pageable pageable) {
+        LOGGER.debug("Request to get all pagopa payment receipts");
+
+        QPagoPaPaymentReceipt qPagoPaPaymentReceipt = QPagoPaPaymentReceipt.pagoPaPaymentReceipt;
+
+        JPQLQuery<com.nexigroup.pagopa.cruscotto.domain.PagoPaPaymentReceipt> query = queryBuilder
+            .<PagoPaPaymentReceipt>createQuery()
+            .from(qPagoPaPaymentReceipt);
+
+        long total = query.fetchCount();
+
+        JPQLQuery<PagoPaPaymentReceiptDTO> jpqlQuery = query.select(createPagoPaPaymentReceiptProjection());
+
+        jpqlQuery.offset(pageable.getOffset());
+
+        jpqlQuery.limit(pageable.getPageSize());
+        pageable
+            .getSort()
+            .stream()
+            .forEach(order -> {
+                jpqlQuery.orderBy(
+                    new OrderSpecifier<>(
+                        order.isAscending() ? com.querydsl.core.types.Order.ASC : com.querydsl.core.types.Order.DESC,
+                        Expressions.stringPath(order.getProperty()),
+                        QdslUtility.toQueryDslNullHandling(order.getNullHandling())
+                    )
+                );
+            });
+
+        List<PagoPaPaymentReceiptDTO> results = jpqlQuery.fetch();
+
+        return new PageImpl<>(results, pageable, total);
+    }
+
+    private com.querydsl.core.types.Expression<PagoPaPaymentReceiptDTO> createPagoPaPaymentReceiptProjection() {
+        return Projections.fields(
+            PagoPaPaymentReceiptDTO.class,
+            QPagoPaPaymentReceipt.pagoPaPaymentReceipt.id.as("id"),
+            QPagoPaPaymentReceipt.pagoPaPaymentReceipt.cfPartner.as("cfPartner"),
+            QPagoPaPaymentReceipt.pagoPaPaymentReceipt.station.as("station"),
+            QPagoPaPaymentReceipt.pagoPaPaymentReceipt.startDate.as("startDate"),
+            QPagoPaPaymentReceipt.pagoPaPaymentReceipt.endDate.as("endDate"),
+            QPagoPaPaymentReceipt.pagoPaPaymentReceipt.totRes.as("totRes"),
+            QPagoPaPaymentReceipt.pagoPaPaymentReceipt.resOk.as("resOk"),
+            QPagoPaPaymentReceipt.pagoPaPaymentReceipt.resKo.as("resKo")
+        );
+    }
 }
+
+
