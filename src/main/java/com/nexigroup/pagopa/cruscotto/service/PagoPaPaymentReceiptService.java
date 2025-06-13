@@ -2,6 +2,9 @@ package com.nexigroup.pagopa.cruscotto.service;
 
 import com.nexigroup.pagopa.cruscotto.domain.PagoPaPaymentReceipt;
 import com.nexigroup.pagopa.cruscotto.service.dto.PagoPaPaymentReceiptDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -21,4 +24,6 @@ public interface PagoPaPaymentReceiptService {
     List<String> findAllStationIntoPeriodForPartner(String fiscalCodePartner, LocalDate startDate, LocalDate endDate);
 
     List<PagoPaPaymentReceiptDTO> findAllRecordIntoDayForPartnerAndStation(String fiscalCodePartner, String station, LocalDate day);
+
+    Page<PagoPaPaymentReceiptDTO> findAll(Pageable pageable);
 }

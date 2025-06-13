@@ -87,9 +87,13 @@ public final class AuthoritiesConstants {
     
     public static final String JOB_MODIFICATION = "GTW.JOB_MODIFICATION";
     
-    public static final String PARTNER_LIST = "GTW.PARTNER_LIST";  
+    public static final String PARTNER_LIST = "GTW.PARTNER_LIST";
+    
+    public static final String PARTNER_DETAIL = "GTW.PARTNER_DETAIL";
     
     public static final String STATION_LIST = "GTW.STATION_LIST";
+    
+    public static final String STATION_DETAIL = "GTW.STATION_DETAIL";
     
     public static final String MODULE_LIST = "GTW.MODULE_LIST";
     
@@ -159,7 +163,13 @@ public final class AuthoritiesConstants {
 
     public static final String KPI_CONFIGURATION_MODIFICATION = "GTW.KPI_CONFIGURATION_MODIFICATION";
 
-    public static final String KPI_CONFIGURATION_DELETION = "GTW.KPI_CONFIGURATION_DELETION";    
+    public static final String KPI_CONFIGURATION_DELETION = "GTW.KPI_CONFIGURATION_DELETION";
+
+    public static final String PAGOPA_PAYMENT_RECEIPT_LIST = "GTW.PAGOPA_PAYMENT_RECEIPT_LIST";
+    
+    public static final String PAGOPA_RECORDED_TIMEOUT_LIST = "GTW.PAGOPA_RECORDED_TIMEOUT_LIST";
+    
+    public static final String PAGOPA_TAXONOMY_AGGREGATE_POSITION_LIST = "GTW.PAGOPA_TAXONOMY_AGGREGATE_POSITION_LIST";
 
     public static final String UNKNOWN = "UNKNOWN";
     

@@ -124,6 +124,8 @@ application:
       url: https://api.dev.platform.pagopa.it/api-config-cache/p/v1
       api-key-name: ocp-apim-subscription-key
       api-key-value: 52f2f22cf8f94544baf9bfd2760f3dbd
+  auth-group:
+    super-admin: NEXI
   job:
     load-taxonomy-job:
       enabled: true
@@ -156,7 +158,7 @@ application:
 
   liquibase:
     async-start: false
-    dbVersion: 1.0.3
+    dbVersion: 1.0.4
 
 decorator:
   datasource:

@@ -1,8 +1,9 @@
 package com.nexigroup.pagopa.cruscotto.config;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * Properties specific to PagoPa Cruscotto Backend.
@@ -25,6 +26,9 @@ public class ApplicationProperties {
     private final Quartz quartz = new Quartz();
 
     private final PagoPaClient pagoPaClient = new PagoPaClient();
+    
+    private final AuthGroup authGroup = new AuthGroup();
+    
 
     @Setter
     @Getter
@@ -181,4 +185,11 @@ public class ApplicationProperties {
             private String apiKeyValue;
         }
     }
+    
+    @Setter
+    @Getter
+    public static class AuthGroup {
+
+        private String superAdmin;
+    }    
 }
