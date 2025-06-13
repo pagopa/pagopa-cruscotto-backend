@@ -2,12 +2,14 @@ package com.nexigroup.pagopa.cruscotto.web.rest;
 
 import com.nexigroup.pagopa.cruscotto.service.PagoPaRecordedTimeoutService;
 import com.nexigroup.pagopa.cruscotto.service.dto.PagoPaRecordedTimeoutDTO;
+import com.nexigroup.pagopa.cruscotto.service.filter.PagoPaRecordedTimeoutFilter;
 import io.swagger.v3.oas.annotations.Parameter;
 import java.util.List;
+
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -35,17 +37,19 @@ public class PagoPaRecordedTimeoutResource {
     }
 
     /**
-     * Retrieves all PagoPa recorded timeout data with pagination support.
+     * Retrieves all PagoPa recorded timeout data by filter and with pagination support.
+     * @param filter the filter the requested entities should match.
      *
      * @param pageable the pagination information including page number, size, and sorting details.
      * @return a {@link ResponseEntity} containing a list of {@link PagoPaRecordedTimeoutDTO} objects and pagination headers.
      */
     @GetMapping("/pago-pa/recorded-timeout")
     public ResponseEntity<List<PagoPaRecordedTimeoutDTO>> getAllPagoPaRecordedTimeout(
+        @Parameter(description = "Filtro") @Valid @ParameterObject PagoPaRecordedTimeoutFilter filter,
         @Parameter(description = "Pageable", required = true) @ParameterObject Pageable pageable
     ) {
-        log.debug("REST request to get all pagoPA recorded timeout");
-        Page<PagoPaRecordedTimeoutDTO> page = pagoPaRecordedTimeoutService.findAll(pageable);
+        log.debug("REST request to get all pagoPA recorded timeout by filter {}", filter);
+        Page<PagoPaRecordedTimeoutDTO> page = pagoPaRecordedTimeoutService.findAll(filter, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
