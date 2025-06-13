@@ -4,6 +4,8 @@ import com.nexigroup.pagopa.cruscotto.domain.AnagStation;
 import com.nexigroup.pagopa.cruscotto.service.dto.AnagStationDTO;
 import com.nexigroup.pagopa.cruscotto.service.filter.StationFilter;
 import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -34,4 +36,12 @@ public interface AnagStationService {
      * @return the id.
      */
     long findIdByNameOrCreate(String name, long idPartner);
+
+    /**
+     * Find a single AnagStation entity based on its unique identifier.
+     *
+     * @param id the unique identifier of the AnagStation to retrieve
+     * @return an {@link Optional} containing the {@link AnagStationDTO} if a matching entity exists, or an empty {@link Optional} if not found
+     */
+    Optional<AnagStationDTO> findOne(Long id);
 }
