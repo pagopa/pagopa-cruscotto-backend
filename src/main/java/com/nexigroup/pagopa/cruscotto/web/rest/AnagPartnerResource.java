@@ -9,7 +9,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.nexigroup.pagopa.cruscotto.domain.AnagPartner;
@@ -69,6 +73,7 @@ public class AnagPartnerResource {
      * @return a {@link ResponseEntity} containing the {@link AnagPartnerDTO}, or an empty {@link ResponseEntity} if not found
      */
     @GetMapping("/partners/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.PARTNER_DETAIL + "\")")
     public ResponseEntity<AnagPartnerDTO> getPartner(@PathVariable Long id) {
         log.debug("REST request to get Partner : {}", id);
         Optional<AnagPartnerDTO> partner = anagPartnerService.findOne(id);

@@ -1,32 +1,5 @@
 package com.nexigroup.pagopa.cruscotto.service;
 
-import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
-import com.nexigroup.pagopa.cruscotto.config.Constants;
-import com.nexigroup.pagopa.cruscotto.domain.*;
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.AuthenticationType;
-import com.nexigroup.pagopa.cruscotto.repository.AuthGroupRepository;
-import com.nexigroup.pagopa.cruscotto.repository.AuthPermissionRepository;
-import com.nexigroup.pagopa.cruscotto.repository.AuthUserHistoryRepository;
-import com.nexigroup.pagopa.cruscotto.repository.AuthUserRepository;
-import com.nexigroup.pagopa.cruscotto.security.SecurityUtils;
-import com.nexigroup.pagopa.cruscotto.service.bean.AuthUserCreateRequestBean;
-import com.nexigroup.pagopa.cruscotto.service.bean.AuthUserUpdateRequestBean;
-import com.nexigroup.pagopa.cruscotto.service.dto.AuthFunctionDTO;
-import com.nexigroup.pagopa.cruscotto.service.dto.AuthPermissionDTO;
-import com.nexigroup.pagopa.cruscotto.service.dto.AuthUserDTO;
-import com.nexigroup.pagopa.cruscotto.service.qdsl.QdslUtility;
-import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
-import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.Order;
-import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.jpa.JPAExpressions;
-import com.querydsl.jpa.JPQLQuery;
-import java.time.Instant;
-import java.time.ZonedDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +11,44 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
+import com.nexigroup.pagopa.cruscotto.config.Constants;
+import com.nexigroup.pagopa.cruscotto.domain.AuthPermission;
+import com.nexigroup.pagopa.cruscotto.domain.AuthUser;
+import com.nexigroup.pagopa.cruscotto.domain.AuthUserHistory;
+import com.nexigroup.pagopa.cruscotto.domain.QAuthFunction;
+import com.nexigroup.pagopa.cruscotto.domain.QAuthGroup;
+import com.nexigroup.pagopa.cruscotto.domain.QAuthUser;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.AuthenticationType;
+import com.nexigroup.pagopa.cruscotto.repository.AuthGroupRepository;
+import com.nexigroup.pagopa.cruscotto.repository.AuthPermissionRepository;
+import com.nexigroup.pagopa.cruscotto.repository.AuthUserHistoryRepository;
+import com.nexigroup.pagopa.cruscotto.repository.AuthUserRepository;
+import com.nexigroup.pagopa.cruscotto.security.SecurityUtils;
+import com.nexigroup.pagopa.cruscotto.service.bean.AuthUserCreateRequestBean;
+import com.nexigroup.pagopa.cruscotto.service.bean.AuthUserUpdateRequestBean;
+import com.nexigroup.pagopa.cruscotto.service.dto.AuthFunctionDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.AuthUserDTO;
+import com.nexigroup.pagopa.cruscotto.service.qdsl.QdslUtility;
+import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.JPQLQuery;
+
+import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import tech.jhipster.security.RandomUtil;
 
 /**
@@ -292,7 +303,7 @@ public class AuthUserService {
             .from(qAuthGroup)
             .leftJoin(qAuthGroup.authUsers, qAuthUser)
             .select(qAuthGroup.id)
-            .where(qAuthUser.login.eq(loginUtente).and(qAuthGroup.nome.eq(AuthGroup.SUPER_ADMIN)));
+            .where(qAuthUser.login.eq(loginUtente).and(qAuthGroup.nome.eq(properties.getAuthGroup().getSuperAdmin())));
 
         result = jpql.fetchCount() > 0;
 
@@ -308,7 +319,7 @@ public class AuthUserService {
 
             builder.and(QAuthUser.authUser.group.livelloVisibilita.goe(loggedUser.getGroup().getLivelloVisibilita()));
 
-            builder2.and(QAuthUser.authUser.deleted.eq(Boolean.FALSE)).and(qAuthGroup.nome.notEqualsIgnoreCase(AuthGroup.SUPER_ADMIN));
+            builder2.and(QAuthUser.authUser.deleted.eq(Boolean.FALSE)).and(qAuthGroup.nome.notEqualsIgnoreCase(properties.getAuthGroup().getSuperAdmin()));
             builder3.and(QAuthUser.authUser.createdBy.eq(loginUtente));
 
             builder.and(builder2.or(builder3));
@@ -487,13 +498,13 @@ public class AuthUserService {
             .from(qAuthGroup)
             .leftJoin(qAuthGroup.authUsers, qAuthUser)
             .select(qAuthGroup.id)
-            .where(qAuthUser.login.eq(userLoginUtenteLoggato).and(qAuthGroup.nome.eq(AuthGroup.SUPER_ADMIN)));
+            .where(qAuthUser.login.eq(userLoginUtenteLoggato).and(qAuthGroup.nome.eq(properties.getAuthGroup().getSuperAdmin())));
 
         result = jpql.fetchCount() > 0;
 
         if (!result) {
             BooleanBuilder builder = new BooleanBuilder();
-            BooleanBuilder builder3 = new BooleanBuilder();
+          //  BooleanBuilder builder3 = new BooleanBuilder();
 
             if (userId != null) builder.and(qAuthUser.id.eq(userId));
             else if (StringUtils.isNotBlank(userLogin)) builder.and(qAuthUser.login.eq(userLogin));
@@ -507,9 +518,9 @@ public class AuthUserService {
 
             builder.and(qAuthUser.group.livelloVisibilita.goe(livelloVisibilitaGruppoUtenteLoggato));
 
-            builder3.and(qAuthUser.createdBy.eq(userLoginUtenteLoggato));
+          //  builder3.and(qAuthUser.createdBy.eq(userLoginUtenteLoggato));
 
-            builder.and(builder3);
+        //    builder.and(builder3);
 
             jpql = queryBuilder
                 .createQuery()
