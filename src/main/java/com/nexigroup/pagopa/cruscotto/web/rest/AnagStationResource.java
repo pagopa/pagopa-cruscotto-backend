@@ -75,6 +75,7 @@ public class AnagStationResource {
      * @return a {@link ResponseEntity} containing the {@link AnagStationDTO}, or an empty {@link ResponseEntity} if not found
      */
     @GetMapping("/stations/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STATION_DETAIL + "\")")
     public ResponseEntity<AnagStationDTO> getStation(@PathVariable Long id) {
         log.debug("REST request to get station : {}", id);
         Optional<AnagStationDTO> anagStation = anagStationService.findOne(id);

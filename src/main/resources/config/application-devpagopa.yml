@@ -90,6 +90,8 @@ application:
       url: ${ENV_CACHE_URL:http://localhost:8080/back-office/v1}
       api-key-name: ${ENV_CACHE_API_KEY_NAME:api-key-name}
       api-key-value: ${ENV_CACHE_API_KEY_VALUE:api-key-value}
+  auth-group:
+    super-admin: NEXI
   job:
     load-taxonomy-job:
       enabled: true
@@ -122,7 +124,7 @@ application:
 
   liquibase:
     async-start: false
-    dbVersion: 1.0.3
+    dbVersion: 1.0.4
 
 decorator:
   datasource:
