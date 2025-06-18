@@ -4,6 +4,7 @@ import com.nexigroup.pagopa.cruscotto.domain.PagoPaPaymentReceipt;
 import com.nexigroup.pagopa.cruscotto.domain.QPagoPaPaymentReceipt;
 import com.nexigroup.pagopa.cruscotto.service.PagoPaPaymentReceiptService;
 import com.nexigroup.pagopa.cruscotto.service.dto.PagoPaPaymentReceiptDTO;
+import com.nexigroup.pagopa.cruscotto.service.filter.PagoPaPaymentReceiptFilter;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QdslUtility;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import com.querydsl.core.types.Order;
@@ -115,14 +116,22 @@ public class PagoPaPaymentReceiptServiceImpl implements PagoPaPaymentReceiptServ
      * @return the list of pagopa payment receipts.
      */
     @Override
-    public Page<PagoPaPaymentReceiptDTO> findAll(Pageable pageable) {
-        LOGGER.debug("Request to get all pagopa payment receipts");
+    public Page<PagoPaPaymentReceiptDTO> findAll(PagoPaPaymentReceiptFilter filter, Pageable pageable) {
+        LOGGER.debug("Request to get all pagopa payment receipts by filter: {}", filter);
 
         QPagoPaPaymentReceipt qPagoPaPaymentReceipt = QPagoPaPaymentReceipt.pagoPaPaymentReceipt;
 
         JPQLQuery<com.nexigroup.pagopa.cruscotto.domain.PagoPaPaymentReceipt> query = queryBuilder
             .<PagoPaPaymentReceipt>createQuery()
             .from(qPagoPaPaymentReceipt);
+
+        if(filter.getCfPartner() != null) {
+            query.where(qPagoPaPaymentReceipt.cfPartner.eq(filter.getCfPartner()));
+        }
+
+        if(filter.getStation() != null) {
+            query.where(qPagoPaPaymentReceipt.station.eq(filter.getStation()));
+        }
 
         long total = query.fetchCount();
 
