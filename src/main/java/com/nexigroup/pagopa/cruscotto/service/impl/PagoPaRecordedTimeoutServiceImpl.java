@@ -4,6 +4,7 @@ import com.nexigroup.pagopa.cruscotto.domain.PagoPaRecordedTimeout;
 import com.nexigroup.pagopa.cruscotto.domain.QPagoPaRecordedTimeout;
 import com.nexigroup.pagopa.cruscotto.service.PagoPaRecordedTimeoutService;
 import com.nexigroup.pagopa.cruscotto.service.dto.PagoPaRecordedTimeoutDTO;
+import com.nexigroup.pagopa.cruscotto.service.filter.PagoPaRecordedTimeoutFilter;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QdslUtility;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import com.querydsl.core.Tuple;
@@ -170,14 +171,22 @@ public class PagoPaRecordedTimeoutServiceImpl implements PagoPaRecordedTimeoutSe
      * @return the list of pagopa recorded timeout.
      */
     @Override
-    public Page<PagoPaRecordedTimeoutDTO> findAll(Pageable pageable) {
-        LOGGER.debug("Request to get all pagopa recorded timeout");
+    public Page<PagoPaRecordedTimeoutDTO> findAll(PagoPaRecordedTimeoutFilter filter, Pageable pageable) {
+        LOGGER.debug("Request to get all pagopa recorded timeout by filter {}", filter);
 
         QPagoPaRecordedTimeout qPagoPaRecordedTimeout = QPagoPaRecordedTimeout.pagoPaRecordedTimeout;
 
         JPQLQuery<PagoPaRecordedTimeout> query = queryBuilder
             .<PagoPaRecordedTimeout>createQuery()
             .from(qPagoPaRecordedTimeout);
+
+        if(filter.getCfPartner() != null) {
+            query.where(qPagoPaRecordedTimeout.cfPartner.eq(filter.getCfPartner()));
+        }
+
+        if(filter.getStation() != null) {
+            query.where(qPagoPaRecordedTimeout.station.eq(filter.getStation()));
+        }
 
         long total = query.fetchCount();
 
