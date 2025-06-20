@@ -17,6 +17,13 @@ spring:
   application:
     name: pagopaCruscottoBackend
   # Replace by 'prod, faker' to add the faker context and have sample data loaded in production
+  cloud:
+    aws:
+      credentials:
+        access-key: ${AWS_ACCESS_KEY}
+        secret-key: ${AWS_SECRET_KEY}
+      region:
+        static: ${AWS_REGION}
   datasource:
     url: jdbc:h2:mem:pagopa_cruscotto;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     name:
@@ -31,8 +38,6 @@ spring:
       write-durations-as-timestamps: false
   liquibase:
     contexts: test, ddl
-  mail:
-    host: localhost
   main:
     allow-bean-definition-overriding: true
   messages:
@@ -87,9 +92,6 @@ server:
 jhipster:
   clientApp:
     name: 'pagopaCruscottoBackendApp'
-  mail:
-    from: pagopaCruscottoBackend@localhost.com
-    base-url: http://127.0.0.1:8080
   logging:
     # To test json console appender
     use-json-format: false
@@ -123,6 +125,11 @@ management:
       enabled: false
 
 application:
+  mail:
+    base-url: ${SITE_BASE_URL}
+  aws:
+    ses:
+      user: ${AWS_SES_USER}
   enable-csrf: false
   quartz:
     expose-scheduler-in-repository: false
