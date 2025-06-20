@@ -4,6 +4,7 @@ import com.nexigroup.pagopa.cruscotto.domain.PagoPaTaxonomyAggregatePosition;
 import com.nexigroup.pagopa.cruscotto.domain.QPagoPaTaxonomyAggregatePosition;
 import com.nexigroup.pagopa.cruscotto.service.PagoPaTaxonomyAggregatePositionService;
 import com.nexigroup.pagopa.cruscotto.service.dto.PagoPaTaxonomyAggregatePositionDTO;
+import com.nexigroup.pagopa.cruscotto.service.filter.PagoPaTaxonomyAggregatePositionFilter;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QdslUtility;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import com.querydsl.core.types.Order;
@@ -83,14 +84,22 @@ public class PagoPaTaxonomyAggregatePositionServiceImpl implements PagoPaTaxonom
      * @return the list of pagopa taxonomy aggregate position.
      */
     @Override
-    public Page<PagoPaTaxonomyAggregatePositionDTO> findAll(Pageable pageable) {
-        LOGGER.debug("Request to get all pagopa taxonomy aggregate positions");
+    public Page<PagoPaTaxonomyAggregatePositionDTO> findAll(PagoPaTaxonomyAggregatePositionFilter filter, Pageable pageable) {
+        LOGGER.debug("Request to get all pagopa taxonomy aggregate positions by filter {}", filter);
 
         QPagoPaTaxonomyAggregatePosition qPagoPaTaxonomyAggregatePosition = QPagoPaTaxonomyAggregatePosition.pagoPaTaxonomyAggregatePosition;
 
         JPQLQuery<PagoPaTaxonomyAggregatePosition> query = queryBuilder
             .<PagoPaTaxonomyAggregatePosition>createQuery()
             .from(qPagoPaTaxonomyAggregatePosition);
+
+        if(filter.getCfPartner() != null) {
+            query.where(qPagoPaTaxonomyAggregatePosition.cfPartner.eq(filter.getCfPartner()));
+        }
+
+        if(filter.getStation() != null) {
+            query.where(qPagoPaTaxonomyAggregatePosition.station.eq(filter.getStation()));
+        }
 
         long total = query.fetchCount();
 

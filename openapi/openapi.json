@@ -8,7 +8,7 @@
       "name": "unlicensed",
       "url": ""
     },
-    "version": "0.5.6"
+    "version": "0.5.12"
   },
   "servers": [
     {
@@ -1598,6 +1598,37 @@
         }
       }
     },
+    "/api/stations/{id}": {
+      "get": {
+        "tags": [
+          "anag-station-resource"
+        ],
+        "operationId": "getStation",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnagStationDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/shutdowns/{id}": {
       "get": {
         "tags": [
@@ -1710,6 +1741,214 @@
                   "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/AnagPartnerDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/partners/{id}": {
+      "get": {
+        "tags": [
+          "anag-partner-resource"
+        ],
+        "operationId": "getPartner",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnagPartnerDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/pago-pa/taxonomy-aggregate-position": {
+      "get": {
+        "tags": [
+          "pago-pa-taxonomy-aggregate-position-resource"
+        ],
+        "operationId": "getAllPagoPaTaxonomyAggregatePosition",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Zero-based page index (0..N)",
+            "required": false,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "The size of the page to be returned",
+            "required": false,
+            "schema": {
+              "minimum": 1,
+              "type": "integer",
+              "default": 20
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PagoPaTaxonomyAggregatePositionDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/pago-pa/recorded-timeout": {
+      "get": {
+        "tags": [
+          "pago-pa-recorded-timeout-resource"
+        ],
+        "operationId": "getAllPagoPaRecordedTimeout",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Zero-based page index (0..N)",
+            "required": false,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "The size of the page to be returned",
+            "required": false,
+            "schema": {
+              "minimum": 1,
+              "type": "integer",
+              "default": 20
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PagoPaRecordedTimeoutDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/pago-pa/payment-receipt": {
+      "get": {
+        "tags": [
+          "pago-pa-payment-receipt-resource"
+        ],
+        "operationId": "getAllPagoPaPaymentReceipt",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Zero-based page index (0..N)",
+            "required": false,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "The size of the page to be returned",
+            "required": false,
+            "schema": {
+              "minimum": 1,
+              "type": "integer",
+              "default": 20
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PagoPaPaymentReceiptDTO"
                   }
                 }
               }
@@ -5219,6 +5458,10 @@
           "paymentOption": {
             "type": "boolean"
           },
+          "associatedInstitutes": {
+            "type": "integer",
+            "format": "int32"
+          },
           "status": {
             "type": "string",
             "enum": [
@@ -5229,6 +5472,20 @@
           "deactivationDate": {
             "type": "string",
             "format": "date"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastModifiedBy": {
+            "type": "string"
+          },
+          "lastModifiedDate": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -5263,6 +5520,127 @@
           "deactivationDate": {
             "type": "string",
             "format": "date"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastModifiedBy": {
+            "type": "string"
+          },
+          "lastModifiedDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PagoPaTaxonomyAggregatePositionDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "cfPartner": {
+            "type": "string"
+          },
+          "station": {
+            "type": "string"
+          },
+          "transferCategory": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "PagoPaRecordedTimeoutDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "cfPartner": {
+            "type": "string"
+          },
+          "station": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "totReq": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "reqOk": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "reqTimeout": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "avgTime": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "PagoPaPaymentReceiptDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "cfPartner": {
+            "type": "string"
+          },
+          "station": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "totRes": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "resOk": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "resKo": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },

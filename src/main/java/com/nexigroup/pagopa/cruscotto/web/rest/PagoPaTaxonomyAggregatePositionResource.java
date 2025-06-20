@@ -1,9 +1,6 @@
 package com.nexigroup.pagopa.cruscotto.web.rest;
 
-import com.nexigroup.pagopa.cruscotto.service.PagoPaTaxonomyAggregatePositionService;
-import com.nexigroup.pagopa.cruscotto.service.dto.PagoPaTaxonomyAggregatePositionDTO;
-import io.swagger.v3.oas.annotations.Parameter;
-import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springdoc.core.annotations.ParameterObject;
@@ -12,10 +9,21 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
+import com.nexigroup.pagopa.cruscotto.service.PagoPaTaxonomyAggregatePositionService;
+import com.nexigroup.pagopa.cruscotto.service.dto.PagoPaTaxonomyAggregatePositionDTO;
+import com.nexigroup.pagopa.cruscotto.service.filter.PagoPaTaxonomyAggregatePositionFilter;
+
+import java.util.List;
+
+import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.Valid;
 import tech.jhipster.web.util.PaginationUtil;
 
 /**
@@ -44,18 +52,22 @@ public class PagoPaTaxonomyAggregatePositionResource {
     }
 
     /**
-     * Retrieves a paginated list of all PagoPa taxonomy aggregate positions.
+     * Retrieves a paginated list of all PagoPa taxonomy aggregate positions  by filter and with pagination support.
      *
      * @param pageable pagination information, which includes page size and page number.
+     * @param filter the filter the requested entities should match.
+     *
      * @return a {@link ResponseEntity} containing a list of {@link PagoPaTaxonomyAggregatePositionDTO}
      *         and HTTP headers for pagination.
      */
     @GetMapping("/pago-pa/taxonomy-aggregate-position")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.PAGOPA_TAXONOMY_AGGREGATE_POSITION_LIST + "\")")
     public ResponseEntity<List<PagoPaTaxonomyAggregatePositionDTO>> getAllPagoPaTaxonomyAggregatePosition(
+        @Parameter(description = "Filtro") @Valid @ParameterObject PagoPaTaxonomyAggregatePositionFilter filter,
         @Parameter(description = "Pageable", required = true) @ParameterObject Pageable pageable
     ) {
-        log.debug("REST request to get all pagopa taxonomy aggregate positions");
-        Page<PagoPaTaxonomyAggregatePositionDTO> page = pagoPaTaxonomyAggregatePositionService.findAll(pageable);
+        log.debug("REST request to get all pagopa taxonomy aggregate positions by filter {}", filter);
+        Page<PagoPaTaxonomyAggregatePositionDTO> page = pagoPaTaxonomyAggregatePositionService.findAll(filter, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
