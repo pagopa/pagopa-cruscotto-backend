@@ -77,6 +77,7 @@ microservice-chart:
     ENV_DATASOURCE_URL: 'jdbc:postgresql://pagopa-d-itn-crusc8-flexible-postgresql.postgres.database.azure.com:5432/cruscotto?sslmode=require&prepareThreshold=0&currentSchema=cruscotto'
     ENV_DATASOURCE_USERNAME: 'cruscotto'
     SITE_BASE_URL: 'https://crusc8.dev.platform.pagopa.it/'
+    AWS_REGION: 'eu-south-1'
   envSecret:
     # https://portal.azure.com/?l=en.en-us#@pagopait.onmicrosoft.com/resource/subscriptions/bbe47ad4-08b3-4925-94c5-1278e5819b86/resourceGroups/pagopa-d-itn-crusc8-sec-rg/providers/Microsoft.KeyVault/vaults/pagopa-d-itn-crusc8-kv/secrets
     ENV_DATASOURCE_PASSWORD: 'db-cruscotto-password'
@@ -86,7 +87,6 @@ microservice-chart:
     ENV_CACHE_API_KEY_VALUE: 'pagopa-cache-api-key-value'
     AWS_ACCESS_KEY: 'cruscotto-aws-access-key'
     AWS_SECRET_KEY: 'cruscotto-aws-secret-key'
-    AWS_REGION: 'cruscotto-aws-region'
     AWS_SES_USER: 'cruscotto-aws-ses-user'
   keyvault:
     name: "pagopa-d-itn-crusc8-kv"
