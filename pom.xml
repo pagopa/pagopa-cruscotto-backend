@@ -70,6 +70,7 @@
     <springdoc-openapi-starter-webmvc-api.version>2.7.0</springdoc-openapi-starter-webmvc-api.version>
     <lombok.version>1.18.30</lombok.version>
     <p6spy.version>1.11.0</p6spy.version>
+    <spring-cloud-aws-dependencies.version>3.0.1</spring-cloud-aws-dependencies.version>
   </properties>
 
   <dependencyManagement>
@@ -81,6 +82,13 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+      <dependency>
+        <groupId>io.awspring.cloud</groupId>
+        <artifactId>spring-cloud-aws-dependencies</artifactId>
+        <version>${spring-cloud-aws-dependencies.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -89,6 +97,10 @@
       <groupId>tech.jhipster</groupId>
       <artifactId>jhipster-framework</artifactId>
       <version>${jhipster-framework.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.awspring.cloud</groupId>
+      <artifactId>spring-cloud-aws-starter-ses</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -383,6 +395,35 @@
       <artifactId>logback-jackson</artifactId>
       <version>0.1.5</version>
     </dependency>
+    <!-- AWS SDK v2 Core -->
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>sdk-core</artifactId>
+      <version>2.21.1</version>
+    </dependency>
+
+    <!-- AWS SES -->
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>ses</artifactId>
+      <version>2.21.1</version>
+    </dependency>
+
+    <!-- AWS Apache HTTP Client -->
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>apache-client</artifactId>
+      <version>2.21.1</version>
+    </dependency>
+
+    <!-- AWS Utils -->
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>utils</artifactId>
+      <version>2.21.1</version>
+    </dependency>
+
+
   </dependencies>
 
   <build>
