@@ -16,6 +16,13 @@ logging:
     com.nexigroup.pagopa.cruscotto: INFO
 
 spring:
+  cloud:
+    aws:
+      credentials:
+        access-key: ${AWS_ACCESS_KEY}
+        secret-key: ${AWS_SECRET_KEY}
+      region:
+        static: ${AWS_REGION}
   jackson:
     serialization:
       indent-output: true
@@ -29,11 +36,6 @@ spring:
       auto-commit: false
   liquibase:
     enabled: false
-  mail:
-    host: localhost
-    port: 25
-    username:
-    password:
   thymeleaf:
     cache: false
   quartz:
@@ -61,8 +63,6 @@ jhipster:
         base64-secret: ${ENV_JWT_KEY:key}
         token-validity-in-seconds: 86400
         token-validity-in-seconds-for-remember-me: 2592000
-  mail:
-    base-url: http://127.0.0.1:8080
   logging:
     use-json-format: false
     logstash:
@@ -72,6 +72,11 @@ jhipster:
       ring-buffer-size: 512
 
 application:
+  mail:
+    base-url: ${SITE_BASE_URL}
+  aws:
+    ses:
+      user: ${AWS_SES_USER}
   enable-csrf: false
   password:
     day-password-expired: 60

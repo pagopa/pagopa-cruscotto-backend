@@ -199,8 +199,6 @@ application:
 jhipster:
   clientApp:
     name: 'pagopaCruscottoBackendApp'
-  mail:
-    from: pagopaCruscottoBackend@localhost
   api-docs:
     default-include-pattern: /api/**
     management-include-pattern: /management/**
