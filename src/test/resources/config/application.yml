@@ -20,10 +20,10 @@ spring:
   cloud:
     aws:
       credentials:
-        access-key: ${AWS_ACCESS_KEY}
-        secret-key: ${AWS_SECRET_KEY}
+        access-key: awsAccessKey
+        secret-key: awsSecretKey
       region:
-        static: ${AWS_REGION}
+        static: awsRegion
   datasource:
     url: jdbc:h2:mem:pagopa_cruscotto;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     name:
@@ -126,13 +126,14 @@ management:
 
 application:
   mail:
-    base-url: ${SITE_BASE_URL}
+    base-url: http://127.0.0.1:8080
   aws:
     ses:
-      user: ${AWS_SES_USER}
+      user: awsSesUser
   enable-csrf: false
   quartz:
     expose-scheduler-in-repository: false
+    active-db-log: true
   password:
     day-password-expired: 60
     failed-login-attempts: 4
@@ -182,7 +183,7 @@ application:
 
   liquibase:
     async-start: false
-    dbVersion: 1.0.0
+    dbVersion: 1.0.4
 
 decorator:
   datasource:
