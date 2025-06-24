@@ -26,10 +26,10 @@ spring:
   cloud:
     aws:
       credentials:
-        access-key: ${AWS_ACCESS_KEY}
-        secret-key: ${AWS_SECRET_KEY}
+        access-key: awsAccessKey
+        secret-key: awsSecretKey
       region:
-        static: ${AWS_REGION}
+        static: awsRegion
   devtools:
     restart:
       enabled: false
@@ -109,10 +109,10 @@ jhipster:
 
 application:
   mail:
-    base-url: ${SITE_BASE_URL}
+    base-url: http://localhost:8080/
   aws:
     ses:
-      user: ${AWS_SES_USER}
+      user: awsSesUser
   enable-csrf: false
   password:
     day-password-expired: 60
@@ -144,7 +144,7 @@ application:
       enabled: true
       cron: 0 0/50 0-23 ? * SAT *
     kpi-a1-job:
-      enabled: false
+      enabled: true
       cron: 0 0/2 08-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
       limit: 20
     kpi-a2-job:
