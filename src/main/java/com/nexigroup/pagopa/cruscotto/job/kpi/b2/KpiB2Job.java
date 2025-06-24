@@ -1,28 +1,10 @@
 package com.nexigroup.pagopa.cruscotto.job.kpi.b2;
 
 import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.TypePlanned;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.*;
 import com.nexigroup.pagopa.cruscotto.job.config.JobConstant;
-import com.nexigroup.pagopa.cruscotto.service.AnagPlannedShutdownService;
-import com.nexigroup.pagopa.cruscotto.service.AnagStationService;
-import com.nexigroup.pagopa.cruscotto.service.InstanceModuleService;
-import com.nexigroup.pagopa.cruscotto.service.InstanceService;
-import com.nexigroup.pagopa.cruscotto.service.KpiB2AnalyticDataService;
-import com.nexigroup.pagopa.cruscotto.service.KpiB2DetailResultService;
-import com.nexigroup.pagopa.cruscotto.service.KpiB2ResultService;
-import com.nexigroup.pagopa.cruscotto.service.KpiConfigurationService;
-import com.nexigroup.pagopa.cruscotto.service.PagoPaRecordedTimeoutService;
-import com.nexigroup.pagopa.cruscotto.service.dto.AnagPlannedShutdownDTO;
-import com.nexigroup.pagopa.cruscotto.service.dto.InstanceDTO;
-import com.nexigroup.pagopa.cruscotto.service.dto.InstanceModuleDTO;
-import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2AnalyticDataDTO;
-import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2DetailResultDTO;
-import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2ResultDTO;
-import com.nexigroup.pagopa.cruscotto.service.dto.KpiConfigurationDTO;
-import com.nexigroup.pagopa.cruscotto.service.dto.PagoPaRecordedTimeoutDTO;
+import com.nexigroup.pagopa.cruscotto.service.*;
+import com.nexigroup.pagopa.cruscotto.service.dto.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
@@ -79,6 +61,8 @@ public class KpiB2Job extends QuartzJobBean {
 
     private final Scheduler scheduler;
 
+    private final ModuleService moduleService;
+
     @Override
     protected void executeInternal(@NotNull JobExecutionContext context) {
         LOGGER.info("Start calculate kpi B.2");
@@ -102,6 +86,14 @@ public class KpiB2Job extends QuartzJobBean {
                     .orElseThrow(() -> new NullPointerException("KPI B.2 Configuration not found"));
 
                 LOGGER.info("Kpi configuration {}", kpiConfigurationDTO);
+
+                ModuleDTO moduleDTO = moduleService
+                    .findOne(kpiConfigurationDTO.getModuleId())
+                    .orElseThrow(() -> new NullPointerException("Module for KPI B.2 not found"));
+
+                if (moduleDTO.getAnalysisType().compareTo(AnalysisType.MANUALE) == 0) {
+                    throw new RuntimeException("Analysis type MANUALE not supported for KPI B.2");
+                }
 
                 Double eligibilityThreshold = kpiConfigurationDTO.getEligibilityThreshold() != null
                     ? kpiConfigurationDTO.getEligibilityThreshold()

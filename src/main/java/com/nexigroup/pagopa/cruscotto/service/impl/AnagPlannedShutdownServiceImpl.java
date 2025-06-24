@@ -272,15 +272,16 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
      * @param year the year.
      */
     @Override
-    public void delete(TypePlanned typePlanned, long year) {
-        queryBuilder
+    public long delete(TypePlanned typePlanned, long year) {
+        return queryBuilder
             .createQueryFactory()
             .delete(QAnagPlannedShutdown.anagPlannedShutdown)
             .where(
                 QAnagPlannedShutdown.anagPlannedShutdown.typePlanned
                     .eq(TypePlanned.PROGRAMMATO)
                     .and(QAnagPlannedShutdown.anagPlannedShutdown.year.eq(year))
-            );
+            )
+            .execute();
     }
 
     @Override
