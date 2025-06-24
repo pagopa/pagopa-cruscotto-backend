@@ -1,24 +1,12 @@
 package com.nexigroup.pagopa.cruscotto.job.kpi.a2;
 
 import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.job.config.JobConstant;
-import com.nexigroup.pagopa.cruscotto.service.InstanceModuleService;
-import com.nexigroup.pagopa.cruscotto.service.InstanceService;
-import com.nexigroup.pagopa.cruscotto.service.KpiA2AnalyticDataService;
-import com.nexigroup.pagopa.cruscotto.service.KpiA2DetailResultService;
-import com.nexigroup.pagopa.cruscotto.service.KpiA2ResultService;
-import com.nexigroup.pagopa.cruscotto.service.KpiConfigurationService;
-import com.nexigroup.pagopa.cruscotto.service.PagoPaTaxonomyAggregatePositionService;
-import com.nexigroup.pagopa.cruscotto.service.TaxonomyService;
-import com.nexigroup.pagopa.cruscotto.service.dto.InstanceDTO;
-import com.nexigroup.pagopa.cruscotto.service.dto.InstanceModuleDTO;
-import com.nexigroup.pagopa.cruscotto.service.dto.KpiA2AnalyticDataDTO;
-import com.nexigroup.pagopa.cruscotto.service.dto.KpiA2DetailResultDTO;
-import com.nexigroup.pagopa.cruscotto.service.dto.KpiA2ResultDTO;
-import com.nexigroup.pagopa.cruscotto.service.dto.KpiConfigurationDTO;
-import com.nexigroup.pagopa.cruscotto.service.dto.PagoPaTaxonomyAggregatePositionDTO;
+import com.nexigroup.pagopa.cruscotto.service.*;
+import com.nexigroup.pagopa.cruscotto.service.dto.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -73,6 +61,8 @@ public class KpiA2Job extends QuartzJobBean {
 
     private final Scheduler scheduler;
 
+    private final ModuleService moduleService;
+
     @Override
     protected void executeInternal(@NotNull JobExecutionContext context) {
         LOGGER.info("Start calculate kpi A.2");
@@ -96,6 +86,14 @@ public class KpiA2Job extends QuartzJobBean {
                     .orElseThrow(() -> new NullPointerException("KPI A.2 Configuration not found"));
 
                 LOGGER.info("Kpi configuration {}", kpiConfigurationDTO);
+
+                ModuleDTO moduleDTO = moduleService
+                    .findOne(kpiConfigurationDTO.getModuleId())
+                    .orElseThrow(() -> new NullPointerException("Module for KPI A.2 not found"));
+
+                if (moduleDTO.getAnalysisType().compareTo(AnalysisType.MANUALE) == 0) {
+                    throw new RuntimeException("Analysis type MANUALE not supported for KPI A.2");
+                }
 
                 // Estrazione corretta perchè il job LoadTaxonomyJob cancella ogni volta tutti i record e li ricrea
                 Set<String> taxonomyTakingsIdentifierSet = new HashSet<>(taxonomyService.getAllUpdatedTakingsIdentifiers());

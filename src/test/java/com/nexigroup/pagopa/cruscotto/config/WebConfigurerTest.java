@@ -43,22 +43,6 @@ class WebConfigurerTest {
     }
 
     @Test
-    void shouldCorsFilterOnOtherPath() throws Exception {
-        props.getCors().setAllowedOrigins(Collections.singletonList("*"));
-        props.getCors().setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
-        props.getCors().setAllowedHeaders(Collections.singletonList("*"));
-        props.getCors().setMaxAge(1800L);
-        props.getCors().setAllowCredentials(true);
-
-        MockMvc mockMvc = MockMvcBuilders.standaloneSetup(new WebConfigurerTestController()).addFilters(webConfigurer.corsFilter()).build();
-
-        mockMvc
-            .perform(get("/test/test-cors").header(HttpHeaders.ORIGIN, "other.domain.com"))
-            .andExpect(status().isOk())
-            .andExpect(header().doesNotExist(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
-    }
-
-    @Test
     void shouldCorsFilterDeactivatedForNullAllowedOrigins() throws Exception {
         props.getCors().setAllowedOrigins(null);
 

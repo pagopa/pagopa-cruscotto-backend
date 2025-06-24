@@ -1,5 +1,18 @@
 package com.nexigroup.pagopa.cruscotto.web.rest;
 
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisType;
+import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
+import com.nexigroup.pagopa.cruscotto.security.SecurityUtils;
+import com.nexigroup.pagopa.cruscotto.service.ModuleService;
+import com.nexigroup.pagopa.cruscotto.service.bean.ModuleRequestBean;
+import com.nexigroup.pagopa.cruscotto.service.dto.ModuleDTO;
+import com.nexigroup.pagopa.cruscotto.web.rest.errors.BadRequestAlertException;
+import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.Valid;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springdoc.core.annotations.ParameterObject;
@@ -18,22 +31,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisType;
-import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
-import com.nexigroup.pagopa.cruscotto.security.SecurityUtils;
-import com.nexigroup.pagopa.cruscotto.service.ModuleService;
-import com.nexigroup.pagopa.cruscotto.service.bean.ModuleRequestBean;
-import com.nexigroup.pagopa.cruscotto.service.dto.ModuleDTO;
-import com.nexigroup.pagopa.cruscotto.web.rest.errors.BadRequestAlertException;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Optional;
-
-import io.swagger.v3.oas.annotations.Parameter;
-import jakarta.validation.Valid;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
@@ -136,9 +133,6 @@ public class AnagModuleResource {
         if (moduleToUpdate.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-
-        // force to Manual Type
-        moduleToUpdate.setAnalysisType(AnalysisType.MANUALE);
 
         ModuleDTO result = moduleService.update(moduleToUpdate);
 
