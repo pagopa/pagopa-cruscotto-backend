@@ -30,7 +30,7 @@ public interface AnagPlannedShutdownService {
      * @param typePlanned the type planned.
      * @param year the year.
      */
-    void delete(TypePlanned typePlanned, long year);
+    long delete(TypePlanned typePlanned, long year);
 
     /**
      * Delete one shutdown by id.

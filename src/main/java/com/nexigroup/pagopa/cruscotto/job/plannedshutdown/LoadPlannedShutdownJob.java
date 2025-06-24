@@ -57,9 +57,11 @@ public class LoadPlannedShutdownJob extends QuartzJobBean {
 
         Long rows = anagPlannedShutdownService.count(TypePlanned.PROGRAMMATO, year);
 
-        LOGGER.info("Delete all {} rows planned shutdown from database for year {}", rows, year);
+        LOGGER.info("Delete all rows planned shutdown from database for year {}", year);
 
-        anagPlannedShutdownService.delete(TypePlanned.PROGRAMMATO, year);
+        long rowDeleted = anagPlannedShutdownService.delete(TypePlanned.PROGRAMMATO, year);
+
+        LOGGER.info("{} rows planned shutdown deleted for year {}", rowDeleted, year);
 
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
