@@ -82,6 +82,8 @@ public class CalculateStateInstanceJob extends QuartzJobBean {
                                 if (instanceModuleDTO.getManualOutcome() != null) {
                                     if (instanceModuleDTO.getManualOutcome().compareTo(AnalysisOutcome.KO) == 0) {
                                         ko++;
+                                    } else {
+                                        ko++;
                                     }
                                 } else {
                                     ko++;

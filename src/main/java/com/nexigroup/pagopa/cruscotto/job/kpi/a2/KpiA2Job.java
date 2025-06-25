@@ -61,8 +61,6 @@ public class KpiA2Job extends QuartzJobBean {
 
     private final Scheduler scheduler;
 
-    private final ModuleService moduleService;
-
     @Override
     protected void executeInternal(@NotNull JobExecutionContext context) {
         LOGGER.info("Start calculate kpi A.2");
@@ -87,18 +85,10 @@ public class KpiA2Job extends QuartzJobBean {
 
                 LOGGER.info("Kpi configuration {}", kpiConfigurationDTO);
 
-                ModuleDTO moduleDTO = moduleService
-                    .findOne(kpiConfigurationDTO.getModuleId())
-                    .orElseThrow(() -> new NullPointerException("Module for KPI A.2 not found"));
-
-                if (moduleDTO.getAnalysisType().compareTo(AnalysisType.MANUALE) == 0) {
-                    throw new RuntimeException("Analysis type MANUALE not supported for KPI A.2");
-                }
-
                 // Estrazione corretta perchè il job LoadTaxonomyJob cancella ogni volta tutti i record e li ricrea
                 Set<String> taxonomyTakingsIdentifierSet = new HashSet<>(taxonomyService.getAllUpdatedTakingsIdentifiers());
 
-                Double tolerance = kpiConfigurationDTO.getTolerance() != null ? kpiConfigurationDTO.getTolerance() : 0.0;
+                double tolerance = kpiConfigurationDTO.getTolerance() != null ? kpiConfigurationDTO.getTolerance() : 0.0;
 
                 if (CollectionUtils.isEmpty(taxonomyTakingsIdentifierSet)) {
                     LOGGER.warn("Taxonomy table data not updated as of today, the kpi A.2 cannot be calculated. Exit...");
@@ -277,6 +267,10 @@ public class KpiA2Job extends QuartzJobBean {
 
         String taxonomyTakingsIdentifier;
         try {
+            if (!transferCategory.endsWith("/")) {
+                transferCategory = transferCategory + "/";
+            }
+
             if (transferCategory.startsWith("9/")) {
                 taxonomyTakingsIdentifier = transferCategory.substring(0, 12);
             } else {
@@ -287,12 +281,6 @@ public class KpiA2Job extends QuartzJobBean {
             return false;
         }
 
-        Boolean correctPayment = transferCategoryMap.get(taxonomyTakingsIdentifier);
-        if (correctPayment == null) {
-            correctPayment = taxonomyTakingsIdentifierSet.contains(taxonomyTakingsIdentifier);
-            transferCategoryMap.put(taxonomyTakingsIdentifier, correctPayment);
-        }
-
-        return correctPayment;
+        return transferCategoryMap.computeIfAbsent(taxonomyTakingsIdentifier, taxonomyTakingsIdentifierSet::contains);
     }
 }
