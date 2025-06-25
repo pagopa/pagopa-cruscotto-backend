@@ -61,8 +61,6 @@ public class KpiA1Job extends QuartzJobBean {
 
     private final Scheduler scheduler;
 
-    private final ModuleService moduleService;
-
     @Override
     protected void executeInternal(@NotNull JobExecutionContext context) {
         LOGGER.info("Start calculate kpi A.1");
@@ -86,14 +84,6 @@ public class KpiA1Job extends QuartzJobBean {
                     .orElseThrow(() -> new NullPointerException("KPI A.1 Configuration not found"));
 
                 LOGGER.info("Kpi configuration {}", kpiConfigurationDTO);
-
-                ModuleDTO moduleDTO = moduleService
-                    .findOne(kpiConfigurationDTO.getModuleId())
-                    .orElseThrow(() -> new NullPointerException("Module for KPI A.1 not found"));
-
-                if (moduleDTO.getAnalysisType().compareTo(AnalysisType.MANUALE) == 0) {
-                    throw new RuntimeException("Analysis type MANUALE not supported for KPI A.1");
-                }
 
                 Double eligibilityThreshold = kpiConfigurationDTO.getEligibilityThreshold() != null
                     ? kpiConfigurationDTO.getEligibilityThreshold()
