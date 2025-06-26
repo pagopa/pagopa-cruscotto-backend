@@ -43,6 +43,7 @@ spring:
     properties:
       hibernate:
         generate_statistics: false
+    show-sql: true
   #       jdbc:
   #         batch_size: 50
   datasource:
@@ -56,7 +57,7 @@ spring:
   liquibase:
     # Remove 'faker' if you do not want the sample data to be loaded automatically
     contexts: ddl, dml
-    enabled: false
+    enabled: true
   messages:
     cache-duration: PT1S # 1 second, see the ISO 8601 standard
   thymeleaf:
