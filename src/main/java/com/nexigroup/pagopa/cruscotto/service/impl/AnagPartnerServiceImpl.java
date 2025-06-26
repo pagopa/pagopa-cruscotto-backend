@@ -9,6 +9,7 @@ import com.nexigroup.pagopa.cruscotto.service.dto.AnagPartnerDTO;
 import com.nexigroup.pagopa.cruscotto.service.mapper.AnagPartnerMapper;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QdslUtility;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
@@ -43,27 +44,39 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
     @Value("${spring.jpa.properties.hibernate.jdbc.batch_size:100}")
     private String batchSize;
 
-    public AnagPartnerServiceImpl(QueryBuilder queryBuilder, AnagPartnerRepository anagPartnerRepository, AnagPartnerMapper anagPartnerMapper) {
+    public AnagPartnerServiceImpl(
+        QueryBuilder queryBuilder,
+        AnagPartnerRepository anagPartnerRepository,
+        AnagPartnerMapper anagPartnerMapper
+    ) {
         this.queryBuilder = queryBuilder;
         this.anagPartnerRepository = anagPartnerRepository;
         this.anagPartnerMapper = anagPartnerMapper;
     }
 
     /**
-     * Get all the partner by filter.
+     * Retrieves a paginated list of AnagPartnerDTO objects based on the provided criteria.
      *
-     * @param pageable the pagination information.
-     * @return the list of entities.
+     * @param fiscalCode the fiscal code to filter the partners, can be null or empty to retrieve all.
+     * @param nameFilter a string to filter partners by their name, can be null or empty to retrieve all.
+     * @param pageable an object containing pagination and sorting information.
+     * @return a paginated list of AnagPartnerDTO objects matching the given criteria.
      */
     @Override
-    public Page<AnagPartnerDTO> findAll(String nameFilter, Pageable pageable) {
+    public Page<AnagPartnerDTO> findAll(String fiscalCode, String nameFilter, Pageable pageable) {
         log.debug("Request to get all AnagPartner");
 
         JPQLQuery<AnagPartner> jpql = queryBuilder.<AnagPartner>createQuery().from(QAnagPartner.anagPartner);
-
+        BooleanBuilder predicate = new BooleanBuilder();
         if (nameFilter != null && !nameFilter.isEmpty()) {
-            jpql.where(QAnagPartner.anagPartner.name.containsIgnoreCase(nameFilter));
+            predicate.or(QAnagPartner.anagPartner.name.likeIgnoreCase("%" + nameFilter + "%"));
         }
+
+        if (fiscalCode != null && !fiscalCode.isEmpty()) {
+            predicate.or(QAnagPartner.anagPartner.fiscalCode.likeIgnoreCase("%" + fiscalCode + "%"));
+        }
+
+        jpql.where(predicate);
 
         long size = jpql.fetchCount();
 
