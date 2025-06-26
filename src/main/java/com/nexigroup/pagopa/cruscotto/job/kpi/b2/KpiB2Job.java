@@ -268,6 +268,12 @@ public class KpiB2Job extends QuartzJobBean {
                                             sumReqOkDaily = sumReqOkDaily + pagoPaRecordedTimeoutDTO.getReqOk();
                                             sumReqTimeoutDaily = sumReqTimeoutDaily + pagoPaRecordedTimeoutDTO.getReqTimeout();
 
+                                            pagoPaRecordedTimeoutDTO.setAvgTime(
+                                                Double.isNaN(pagoPaRecordedTimeoutDTO.getAvgTime())
+                                                    ? 0.0
+                                                    : pagoPaRecordedTimeoutDTO.getAvgTime()
+                                            );
+
                                             sumWeightsDaily =
                                                 sumWeightsDaily +
                                                 (pagoPaRecordedTimeoutDTO.getTotReq() * pagoPaRecordedTimeoutDTO.getAvgTime());
