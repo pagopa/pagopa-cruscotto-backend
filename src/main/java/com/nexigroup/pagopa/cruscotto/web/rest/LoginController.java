@@ -1,16 +1,15 @@
 package com.nexigroup.pagopa.cruscotto.web.rest;
 
-import com.nexigroup.pagopa.cruscotto.config.Constants;
-import com.nexigroup.pagopa.cruscotto.security.helper.CookieHelper;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.nexigroup.pagopa.cruscotto.security.jwt.TokenProvider;
 import com.nexigroup.pagopa.cruscotto.service.AuthUserService;
 import com.nexigroup.pagopa.cruscotto.web.rest.vm.LoginVM;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import java.time.Duration;
 import java.util.Collections;
+import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -50,7 +49,7 @@ public class LoginController {
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<?> authorize(@Valid @RequestBody LoginVM loginVM, HttpServletResponse response) {
+    public ResponseEntity<?> authorize(@Valid @RequestBody LoginVM loginVM) {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
             loginVM.getUsername(),
             loginVM.getPassword()
@@ -63,12 +62,12 @@ public class LoginController {
 
             authUserService.resetFailedLoginAttempts(loginVM.getUsername());
 
-            //creazione token per cookie
-            String jwt = tokenProvider.createToken(authentication, false);
+            String jwt = tokenProvider.createToken(authentication, BooleanUtils.toBooleanDefaultIfNull(loginVM.isRememberMe(), false));
 
-            response.addCookie(CookieHelper.generateCookie(Constants.OIDC_ACCESS_TOKEN, jwt, Duration.ofHours(1)));
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.setBearerAuth(jwt);
 
-            return new ResponseEntity<>(HttpStatus.OK);
+            return new ResponseEntity<>(new JWTToken(jwt), httpHeaders, HttpStatus.OK);
         } catch (BadCredentialsException badCredentialsException) {
             LOGGER.trace("Bad Credential exception trace", badCredentialsException);
 
@@ -94,6 +93,27 @@ public class LoginController {
                 Collections.singletonMap("AuthenticationException", authenticationException.getLocalizedMessage()),
                 HttpStatus.UNAUTHORIZED
             );
+        }
+    }
+
+    /**
+     * Object to return as body in JWT Authentication.
+     */
+    static class JWTToken {
+
+        private String idToken;
+
+        JWTToken(String idToken) {
+            this.idToken = idToken;
+        }
+
+        @JsonProperty("id_token")
+        String getIdToken() {
+            return idToken;
+        }
+
+        void setIdToken(String idToken) {
+            this.idToken = idToken;
         }
     }
 }

@@ -8,6 +8,7 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.TimeZone;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,6 +66,8 @@ public class PagoPaCruscottoBackendApp {
      * @param args the command line arguments.
      */
     public static void main(String[] args) {
+        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Berlin"));
+
         SpringApplication app = new SpringApplication(PagoPaCruscottoBackendApp.class);
         DefaultProfileUtil.addDefaultProfile(app);
         Environment env = app.run(args).getEnvironment();
@@ -90,11 +93,13 @@ public class PagoPaCruscottoBackendApp {
 
             ----------------------------------------------------------
             \tApplication '{}' is running! Access URLs:
+            \tTimezone: \t{}
             \tLocal: \t\t{}://localhost:{}{}
             \tExternal: \t{}://{}:{}{}
             \tProfile(s): \t{}
             ----------------------------------------------------------""",
             applicationName,
+            TimeZone.getDefault().getDisplayName(),
             protocol,
             serverPort,
             contextPath,
@@ -103,17 +108,6 @@ public class PagoPaCruscottoBackendApp {
             serverPort,
             contextPath,
             env.getActiveProfiles().length == 0 ? env.getDefaultProfiles() : env.getActiveProfiles()
-        );
-
-        String configServerStatus = env.getProperty("configserver.status");
-        if (configServerStatus == null) {
-            configServerStatus = "Not found or not setup for this application";
-        }
-        LOG.info(
-            CRLFLogConverter.CRLF_SAFE_MARKER,
-            "\n----------------------------------------------------------\n\t" +
-            "Config Server: \t{}\n----------------------------------------------------------",
-            configServerStatus
         );
     }
 }

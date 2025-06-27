@@ -1,16 +1,23 @@
 package com.nexigroup.pagopa.cruscotto.service.filter;
 
-import jakarta.validation.constraints.Size;
-import java.io.Serializable;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import java.io.Serial;
+import java.io.Serializable;
+
+import jakarta.validation.constraints.Size;
 
 public class AuthPermissionFilter implements Serializable {
 
-    @Size(max = 100)
+	@Serial
+	private static final long serialVersionUID = -5568783371639105242L;
+
+	@Size(max = 100)
     private String nome;
 
     @Size(max = 50)
     private String modulo;
+    
 
     public String getNome() {
         return nome;

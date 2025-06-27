@@ -1,13 +1,25 @@
 package com.nexigroup.pagopa.cruscotto.domain;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 /**
  * A AuthGroup.
@@ -19,12 +31,12 @@ public class AuthGroup implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    public static final String SUPER_ADMIN = "ROLE_SUPER_ADMIN";
+   // public static final String SUPER_ADMIN = "NEXI";
 
     @Id
     @Column(name = "CO_ID")
-    @SequenceGenerator(name = "SQDASH_ROUP03", sequenceName = "SQDASH_ROUP03", allocationSize = 1)
-    @GeneratedValue(generator = "SQDASH_ROUP03", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "SQCRUSC8_AUTHGROU", sequenceName = "SQCRUSC8_AUTHGROU", allocationSize = 1)
+    @GeneratedValue(generator = "SQCRUSC8_AUTHGROU", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @Size(min = 1, max = 50)

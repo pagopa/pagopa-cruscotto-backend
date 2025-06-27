@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+
+  <changeSet id="20250612143000-1" author="system" context="dml">
+	<validCheckSum>ANY</validCheckSum>
+	<sql splitStatements="true" stripComments="true">
+	
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC WHERE co_auth_group_id=2 AND co_auth_function_id=10018;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC WHERE co_auth_group_id=3 AND co_auth_function_id=10017;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC WHERE co_auth_group_id=3 AND co_auth_function_id=10018;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC WHERE co_auth_group_id=4 AND co_auth_function_id=10017;	  
+
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10023, 'STATION_INQUIRY', 'GTW', 'Funzioni di consultazione delle stazioni');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10022, 'PARTNER_INQUIRY', 'GTW', 'Funzioni di consultazione deli partner');	  	  		  
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10021, 'PAGOPA_PAYMENT_RECEIPT_INQUIRY', 'GTW', 'Funzioni di consultazione delle Pagopa receipts');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10020, 'PAGOPA_TAXONOMY_AGGREGATE_POSITION_INQUIRY', 'GTW', 'Funzioni di consultazione della Pagopa tassonomia versamenti');	  
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUNCTION (co_id, te_nome, te_modulo, te_descrizione) VALUES(10019, 'PAGOPA_RECORDED_TIMEOUT_INQUIRY', 'GTW', 'Funzioni di consultazione delle Pagopa requests');
+
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10072, 'STATION_DETAIL', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10071, 'PARTNER_DETAIL', 'GTW');	 
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10070, 'PAGOPA_PAYMENT_RECEIPT_LIST', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10069, 'PAGOPA_TAXONOMY_AGGREGATE_POSITION_LIST', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10068, 'PAGOPA_RECORDED_TIMEOUT_LIST', 'GTW');
+	  
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10072, 10023);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10071, 10022);	  
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10070, 10021);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10069, 10020);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10068, 10019);
+
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10023, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10022, 1);	  
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10021, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10020, 1);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC (co_auth_function_id, co_auth_group_id) VALUES(10019, 1);
+	
+	</sql>
+	<rollback>
+	
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC WHERE co_auth_group_id=1 AND co_auth_function_id=10019;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC WHERE co_auth_group_id=1 AND co_auth_function_id=10020;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC WHERE co_auth_group_id=1 AND co_auth_function_id=10021;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC WHERE co_auth_group_id=1 AND co_auth_function_id=10022;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC WHERE co_auth_group_id=1 AND co_auth_function_id=10023;
+	  	
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM WHERE co_auth_permission_id=10068 AND co_auth_function_id=10019;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM WHERE co_auth_permission_id=10069 AND co_auth_function_id=10020;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM WHERE co_auth_permission_id=10070 AND co_auth_function_id=10021;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM WHERE co_auth_permission_id=10071 AND co_auth_function_id=10022;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM WHERE co_auth_permission_id=10072 AND co_auth_function_id=10023;
+	  
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_FUNCTION WHERE id=10019;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_FUNCTION WHERE id=10020;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_FUNCTION WHERE id=10021;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_FUNCTION WHERE id=10022;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_FUNCTION WHERE id=10023;
+	  
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_PERMISSION WHERE id=10068;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_PERMISSION WHERE id=10069;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_PERMISSION WHERE id=10070;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_PERMISSION WHERE id=10071;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_PERMISSION WHERE id=10072;	
+
+	</rollback>
+  </changeSet>
+
+</databaseChangeLog>

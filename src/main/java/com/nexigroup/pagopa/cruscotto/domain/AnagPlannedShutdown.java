@@ -24,8 +24,8 @@ public class AnagPlannedShutdown extends AbstractAuditingEntity<Long> implements
 
     @Id
     @Column(name = "CO_ID")
-    @SequenceGenerator(name = "SQDASH_PLSH01", sequenceName = "SQDASH_PLSH01", allocationSize = 1)
-    @GeneratedValue(generator = "SQDASH_PLSH01", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "SQCRUSC8_ANAGPLANSHUT", sequenceName = "SQCRUSC8_ANAGPLANSHUT", allocationSize = 1)
+    @GeneratedValue(generator = "SQCRUSC8_ANAGPLANSHUT", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @NotNull
@@ -44,6 +44,13 @@ public class AnagPlannedShutdown extends AbstractAuditingEntity<Long> implements
     @NotNull
     @Column(name = "DT_SHUTDOWN_END_DATE", nullable = false)
     private Instant shutdownEndDate;
+
+    @NotNull
+    @Column(name = "CO_YEAR")
+    private Long year;
+
+    @Column(name = "CO_EXTERNAL_ID")
+    private Long externalId;
 
     @JsonIgnore
     @NotNull
@@ -87,12 +94,22 @@ public class AnagPlannedShutdown extends AbstractAuditingEntity<Long> implements
             shutdownStartDate +
             ", shutdownEndDate=" +
             shutdownEndDate +
+            ", year=" +
+            year +
+            ", externalId=" +
+            externalId +
             ", anagPartner=" +
             anagPartner +
             ", anagStation=" +
             anagStation +
-            "} " +
-            super.toString()
+            ", createdBy='" +
+            getCreatedBy() +
+            ", createdDate=" +
+            getCreatedDate() +
+            ", lastModifiedBy='" +
+            getLastModifiedBy() +
+            ", lastModifiedDate=" +
+            getLastModifiedDate()
         );
     }
 }

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+  <changeSet id="20250505113100-1" author="system" context="ddl">
+    <createTable tableName="PAGOPA_TAXONOMY_AGGREGATE_POSITION">
+      <column name="ID" type="bigint" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_PAGOTAXOAGGRPOSI" />
+      </column>
+      <column name="CF_PARTNER" type="varchar(35)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="STATION" type="varchar(35)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TRANSFER_CATEGORY" type="varchar(35)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="START_DATE" type="datetime">
+        <constraints nullable="false"/>
+      </column>
+      <column name="END_DATE" type="datetime">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TOTAL" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <rollback>
+      DROP TABLE ${database.defaultSchemaName}.PAGOPA_TAXONOMY_AGGREGATE_POSITION CASCADE CONSTRAINTS;
+    </rollback>
+  </changeSet>
+</databaseChangeLog>

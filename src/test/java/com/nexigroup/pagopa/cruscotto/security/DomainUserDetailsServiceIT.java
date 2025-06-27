@@ -4,7 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import com.nexigroup.pagopa.cruscotto.IntegrationTest;
+import com.nexigroup.pagopa.cruscotto.domain.AuthGroup;
 import com.nexigroup.pagopa.cruscotto.domain.AuthUser;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.AuthenticationType;
+import com.nexigroup.pagopa.cruscotto.repository.AuthGroupRepository;
 import com.nexigroup.pagopa.cruscotto.repository.AuthUserRepository;
 import com.nexigroup.pagopa.cruscotto.service.AuthUserService;
 import java.util.Locale;
@@ -16,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -25,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 @IntegrationTest
 class DomainUserDetailsServiceIT {
 
+    private static final String USER_LOGIN_NOT_FOUND = "test-user-one-not-found";
     private static final String USER_ONE_LOGIN = "test-user-one";
     private static final String USER_ONE_EMAIL = "test-user-one@localhost";
     private static final String USER_TWO_LOGIN = "test-user-two";
@@ -32,8 +37,13 @@ class DomainUserDetailsServiceIT {
     private static final String USER_THREE_LOGIN = "test-user-three";
     private static final String USER_THREE_EMAIL = "test-user-three@localhost";
 
+    private static final String ADMIN_TEST = "ADMIN_TEST";
+
     @Autowired
     private AuthUserRepository userRepository;
+
+    @Autowired
+    private AuthGroupRepository authGroupRepository;
 
     @Autowired
     private AuthUserService userService;
@@ -42,8 +52,11 @@ class DomainUserDetailsServiceIT {
     @Qualifier("userDetailsService")
     private UserDetailsService domainUserDetailsService;
 
+    private AuthGroup authGroup;
+
     public AuthUser getUserOne() {
         AuthUser userOne = new AuthUser();
+        userOne.setAuthenticationType(AuthenticationType.FORM_LOGIN);
         userOne.setLogin(USER_ONE_LOGIN);
         userOne.setPassword(RandomStringUtils.insecure().nextAlphanumeric(60));
         userOne.setActivated(true);
@@ -51,11 +64,13 @@ class DomainUserDetailsServiceIT {
         userOne.setFirstName("userOne");
         userOne.setLastName("doe");
         userOne.setLangKey("en");
+        userOne.setGroup(authGroup);
         return userOne;
     }
 
     public AuthUser getUserTwo() {
         AuthUser userTwo = new AuthUser();
+        userTwo.setAuthenticationType(AuthenticationType.FORM_LOGIN);
         userTwo.setLogin(USER_TWO_LOGIN);
         userTwo.setPassword(RandomStringUtils.insecure().nextAlphanumeric(60));
         userTwo.setActivated(true);
@@ -63,11 +78,13 @@ class DomainUserDetailsServiceIT {
         userTwo.setFirstName("userTwo");
         userTwo.setLastName("doe");
         userTwo.setLangKey("en");
+        userTwo.setGroup(authGroup);
         return userTwo;
     }
 
     public AuthUser getUserThree() {
         AuthUser userThree = new AuthUser();
+        userThree.setAuthenticationType(AuthenticationType.FORM_LOGIN);
         userThree.setLogin(USER_THREE_LOGIN);
         userThree.setPassword(RandomStringUtils.insecure().nextAlphanumeric(60));
         userThree.setActivated(false);
@@ -75,11 +92,21 @@ class DomainUserDetailsServiceIT {
         userThree.setFirstName("userThree");
         userThree.setLastName("doe");
         userThree.setLangKey("en");
+        userThree.setGroup(authGroup);
         return userThree;
+    }
+
+    public AuthGroup getAuthGroup() {
+        AuthGroup authGroup = new AuthGroup();
+        authGroup.setNome(ADMIN_TEST);
+        authGroup.setDescrizione(ADMIN_TEST);
+        authGroup.setLivelloVisibilita(0);
+        return authGroup;
     }
 
     @BeforeEach
     public void init() {
+        authGroup = authGroupRepository.save(getAuthGroup());
         userRepository.save(getUserOne());
         userRepository.save(getUserTwo());
         userRepository.save(getUserThree());
@@ -90,6 +117,7 @@ class DomainUserDetailsServiceIT {
         userService.deleteUser(USER_ONE_LOGIN);
         userService.deleteUser(USER_TWO_LOGIN);
         userService.deleteUser(USER_THREE_LOGIN);
+        authGroupRepository.delete(authGroup);
     }
 
     @Test
@@ -107,24 +135,10 @@ class DomainUserDetailsServiceIT {
     }
 
     @Test
-    void assertThatUserCanBeFoundByEmail() {
-        UserDetails userDetails = domainUserDetailsService.loadUserByUsername(USER_TWO_EMAIL);
-        assertThat(userDetails).isNotNull();
-        assertThat(userDetails.getUsername()).isEqualTo(USER_TWO_LOGIN);
-    }
-
-    @Test
-    void assertThatUserCanBeFoundByEmailIgnoreCase() {
-        UserDetails userDetails = domainUserDetailsService.loadUserByUsername(USER_TWO_EMAIL.toUpperCase(Locale.ENGLISH));
-        assertThat(userDetails).isNotNull();
-        assertThat(userDetails.getUsername()).isEqualTo(USER_TWO_LOGIN);
-    }
-
-    @Test
-    void assertThatEmailIsPrioritizedOverLogin() {
-        UserDetails userDetails = domainUserDetailsService.loadUserByUsername(USER_ONE_EMAIL);
-        assertThat(userDetails).isNotNull();
-        assertThat(userDetails.getUsername()).isEqualTo(USER_ONE_LOGIN);
+    void assertThatUserCanNotBeFoundByLogin() {
+        assertThatExceptionOfType(UsernameNotFoundException.class).isThrownBy(() ->
+                domainUserDetailsService.loadUserByUsername(USER_LOGIN_NOT_FOUND)
+        );
     }
 
     @Test

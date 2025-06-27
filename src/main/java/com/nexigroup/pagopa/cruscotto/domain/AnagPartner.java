@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.*;
@@ -26,8 +27,8 @@ public class AnagPartner extends AbstractAuditingEntity<Long> implements Seriali
 
     @Id
     @Column(name = "CO_ID")
-    @SequenceGenerator(name = "SQDASH_PART01", sequenceName = "SQDASH_PART01", allocationSize = 1)
-    @GeneratedValue(generator = "SQDASH_PART01", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "SQCRUSC8_ANAGPARTN", sequenceName = "SQCRUSC8_ANAGPARTN")
+    @GeneratedValue(generator = "SQCRUSC8_ANAGPARTN", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @NotNull
@@ -35,15 +36,20 @@ public class AnagPartner extends AbstractAuditingEntity<Long> implements Seriali
     @Column(name = "TE_FISCAL_CODE", length = 35, nullable = false)
     private String fiscalCode;
 
-    @NotNull
     @Size(min = 1, max = 256)
-    @Column(name = "TE_NAME", length = 256, nullable = false)
+    @Column(name = "TE_NAME", length = 256)
     private String name;
 
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "TE_STATUS", nullable = false)
     private PartnerStatus status;
+
+    @Column(name = "FL_QUALIFIED", nullable = false)
+    private Boolean qualified = false;
+
+    @Column(name = "DT_DEACTIVATION_DATE")
+    private LocalDate deactivationDate;
 
     @OneToMany(mappedBy = "anagPartner", fetch = FetchType.LAZY)
     @JsonIgnore
@@ -87,6 +93,10 @@ public class AnagPartner extends AbstractAuditingEntity<Long> implements Seriali
             '\'' +
             ", status=" +
             status +
+            ", qualified=" +
+            qualified +
+            ", deactivationDate=" +
+            deactivationDate +
             ", anagStations=" +
             anagStations +
             ", anagInstitutions=" +

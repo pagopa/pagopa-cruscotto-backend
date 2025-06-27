@@ -6,7 +6,7 @@ import com.nexigroup.pagopa.cruscotto.domain.AuthUser;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AuthenticationType;
 import com.nexigroup.pagopa.cruscotto.repository.AuthPermissionRepository;
 import com.nexigroup.pagopa.cruscotto.repository.AuthUserRepository;
-import com.nexigroup.pagopa.cruscotto.service.util.PasswordExpiredUtils;
+import com.nexigroup.pagopa.cruscotto.security.util.PasswordExpiredUtils;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -44,7 +44,7 @@ public class DomainUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(final String login) {
         log.debug("Authenticating {}", login);
 
-        Optional<AuthUser> user = authUserRepository.findOneByLoginAndNotDeleted(login, AuthenticationType.FORM_LOGIN);
+        Optional<AuthUser> user = authUserRepository.findOneByLoginIgnoreCaseAndNotDeleted(login, AuthenticationType.FORM_LOGIN);
 
         AuthUser authUser = user.orElseThrow(() -> new UsernameNotFoundException("User " + login + " was not found"));
 
@@ -55,7 +55,7 @@ public class DomainUserDetailsService implements UserDetailsService {
         boolean accountNonLocked = !authUser.isBlocked();
         boolean enabled = true;
         boolean accountNonExpired = true;
-        boolean credentialNonExpired = true;
+        boolean credentialNonExpired;
 
         credentialNonExpired = PasswordExpiredUtils.isPasswordNonExpired(
             authUser.getLastPasswordChangeDate(),
@@ -66,14 +66,8 @@ public class DomainUserDetailsService implements UserDetailsService {
 
         if (credentialNonExpired) {
             grantedAuthorities.add(new SimpleGrantedAuthority(authUser.getGroup().getNome()));
-            //            grantedAuthorities.addAll(getAuthorities(user.get()));
         } else {
             grantedAuthorities.add(new SimpleGrantedAuthority(Constants.ROLE_PASSWORD_EXPIRED));
-            //            SimpleGrantedAuthority grantedAuthority = new SimpleGrantedAuthority(AuthoritiesConstants.GTW_MODIFICA_PASSWORD);
-            //            SimpleGrantedAuthority grantedAuthorityInfoAccount = new SimpleGrantedAuthority(AuthoritiesConstants.GTW_INFO_ACCOUNT);
-            //
-            //            grantedAuthorities.add(grantedAuthority);
-            //            grantedAuthorities.add(grantedAuthorityInfoAccount);
         }
 
         return new org.springframework.security.core.userdetails.User(
