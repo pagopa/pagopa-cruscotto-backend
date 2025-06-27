@@ -1,5 +1,12 @@
 package com.nexigroup.pagopa.cruscotto.web.rest;
 
+import com.nexigroup.pagopa.cruscotto.domain.AnagPartner;
+import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
+import com.nexigroup.pagopa.cruscotto.service.AnagPartnerService;
+import com.nexigroup.pagopa.cruscotto.service.dto.AnagPartnerDTO;
+import io.swagger.v3.oas.annotations.Parameter;
+import java.util.List;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springdoc.core.annotations.ParameterObject;
@@ -15,16 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import com.nexigroup.pagopa.cruscotto.domain.AnagPartner;
-import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
-import com.nexigroup.pagopa.cruscotto.service.AnagPartnerService;
-import com.nexigroup.pagopa.cruscotto.service.dto.AnagPartnerDTO;
-
-import java.util.List;
-import java.util.Optional;
-
-import io.swagger.v3.oas.annotations.Parameter;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
 
@@ -58,10 +55,11 @@ public class AnagPartnerResource {
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.PARTNER_LIST + "\")")
     public ResponseEntity<List<AnagPartnerDTO>> getAllPartners(
         @RequestParam("name") Optional<String> nameFilter,
+        @RequestParam("fiscalCode") Optional<String> fiscalCode,
         @Parameter(description = "Pageable", required = true) @ParameterObject Pageable pageable
     ) {
         log.debug("REST request to get Partners");
-        Page<AnagPartnerDTO> page = anagPartnerService.findAll(nameFilter.orElse(null), pageable);
+        Page<AnagPartnerDTO> page = anagPartnerService.findAll(fiscalCode.orElse(null), nameFilter.orElse(null), pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
