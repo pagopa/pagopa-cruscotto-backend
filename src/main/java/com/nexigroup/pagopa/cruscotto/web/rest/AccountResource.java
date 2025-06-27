@@ -1,5 +1,18 @@
 package com.nexigroup.pagopa.cruscotto.web.rest;
 
+import org.apache.commons.lang3.EnumUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
 import com.nexigroup.pagopa.cruscotto.config.Constants;
 import com.nexigroup.pagopa.cruscotto.domain.AuthUser;
@@ -8,33 +21,26 @@ import com.nexigroup.pagopa.cruscotto.domain.enumeration.Language;
 import com.nexigroup.pagopa.cruscotto.repository.AuthUserRepository;
 import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
 import com.nexigroup.pagopa.cruscotto.security.SecurityUtils;
-import com.nexigroup.pagopa.cruscotto.security.helper.CookieHelper;
+import com.nexigroup.pagopa.cruscotto.security.util.PasswordExpiredUtils;
 import com.nexigroup.pagopa.cruscotto.service.AuthUserService;
 import com.nexigroup.pagopa.cruscotto.service.MailService;
 import com.nexigroup.pagopa.cruscotto.service.bean.PasswordChangeRequestBean;
 import com.nexigroup.pagopa.cruscotto.service.dto.AuthUserAccountDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.AuthUserDTO;
 import com.nexigroup.pagopa.cruscotto.service.util.CookieTranslateUtil;
-import com.nexigroup.pagopa.cruscotto.service.util.PasswordExpiredUtils;
 import com.nexigroup.pagopa.cruscotto.service.util.PasswordValidator;
 import com.nexigroup.pagopa.cruscotto.web.rest.errors.BadRequestAlertException;
 import com.nexigroup.pagopa.cruscotto.web.rest.errors.EmailAlreadyUsedException;
 import com.nexigroup.pagopa.cruscotto.web.rest.errors.InvalidPasswordException;
 import com.nexigroup.pagopa.cruscotto.web.rest.vm.KeyAndPasswordVM;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
+
 import java.security.Principal;
 import java.time.ZonedDateTime;
 import java.util.Optional;
-import org.apache.commons.lang3.EnumUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 
 /**
  * REST controller for managing the current user's account.
@@ -67,6 +73,7 @@ public class AccountResource {
     private final MailService mailService;
 
     private final ApplicationProperties properties;
+    
 
     public AccountResource(
         AuthUserService authUserService,
@@ -124,8 +131,7 @@ public class AccountResource {
             // cancello le autorizzazioni dell'utente e assegno
             authUserDTO.getAuthorities().clear();
 
-            authUserDTO.getAuthorities().add(AuthoritiesConstants.GTW_MODIFICA_PASSWORD);
-            authUserDTO.getAuthorities().add(AuthoritiesConstants.GTW_INFO_ACCOUNT);
+            authUserDTO.getAuthorities().add(Constants.FUNCTION_CHANGE_PASSWORD_EXPIRED);
         }
         String lang = "it";
         if (authUserDTO != null) {
@@ -148,7 +154,7 @@ public class AccountResource {
      * @throws RuntimeException {@code 500 (Internal Server Error)} if the authUser login wasn't found.
      */
     @PostMapping("/account")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_MODIFICA_PROFILO_ACCOUNT + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ACCOUNT_MODIFICATION + "\")")
     public void saveAccount(@Valid @RequestBody AuthUserAccountDTO authUserDTO) {
         AuthenticationType authenticationType = SecurityUtils.getAuthenticationTypeUserLogin()
             .orElseThrow(() -> new RuntimeException("Authentication Type not found"));
@@ -179,16 +185,10 @@ public class AccountResource {
             AuthenticationType.FORM_LOGIN
         );
     }
-
-    /**
-     * {@code POST  /account/change-password} : changes the current authUser's password.
-     *
-     * @param passwordChangeRequestBean current and new password.
-     * @throws InvalidPasswordException {@code 400 (Bad Request)} if the new password is incorrect.
-     */
-    @PostMapping(path = "/account/change-password")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_MODIFICA_PASSWORD + "\")")
-    public void changePassword(HttpServletResponse response, @Valid @RequestBody PasswordChangeRequestBean passwordChangeRequestBean) {
+    
+	@PostMapping(path = "/account/change-password")
+	@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.PASSWORD_MODIFICATION + "\")")
+	public void changePassword(@Valid @RequestBody PasswordChangeRequestBean passwordChangeRequestBean) {
         AuthenticationType authenticationType = SecurityUtils.getAuthenticationTypeUserLogin()
             .orElseThrow(() -> new RuntimeException("Authentication Type not found"));
 
@@ -210,10 +210,6 @@ public class AccountResource {
         passwordValidator.check(userLogin, passwordChangeRequestBean.getNewPassword(), authUser.getFirstName(), authUser.getLastName());
 
         authUserService.changePassword(passwordChangeRequestBean.getCurrentPassword(), passwordChangeRequestBean.getNewPassword());
-
-        Cookie token = CookieHelper.generateExpiredCookie(Constants.OIDC_ACCESS_TOKEN);
-
-        response.addCookie(token);
     }
 
     /**
@@ -248,7 +244,14 @@ public class AccountResource {
      */
     @PostMapping(path = "/account/reset-password/init")
     public void requestPasswordReset(@RequestBody String mail) {
-        authUserService.requestPasswordResetByMail(mail, AuthenticationType.FORM_LOGIN).ifPresent(mailService::sendPasswordResetMail);
+        Optional<AuthUser> user = authUserService.requestPasswordResetByMail(mail, AuthenticationType.FORM_LOGIN);
+        if (user.isPresent()) {
+            mailService.sendPasswordResetMail(user.orElseThrow(() -> new AccountResourceException("User could not be found")));
+        } else {
+            // Pretend the request has been successful to prevent checking which emails really exist
+            // but log that an invalid attempt has been made
+            log.warn("Password reset requested for non existing mail");
+        }
     }
 
     /**
@@ -264,7 +267,7 @@ public class AccountResource {
 
         AuthUser authUser = authUserOptional.orElseThrow(() -> new AccountResourceException("No user was found for this reset key"));
 
-        //validità token
+        //validity token
         if (
             properties.getPassword().getHoursKeyResetPasswordExpired() != null &&
             properties.getPassword().getHoursKeyResetPasswordExpired() > 0

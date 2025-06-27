@@ -1,5 +1,6 @@
 package com.nexigroup.pagopa.cruscotto.security.jwt;
 
+import static com.nexigroup.pagopa.cruscotto.security.SecurityUtils.AUTHORITIES_KEY;
 import static com.nexigroup.pagopa.cruscotto.security.SecurityUtils.JWT_ALGORITHM;
 
 import com.nexigroup.pagopa.cruscotto.config.Constants;
@@ -29,7 +30,6 @@ public class TokenProvider {
 
     private final JwtDecoder jwtDecoder;
 
-    private static final String AUTHORITIES_KEY = "roles";
 
     private final GrantAuthoritiesLoad grantAuthoritiesLoad;
 

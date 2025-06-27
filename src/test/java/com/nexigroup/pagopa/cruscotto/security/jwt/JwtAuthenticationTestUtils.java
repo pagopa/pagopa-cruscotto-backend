@@ -35,11 +35,11 @@ public class JwtAuthenticationTestUtils {
         return new SimpleMeterRegistry();
     }
 
-    public static String createValidToken(String jwtKey) {
-        return createValidTokenForUser(jwtKey, "anonymous");
+    public static String createValidToken(String jwtKey, String role) {
+        return createValidTokenForUser(jwtKey, role, "anonymous");
     }
 
-    public static String createValidTokenForUser(String jwtKey, String user) {
+    public static String createValidTokenForUser(String jwtKey,  String role, String user) {
         JwtEncoder encoder = jwtEncoder(jwtKey);
 
         var now = Instant.now();
@@ -48,7 +48,7 @@ public class JwtAuthenticationTestUtils {
             .issuedAt(now)
             .expiresAt(now.plusSeconds(60))
             .subject(user)
-            .claims(customClaim -> customClaim.put(AUTHORITIES_KEY, Collections.singletonList("ROLE_ADMIN")))
+            .claim(AUTHORITIES_KEY, Collections.singletonList(role))
             .build();
 
         JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();
@@ -79,8 +79,8 @@ public class JwtAuthenticationTestUtils {
         return encoder.encode(JwtEncoderParameters.from(jwsHeader, claims)).getTokenValue();
     }
 
-    public static String createInvalidToken(String jwtKey) {
-        return createValidToken(jwtKey).substring(1);
+    public static String createInvalidToken(String jwtKey, String role) {
+        return createValidToken(jwtKey, role).substring(1);
     }
 
     public static String createSignedInvalidJwt(String jwtKey) throws Exception {

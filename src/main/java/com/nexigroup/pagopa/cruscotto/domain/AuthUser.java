@@ -31,8 +31,8 @@ public class AuthUser extends AbstractAuditingEntity<Long> implements Serializab
 
     @Id
     @Column(name = "CO_ID")
-    @SequenceGenerator(name = "SQDASH_USER06", sequenceName = "SQDASH_USER06", allocationSize = 1)
-    @GeneratedValue(generator = "SQDASH_USER06", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "SQCRUSC8_AUTHUSER", sequenceName = "SQCRUSC8_AUTHUSER", allocationSize = 1)
+    @GeneratedValue(generator = "SQCRUSC8_AUTHUSER", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @NotNull

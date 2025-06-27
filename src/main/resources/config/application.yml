@@ -30,7 +30,6 @@ management:
         include:
           - configprops
           - env
-          - gateway
           - health
           - info
           - jhimetrics
@@ -92,29 +91,6 @@ management:
 spring:
   application:
     name: pagopaCruscottoBackend
-  cloud:
-    consul:
-      discovery:
-        healthCheckPath: /management/health
-        instanceId: pagopacruscottobackend:${spring.application.instance-id:${random.value}}
-        service-name: pagopacruscottobackend
-      config:
-        watch:
-          enabled: false
-    gateway:
-      mvc:
-        routes:
-          - id: pagopacruscottobackend_route
-            uri: lb://pagopacruscottobackend
-            predicates:
-              - Path=/services/pagopacruscottobackend/**
-            filters:
-              - StripPrefix=2
-  docker:
-    compose:
-      enabled: true
-      lifecycle-management: start-only
-      file: src/main/docker/services.yml
   profiles:
     # The commented value for `active` can be replaced with valid Spring profiles to load.
     # Otherwise, it will be filled in by maven when building the JAR file
@@ -126,6 +102,8 @@ spring:
         - api-docs
         # Uncomment to activate TLS for the dev profile
         #- tls
+      devpagopa:
+        - api-docs
   jmx:
     enabled: false
   data:
@@ -135,7 +113,7 @@ spring:
   jpa:
     open-in-view: false
     properties:
-      hibernate.jdbc.time_zone: UTC
+      hibernate.jdbc.time_zone: Europe/Rome
       hibernate.timezone.default_storage: NORMALIZE
       hibernate.type.preferred_instant_jdbc_type: TIMESTAMP
       hibernate.id.new_generator_mappings: true
@@ -161,6 +139,21 @@ spring:
   mvc:
     problemdetails:
       enabled: true
+  quartz:
+    job-store-type: jdbc
+    jdbc:
+      initialize-schema: never
+    properties:
+      org.quartz.scheduler.instanceName: PagoPaCruscottoScheduler
+      org.quartz.scheduler.instanceId: AUTO
+      org.quartz.threadPool.threadCount: 10
+      org.quartz.jobStore.class: org.quartz.impl.jdbcjobstore.JobStoreTX
+      org.quartz.jobStore.isClustered: true
+      org.quartz.plugin.shutdownHook.class: org.quartz.plugins.management.ShutdownHookPlugin
+      org.quartz.plugin.shutdownHook.cleanShutdown: true
+      org.quartz.scheduler.batchTriggerAcquisitionMaxCount: 6
+      org.quartz.jobStore.acquireTriggersWithinLock: true
+
   security:
     oauth2:
       resourceserver:
@@ -198,11 +191,14 @@ info:
   # Comma separated list of profiles that will trigger the ribbon to show
   display-ribbon-on-profiles: 'dev'
 
+application:
+  quartz:
+    expose-scheduler-in-repository: false
+    active-db-log: true
+
 jhipster:
   clientApp:
     name: 'pagopaCruscottoBackendApp'
-  mail:
-    from: pagopaCruscottoBackend@localhost
   api-docs:
     default-include-pattern: /api/**
     management-include-pattern: /management/**

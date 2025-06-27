@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+  <changeSet id="20250527164000-1" author="system" context="ddl">
+    <createTable tableName="PAGOPA_PAYMENT_RECEIPT">
+      <column name="ID" type="bigint" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_PAGOPAPAYREC" />
+      </column>
+      <column name="CF_PARTNER" type="varchar(35)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="STATION" type="varchar(35)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="START_DATE" type="TIMESTAMP WITHOUT TIME ZONE">
+        <constraints nullable="false"/>
+      </column>
+      <column name="END_DATE" type="TIMESTAMP WITHOUT TIME ZONE">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TOT_RES" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="RES_OK" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="RES_KO" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <rollback>
+      DROP TABLE ${database.defaultSchemaName}.PAGOPA_PAYMENT_RECEIPT CASCADE CONSTRAINTS;
+    </rollback>
+  </changeSet>
+
+  <changeSet id="20250527164000-2" author="system" context="ddl">
+    <createIndex indexName="IX${project_name}_PAGOPAPAYREC"
+				 tableName="PAGOPA_PAYMENT_RECEIPT">
+      <column name="START_DATE"/>
+      <column name="END_DATE"/>
+	  <column name="CF_PARTNER"/>
+	  <column name="STATION"/>
+    </createIndex>
+  </changeSet>
+
+</databaseChangeLog>

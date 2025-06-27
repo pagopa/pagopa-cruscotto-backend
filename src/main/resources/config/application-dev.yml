@@ -13,43 +13,39 @@
 logging:
   level:
     ROOT: DEBUG
-    org.hibernate.SQL: DEBUG
-    com.nexigroup.pagopa.cruscotto: DEBUG
-
-management:
-  zipkin: # Use the "zipkin" Maven profile to have the Spring Cloud Zipkin dependencies
-    tracing:
-      endpoint: http://localhost:9411/api/v2/spans
-  tracing:
-    sampling:
-      probability: 1.0 # report 100% of traces
+    com.nexigroup.pagopa.cruscotto: INFO
+#    com.nexigroup.pagopa.cruscotto.config: DEBUG
+#    # Logging per AWS SES
+#    com.amazonaws.services.simpleemail: DEBUG
+#    com.amazonaws.request: DEBUG
+#    org.springframework.mail: DEBUG
+#    jakarta.mail: TRACE
+#    com.sun.mail: TRACE
 
 spring:
+  cloud:
+    aws:
+      credentials:
+        access-key: awsAccessKey
+        secret-key: awsSecretKey
+      region:
+        static: awsRegion
   devtools:
     restart:
-      enabled: true
+      enabled: false
       additional-exclude: static/**
     livereload:
       enabled: false # we use Webpack dev server + BrowserSync for livereload
   jackson:
     serialization:
       indent-output: true
-  cloud:
-    consul:
-      config:
-        fail-fast: false # if not in "prod" profile, do not force to use Spring Cloud Config
-        format: yaml
-        profile-separator: '-'
-      discovery:
-        prefer-ip-address: true
-        tags:
-          - profile=${spring.profiles.active}
-          - version='@project.version@'
-          - git-version=${git.commit.id.describe:}
-          - git-commit=${git.commit.id.abbrev:}
-          - git-branch=${git.branch:}
-      host: localhost
-      port: 8500
+  jpa:
+    properties:
+      hibernate:
+        generate_statistics: false
+    show-sql: true
+  #       jdbc:
+  #         batch_size: 50
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     url: jdbc:postgresql://10.8.79.25:3306/qualification_dashboard
@@ -61,39 +57,36 @@ spring:
   liquibase:
     # Remove 'faker' if you do not want the sample data to be loaded automatically
     contexts: ddl, dml
-  mail:
-    host: localhost
-    port: 25
-    username:
-    password:
+    enabled: true
   messages:
     cache-duration: PT1S # 1 second, see the ISO 8601 standard
   thymeleaf:
     cache: false
-
+  quartz:
+    properties:
+      org.quartz.jobStore.driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
+      org.quartz.jobStore.dataSource: cruscotto
+      org.quartz.dataSource.cruscotto.provider: hikaricp
+      org.quartz.dataSource.cruscotto.driver: org.postgresql.Driver
+      org.quartz.dataSource.cruscotto.URL: jdbc:postgresql://10.8.79.25:3306/qualification_dashboard
+      org.quartz.dataSource.cruscotto.user: qualification_dashboard
+      org.quartz.dataSource.cruscotto.password: qualification_dashboard
+      org.quartz.dataSource.cruscotto.validationQuery: select 1
+      org.quartz.dataSource.cruscotto.maxConnections: 10
 server:
   port: 8080
   # make sure requests the proxy uri instead of the server one
   forward-headers-strategy: native
 
 jhipster:
-  gateway:
-    rate-limiting:
-      enabled: false
-      limit: 100000
-      duration-in-seconds: 3600
-    authorized-microservices-endpoints: # Access Control Policy, if left empty for a route, all endpoints will be accessible
-      app1: /api,/v3/api-docs # recommended dev configuration
   cache: # Cache configuration
     ehcache: # Ehcache configuration
       time-to-live-seconds: 3600 # By default objects stay 1 hour in the cache
       max-entries: 100 # Number of objects in each cache entry
   # CORS is only enabled by default with the "dev" profile
   cors:
-    # Allow Ionic for JHipster by default (* no longer allowed in Spring Boot 2.4+)
-    allowed-origins: 'http://localhost:8100,https://localhost:8100'
-    # Enable CORS when running in GitHub Codespaces
-    allowed-origin-patterns: 'https://*.githubpreview.dev'
+    allowed-origins: '*'
+    allowed-origin-patterns: '*'
     allowed-methods: '*'
     allowed-headers: '*'
     exposed-headers: 'Authorization,Link,X-Total-Count,X-${jhipster.clientApp.name}-alert,X-${jhipster.clientApp.name}-error,X-${jhipster.clientApp.name}-params'
@@ -103,12 +96,10 @@ jhipster:
     authentication:
       jwt:
         # This token must be encoded using Base64 and be at least 256 bits long (you can type `openssl rand -base64 64` on your command line to generate a 512 bits one)
-        base64-secret: NTI0NDVjYmE1MTE2ZDdhMDc2MGZhMDNjNTQ0OGM1YmEwYzc5MjUyNjFmYzQ0YjliMDI3ODBjMTQwMjc0NDMxYTY4NTNlZjE2YjBlMTUyMjIyMjVmY2M4ODJjYzE3NTM3MjRkYzQzOWJiMjVlMGM4ZWQ1YTdjOThlNDFmNDc3NjA=
+        base64-secret: H0yzX/OFWdXBNaWy8b7Q9ZgZA1vTtJSbtuDZlD7tDNCBVRtXuubLzVSVV+B8wUA5p2w3pQ33YNRpHE/SENWqO0F9koHqYcRcN10oj9XSf6jYE5F71PoNJhZEgoLFhsHB2pMqrlUfrIGwotMUKTCDCydsa70BbGBL9JlsREXBKAg=
         # Token is valid 24 hours
         token-validity-in-seconds: 86400
         token-validity-in-seconds-for-remember-me: 2592000
-  mail: # specific JHipster mail property, for standard properties see MailProperties
-    base-url: http://127.0.0.1:8080
   logging:
     use-json-format: false # By default, logs are not in Json format
     logstash: # Forward logs to logstash over a socket, used by LoggingConfiguration
@@ -118,8 +109,68 @@ jhipster:
       ring-buffer-size: 512
 
 application:
+  mail:
+    base-url: http://localhost:8080/
+  aws:
+    ses:
+      user: awsSesUser
   enable-csrf: false
   password:
     day-password-expired: 60
     failed-login-attempts: 4
     hours-key-reset-password-expired: 1
+  pago-pa-client:
+    proxy-host:
+    proxy-port:
+    taxonomy:
+      url: https://api.platform.pagopa.it/taxonomy/service/v1
+    back-office:
+      url: https://api.dev.platform.pagopa.it/backoffice/helpdesk/v1
+      api-key-name: ocp-apim-subscription-key
+      api-key-value: df10628ae8044fdfabd6bbbdc71bdc26
+    cache:
+      url: https://api.dev.platform.pagopa.it/api-config-cache/p/v1
+      api-key-name: ocp-apim-subscription-key
+      api-key-value: 52f2f22cf8f94544baf9bfd2760f3dbd
+  auth-group:
+    super-admin: NEXI
+  job:
+    load-taxonomy-job:
+      enabled: true
+      cron: 0 0/50 07-8 ? * SAT *
+    load-maintenance-job:
+      enabled: true
+      cron: 0 0/50 07-8 ? * SAT *
+    load-registry-job:
+      enabled: true
+      cron: 0 0/50 0-23 ? * SAT *
+    kpi-a1-job:
+      enabled: true
+      cron: 0 0/2 08-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
+      limit: 20
+    kpi-a2-job:
+      enabled: false
+      cron: 0 0/2 08-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
+      limit: 20
+    kpi-b2-job:
+      enabled: false
+      cron: 0 0/2 08-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
+      limit: 20
+    kpi-b9-job:
+      enabled: false
+      cron: 0 0/2 08-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
+      limit: 20
+    clear-log-job:
+      cron: 0 0/20 05-6 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
+      days: 7
+
+  liquibase:
+    async-start: false
+    dbVersion: 1.0.4
+
+decorator:
+  datasource:
+    p6spy:
+      multiline: true
+      logging: slf4j
+      enable-logging: false

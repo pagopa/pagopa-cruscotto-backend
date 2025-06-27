@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+
+  <changeSet id="20250502170500-1" author="system" context="ddl">
+    <createSequence sequenceName="SQ${project_name}_INSTMODU" startValue="3000" cacheSize="20"/>
+  </changeSet>
+
+  <changeSet id="20250502170500-2" author="system" context="ddl">
+    <createTable tableName="INSTANCE_MODULE">
+ 	  <column name="CO_ID" type="bigint">
+        <constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_INSTMODU"/>
+      </column>
+      <column name="CO_INSTANCE_ID" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_MODULE_ID" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TE_MODULE_CODE" type="varchar(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TE_ANALYSIS_TYPE" type="varchar(35)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="FL_ALLOW_MANUAL_OUTCOME" type="boolean">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TE_AUTOMATIC_OUTCOME" type="varchar(20)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="DT_AUTOMATIC_OUTCOME_DATE" type="datetime">
+        <constraints nullable="true"/>
+      </column>
+      <column name="TE_MANUAL_OUTCOME" type="varchar(20)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="TE_STATUS" type="varchar(35)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_MANUAL_OUTCOME_USER_ID" type="bigint"/>
+      <column name="DT_MANUAL_OUTCOME_DATE" type="datetime"/>
+      <column name="TE_CREATED_BY" type="varchar(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DT_CREATED_DATE" type="datetime"/>
+      <column name="TE_LAST_MODIFIED_BY" type="varchar(50)"/>
+      <column name="DT_LAST_MODIFIED_DATE" type="datetime"/>
+    </createTable>
+    <rollback>
+      DROP TABLE ${database.defaultSchemaName}.INSTANCE_MODULE CASCADE CONSTRAINTS;
+    </rollback>
+  </changeSet>
+
+  <changeSet id="20250502170500-3" author="system" context="ddl">
+    <createIndex indexName="IX${project_name}_INSTMODU"
+				 tableName="INSTANCE_MODULE">
+      <column name="TE_MODULE_CODE"/>
+      <column name="TE_ANALYSIS_TYPE"/>
+      <column name="TE_STATUS"/>
+    </createIndex>
+
+    <createIndex indexName="IX${project_name}_INSTMODU_01"
+				 tableName="INSTANCE_MODULE">
+      <column name="CO_INSTANCE_ID"/>
+      <column name="CO_MODULE_ID"/>
+    </createIndex>
+  </changeSet>
+
+</databaseChangeLog>

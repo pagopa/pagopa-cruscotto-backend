@@ -2,14 +2,6 @@ package com.nexigroup.pagopa.cruscotto.web.rest.errors;
 
 import static org.springframework.core.annotation.AnnotatedElementUtils.findMergedAnnotation;
 
-import com.nexigroup.pagopa.cruscotto.service.UsernameAlreadyUsedException;
-import jakarta.servlet.http.HttpServletRequest;
-import java.net.URI;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
@@ -32,6 +24,20 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+import com.nexigroup.pagopa.cruscotto.service.GenericServiceException;
+import com.nexigroup.pagopa.cruscotto.service.UsernameAlreadyUsedException;
+
+import java.net.URI;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import jakarta.servlet.http.HttpServletRequest;
 import tech.jhipster.config.JHipsterConstants;
 import tech.jhipster.web.rest.errors.ProblemDetailWithCause;
 import tech.jhipster.web.rest.errors.ProblemDetailWithCause.ProblemDetailWithCauseBuilder;
@@ -124,7 +130,14 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
         if (
             (err instanceof MethodArgumentNotValidException fieldException) &&
             (problemProperties == null || !problemProperties.containsKey(FIELD_ERRORS_KEY))
-        ) problem.setProperty(FIELD_ERRORS_KEY, getFieldErrors(fieldException));
+        ) {
+        	List<FieldErrorVM> globalErrors = getGlobalErrors(fieldException);
+        	List<FieldErrorVM> fieldErrors = getFieldErrors(fieldException);
+        	
+        	fieldErrors.addAll(globalErrors);
+        	
+        	problem.setProperty(FIELD_ERRORS_KEY, fieldErrors);
+        }
 
         problem.setCause(buildCause(err.getCause(), request).orElse(null));
 
@@ -135,6 +148,27 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
         return getCustomizedTitle(err) != null ? getCustomizedTitle(err) : extractTitleForResponseStatus(err, statusCode);
     }
 
+    private List<FieldErrorVM> getGlobalErrors(MethodArgumentNotValidException ex) {
+        return ex
+            .getBindingResult()
+            .getGlobalErrors()
+            .stream()
+            .map(g -> {
+            	
+            	Optional<Object> type = Arrays.stream(Objects.requireNonNull(g.getArguments()))
+            								  .filter(o -> o.toString().startsWith("FIELD@"))
+            								  .findFirst();
+                return new FieldErrorVM(
+                	this.applicationName,
+                    g.getObjectName().replaceFirst("DTO$", ""),
+                    type.map(o -> o.toString().replaceFirst("FIELD@", "")).orElse(""),
+                    StringUtils.isNotBlank(g.getDefaultMessage()) ? g.getDefaultMessage() : g.getCode(),
+                    g.getCode()
+                );
+            })
+            .collect(Collectors.toList());
+    }
+    
     private List<FieldErrorVM> getFieldErrors(MethodArgumentNotValidException ex) {
         return ex
             .getBindingResult()
@@ -142,12 +176,14 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
             .stream()
             .map(f ->
                 new FieldErrorVM(
+                    this.applicationName,
                     f.getObjectName().replaceFirst("DTO$", ""),
                     f.getField(),
-                    StringUtils.isNotBlank(f.getDefaultMessage()) ? f.getDefaultMessage() : f.getCode()
+                    StringUtils.isNotBlank(f.getDefaultMessage()) ? f.getDefaultMessage() : f.getCode(),
+                    f.getCode()
                 )
             )
-            .toList();
+            .collect(Collectors.toList());
     }
 
     private String extractTitleForResponseStatus(Throwable err, int statusCode) {
@@ -188,6 +224,9 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
             return ErrorConstants.ERR_VALIDATION;
         } else if (err instanceof ConcurrencyFailureException || err.getCause() instanceof ConcurrencyFailureException) {
             return ErrorConstants.ERR_CONCURRENCY_FAILURE;
+        } else if (err instanceof GenericServiceException && 
+        		   StringUtils.isNotBlank(((GenericServiceException) err).getErrorKey())) {
+            return "error." + ((GenericServiceException) err).getErrorKey();
         }
         return null;
     }

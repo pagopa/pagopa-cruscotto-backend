@@ -27,8 +27,8 @@ public class AnagStation extends AbstractAuditingEntity<Long> implements Seriali
 
     @Id
     @Column(name = "CO_ID")
-    @SequenceGenerator(name = "SQDASH_STAT01", sequenceName = "SQDASH_STAT01", allocationSize = 1)
-    @GeneratedValue(generator = "SQDASH_STAT01", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "SQCRUSC8_ANAGSTAT", sequenceName = "SQCRUSC8_ANAGSTAT", allocationSize = 1)
+    @GeneratedValue(generator = "SQCRUSC8_ANAGSTAT", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @NotNull
@@ -36,32 +36,30 @@ public class AnagStation extends AbstractAuditingEntity<Long> implements Seriali
     @Column(name = "TE_NAME", length = 35, nullable = false)
     private String name;
 
-    @NotNull
-    @Column(name = "DT_ACTIVATION_DATE", nullable = false)
+    @Column(name = "DT_ACTIVATION_DATE")
     private LocalDate activationDate;
 
-    @NotNull
     @Size(min = 1, max = 35)
-    @Column(name = "TE_TYPE_CONNECTION", length = 35, nullable = false)
+    @Column(name = "TE_TYPE_CONNECTION", length = 35)
     private String typeConnection;
 
-    @NotNull
-    @Size(min = 1, max = 5)
-    @Column(name = "TE_PRIMITIVE_VERSION", length = 5, nullable = false)
-    private String primitiveVersion;
+    @Column(name = "TE_PRIMITIVE_VERSION")
+    private Integer primitiveVersion;
 
-    @NotNull
-    @Column(name = "FL_PAYMENT_OPTION", nullable = false)
-    private boolean paymentOption = false;
+    @Column(name = "FL_PAYMENT_OPTION")
+    private Boolean paymentOption = false;
 
     @NotNull
     @Column(name = "CO_ASSOCIATED_INSTITUTES", nullable = false)
-    private int associatedInstitutes;
+    private Integer associatedInstitutes;
 
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "TE_STATUS", nullable = false)
     private StationStatus status;
+
+    @Column(name = "DT_DEACTIVATION_DATE")
+    private LocalDate deactivationDate;
 
     @JsonIgnore
     @NotNull
@@ -121,6 +119,8 @@ public class AnagStation extends AbstractAuditingEntity<Long> implements Seriali
             associatedInstitutes +
             ", status=" +
             status +
+            ", deactivationDate=" +
+            deactivationDate +
             ", anagPartner=" +
             anagPartner +
             ", anagPlannedShutdowns=" +

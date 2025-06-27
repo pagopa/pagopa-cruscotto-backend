@@ -1,5 +1,26 @@
 package com.nexigroup.pagopa.cruscotto.web.rest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 import com.nexigroup.pagopa.cruscotto.domain.AuthFunction;
 import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
 import com.nexigroup.pagopa.cruscotto.service.AuthFunctionService;
@@ -8,24 +29,16 @@ import com.nexigroup.pagopa.cruscotto.service.dto.AuthFunctionDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.AuthPermissionDTO;
 import com.nexigroup.pagopa.cruscotto.service.filter.AuthFunctionFilter;
 import com.nexigroup.pagopa.cruscotto.web.rest.errors.BadRequestAlertException;
-import jakarta.validation.Valid;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.Valid;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
@@ -61,7 +74,7 @@ public class AuthFunctionResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/auth-functions")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_CREATE_FUNCTION + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.FUNCTION_CREATION + "\")")
     public ResponseEntity<AuthFunctionDTO> createAuthFunction(@Valid @RequestBody AuthFunctionDTO authFunctionDTO)
         throws URISyntaxException {
         log.debug("REST request to save AuthFunction : {}", authFunctionDTO);
@@ -84,7 +97,7 @@ public class AuthFunctionResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/auth-functions")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_UPDATE_FUNCTION + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.FUNCTION_MODIFICATION + "\")")
     public ResponseEntity<AuthFunctionDTO> updateAuthFunction(@Valid @RequestBody AuthFunctionDTO authFunctionDTO)
         throws URISyntaxException {
         log.debug("REST request to update AuthFunction : {}", authFunctionDTO);
@@ -107,8 +120,11 @@ public class AuthFunctionResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of authFunctions in body.
      */
     @GetMapping("/auth-functions")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_LIST_FUNCTION + "\")")
-    public ResponseEntity<List<AuthFunctionDTO>> getAllAuthFunctions(@Valid AuthFunctionFilter filter, Pageable pageable) {
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.FUNCTION_LIST + "\")")
+    public ResponseEntity<List<AuthFunctionDTO>> getAllAuthFunctions(
+        @Parameter(description = "Filter", required = false) @Valid @ParameterObject AuthFunctionFilter filter,
+        @Parameter(description = "Pageable", required = true) @ParameterObject Pageable pageable
+    ) {
         log.debug("REST request to get AuthFunctions by filter: {}", filter);
         Page<AuthFunctionDTO> page = authFunctionService.findAll(filter, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
@@ -122,7 +138,7 @@ public class AuthFunctionResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the authFunctionDTO, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/auth-functions/{id}")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_DETAIL_FUNCTION + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.FUNCTION_DETAIL + "\")")
     public ResponseEntity<AuthFunctionDTO> getAuthFunction(@PathVariable Long id) {
         log.debug("REST request to get AuthFunction : {}", id);
         Optional<AuthFunctionDTO> authFunctionDTO = authFunctionService.findOne(id);
@@ -136,7 +152,7 @@ public class AuthFunctionResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the authFunctionDTO, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/auth-functions/detail/{id}")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_DETAIL_FUNCTION + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.FUNCTION_DETAIL + "\")")
     public ResponseEntity<AuthFunctionDTO> getAuthFunctionWithPermission(@PathVariable Long id) {
         log.debug("REST request to get AuthGroup : {}", id);
         Optional<AuthFunctionDTO> authFunctionDTO = authFunctionService.findOneWithEagerRelationships(id);
@@ -150,7 +166,7 @@ public class AuthFunctionResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/auth-functions/{id}")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_DELETE_FUNCTION + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.FUNCTION_DELETION + "\")")
     public ResponseEntity<Void> deleteAuthFunction(@PathVariable Long id) {
         log.debug("REST request to delete AuthFunction : {}", id);
         authFunctionService.delete(id);
@@ -160,19 +176,22 @@ public class AuthFunctionResource {
     }
 
     @GetMapping("/auth-functions/auth-group/{idGroup}")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_ELENCO_FUNZIONI_ASSOCIATI_A_GRUPPO + "\")")
-    public ResponseEntity<List<AuthFunctionDTO>> getAllAuthFunctions(@PathVariable Long idGroup, Pageable pageable) {
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.FUNCTION_LIST_ASSOCIATED_WITH_GROUP + "\")")
+    public ResponseEntity<List<AuthFunctionDTO>> getAllAuthFunctions(
+        @PathVariable Long idGroup,
+        @Parameter(description = "Pageable", required = true) @ParameterObject Pageable pageable
+    ) {
         Page<AuthFunctionDTO> page = authFunctionService.listAllFunctionSelected(idGroup, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
     @GetMapping("/auth-functions/auth-group/{idGroup}/associabili")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_ELENCO_FUNZIONI_ASSOCIABILI_A_GRUPPO + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.FUNCTION_LIST_ASSOCIABLE_WITH_GROUP + "\")")
     public ResponseEntity<List<AuthFunctionDTO>> getAllAuthFunctionsAssociabili(
         @PathVariable Long idGroup,
         @RequestParam Optional<String> nameFilter,
-        Pageable pageable
+        @Parameter(description = "Pageable", required = true) @ParameterObject Pageable pageable
     ) {
         Page<AuthFunctionDTO> page = authFunctionService.listAllFunctionAssociabili(idGroup, nameFilter, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
@@ -180,7 +199,7 @@ public class AuthFunctionResource {
     }
 
     @PostMapping("/auth-functions/{idFunction}/associa-permessi")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_UPDATE_FUNCTION_ASSOCIA_PERMESSO + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.FUNCTION_MODIFICATION_PERMISSION_ASSOCIATION + "\")")
     public ResponseEntity<Void> aggiungiAssociazioneFunzione(
         @PathVariable Long idFunction,
         @Valid @RequestBody AuthPermissionDTO[] permessi
@@ -218,7 +237,7 @@ public class AuthFunctionResource {
     }
 
     @GetMapping("/auth-functions/{idFunction}/rimuovi-permesso/{idPermesso}")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.GTW_UPDATE_FUNCTION_RIMUOVI_PERMESSO + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.FUNCTION_MODIFICATION_PERMISSION_DISASSOCIATION + "\")")
     public ResponseEntity<Void> rimuoviAssociazioneFunzione(@PathVariable Long idFunction, @PathVariable Long idPermesso)
         throws URISyntaxException {
         log.debug("Rimuovi associazione permesso (id) {} alla funzione (id) {}", idFunction, idPermesso);
