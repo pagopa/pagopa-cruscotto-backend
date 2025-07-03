@@ -2,7 +2,6 @@ package com.nexigroup.pagopa.cruscotto.service.bean;
 
 import com.nexigroup.pagopa.cruscotto.service.validation.FutureOrPresent;
 import com.nexigroup.pagopa.cruscotto.service.validation.ValidRangeDate;
-
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -13,14 +12,35 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-@ValidRangeDate.List({@ValidRangeDate(minDate = "analysisPeriodStartDate", maxDate = "analysisPeriodEndDate", pattern = "dd/MM/yyyy", field = "FIELD@analysisPeriodStartDateEndDate"),
-					  @ValidRangeDate(minDate = "analysisPeriodStartDate", maxDate = "predictedDateAnalysis", pattern = "dd/MM/yyyy", equalsIsValid = false, field = "FIELD@analysisPeriodStartDatePredictedDateAnalysis"),
-					  @ValidRangeDate(minDate = "analysisPeriodEndDate", maxDate = "predictedDateAnalysis", pattern = "dd/MM/yyyy", equalsIsValid = false, field = "FIELD@analysisPeriodEndDatePredictedDateAnalysis")})
-@FutureOrPresent(date = "predictedDateAnalysis", pattern = "dd/MM/yyyy", present = false, field = "FIELD@predictedDateAnalysis")
+@ValidRangeDate.List(
+    {
+        @ValidRangeDate(
+            minDate = "analysisPeriodStartDate",
+            maxDate = "analysisPeriodEndDate",
+            pattern = "dd/MM/yyyy",
+            field = "FIELD@analysisPeriodStartDateEndDate"
+        ),
+        @ValidRangeDate(
+            minDate = "analysisPeriodStartDate",
+            maxDate = "predictedDateAnalysis",
+            pattern = "dd/MM/yyyy",
+            equalsIsValid = false,
+            field = "FIELD@analysisPeriodStartDatePredictedDateAnalysis"
+        ),
+        @ValidRangeDate(
+            minDate = "analysisPeriodEndDate",
+            maxDate = "predictedDateAnalysis",
+            pattern = "dd/MM/yyyy",
+            equalsIsValid = false,
+            field = "FIELD@analysisPeriodEndDatePredictedDateAnalysis"
+        ),
+    }
+)
+@FutureOrPresent(date = "predictedDateAnalysis", pattern = "dd/MM/yyyy", field = "FIELD@predictedDateAnalysis")
 public class InstanceRequestBean {
 
     private Long id;
-    
+
     @NotBlank
     @Digits(integer = 19, fraction = 0)
     private String partnerId;
