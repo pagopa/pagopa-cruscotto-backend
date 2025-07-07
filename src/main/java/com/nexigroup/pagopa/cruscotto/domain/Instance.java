@@ -92,6 +92,9 @@ public class Instance extends AbstractAuditingEntity<Long> implements Serializab
     @Column(name = "TE_LAST_ANALISYS_OUTCOME")
     private AnalysisOutcome lastAnalysisOutcome;
 
+    @Column(name = "FL_CHANGE_PARTNER_QUALIFIED", nullable = false)
+    private Boolean changePartnerQualified = false;
+
     @JsonIgnore
     @OneToMany(mappedBy = "instance", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<InstanceModule> instanceModules = new HashSet<>();
@@ -141,6 +144,8 @@ public class Instance extends AbstractAuditingEntity<Long> implements Serializab
             lastAnalysisOutcome +
             ", instanceModules=" +
             instanceModules +
+            ", changePartnerQualified=" +
+            changePartnerQualified +
             '}'
         );
     }
