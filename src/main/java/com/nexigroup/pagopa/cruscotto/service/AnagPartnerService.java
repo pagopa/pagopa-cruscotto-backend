@@ -35,4 +35,12 @@ public interface AnagPartnerService {
      * @return an {@link Optional} containing the {@link AnagPartnerDTO} if a matching entity exists, or an empty {@link Optional} if not found
      */
     Optional<AnagPartnerDTO> findOne(Long id);
+
+    /**
+     * Updates the qualification status of a partner identified by the given ID.
+     *
+     * @param id the unique identifier of the partner whose qualification status is to be updated
+     * @param qualified the new qualification status to set for the partner; true if the partner is qualified, false otherwise
+     */
+    void changePartnerQualified(Long id, boolean qualified);
 }
