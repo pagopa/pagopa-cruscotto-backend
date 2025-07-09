@@ -15,6 +15,7 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPQLQuery;
+import com.querydsl.jpa.impl.JPAUpdateClause;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -155,5 +156,19 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
     @Override
     public Optional<AnagPartnerDTO> findOne(Long id) {
         return anagPartnerRepository.findById(id).map(anagPartnerMapper::toDto);
+    }
+
+    /**
+     * Updates the qualification status of a partner identified by the given ID.
+     *
+     * @param id the unique identifier of the partner whose qualification status is to be updated
+     * @param qualified the new qualification status to set for the partner; true if the partner is qualified, false otherwise
+     */
+    @Override
+    public void changePartnerQualified(Long id, boolean qualified) {
+        log.debug("Request to update Partner {}", id);
+        JPAUpdateClause jpql = queryBuilder.updateQuery(QAnagPartner.anagPartner);
+
+        jpql.set(QAnagPartner.anagPartner.qualified, qualified).where(QAnagPartner.anagPartner.id.eq(id)).execute();
     }
 }

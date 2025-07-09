@@ -34,6 +34,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -168,7 +169,8 @@ public class InstanceServiceImpl implements InstanceService {
                 QInstance.instance.analysisPeriodEndDate.as("analysisPeriodEndDate"),
                 QInstance.instance.status.as("status"),
                 QInstance.instance.lastAnalysisDate.as("lastAnalysisDate"),
-                QInstance.instance.lastAnalysisOutcome.as("lastAnalysisOutcome")
+                QInstance.instance.lastAnalysisOutcome.as("lastAnalysisOutcome"),
+                QInstance.instance.changePartnerQualified.as("changePartnerQualified")
             )
         );
 
@@ -238,6 +240,7 @@ public class InstanceServiceImpl implements InstanceService {
         instance.setStatus(InstanceStatus.BOZZA);
         instance.setApplicationDate(now.toInstant());
         instance.setAssignedUser(loggedUser);
+        instance.setChangePartnerQualified(BooleanUtils.toBoolean(instanceToCreate.getChangePartnerQualified()));
         instance.setLastAnalysisOutcome(AnalysisOutcome.STANDBY);
 
         Set<InstanceModule> instanceModules = new HashSet<>();
@@ -309,7 +312,7 @@ public class InstanceServiceImpl implements InstanceService {
                 instance.setPredictedDateAnalysis(LocalDate.parse(instanceToUpdate.getPredictedDateAnalysis(), formatter));
                 instance.setAnalysisPeriodStartDate(LocalDate.parse(instanceToUpdate.getAnalysisPeriodStartDate(), formatter));
                 instance.setAnalysisPeriodEndDate(LocalDate.parse(instanceToUpdate.getAnalysisPeriodEndDate(), formatter));
-
+                instance.setChangePartnerQualified(BooleanUtils.toBoolean(instanceToUpdate.getChangePartnerQualified()));
                 instanceRepository.save(instance);
 
                 LOGGER.info(
