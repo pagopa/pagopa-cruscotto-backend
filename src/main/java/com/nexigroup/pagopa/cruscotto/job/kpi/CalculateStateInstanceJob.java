@@ -9,6 +9,7 @@ import com.nexigroup.pagopa.cruscotto.service.dto.*;
 import java.time.Instant;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.BooleanUtils;
 import org.jetbrains.annotations.NotNull;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
@@ -29,6 +30,8 @@ public class CalculateStateInstanceJob extends QuartzJobBean {
     private final InstanceService instanceService;
 
     private final InstanceModuleService instanceModuleService;
+
+    private final AnagPartnerService anagPartnerService;
 
     @Override
     protected void executeInternal(@NotNull JobExecutionContext context) {
@@ -110,6 +113,10 @@ public class CalculateStateInstanceJob extends QuartzJobBean {
                 Instant.now(),
                 ko > 0 ? AnalysisOutcome.KO : AnalysisOutcome.OK
             );
+
+            if (BooleanUtils.toBooleanDefaultIfNull(instanceDTO.getChangePartnerQualified(), false)) {
+                anagPartnerService.changePartnerQualified(instanceDTO.getPartnerId(), ko > 0 ? Boolean.FALSE : Boolean.TRUE);
+            }
         }
     }
 }

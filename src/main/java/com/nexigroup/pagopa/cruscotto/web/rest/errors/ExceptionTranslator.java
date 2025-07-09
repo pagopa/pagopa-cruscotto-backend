@@ -2,6 +2,22 @@ package com.nexigroup.pagopa.cruscotto.web.rest.errors;
 
 import static org.springframework.core.annotation.AnnotatedElementUtils.findMergedAnnotation;
 
+import com.nexigroup.pagopa.cruscotto.service.GenericServiceException;
+import com.nexigroup.pagopa.cruscotto.service.UsernameAlreadyUsedException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import java.net.URI;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
@@ -24,29 +40,14 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-
-import com.nexigroup.pagopa.cruscotto.service.GenericServiceException;
-import com.nexigroup.pagopa.cruscotto.service.UsernameAlreadyUsedException;
-
-import java.net.URI;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import jakarta.servlet.http.HttpServletRequest;
 import tech.jhipster.config.JHipsterConstants;
-import tech.jhipster.web.rest.errors.ProblemDetailWithCause;
-import tech.jhipster.web.rest.errors.ProblemDetailWithCause.ProblemDetailWithCauseBuilder;
 import tech.jhipster.web.util.HeaderUtil;
 
 /**
  * Controller advice to translate the server side exceptions to client-friendly json structures.
  * The error response follows RFC7807 - Problem Details for HTTP APIs (https://tools.ietf.org/html/rfc7807).
  */
+@Tag(name = "Error Handling", description = "API per la gestione degli errori")
 @ControllerAdvice
 public class ExceptionTranslator extends ResponseEntityExceptionHandler {
 
@@ -64,6 +65,17 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
         this.env = env;
     }
 
+    @Operation(summary = "Gestione errori", description = "Gestisce gli errori")
+    @ApiResponse(
+        responseCode = "4XX",
+        description = "Client error codes",
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetailWithCause.class))
+    )
+    @ApiResponse(
+        responseCode = "5XX",
+        description = "Server error codes",
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetailWithCause.class))
+    )
     @ExceptionHandler
     public ResponseEntity<Object> handleAnyException(Throwable ex, NativeWebRequest request) {
         ProblemDetailWithCause pdCause = wrapAndCustomizeProblem(ex, request);
@@ -99,7 +111,7 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
         if (
             ex instanceof ErrorResponseException exp && exp.getBody() instanceof ProblemDetailWithCause problemDetailWithCause
         ) return problemDetailWithCause;
-        return ProblemDetailWithCauseBuilder.instance().withStatus(toStatus(ex).value()).build();
+        return ProblemDetailWithCause.ProblemDetailWithCauseBuilder.instance().withStatus(toStatus(ex).value()).build();
     }
 
     protected ProblemDetailWithCause customizeProblem(ProblemDetailWithCause problem, Throwable err, NativeWebRequest request) {
@@ -131,12 +143,12 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
             (err instanceof MethodArgumentNotValidException fieldException) &&
             (problemProperties == null || !problemProperties.containsKey(FIELD_ERRORS_KEY))
         ) {
-        	List<FieldErrorVM> globalErrors = getGlobalErrors(fieldException);
-        	List<FieldErrorVM> fieldErrors = getFieldErrors(fieldException);
-        	
-        	fieldErrors.addAll(globalErrors);
-        	
-        	problem.setProperty(FIELD_ERRORS_KEY, fieldErrors);
+            List<FieldErrorVM> globalErrors = getGlobalErrors(fieldException);
+            List<FieldErrorVM> fieldErrors = getFieldErrors(fieldException);
+
+            fieldErrors.addAll(globalErrors);
+
+            problem.setProperty(FIELD_ERRORS_KEY, fieldErrors);
         }
 
         problem.setCause(buildCause(err.getCause(), request).orElse(null));
@@ -154,12 +166,11 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
             .getGlobalErrors()
             .stream()
             .map(g -> {
-            	
-            	Optional<Object> type = Arrays.stream(Objects.requireNonNull(g.getArguments()))
-            								  .filter(o -> o.toString().startsWith("FIELD@"))
-            								  .findFirst();
+                Optional<Object> type = Arrays.stream(Objects.requireNonNull(g.getArguments()))
+                    .filter(o -> o.toString().startsWith("FIELD@"))
+                    .findFirst();
                 return new FieldErrorVM(
-                	this.applicationName,
+                    this.applicationName,
                     g.getObjectName().replaceFirst("DTO$", ""),
                     type.map(o -> o.toString().replaceFirst("FIELD@", "")).orElse(""),
                     StringUtils.isNotBlank(g.getDefaultMessage()) ? g.getDefaultMessage() : g.getCode(),
@@ -168,7 +179,7 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
             })
             .collect(Collectors.toList());
     }
-    
+
     private List<FieldErrorVM> getFieldErrors(MethodArgumentNotValidException ex) {
         return ex
             .getBindingResult()
@@ -224,8 +235,7 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
             return ErrorConstants.ERR_VALIDATION;
         } else if (err instanceof ConcurrencyFailureException || err.getCause() instanceof ConcurrencyFailureException) {
             return ErrorConstants.ERR_CONCURRENCY_FAILURE;
-        } else if (err instanceof GenericServiceException && 
-        		   StringUtils.isNotBlank(((GenericServiceException) err).getErrorKey())) {
+        } else if (err instanceof GenericServiceException && StringUtils.isNotBlank(((GenericServiceException) err).getErrorKey())) {
             return "error." + ((GenericServiceException) err).getErrorKey();
         }
         return null;
