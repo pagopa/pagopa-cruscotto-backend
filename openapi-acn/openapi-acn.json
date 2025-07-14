@@ -1682,7 +1682,7 @@
         }
       }
     },
-    "/api/partners/lookup": {
+    "/api/partners": {
       "get": {
         "tags": [
           "partner-lookup-resource"
@@ -1725,7 +1725,7 @@
         }
       }
     },
-    "/api/partners": {
+    "/api/anag-partners": {
       "get": {
         "tags": [
           "anag-partner-resource"
@@ -1733,11 +1733,70 @@
         "operationId": "getAllPartners",
         "parameters": [
           {
-            "name": "name",
+            "name": "partnerId",
             "in": "query",
             "required": false,
             "schema": {
-              "type": "string"
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "analyzed",
+            "in": "query",
+            "description": "Filtro analisi partner:  true (ANALYZED), false (NOT_ANALYZED)",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "qualified",
+            "in": "query",
+            "description": "Filtro qualifica: true (QUALIFIED), false (NOT_QUALIFIED)",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "lastAnalysisDate",
+            "in": "query",
+            "description": "Data ultima analisi (yyyy-MM-dd)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "analysisPeriodStartDate",
+            "in": "query",
+            "description": "Data inizio periodo analizzato (yyyy-MM-dd)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "analysisPeriodEndDate",
+            "in": "query",
+            "description": "Data fine periodo analizzato (yyyy-MM-dd)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "showNotActive",
+            "in": "query",
+            "description": "Visualizza non attivi (default false)",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
             }
           },
           {
@@ -5557,8 +5616,35 @@
             "enum": ["ATTIVO", "NON_ATTIVO"]
           },
           "qualified": { "type": "boolean" },
-          "deactivationDate": { "type": "string", "format": "date" }
+          "deactivationDate": { "type": "string", "format": "date" },
+          "lastAnalysisDate": {
+            "$ref": "#/components/schemas/Instant"
+          },
+          "analysisPeriodStartDate": {
+            "$ref": "#/components/schemas/Day"
+          },
+          "analysisPeriodEndDate": {
+            "$ref": "#/components/schemas/Day"
+          },
+          "associatedInstitutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "associatedStations": {
+            "type": "integer",
+            "format": "int32"
+          }
         }
+      },
+      "Instant": {
+        "type": "string",
+        "format": "date-time",
+        "description": "Date and time."
+      },
+      "Day": {
+        "type": "string",
+        "format": "date",
+        "description": "Date."
       },
       "PagoPaTaxonomyAggregatePositionDTO": {
         "type": "object",
