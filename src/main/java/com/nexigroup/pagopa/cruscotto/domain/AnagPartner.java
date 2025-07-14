@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
@@ -50,6 +51,18 @@ public class AnagPartner extends AbstractAuditingEntity<Long> implements Seriali
 
     @Column(name = "DT_DEACTIVATION_DATE")
     private LocalDate deactivationDate;
+
+    @Column(name = "DT_LAST_ANALYSIS_DATE")
+    private Instant lastAnalysisDate;
+
+    @Column(name = "DT_ANALYSIS_PERIOD_START_DATE")
+    private LocalDate analysisPeriodStartDate;
+
+    @Column(name = "DT_ANALYSIS_PERIOD_END_DATE")
+    private LocalDate analysisPeriodEndDate;
+
+    @Column(name = "QT_STATIONS_COUNT")
+    private Long stationsCount;
 
     @OneToMany(mappedBy = "anagPartner", fetch = FetchType.LAZY)
     @JsonIgnore
@@ -97,6 +110,14 @@ public class AnagPartner extends AbstractAuditingEntity<Long> implements Seriali
             qualified +
             ", deactivationDate=" +
             deactivationDate +
+            ", lastAnalysisDate=" +
+            lastAnalysisDate +
+            ", analysisPeriodStartDate=" +
+            analysisPeriodStartDate +
+            ", analysisPeriodEndDate=" +
+            analysisPeriodEndDate +
+            ", stationsCount=" +
+            stationsCount +
             ", anagStations=" +
             anagStations +
             ", anagInstitutions=" +
