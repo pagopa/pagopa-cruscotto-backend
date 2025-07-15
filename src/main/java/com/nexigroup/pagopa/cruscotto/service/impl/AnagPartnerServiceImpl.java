@@ -180,6 +180,31 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
         jpql.set(QAnagPartner.anagPartner.qualified, qualified).where(QAnagPartner.anagPartner.id.eq(id)).execute();
     }
 
+    @Override
+    public void updateLastAnalysisDate(Long partnerId, java.time.Instant lastAnalysisDate) {
+        anagPartnerRepository.findById(partnerId).ifPresent(partner -> {
+            partner.setLastAnalysisDate(lastAnalysisDate);
+            anagPartnerRepository.save(partner);
+        });
+    }
+
+    @Override
+    public void updateAnalysisPeriodDates(Long partnerId, java.time.LocalDate startDate, java.time.LocalDate endDate) {
+        anagPartnerRepository.findById(partnerId).ifPresent(partner -> {
+            partner.setAnalysisPeriodStartDate(startDate);
+            partner.setAnalysisPeriodEndDate(endDate);
+            anagPartnerRepository.save(partner);
+        });
+    }
+
+    @Override
+    public void updateStationsCount(Long partnerId, Long stationsCount) {
+        anagPartnerRepository.findById(partnerId).ifPresent(partner -> {
+            partner.setStationsCount(stationsCount);
+            anagPartnerRepository.save(partner);
+        });
+    }
+
 	@Override
 	public Page<AnagPartnerDTO> findAll(Long partnerId, Boolean analyzed, Boolean qualified, String lastAnalysisDate,
 			String analysisPeriodStartDate, String analysisPeriodEndDate, Boolean showNotActive, Pageable pageable) {

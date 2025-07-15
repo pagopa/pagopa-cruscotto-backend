@@ -49,4 +49,29 @@ public interface AnagPartnerService {
      * @param qualified the new qualification status to set for the partner; true if the partner is qualified, false otherwise
      */
     void changePartnerQualified(Long id, boolean qualified);
+
+    /**
+     * Updates the lastAnalysisDate of a partner.
+     *
+     * @param partnerId the unique identifier of the partner
+     * @param lastAnalysisDate the new last analysis date to set
+     */
+    void updateLastAnalysisDate(Long partnerId, java.time.Instant lastAnalysisDate);
+
+    /**
+     * Updates the analysis period dates of a partner.
+     *
+     * @param partnerId the unique identifier of the partner
+     * @param startDate the new analysis period start date
+     * @param endDate the new analysis period end date
+     */
+    void updateAnalysisPeriodDates(Long partnerId, java.time.LocalDate startDate, java.time.LocalDate endDate);
+
+    /**
+     * Updates the stations count of a partner.
+     *
+     * @param partnerId the unique identifier of the partner
+     * @param stationsCount the new stations count to set
+     */
+    void updateStationsCount(Long partnerId, Long stationsCount);
 }
