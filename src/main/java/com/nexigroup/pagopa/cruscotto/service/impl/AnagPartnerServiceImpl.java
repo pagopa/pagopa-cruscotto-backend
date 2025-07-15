@@ -290,5 +290,9 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
         return new PageImpl<>(result, pageable, total);
 	}
     
-    
+    @Override
+    public Optional<AnagPartnerDTO> findOneByFiscalCode(String fiscalCode) {
+        return anagPartnerRepository.findOneByFiscalCode(fiscalCode)
+            .map(anagPartnerMapper::toDto);
+    }
 }
