@@ -74,4 +74,12 @@ public interface AnagPartnerService {
      * @param stationsCount the new stations count to set
      */
     void updateStationsCount(Long partnerId, Long stationsCount);
+
+    /**
+     * Find a single AnagPartner entity based on its fiscal code.
+     *
+     * @param fiscalCode the fiscal code of the AnagPartner to retrieve
+     * @return an {@link Optional} containing the {@link AnagPartnerDTO} if a matching entity exists, or an empty {@link Optional} if not found
+     */
+    Optional<AnagPartnerDTO> findOneByFiscalCode(String fiscalCode);
 }
