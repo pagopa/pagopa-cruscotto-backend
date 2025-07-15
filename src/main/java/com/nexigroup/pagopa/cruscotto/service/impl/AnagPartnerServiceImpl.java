@@ -1,11 +1,29 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.nexigroup.pagopa.cruscotto.domain.AnagPartner;
 import com.nexigroup.pagopa.cruscotto.domain.QAnagPartner;
+import com.nexigroup.pagopa.cruscotto.domain.QInstance;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.PartnerStatus;
 import com.nexigroup.pagopa.cruscotto.repository.AnagPartnerRepository;
 import com.nexigroup.pagopa.cruscotto.service.AnagPartnerService;
 import com.nexigroup.pagopa.cruscotto.service.dto.AnagPartnerDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.PartnerIdentificationDTO;
 import com.nexigroup.pagopa.cruscotto.service.mapper.AnagPartnerMapper;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QdslUtility;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
@@ -16,16 +34,6 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAUpdateClause;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.*;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service Implementation for managing {@link AnagPartner}.
@@ -64,10 +72,10 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
      * @return a paginated list of AnagPartnerDTO objects matching the given criteria.
      */
     @Override
-    public Page<AnagPartnerDTO> findAll(String fiscalCode, String nameFilter, Pageable pageable) {
+    public Page<PartnerIdentificationDTO> findAll(String fiscalCode, String nameFilter, Pageable pageable) {
         log.debug("Request to get all AnagPartner");
 
-        JPQLQuery<AnagPartner> jpql = queryBuilder.<AnagPartner>createQuery().from(QAnagPartner.anagPartner);
+        JPQLQuery<PartnerIdentificationDTO> jpql = queryBuilder.<PartnerIdentificationDTO>createQuery().from(QAnagPartner.anagPartner);
         BooleanBuilder predicate = new BooleanBuilder();
         if (nameFilter != null && !nameFilter.isEmpty()) {
             predicate.or(QAnagPartner.anagPartner.name.likeIgnoreCase("%" + nameFilter + "%"));
@@ -81,9 +89,9 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
 
         long size = jpql.fetchCount();
 
-        JPQLQuery<AnagPartnerDTO> jpqlSelected = jpql.select(
+        JPQLQuery<PartnerIdentificationDTO> jpqlSelected = jpql.select(
             Projections.fields(
-                AnagPartnerDTO.class,
+            		PartnerIdentificationDTO.class,
                 QAnagPartner.anagPartner.id.as("id"),
                 QAnagPartner.anagPartner.fiscalCode.as("fiscalCode"),
                 QAnagPartner.anagPartner.name.as("name"),
@@ -112,7 +120,7 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
                 );
             });
 
-        List<AnagPartnerDTO> list = jpqlSelected.fetch();
+        List<PartnerIdentificationDTO> list = jpqlSelected.fetch();
 
         return new PageImpl<>(list, pageable, size);
     }
@@ -124,14 +132,14 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
 
         partners.forEach(partnerDTO -> {
             AnagPartner partnerExample = new AnagPartner();
-            partnerExample.setFiscalCode(partnerDTO.getFiscalCode());
+            partnerExample.setFiscalCode(partnerDTO.getPartnerIdentification().getFiscalCode());
             partnerExample.setCreatedDate(null);
             partnerExample.setLastModifiedDate(null);
             partnerExample.setQualified(null);
 
             AnagPartner anagPartner = anagPartnerRepository.findOne(Example.of(partnerExample)).orElse(new AnagPartner());
-            anagPartner.setName(partnerDTO.getName());
-            anagPartner.setFiscalCode(partnerDTO.getFiscalCode());
+            anagPartner.setName(partnerDTO.getPartnerIdentification().getName());
+            anagPartner.setFiscalCode(partnerDTO.getPartnerIdentification().getFiscalCode());
 
             if (partnerDTO.getStatus().compareTo(PartnerStatus.NON_ATTIVO) == 0 && anagPartner.getDeactivationDate() == null) {
                 anagPartner.setDeactivationDate(LocalDate.now());
@@ -171,4 +179,85 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
 
         jpql.set(QAnagPartner.anagPartner.qualified, qualified).where(QAnagPartner.anagPartner.id.eq(id)).execute();
     }
+
+	@Override
+	public Page<AnagPartnerDTO> findAll(Long partnerId, Boolean analyzed, Boolean qualified, String lastAnalysisDate,
+			String analysisPeriodStartDate, String analysisPeriodEndDate, Boolean showNotActive, Pageable pageable) {
+		log.debug("findAll START");
+        JPQLQuery<?> jpql = queryBuilder.createQuery()
+            .from(QAnagPartner.anagPartner);
+//            .leftJoin(QInstance.instance).on(QInstance.instance.partner.eq(QAnagPartner.anagPartner));
+
+        BooleanBuilder predicate = new BooleanBuilder();
+
+        if (partnerId != null) {
+            predicate.and(QAnagPartner.anagPartner.id.eq(partnerId));
+        }
+        if (analyzed != null ) {
+        	String status = analyzed.booleanValue()? "ANALYZED" : "NOT_ANALYZED"; //TODO use enum
+            predicate.and(QAnagPartner.anagPartner.status.stringValue().eq(status)); //TODO use the correct field
+        }
+        if (qualified != null) {
+            predicate.and(QAnagPartner.anagPartner.qualified.eq(qualified));
+        }
+
+        if (lastAnalysisDate != null && !lastAnalysisDate.isEmpty()) {//TODO
+            predicate.and(QInstance.instance.lastAnalysisDate.stringValue().eq(lastAnalysisDate));
+        }
+        if (analysisPeriodStartDate != null && !analysisPeriodStartDate.isEmpty()) {//TODO
+            predicate.and(QInstance.instance.analysisPeriodStartDate.stringValue().goe(analysisPeriodStartDate));
+        }
+        if (analysisPeriodEndDate != null && !analysisPeriodEndDate.isEmpty()) {//TODO
+            predicate.and(QInstance.instance.analysisPeriodEndDate.stringValue().loe(analysisPeriodEndDate));
+        }
+        if (showNotActive != null) {
+        	String activeFilter = showNotActive.booleanValue()? PartnerStatus.NON_ATTIVO.name(): PartnerStatus.ATTIVO.name();
+        	predicate.and(QAnagPartner.anagPartner.status.stringValue().eq(activeFilter));
+        }
+
+        jpql.where(predicate);
+
+        long total = jpql.fetchCount();
+
+        JPQLQuery<AnagPartnerDTO> selected = jpql.select(
+            Projections.fields(
+            		AnagPartnerDTO.class,
+            		Projections.fields(
+            				PartnerIdentificationDTO.class,
+                            QAnagPartner.anagPartner.id.as("id"),
+                            QAnagPartner.anagPartner.fiscalCode.as("fiscalCode"),
+                            QAnagPartner.anagPartner.name.as("name")
+                        ).as("partnerIdentification"),
+            		
+                    QAnagPartner.anagPartner.status.as("status"),
+                    QAnagPartner.anagPartner.qualified.as("qualified"),
+                    QAnagPartner.anagPartner.deactivationDate.as("deactivationDate"),
+                    QAnagPartner.anagPartner.lastAnalysisDate.as("lastAnalysisDate"),
+                    QAnagPartner.anagPartner.analysisPeriodStartDate.as("analysisPeriodStartDate"),
+                    QAnagPartner.anagPartner.analysisPeriodEndDate.as("analysisPeriodEndDate")
+//                    QAnagPartner.anagPartner.associatedInstitutes.as("associatedInstitutes"),
+//                    QAnagPartner.anagPartner.associatedStations.as("associatedStations")
+  
+            )
+        );
+
+        selected.offset(pageable.getOffset());
+        selected.limit(pageable.getPageSize());
+
+        pageable.getSortOr(Sort.by(Sort.Direction.ASC, "name")).forEach(order -> {
+            selected.orderBy(
+                new OrderSpecifier<>(
+                    order.isAscending() ? Order.ASC : Order.DESC,
+                    Expressions.stringPath(order.getProperty()),
+                    QdslUtility.toQueryDslNullHandling(order.getNullHandling())
+                )
+            );
+        });
+
+        List<AnagPartnerDTO> result = selected.fetch();
+        log.debug("findAll END");
+        return new PageImpl<>(result, pageable, total);
+	}
+    
+    
 }
