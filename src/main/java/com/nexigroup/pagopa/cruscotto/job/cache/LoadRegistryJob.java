@@ -155,7 +155,10 @@ public class LoadRegistryJob extends QuartzJobBean {
             }
             partnerStationCounts.forEach((fiscalCode, count) -> {
                 anagPartnerService.findOneByFiscalCode(fiscalCode).ifPresent(partnerDTO -> {
-                    anagPartnerService.updateStationsCount(partnerDTO.getId(), count);
+                    Long partnerId = partnerDTO.getPartnerIdentification() != null ? partnerDTO.getPartnerIdentification().getId() : null;
+                    if (partnerId != null) {
+                        anagPartnerService.updateStationsCount(partnerId, count);
+                    }
                 });
             });
 
