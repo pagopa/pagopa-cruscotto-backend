@@ -194,21 +194,27 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
             predicate.and(QAnagPartner.anagPartner.id.eq(partnerId));
         }
         if (analyzed != null ) {
-        	String status = analyzed.booleanValue()? "ANALYZED" : "NOT_ANALYZED"; //TODO use enum
-            predicate.and(QAnagPartner.anagPartner.status.stringValue().eq(status)); //TODO use the correct field
+        	boolean analyzedBool= analyzed.booleanValue();
+        	if (analyzedBool) {
+        		predicate.and(QAnagPartner.anagPartner.lastAnalysisDate.isNotNull());
+        	}
+        	else
+        	{
+        		predicate.and(QAnagPartner.anagPartner.lastAnalysisDate.isNull());
+        	}
         }
         if (qualified != null) {
             predicate.and(QAnagPartner.anagPartner.qualified.eq(qualified));
         }
 
-        if (lastAnalysisDate != null && !lastAnalysisDate.isEmpty()) {//TODO
-            predicate.and(QInstance.instance.lastAnalysisDate.stringValue().eq(lastAnalysisDate));
+        if (lastAnalysisDate != null && !lastAnalysisDate.isEmpty()) {
+            predicate.and(QAnagPartner.anagPartner.lastAnalysisDate.stringValue().eq(lastAnalysisDate));
         }
-        if (analysisPeriodStartDate != null && !analysisPeriodStartDate.isEmpty()) {//TODO
-            predicate.and(QInstance.instance.analysisPeriodStartDate.stringValue().goe(analysisPeriodStartDate));
+        if (analysisPeriodStartDate != null && !analysisPeriodStartDate.isEmpty()) {
+            predicate.and(QAnagPartner.anagPartner.analysisPeriodStartDate.stringValue().goe(analysisPeriodStartDate));
         }
         if (analysisPeriodEndDate != null && !analysisPeriodEndDate.isEmpty()) {//TODO
-            predicate.and(QInstance.instance.analysisPeriodEndDate.stringValue().loe(analysisPeriodEndDate));
+            predicate.and(QAnagPartner.anagPartner.analysisPeriodEndDate.stringValue().loe(analysisPeriodEndDate));
         }
         if (showNotActive != null) {
         	String activeFilter = showNotActive.booleanValue()? PartnerStatus.NON_ATTIVO.name(): PartnerStatus.ATTIVO.name();
