@@ -265,9 +265,9 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
                     QAnagPartner.anagPartner.deactivationDate.as("deactivationDate"),
                     QAnagPartner.anagPartner.lastAnalysisDate.as("lastAnalysisDate"),
                     QAnagPartner.anagPartner.analysisPeriodStartDate.as("analysisPeriodStartDate"),
-                    QAnagPartner.anagPartner.analysisPeriodEndDate.as("analysisPeriodEndDate")
-//                    QAnagPartner.anagPartner.associatedInstitutes.as("associatedInstitutes"),
-//                    QAnagPartner.anagPartner.associatedStations.as("associatedStations")
+                    QAnagPartner.anagPartner.analysisPeriodEndDate.as("analysisPeriodEndDate"),
+                    QAnagPartner.anagPartner.stationsCount.as("stationsCount")
+//                    
   
             )
         );

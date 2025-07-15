@@ -35,9 +35,11 @@ public class AnagPartnerDTO implements Serializable {
     private LocalDate analysisPeriodStartDate;
 
     private LocalDate analysisPeriodEndDate;
+    
+    private Integer stationsCount;
 
 //    private Integer associatedInstitutes;
 //
-//    private Integer associatedStations;
+//    
 
 }
