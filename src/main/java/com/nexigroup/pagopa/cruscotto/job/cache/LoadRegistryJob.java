@@ -147,6 +147,18 @@ public class LoadRegistryJob extends QuartzJobBean {
 
             anagStationService.saveAll(stationDTOS);
 
+            // Enhance: increment stationsCount for each partner as stations are loaded
+            java.util.Map<String, Long> partnerStationCounts = new java.util.HashMap<>();
+            for (AnagStationDTO stationDTO : stationDTOS) {
+                String partnerFiscalCode = stationDTO.getPartnerFiscalCode();
+                partnerStationCounts.put(partnerFiscalCode, partnerStationCounts.getOrDefault(partnerFiscalCode, 0L) + 1);
+            }
+            partnerStationCounts.forEach((fiscalCode, count) -> {
+                anagPartnerService.anagPartnerRepository.findOneByFiscalCode(fiscalCode).ifPresent(partner -> {
+                    anagPartnerService.updateStationsCount(partner.getId(), count);
+                });
+            });
+
             stopWatch.stop();
 
             LOGGER.info("Saved {} rows stations to database into {} seconds", stationDTOS.size(), stopWatch.getTime(TimeUnit.SECONDS));
