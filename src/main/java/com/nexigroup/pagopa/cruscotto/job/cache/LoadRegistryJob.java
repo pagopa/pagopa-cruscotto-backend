@@ -7,6 +7,7 @@ import com.nexigroup.pagopa.cruscotto.service.AnagPartnerService;
 import com.nexigroup.pagopa.cruscotto.service.AnagStationService;
 import com.nexigroup.pagopa.cruscotto.service.dto.AnagPartnerDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.AnagStationDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.PartnerIdentificationDTO;
 import com.nexigroup.pagopa.cruscotto.service.validation.ValidationGroups;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
@@ -69,8 +70,9 @@ public class LoadRegistryJob extends QuartzJobBean {
 
                     AnagPartnerDTO partnerDTO;
                     partnerDTO = new AnagPartnerDTO();
-                    partnerDTO.setFiscalCode(partner.getBrokerCode());
-                    partnerDTO.setName(partner.getDescription());
+                    partnerDTO.setPartnerIdentification(new PartnerIdentificationDTO());
+                    partnerDTO.getPartnerIdentification().setFiscalCode(partner.getBrokerCode());
+                    partnerDTO.getPartnerIdentification().setName(partner.getDescription());
                     partnerDTO.setStatus(
                         BooleanUtils.toBooleanDefaultIfNull(partner.getEnabled(), false) ? PartnerStatus.ATTIVO : PartnerStatus.NON_ATTIVO
                     );

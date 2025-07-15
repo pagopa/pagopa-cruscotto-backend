@@ -21,13 +21,7 @@ public class AnagPartnerDTO implements Serializable {
 
     private static final long serialVersionUID = 3543581324420880777L;
 
-    private Long id;
-
-    @NotNull(groups = { ValidationGroups.RegistryJob.class })
-    private String fiscalCode;
-
-    @NotNull(groups = { ValidationGroups.RegistryJob.class })
-    private String name;
+    private PartnerIdentificationDTO partnerIdentification;
 
     @NotNull(groups = { ValidationGroups.RegistryJob.class })
     private PartnerStatus status;
@@ -35,12 +29,15 @@ public class AnagPartnerDTO implements Serializable {
     private Boolean qualified = Boolean.FALSE;
 
     private LocalDate deactivationDate;
+    
+    private Instant lastAnalysisDate;
 
-    private String createdBy;
+    private LocalDate analysisPeriodStartDate;
 
-    private Instant createdDate;
+    private LocalDate analysisPeriodEndDate;
 
-    private String lastModifiedBy;
+//    private Integer associatedInstitutes;
+//
+//    private Integer associatedStations;
 
-    private Instant lastModifiedDate;
 }
