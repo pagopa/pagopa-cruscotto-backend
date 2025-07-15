@@ -108,15 +108,21 @@ public class CalculateStateInstanceJob extends QuartzJobBean {
         }
 
         if (standBy == 0) {
+            Instant now = Instant.now();
             instanceService.updateExecuteStateAndLastAnalysis(
                 instanceDTO.getId(),
-                Instant.now(),
+                now,
                 ko > 0 ? AnalysisOutcome.KO : AnalysisOutcome.OK
             );
-
+            anagPartnerService.updateLastAnalysisDate(instanceDTO.getPartnerId(), now);
             if (BooleanUtils.toBooleanDefaultIfNull(instanceDTO.getChangePartnerQualified(), false)) {
                 anagPartnerService.changePartnerQualified(instanceDTO.getPartnerId(), ko > 0 ? Boolean.FALSE : Boolean.TRUE);
             }
+            anagPartnerService.updateAnalysisPeriodDates(
+                instanceDTO.getPartnerId(),
+                instanceDTO.getAnalysisPeriodStartDate(),
+                instanceDTO.getAnalysisPeriodEndDate()
+            );
         }
     }
 }
