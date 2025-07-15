@@ -154,8 +154,8 @@ public class LoadRegistryJob extends QuartzJobBean {
                 partnerStationCounts.put(partnerFiscalCode, partnerStationCounts.getOrDefault(partnerFiscalCode, 0L) + 1);
             }
             partnerStationCounts.forEach((fiscalCode, count) -> {
-                anagPartnerService.anagPartnerRepository.findOneByFiscalCode(fiscalCode).ifPresent(partner -> {
-                    anagPartnerService.updateStationsCount(partner.getId(), count);
+                anagPartnerService.findOneByFiscalCode(fiscalCode).ifPresent(partnerDTO -> {
+                    anagPartnerService.updateStationsCount(partnerDTO.getId(), count);
                 });
             });
 
