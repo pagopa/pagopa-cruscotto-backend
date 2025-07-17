@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nexigroup.pagopa.cruscotto.domain.AnagPartner;
 import com.nexigroup.pagopa.cruscotto.domain.QAnagPartner;
-import com.nexigroup.pagopa.cruscotto.domain.QInstance;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.PartnerStatus;
 import com.nexigroup.pagopa.cruscotto.repository.AnagPartnerRepository;
 import com.nexigroup.pagopa.cruscotto.service.AnagPartnerService;
@@ -241,9 +240,8 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
         if (analysisPeriodEndDate != null && !analysisPeriodEndDate.isEmpty()) {//TODO
             predicate.and(QAnagPartner.anagPartner.analysisPeriodEndDate.stringValue().loe(analysisPeriodEndDate));
         }
-        if (showNotActive != null) {
-        	String activeFilter = showNotActive.booleanValue()? PartnerStatus.NON_ATTIVO.name(): PartnerStatus.ATTIVO.name();
-        	predicate.and(QAnagPartner.anagPartner.status.stringValue().eq(activeFilter));
+        if (showNotActive != null && !showNotActive.booleanValue()) {
+        	predicate.and(QAnagPartner.anagPartner.status.stringValue().eq(PartnerStatus.ATTIVO.name()));
         }
 
         jpql.where(predicate);
