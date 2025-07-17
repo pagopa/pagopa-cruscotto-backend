@@ -240,7 +240,7 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
         if (analysisPeriodEndDate != null && !analysisPeriodEndDate.isEmpty()) {//TODO
             predicate.and(QAnagPartner.anagPartner.analysisPeriodEndDate.stringValue().loe(analysisPeriodEndDate));
         }
-        if (showNotActive != null && !showNotActive.booleanValue()) {
+        if (showNotActive == null ||  (showNotActive != null && !showNotActive.booleanValue())) {
         	predicate.and(QAnagPartner.anagPartner.status.stringValue().eq(PartnerStatus.ATTIVO.name()));
         }
 
