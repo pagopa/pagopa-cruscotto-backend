@@ -254,7 +254,7 @@ public class AnagPartnerServiceImplIT {
 		partner.setCreatedDate(Instant.now());
 		partner.setDeactivationDate(LocalDate.now());
 		partner.setFiscalCode(randomFiscalCode());
-		partner.setLastAnalysisDate(Instant.now());
+		partner.setLastAnalysisDate(LocalDate.now());
 		partner.setLastModifiedBy("test-user");
 		partner.setLastModifiedDate(Instant.now());
 		partner.setName("testpartner");

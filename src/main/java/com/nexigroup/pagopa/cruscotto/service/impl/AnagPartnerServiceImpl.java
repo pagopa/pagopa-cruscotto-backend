@@ -186,7 +186,7 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
     @Override
     public void updateLastAnalysisDate(Long partnerId, java.time.Instant lastAnalysisDate) {
         anagPartnerRepository.findById(partnerId).ifPresent(partner -> {
-            partner.setLastAnalysisDate(lastAnalysisDate);
+            partner.setLastAnalysisDate(LocalDate.from(lastAnalysisDate));
             anagPartnerRepository.save(partner);
         });
     }

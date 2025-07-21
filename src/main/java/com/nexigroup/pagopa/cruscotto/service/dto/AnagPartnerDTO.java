@@ -1,12 +1,13 @@
 package com.nexigroup.pagopa.cruscotto.service.dto;
 
+import java.io.Serializable;
+import java.time.LocalDate;
+
 import com.nexigroup.pagopa.cruscotto.domain.AnagPartner;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.PartnerStatus;
 import com.nexigroup.pagopa.cruscotto.service.validation.ValidationGroups;
+
 import jakarta.validation.constraints.NotNull;
-import java.io.Serializable;
-import java.time.Instant;
-import java.time.LocalDate;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,7 +31,7 @@ public class AnagPartnerDTO implements Serializable {
 
     private LocalDate deactivationDate;
     
-    private Instant lastAnalysisDate;
+    private LocalDate lastAnalysisDate;
 
     private LocalDate analysisPeriodStartDate;
 
