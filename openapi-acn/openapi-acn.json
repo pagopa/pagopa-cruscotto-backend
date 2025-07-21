@@ -1547,13 +1547,12 @@
             }
           },
           {
-            "name": "stationName",
+            "name": "stationId",
             "in": "query",
             "required": false,
             "schema": {
-              "maxLength": 35,
-              "minLength": 0,
-              "type": "string"
+              "type": "integer",
+              "format": "int64"
             }
           },
           {
