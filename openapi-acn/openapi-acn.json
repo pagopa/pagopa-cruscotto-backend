@@ -1706,16 +1706,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "showNotActive",
-            "in": "query",
-            "description": "Visualizza non attivi (default false)",
-            "required": false,
-            "schema": {
-              "type": "boolean",
-              "default": false
-            }
           }
         ],
         "responses": {
