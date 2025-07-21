@@ -22,7 +22,7 @@ public interface AnagPartnerService {
      * @param pageable an object containing pagination and sorting information.
      * @return a paginated list of AnagPartnerDTO objects matching the given criteria.
      */
-    Page<PartnerIdentificationDTO> findAll(String fiscalCode, String nameFilter, Pageable pageable);
+    Page<PartnerIdentificationDTO> findAll(String fiscalCode, String nameFilter, Boolean showNotActive, Pageable pageable);
     
 	Page<AnagPartnerDTO> findAll(Long partnerId, Boolean analyzed, Boolean qualified, String lastAnalysisDate,
 			String analysisPeriodStartDate, String analysisPeriodEndDate, Boolean showNotActive, Pageable pageable);

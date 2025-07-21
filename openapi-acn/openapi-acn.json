@@ -1706,6 +1706,16 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "showNotActive",
+            "in": "query",
+            "description": "Visualizza non attivi (default false)",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
           }
         ],
         "responses": {
@@ -1762,7 +1772,7 @@
           {
             "name": "lastAnalysisDate",
             "in": "query",
-            "description": "Data ultima analisi (yyyy-MM-dd)",
+            "description": "Data ultima analisi (dd-MM-yyyy)",
             "required": false,
             "schema": {
               "type": "string",
@@ -1772,7 +1782,7 @@
           {
             "name": "analysisPeriodStartDate",
             "in": "query",
-            "description": "Data inizio periodo analizzato (yyyy-MM-dd)",
+            "description": "Data inizio periodo analizzato (dd-MM-yyyy)",
             "required": false,
             "schema": {
               "type": "string",
@@ -1782,7 +1792,7 @@
           {
             "name": "analysisPeriodEndDate",
             "in": "query",
-            "description": "Data fine periodo analizzato (yyyy-MM-dd)",
+            "description": "Data fine periodo analizzato dd-MM-yyyy)",
             "required": false,
             "schema": {
               "type": "string",
