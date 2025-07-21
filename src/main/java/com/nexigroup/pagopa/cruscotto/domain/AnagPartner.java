@@ -53,7 +53,7 @@ public class AnagPartner extends AbstractAuditingEntity<Long> implements Seriali
     private LocalDate deactivationDate;
 
     @Column(name = "DT_LAST_ANALYSIS_DATE")
-    private Instant lastAnalysisDate;
+    private LocalDate lastAnalysisDate;
 
     @Column(name = "DT_ANALYSIS_PERIOD_START_DATE")
     private LocalDate analysisPeriodStartDate;
