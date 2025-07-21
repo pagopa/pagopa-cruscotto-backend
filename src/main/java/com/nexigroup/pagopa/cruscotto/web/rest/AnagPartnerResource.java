@@ -61,11 +61,10 @@ public class AnagPartnerResource {
     public ResponseEntity<List<PartnerIdentificationDTO>> getAllPartners(
         @RequestParam("name") Optional<String> nameFilter,
         @RequestParam("fiscalCode") Optional<String> fiscalCode,
-        @RequestParam("showNotActive") Optional<Boolean> showNotActive,
         @Parameter(description = "Pageable", required = true) @ParameterObject Pageable pageable
     ) {
         log.debug("REST request to get Partners");
-        Page<PartnerIdentificationDTO> page = anagPartnerService.findAll(fiscalCode.orElse(null), nameFilter.orElse(null), showNotActive.orElse(false), pageable);
+        Page<PartnerIdentificationDTO> page = anagPartnerService.findAll(fiscalCode.orElse(null), nameFilter.orElse(null), pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
