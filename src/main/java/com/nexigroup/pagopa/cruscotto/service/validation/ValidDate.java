@@ -14,7 +14,7 @@ import jakarta.validation.Payload;
 public @interface ValidDate {
     String message() default "{com.nexigroup.pagopa.cruscotto.service.validation.constraints.ValidDate.message}";
 
-    String pattern() default "yyyy-mm-dd";
+    String pattern() default "dd-MM-yyyy";
 
     Class<?>[] groups() default {};
 

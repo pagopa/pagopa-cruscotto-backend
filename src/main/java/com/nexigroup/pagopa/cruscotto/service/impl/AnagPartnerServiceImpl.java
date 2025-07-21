@@ -71,7 +71,7 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
      * @return a paginated list of AnagPartnerDTO objects matching the given criteria.
      */
     @Override
-    public Page<PartnerIdentificationDTO> findAll(String fiscalCode, String nameFilter, Pageable pageable) {
+    public Page<PartnerIdentificationDTO> findAll(String fiscalCode, String nameFilter, Boolean showNotActive, Pageable pageable) {
         log.debug("Request to get all AnagPartner");
 
         JPQLQuery<PartnerIdentificationDTO> jpql = queryBuilder.<PartnerIdentificationDTO>createQuery().from(QAnagPartner.anagPartner);
@@ -82,6 +82,10 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
 
         if (fiscalCode != null && !fiscalCode.isEmpty()) {
             predicate.or(QAnagPartner.anagPartner.fiscalCode.likeIgnoreCase("%" + fiscalCode + "%"));
+        }
+        
+        if (showNotActive == null ||  (showNotActive != null && !showNotActive.booleanValue())) {
+        	predicate.and(QAnagPartner.anagPartner.status.stringValue().eq(PartnerStatus.ATTIVO.name()));
         }
 
         jpql.where(predicate);
@@ -237,7 +241,7 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
         if (analysisPeriodStartDate != null && !analysisPeriodStartDate.isEmpty()) {
             predicate.and(QAnagPartner.anagPartner.analysisPeriodStartDate.stringValue().goe(analysisPeriodStartDate));
         }
-        if (analysisPeriodEndDate != null && !analysisPeriodEndDate.isEmpty()) {//TODO
+        if (analysisPeriodEndDate != null && !analysisPeriodEndDate.isEmpty()) {
             predicate.and(QAnagPartner.anagPartner.analysisPeriodEndDate.stringValue().loe(analysisPeriodEndDate));
         }
         if (showNotActive == null ||  (showNotActive != null && !showNotActive.booleanValue())) {
