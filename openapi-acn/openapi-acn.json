@@ -5628,7 +5628,7 @@
           "qualified": { "type": "boolean" },
           "deactivationDate": { "type": "string", "format": "date" },
           "lastAnalysisDate": {
-            "$ref": "#/components/schemas/Instant"
+            "$ref": "#/components/schemas/Day"
           },
           "analysisPeriodStartDate": {
             "$ref": "#/components/schemas/Day"
