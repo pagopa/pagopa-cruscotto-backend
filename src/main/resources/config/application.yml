@@ -104,6 +104,9 @@ spring:
         #- tls
       devpagopa:
         - api-docs
+      local:
+        - local
+        - api-docs
   jmx:
     enabled: false
   data:

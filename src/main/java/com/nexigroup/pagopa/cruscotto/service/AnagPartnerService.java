@@ -1,11 +1,14 @@
 package com.nexigroup.pagopa.cruscotto.service;
 
-import com.nexigroup.pagopa.cruscotto.domain.AnagPartner;
-import com.nexigroup.pagopa.cruscotto.service.dto.AnagPartnerDTO;
 import java.util.List;
 import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
+import com.nexigroup.pagopa.cruscotto.domain.AnagPartner;
+import com.nexigroup.pagopa.cruscotto.service.dto.AnagPartnerDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.PartnerIdentificationDTO;
 
 /**
  * Service Interface for managing {@link AnagPartner}.
@@ -19,7 +22,10 @@ public interface AnagPartnerService {
      * @param pageable an object containing pagination and sorting information.
      * @return a paginated list of AnagPartnerDTO objects matching the given criteria.
      */
-    Page<AnagPartnerDTO> findAll(String fiscalCode, String nameFilter, Pageable pageable);
+    Page<PartnerIdentificationDTO> findAll(String fiscalCode, String nameFilter, Pageable pageable);
+    
+	Page<AnagPartnerDTO> findAll(Long partnerId, Boolean analyzed, Boolean qualified, String lastAnalysisDate,
+			String analysisPeriodStartDate, String analysisPeriodEndDate, Boolean showNotActive, Pageable pageable);
 
     /**
      * Save all partners.
@@ -43,4 +49,37 @@ public interface AnagPartnerService {
      * @param qualified the new qualification status to set for the partner; true if the partner is qualified, false otherwise
      */
     void changePartnerQualified(Long id, boolean qualified);
+
+    /**
+     * Updates the lastAnalysisDate of a partner.
+     *
+     * @param partnerId the unique identifier of the partner
+     * @param lastAnalysisDate the new last analysis date to set
+     */
+    void updateLastAnalysisDate(Long partnerId, java.time.Instant lastAnalysisDate);
+
+    /**
+     * Updates the analysis period dates of a partner.
+     *
+     * @param partnerId the unique identifier of the partner
+     * @param startDate the new analysis period start date
+     * @param endDate the new analysis period end date
+     */
+    void updateAnalysisPeriodDates(Long partnerId, java.time.LocalDate startDate, java.time.LocalDate endDate);
+
+    /**
+     * Updates the stations count of a partner.
+     *
+     * @param partnerId the unique identifier of the partner
+     * @param stationsCount the new stations count to set
+     */
+    void updateStationsCount(Long partnerId, Long stationsCount);
+
+    /**
+     * Find a single AnagPartner entity based on its fiscal code.
+     *
+     * @param fiscalCode the fiscal code of the AnagPartner to retrieve
+     * @return an {@link Optional} containing the {@link AnagPartnerDTO} if a matching entity exists, or an empty {@link Optional} if not found
+     */
+    Optional<AnagPartnerDTO> findOneByFiscalCode(String fiscalCode);
 }

@@ -1,12 +1,13 @@
 package com.nexigroup.pagopa.cruscotto.service.dto;
 
+import java.io.Serializable;
+import java.time.LocalDate;
+
 import com.nexigroup.pagopa.cruscotto.domain.AnagPartner;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.PartnerStatus;
 import com.nexigroup.pagopa.cruscotto.service.validation.ValidationGroups;
+
 import jakarta.validation.constraints.NotNull;
-import java.io.Serializable;
-import java.time.Instant;
-import java.time.LocalDate;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,13 +22,7 @@ public class AnagPartnerDTO implements Serializable {
 
     private static final long serialVersionUID = 3543581324420880777L;
 
-    private Long id;
-
-    @NotNull(groups = { ValidationGroups.RegistryJob.class })
-    private String fiscalCode;
-
-    @NotNull(groups = { ValidationGroups.RegistryJob.class })
-    private String name;
+    private PartnerIdentificationDTO partnerIdentification;
 
     @NotNull(groups = { ValidationGroups.RegistryJob.class })
     private PartnerStatus status;
@@ -35,12 +30,17 @@ public class AnagPartnerDTO implements Serializable {
     private Boolean qualified = Boolean.FALSE;
 
     private LocalDate deactivationDate;
+    
+    private LocalDate lastAnalysisDate;
 
-    private String createdBy;
+    private LocalDate analysisPeriodStartDate;
 
-    private Instant createdDate;
+    private LocalDate analysisPeriodEndDate;
+    
+    private Long stationsCount;
 
-    private String lastModifiedBy;
+//    private Integer associatedInstitutes;
+//
+//    
 
-    private Instant lastModifiedDate;
 }
