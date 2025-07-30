@@ -48,6 +48,8 @@ public class KpiB9AnalyticDataDTO implements Serializable {
     private Long resKoValid;
 
     private Long kpiB9DetailResultId;
+    
+    private String stationName;
 
     @Override
     public String toString() {
