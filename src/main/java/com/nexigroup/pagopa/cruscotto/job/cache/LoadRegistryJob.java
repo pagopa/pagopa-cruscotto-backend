@@ -7,6 +7,7 @@ import com.nexigroup.pagopa.cruscotto.service.AnagPartnerService;
 import com.nexigroup.pagopa.cruscotto.service.AnagStationService;
 import com.nexigroup.pagopa.cruscotto.service.dto.AnagPartnerDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.AnagStationDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.PartnerIdentificationDTO;
 import com.nexigroup.pagopa.cruscotto.service.validation.ValidationGroups;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
@@ -69,8 +70,9 @@ public class LoadRegistryJob extends QuartzJobBean {
 
                     AnagPartnerDTO partnerDTO;
                     partnerDTO = new AnagPartnerDTO();
-                    partnerDTO.setFiscalCode(partner.getBrokerCode());
-                    partnerDTO.setName(partner.getDescription());
+                    partnerDTO.setPartnerIdentification(new PartnerIdentificationDTO());
+                    partnerDTO.getPartnerIdentification().setFiscalCode(partner.getBrokerCode());
+                    partnerDTO.getPartnerIdentification().setName(partner.getDescription());
                     partnerDTO.setStatus(
                         BooleanUtils.toBooleanDefaultIfNull(partner.getEnabled(), false) ? PartnerStatus.ATTIVO : PartnerStatus.NON_ATTIVO
                     );
@@ -144,6 +146,21 @@ public class LoadRegistryJob extends QuartzJobBean {
             stopWatch.start();
 
             anagStationService.saveAll(stationDTOS);
+
+            // Enhance: increment stationsCount for each partner as stations are loaded
+            java.util.Map<String, Long> partnerStationCounts = new java.util.HashMap<>();
+            for (AnagStationDTO stationDTO : stationDTOS) {
+                String partnerFiscalCode = stationDTO.getPartnerFiscalCode();
+                partnerStationCounts.put(partnerFiscalCode, partnerStationCounts.getOrDefault(partnerFiscalCode, 0L) + 1);
+            }
+            partnerStationCounts.forEach((fiscalCode, count) -> {
+                anagPartnerService.findOneByFiscalCode(fiscalCode).ifPresent(partnerDTO -> {
+                    Long partnerId = partnerDTO.getPartnerIdentification() != null ? partnerDTO.getPartnerIdentification().getId() : null;
+                    if (partnerId != null) {
+                        anagPartnerService.updateStationsCount(partnerId, count);
+                    }
+                });
+            });
 
             stopWatch.stop();
 

@@ -1530,99 +1530,12 @@
         }
       }
     },
-    "/api/anag-stations": {
+    "/api/stations": {
       "get": {
         "tags": [
           "anag-station-resource"
         ],
         "operationId": "getAllStations",
-        "parameters": [
-          {
-            "name": "partnerId",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          },
-          {
-            "name": "stationId",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          },
-          {
-            "name": "showNotActive",
-            "in": "query",
-            "description": "Visualizza non attivi (default false)",
-            "required": false,
-            "schema": {
-              "type": "boolean",
-              "default": false
-            }
-          },
-          {
-            "name": "page",
-            "in": "query",
-            "description": "Zero-based page index (0..N)",
-            "required": false,
-            "schema": {
-              "minimum": 0,
-              "type": "integer",
-              "default": 0
-            }
-          },
-          {
-            "name": "size",
-            "in": "query",
-            "description": "The size of the page to be returned",
-            "required": false,
-            "schema": {
-              "minimum": 1,
-              "type": "integer",
-              "default": 20
-            }
-          },
-          {
-            "name": "sort",
-            "in": "query",
-            "description": "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.",
-            "required": false,
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AnagStationDTO"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/stations": {
-      "get": {
-        "tags": [
-          "station-lookup-resource"
-        ],
-        "operationId": "lookupStations",
         "parameters": [
           {
             "name": "partnerId",
@@ -1676,7 +1589,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/StationIdentificationDTO"
+                    "$ref": "#/components/schemas/AnagStationDTO"
                   }
                 }
               }
@@ -1772,16 +1685,118 @@
     "/api/partners": {
       "get": {
         "tags": [
+          "partner-lookup-resource"
+        ],
+        "operationId": "lookupPartners",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "Partial or full partner name",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fiscalCode",
+            "in": "query",
+            "description": "Partial or full partner fiscal code",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PartnerIdentificationDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/anag-partners": {
+      "get": {
+        "tags": [
           "anag-partner-resource"
         ],
         "operationId": "getAllPartners",
         "parameters": [
           {
-            "name": "name",
+            "name": "partnerId",
             "in": "query",
             "required": false,
             "schema": {
-              "type": "string"
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "analyzed",
+            "in": "query",
+            "description": "Filtro analisi partner:  true (ANALYZED), false (NOT_ANALYZED)",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "qualified",
+            "in": "query",
+            "description": "Filtro qualifica: true (QUALIFIED), false (NOT_QUALIFIED)",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "lastAnalysisDate",
+            "in": "query",
+            "description": "Data ultima analisi (dd-MM-yyyy)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "analysisPeriodStartDate",
+            "in": "query",
+            "description": "Data inizio periodo analizzato (dd-MM-yyyy)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "analysisPeriodEndDate",
+            "in": "query",
+            "description": "Data fine periodo analizzato dd-MM-yyyy)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "showNotActive",
+            "in": "query",
+            "description": "Visualizza non attivi (default false)",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
             }
           },
           {
@@ -3178,7 +3193,7 @@
             }
           }
         }
-      }
+           }
     },
     "/api/auth-permissions/auth-function/{idFunction}/associabili": {
       "get": {
@@ -5504,17 +5519,6 @@
           }
         }
       },
-      "StationIdentificationDTO": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "name": { "type": "string" }
-        },
-        "required": ["id", "name"]
-      },
       "AnagStationDTO": {
         "required": [
           "name",
@@ -5570,40 +5574,6 @@
           "deactivationDate": {
             "type": "string",
             "format": "date"
-          }
-        }
-      },
-      "AnagPartnerDTO": {
-        "required": [
-          "fiscalCode",
-          "name",
-          "status"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "fiscalCode": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "ATTIVO",
-              "NON_ATTIVO"
-            ]
-          },
-          "qualified": {
-            "type": "boolean"
-          },
-          "deactivationDate": {
-            "type": "string",
-            "format": "date"
           },
           "createdBy": {
             "type": "string"
@@ -5620,6 +5590,61 @@
             "format": "date-time"
           }
         }
+      },
+      "PartnerIdentificationDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "fiscalCode": { "type": "string" },
+          "name": { "type": "string" }
+        },
+        "required": ["id", "fiscalCode", "name"]
+      },
+      "AnagPartnerDTO": {
+        "required": [
+          "partner",
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "partnerIdentification": { "$ref": "#/components/schemas/PartnerIdentificationDTO" },
+          "status": {
+            "type": "string",
+            "enum": ["ATTIVO", "NON_ATTIVO"]
+          },
+          "qualified": { "type": "boolean" },
+          "deactivationDate": { "type": "string", "format": "date" },
+          "lastAnalysisDate": {
+            "$ref": "#/components/schemas/Day"
+          },
+          "analysisPeriodStartDate": {
+            "$ref": "#/components/schemas/Day"
+          },
+          "analysisPeriodEndDate": {
+            "$ref": "#/components/schemas/Day"
+          },
+          "associatedInstitutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "associatedStations": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "Instant": {
+        "type": "string",
+        "format": "date-time",
+        "description": "Date and time."
+      },
+      "Day": {
+        "type": "string",
+        "format": "date",
+        "description": "Date."
       },
       "PagoPaTaxonomyAggregatePositionDTO": {
         "type": "object",

@@ -12,6 +12,10 @@
       <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
     </springProfile>
 
+    <springProfile name="local">
+      <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+    </springProfile>
+
     <springProfile name="devpagopa">
       <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <layout class="ch.qos.logback.contrib.json.classic.JsonLayout">
