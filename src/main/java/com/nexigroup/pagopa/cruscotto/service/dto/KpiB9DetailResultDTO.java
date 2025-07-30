@@ -56,6 +56,8 @@ public class KpiB9DetailResultDTO implements Serializable {
     private OutcomeStatus outcome;
 
     private Long kpiB9ResultId;
+    
+    private String stationName;
 
     @Override
     public String toString() {

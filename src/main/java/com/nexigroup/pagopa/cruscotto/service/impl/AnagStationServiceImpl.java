@@ -6,6 +6,7 @@ import com.nexigroup.pagopa.cruscotto.repository.AnagPartnerRepository;
 import com.nexigroup.pagopa.cruscotto.repository.AnagStationRepository;
 import com.nexigroup.pagopa.cruscotto.service.AnagStationService;
 import com.nexigroup.pagopa.cruscotto.service.dto.AnagStationDTO;
+import com.nexigroup.pagopa.cruscotto.service.filter.AnagStationFilter;
 import com.nexigroup.pagopa.cruscotto.service.filter.StationFilter;
 import com.nexigroup.pagopa.cruscotto.service.mapper.AnagStationMapper;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QdslUtility;
@@ -204,5 +205,69 @@ public class AnagStationServiceImpl implements AnagStationService {
     public Optional<AnagStationDTO> findOne(Long id) {
         return anagStationRepository.findById(id).map(anagStationMapper::toDto);
     }
+
+	@Override
+	public Page<AnagStationDTO> findAll(AnagStationFilter filter, Pageable pageable) {
+		log.debug("Request to get all Stations by filter: {}", filter);
+
+        BooleanBuilder builder = new BooleanBuilder();
+
+        if (filter.getPartnerId() != null) {
+            builder.and(QAnagStation.anagStation.anagPartner.id.eq(Long.valueOf(filter.getPartnerId())));
+        }
+        
+        if (filter.getStationId() != null) {
+        	builder.and(QAnagStation.anagStation.id.eq(Long.valueOf(filter.getStationId())));
+        }
+        
+        if (filter.getShowNotActive() == null ||  (filter.getShowNotActive() != null && !filter.getShowNotActive().booleanValue())) {
+        	builder.and(QAnagStation.anagStation.status.stringValue().eq(StationStatus.ATTIVA.name()));
+        }
+
+        JPQLQuery<AnagStation> jpql = queryBuilder.<AnagStation>createQuery().from(QAnagStation.anagStation).where(builder);
+
+        long size = jpql.fetchCount();
+
+        JPQLQuery<AnagStationDTO> jpqlSelected = jpql.select(
+            Projections.fields(
+                AnagStationDTO.class,
+                QAnagStation.anagStation.id.as("id"),
+                QAnagStation.anagStation.name.as("name"),
+                QAnagStation.anagStation.activationDate.as("activationDate"),
+                QAnagStation.anagStation.anagPartner.id.as("partnerId"),
+                QAnagStation.anagStation.anagPartner.fiscalCode.as("partnerFiscalCode"),
+                QAnagStation.anagStation.anagPartner.name.as("partnerName"),
+                QAnagStation.anagStation.typeConnection.as("typeConnection"),
+                QAnagStation.anagStation.primitiveVersion.as("primitiveVersion"),
+                QAnagStation.anagStation.paymentOption.as("paymentOption"),
+                QAnagStation.anagStation.associatedInstitutes.as("associatedInstitutes"),
+                QAnagStation.anagStation.status.as("status"),
+                QAnagStation.anagStation.deactivationDate.as("deactivationDate"),
+                QAnagStation.anagStation.createdBy.as("createdBy"),
+                QAnagStation.anagStation.createdDate.as("createdDate"),
+                QAnagStation.anagStation.lastModifiedBy.as("lastModifiedBy"),
+                QAnagStation.anagStation.lastModifiedDate.as("lastModifiedDate")
+            )
+        );
+
+        jpqlSelected.offset(pageable.getOffset());
+        jpqlSelected.limit(pageable.getPageSize());
+
+        pageable
+            .getSortOr(Sort.by(Sort.Direction.ASC, "id"))
+            .forEach(order -> {
+                jpqlSelected.orderBy(
+                    new OrderSpecifier<>(
+                        order.isAscending() ? Order.ASC : Order.DESC,
+                        Expressions.stringPath(order.getProperty()),
+                        QdslUtility.toQueryDslNullHandling(order.getNullHandling())
+                    )
+                );
+            });
+
+        List<AnagStationDTO> list = jpqlSelected.fetch();
+
+        return new PageImpl<>(list, pageable, size);
+	}
 
 }
