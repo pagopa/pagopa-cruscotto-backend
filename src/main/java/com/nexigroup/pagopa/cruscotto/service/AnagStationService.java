@@ -1,13 +1,15 @@
 package com.nexigroup.pagopa.cruscotto.service;
 
-import com.nexigroup.pagopa.cruscotto.domain.AnagStation;
-import com.nexigroup.pagopa.cruscotto.service.dto.AnagStationDTO;
-import com.nexigroup.pagopa.cruscotto.service.filter.StationFilter;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
+import com.nexigroup.pagopa.cruscotto.domain.AnagStation;
+import com.nexigroup.pagopa.cruscotto.service.dto.AnagStationDTO;
+import com.nexigroup.pagopa.cruscotto.service.filter.AnagStationFilter;
+import com.nexigroup.pagopa.cruscotto.service.filter.StationFilter;
 
 /**
  * Service Interface for managing {@link AnagStation}.
@@ -44,4 +46,13 @@ public interface AnagStationService {
      * @return an {@link Optional} containing the {@link AnagStationDTO} if a matching entity exists, or an empty {@link Optional} if not found
      */
     Optional<AnagStationDTO> findOne(Long id);
+    
+    /**
+     * Get all the stations by filter.
+     *
+     * @param filter the pagination filter.
+     * @param pageable the pagination information.
+     * @return the list of stations.
+     */
+    Page<AnagStationDTO> findAll(AnagStationFilter filter, Pageable pageable);
 }
