@@ -15,6 +15,8 @@
   <include file="1.0.5/ddl/20250731121000_add_enabled_to_anag_institution.xml" relativeToChangelogFile="true"/>
 
   <include file="1.0.5/ddl/20250731122000_remove_columns_from_anag_institution.xml" relativeToChangelogFile="true"/>
+  
+  <include file="1.0.5/dml/20250731811000_add_entity_authorizations.xml" relativeToChangelogFile="true"/>
 
   <include file="1.0.5/ddl/20250801120000_add_index_te_fiscal_code_anag_institution.xml" relativeToChangelogFile="true"/>
 
