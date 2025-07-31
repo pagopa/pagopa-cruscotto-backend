@@ -11,10 +11,9 @@ import com.nexigroup.pagopa.cruscotto.service.dto.AnagStationDTO;
 import com.nexigroup.pagopa.cruscotto.service.filter.AnagStationFilter;
 import com.nexigroup.pagopa.cruscotto.service.filter.StationFilter;
 
-/**
- * Service Interface for managing {@link AnagStation}.
- */
 public interface AnagStationService {
+    Optional<AnagStation> findOneByName(String name);
+    
     /**
      * Save all stations.
      *
