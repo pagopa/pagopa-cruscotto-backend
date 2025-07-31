@@ -70,10 +70,6 @@ public class AnagPartner extends AbstractAuditingEntity<Long> implements Seriali
 
     @OneToMany(mappedBy = "anagPartner", fetch = FetchType.LAZY)
     @JsonIgnore
-    private Set<AnagInstitution> anagInstitutions = new HashSet<>();
-
-    @OneToMany(mappedBy = "anagPartner", fetch = FetchType.LAZY)
-    @JsonIgnore
     private Set<AnagPlannedShutdown> anagPlannedShutdowns = new HashSet<>();
 
     @Override

@@ -16,7 +16,6 @@ public interface AnagPartnerMapper extends EntityMapper<AnagPartnerDTO, AnagPart
     @Mapping(target = "lastModifiedBy", ignore = true)
     @Mapping(target = "lastModifiedDate", ignore = true)
     @Mapping(target = "anagStations", ignore = true)
-    @Mapping(target = "anagInstitutions", ignore = true)
     @Mapping(target = "anagPlannedShutdowns", ignore = true)
     @Mapping(target = "lastAnalysisDate", ignore = true)
     @Mapping(target= "id", source = "partnerIdentification.id")
