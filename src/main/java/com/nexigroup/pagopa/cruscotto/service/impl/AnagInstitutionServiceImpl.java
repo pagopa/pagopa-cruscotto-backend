@@ -16,4 +16,9 @@ public class AnagInstitutionServiceImpl implements AnagInstitutionService {
     public AnagInstitution findByInstitutionCode(String institutionCode) {
         return anagInstitutionRepository.findByFiscalCode(institutionCode);
     }
+
+    @Override
+    public void saveAll(java.util.List<AnagInstitution> institutions) {
+        anagInstitutionRepository.saveAll(institutions);
+    }
 }
