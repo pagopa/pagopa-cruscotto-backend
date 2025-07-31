@@ -1,3 +1,4 @@
+
 <?xml version="1.0" encoding="utf-8"?>
 <databaseChangeLog
   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
@@ -10,4 +11,6 @@
   
   <include file="1.0.5/ddl/20250711122000_alter_entity_AnagPartner.xml" relativeToChangelogFile="true"/>
 
+  <include file="1.0.5/ddl/20250731120000_add_aca_standin_to_anag_station_anag_institution.xml" relativeToChangelogFile="true"/>
+  <include file="1.0.5/ddl/20250731121000_add_enabled_to_anag_institution.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

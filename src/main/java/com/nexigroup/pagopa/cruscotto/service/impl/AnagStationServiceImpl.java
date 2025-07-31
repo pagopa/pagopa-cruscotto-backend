@@ -36,6 +36,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class AnagStationServiceImpl implements AnagStationService {
 
+    @Override
+    public Optional<AnagStation> findOneByName(String name) {
+        return anagStationRepository.findOneByName(name);
+    }
+
     private final Logger log = LoggerFactory.getLogger(AnagStationServiceImpl.class);
 
     private final AnagStationRepository anagStationRepository;
@@ -206,9 +211,9 @@ public class AnagStationServiceImpl implements AnagStationService {
         return anagStationRepository.findById(id).map(anagStationMapper::toDto);
     }
 
-	@Override
-	public Page<AnagStationDTO> findAll(AnagStationFilter filter, Pageable pageable) {
-		log.debug("Request to get all Stations by filter: {}", filter);
+    @Override
+    public Page<AnagStationDTO> findAll(AnagStationFilter filter, Pageable pageable) {
+        log.debug("Request to get all Stations by filter: {}", filter);
 
         BooleanBuilder builder = new BooleanBuilder();
 
@@ -217,11 +222,11 @@ public class AnagStationServiceImpl implements AnagStationService {
         }
         
         if (filter.getStationId() != null) {
-        	builder.and(QAnagStation.anagStation.id.eq(Long.valueOf(filter.getStationId())));
+            builder.and(QAnagStation.anagStation.id.eq(Long.valueOf(filter.getStationId())));
         }
         
         if (filter.getShowNotActive() == null ||  (filter.getShowNotActive() != null && !filter.getShowNotActive().booleanValue())) {
-        	builder.and(QAnagStation.anagStation.status.stringValue().eq(StationStatus.ATTIVA.name()));
+            builder.and(QAnagStation.anagStation.status.stringValue().eq(StationStatus.ATTIVA.name()));
         }
 
         JPQLQuery<AnagStation> jpql = queryBuilder.<AnagStation>createQuery().from(QAnagStation.anagStation).where(builder);
@@ -268,6 +273,6 @@ public class AnagStationServiceImpl implements AnagStationService {
         List<AnagStationDTO> list = jpqlSelected.fetch();
 
         return new PageImpl<>(list, pageable, size);
-	}
+    }
 
 }
