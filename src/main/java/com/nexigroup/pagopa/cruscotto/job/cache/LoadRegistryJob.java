@@ -74,23 +74,38 @@ public class LoadRegistryJob extends QuartzJobBean {
         int size = response.getCreditorInstitutions() != null ? response.getCreditorInstitutions().size() : 0;
         LOGGER.info("{} records will be processed for institutions", size);
 
-        List<AnagInstitution> institutions = new ArrayList<>();
+        List<CreditorInstitution> institutions = new ArrayList<>();
 
-        if (size > 0) {
-            for (CreditorInstitution ci : response.getCreditorInstitutions().values()) {
-                // Find or create AnagInstitution by code
-                AnagInstitution institution = anagInstitutionService.findByInstitutionCode(ci.getCreditorInstitutionCode());
-                if (institution == null) {
-                    institution = new AnagInstitution();
-                }
-                institution.setFiscalCode(ci.getCreditorInstitutionCode());
-                institution.setName(ci.getBusinessName());
-                institution.setEnabled(ci.getEnabled());
-                institutions.add(institution);
+        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
+            Validator validator = factory.getValidator();
+            if (size > 0) {
+                for (CreditorInstitution ci : response.getCreditorInstitutions().values()) {
+                 Set<ConstraintViolation<CreditorInstitution>> violations = validator.validate(
+                        ci,
+                        ValidationGroups.RegistryJob.class
+                    );
+                if (violations.isEmpty()) {
+                        institutions.add(ci);
+                    } else {
+                        LOGGER.error("Invalid partner {}", ci);
+                        violations.forEach(violation -> LOGGER.error("{}: {}", violation.getPropertyPath(), violation.getMessage()));
+                    }    
+                
             }
+        }
             // Save all institutions
+            LOGGER.info("After validation {} records will be saved", institutions.size());
+
+            StopWatch stopWatch = new StopWatch();
+            stopWatch.start();
+
             anagInstitutionService.saveAll(institutions);
-            LOGGER.info("Saved {} rows to anag_institution", institutions.size());
+
+            stopWatch.stop();
+
+            LOGGER.info("Saved {} rows institution to database into {} seconds", institutions.size(), stopWatch.getTime(TimeUnit.SECONDS));
+            
+            
         }
     }
 
@@ -121,8 +136,19 @@ public class LoadRegistryJob extends QuartzJobBean {
                 }
             }
             // Save all associations
+            
+            
+
+            LOGGER.info("After validation {} records will be saved", associations.size());
+
+            StopWatch stopWatch = new StopWatch();
+            stopWatch.start();
+
             anagStationAnagInstitutionService.saveAll(associations);
-            LOGGER.info("Saved {} rows to anag_station_anag_institution", associations.size());
+
+            stopWatch.stop();
+
+            LOGGER.info("Saved {} rows institutionStation to database into {} seconds", associations.size(), stopWatch.getTime(TimeUnit.SECONDS));
         }
     }
 

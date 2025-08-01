@@ -101,7 +101,7 @@ public class LoadRegistryJobIT {
         CreditorInstitutionsResponse ciResponse = new CreditorInstitutionsResponse();
         ciResponse.setCreditorInstitutions(ciMap);
         when(pagoPaCacheClient.creditorInstitutions()).thenReturn(ciResponse);
-        when(anagInstitutionService.findByInstitutionCode("INST2")).thenReturn(null);
+        // when(anagInstitutionService.findByInstitutionCode("INST2")).thenReturn(null);
 
         // Mock findByStationCode and findByInstitutionCode
         AnagStation mockStation = new AnagStation();
