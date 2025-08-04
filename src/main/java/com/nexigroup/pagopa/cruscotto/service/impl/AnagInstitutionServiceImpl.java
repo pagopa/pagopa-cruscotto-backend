@@ -142,9 +142,9 @@ public class AnagInstitutionServiceImpl implements AnagInstitutionService {
 
            JPQLQuery<AnagInstitution> jpql = queryBuilder.<AnagInstitution>createQuery()
                .from(QAnagInstitution.anagInstitution)
-               .join(QAnagStationAnagInstitution.anagStationAnagInstitution).on(QAnagStationAnagInstitution.anagStationAnagInstitution.anagInstitution.eq(QAnagInstitution.anagInstitution))
-               .join(QAnagStation.anagStation).on(QAnagStationAnagInstitution.anagStationAnagInstitution.anagStation.eq(QAnagStation.anagStation))
-               .join(QAnagPartner.anagPartner).on(QAnagStation.anagStation.anagPartner.eq(QAnagPartner.anagPartner))
+               .leftJoin(QAnagStationAnagInstitution.anagStationAnagInstitution).on(QAnagStationAnagInstitution.anagStationAnagInstitution.anagInstitution.eq(QAnagInstitution.anagInstitution))
+               .leftJoin(QAnagStation.anagStation).on(QAnagStationAnagInstitution.anagStationAnagInstitution.anagStation.eq(QAnagStation.anagStation))
+               .leftJoin(QAnagPartner.anagPartner).on(QAnagStation.anagStation.anagPartner.eq(QAnagPartner.anagPartner))
                .where(builder);
 
            long size = jpql.fetchCount();
