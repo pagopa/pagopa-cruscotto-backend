@@ -6,7 +6,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
@@ -70,10 +69,6 @@ public class AnagPartner extends AbstractAuditingEntity<Long> implements Seriali
 
     @OneToMany(mappedBy = "anagPartner", fetch = FetchType.LAZY)
     @JsonIgnore
-    private Set<AnagInstitution> anagInstitutions = new HashSet<>();
-
-    @OneToMany(mappedBy = "anagPartner", fetch = FetchType.LAZY)
-    @JsonIgnore
     private Set<AnagPlannedShutdown> anagPlannedShutdowns = new HashSet<>();
 
     @Override
@@ -120,8 +115,6 @@ public class AnagPartner extends AbstractAuditingEntity<Long> implements Seriali
             stationsCount +
             ", anagStations=" +
             anagStations +
-            ", anagInstitutions=" +
-            anagInstitutions +
             ", anagPlannedShutdowns=" +
             anagPlannedShutdowns +
             "} " +

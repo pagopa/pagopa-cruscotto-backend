@@ -245,7 +245,6 @@ public class AnagPartnerServiceImplIT {
 		
 		AnagPartner partner = new AnagPartner();
 		
-		partner.setAnagInstitutions(null);
 		partner.setAnagPlannedShutdowns(null);
 		partner.setAnagStations(null);
 		partner.setAnalysisPeriodEndDate(LocalDate.now());

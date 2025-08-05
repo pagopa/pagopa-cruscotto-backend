@@ -40,23 +40,9 @@ public class AnagInstitution extends AbstractAuditingEntity<Long> implements Ser
     @Column(name = "TE_NAME", length = 256, nullable = false)
     private String name;
 
-    @NotNull
-    @Column(name = "FL_ACA", nullable = false)
-    private boolean aca = false;
 
-    @NotNull
-    @Column(name = "FL_STAND_IND", nullable = false)
-    private boolean standInd = false;
-
-    @NotNull
-    @Column(name = "DT_ACTIVATION_DATE", nullable = false)
-    private LocalDate activationDate;
-
-    @JsonIgnore
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CO_ANAG_PARTNER_ID", nullable = false)
-    private AnagPartner anagPartner;
+    @Column(name = "FL_ENABLED", nullable = false)
+    private Boolean enabled = true;
 
     @ManyToMany(mappedBy = "anagInstitutions", fetch = FetchType.LAZY)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
@@ -91,14 +77,6 @@ public class AnagInstitution extends AbstractAuditingEntity<Long> implements Ser
             ", name='" +
             name +
             '\'' +
-            ", aca=" +
-            aca +
-            ", standInd=" +
-            standInd +
-            ", activationDate=" +
-            activationDate +
-            ", anagPartner=" +
-            anagPartner +
             ", anagStations=" +
             anagStations +
             "} " +

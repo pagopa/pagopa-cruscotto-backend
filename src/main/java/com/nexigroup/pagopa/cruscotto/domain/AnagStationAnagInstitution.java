@@ -32,6 +32,12 @@ public class AnagStationAnagInstitution implements Serializable {
     @JoinColumn(name = "CO_ANAG_INSTITUTION_ID", nullable = false)
     private AnagInstitution anagInstitution;
 
+    @Column(name = "ACA")
+    private Boolean aca;
+
+    @Column(name = "STANDIN")
+    private Boolean standin;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
