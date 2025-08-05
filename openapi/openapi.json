@@ -4,20 +4,16 @@
     "title": "PagoPa Cruscotto Backend API",
     "description": "PagoPa Cruscotto Backend API documentation",
     "termsOfService": "",
-    "contact": {
-      "name": "",
-      "url": "",
-      "email": ""
-    },
     "license": {
       "name": "unlicensed",
       "url": ""
     },
     "version": "0.0.1"
+    "version": "0.6.9"
   },
   "servers": [
     {
-      "url": "http://localhost:8080",
+      "url": "http://localhost:9000",
       "description": "Generated server url"
     }
   ],
