@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+ 
+  <changeSet id="20250731181300-1" author="system" context="dml">
+	<validCheckSum>ANY</validCheckSum>
+	<sql splitStatements="true" stripComments="true">
+	
+		INSERT INTO ${database.defaultSchemaName}.auth_permission (co_id,te_nome, te_modulo) VALUES(10073,'INSTITUTION_LIST', 'GTW');
+		INSERT INTO ${database.defaultSchemaName}.auth_function (co_id,te_nome, te_modulo, te_descrizione) VALUES(10024,'INSTITUTION_INQUIRY', 'GTW', 'Funzioni di consultazione degli enti');
+		INSERT INTO ${database.defaultSchemaName}.auth_fun_auth_perm (co_auth_permission_id, co_auth_function_id) VALUES(10073, 10024);
+		INSERT INTO ${database.defaultSchemaName}.auth_group_auth_func(co_auth_function_id, co_auth_group_id) VALUES(10024, 1);
+		
+		
+	</sql>
+	<rollback>
+	
+	  DELETE from ${database.defaultSchemaName}.auth_fun_auth_perm where co_auth_permission_id = 10073 and co_auth_function_id = 10024;
+	  DELETE from ${database.defaultSchemaName}.auth_permission where co_id = 10073;
+	  DELETE from ${database.defaultSchemaName}.auth_group_auth_func where co_auth_function_id = 10024 and co_auth_group_id = 1;
+	  DELETE from ${database.defaultSchemaName}.auth_function where co_id  = 10024;
+	  	  
+	</rollback>
+  </changeSet>
+
+</databaseChangeLog>

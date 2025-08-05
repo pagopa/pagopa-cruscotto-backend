@@ -7,6 +7,10 @@ import com.nexigroup.pagopa.cruscotto.service.AnagStationService;
 import com.nexigroup.pagopa.cruscotto.service.dto.AnagPartnerDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.AnagStationDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.PartnerIdentificationDTO;
+import com.nexigroup.pagopa.cruscotto.service.AnagInstitutionService;
+import com.nexigroup.pagopa.cruscotto.service.AnagStationAnagInstitutionService;
+import com.nexigroup.pagopa.cruscotto.domain.AnagStation;
+import com.nexigroup.pagopa.cruscotto.domain.AnagInstitution;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.quartz.JobExecutionContext;
@@ -39,15 +43,27 @@ public class LoadRegistryJobIT {
     @Mock
     private AnagStationService anagStationService;
 
+    @Mock
+    private AnagInstitutionService anagInstitutionService;
+
+    @Mock
+    private AnagStationAnagInstitutionService anagStationAnagInstitutionService;
+
     private LoadRegistryJob loadRegistryJob;
 
     @org.junit.jupiter.api.BeforeEach
     public void setUp() {
-        loadRegistryJob = new LoadRegistryJob(pagoPaCacheClient, anagPartnerService, anagStationService);
+        loadRegistryJob = new LoadRegistryJob(
+            pagoPaCacheClient,
+            anagPartnerService,
+            anagStationService,
+            anagInstitutionService,
+            anagStationAnagInstitutionService
+        );
     }
 
     @Test
-    public void testExecuteInternal_loadsPartnersAndStations() throws Exception {
+    public void testExecuteInternal_loadsPartnersStationsAndInstitutions() throws Exception {
         // Arrange: mock the responses from pagoPaCacheClient
         Partner partner = new Partner();
         partner.setBrokerCode("PARTNER1");
@@ -62,6 +78,40 @@ public class LoadRegistryJobIT {
         station.setIsPaymentOptionsEnabled(false);
         station.setEnabled(true);
         when(pagoPaCacheClient.stations()).thenReturn(new Station[]{station});
+
+
+        // Mock institution-station association response
+        CreditorInstitutionStation cis = new CreditorInstitutionStation();
+        cis.setStationCode("STATION1");
+        cis.setCreditorInstitutionCode("INST1");
+        cis.setAca(true);
+        cis.setStandin(false);
+        java.util.Map<String, CreditorInstitutionStation> cisMap = new java.util.HashMap<>();
+        cisMap.put("STATION1_INST1", cis);
+        CreditorInstitutionStationsResponse cisResponse = new CreditorInstitutionStationsResponse();
+        cisResponse.setCreditorInstitutionStations(cisMap);
+        when(pagoPaCacheClient.creditorInstitutionStations()).thenReturn(cisResponse);
+
+        // Mock creditorInstitutions response for loadInstitutions()
+        CreditorInstitution ci = new CreditorInstitution();
+        ci.setCreditorInstitutionCode("INST2");
+        ci.setEnabled(true);
+        java.util.Map<String, CreditorInstitution> ciMap = new java.util.HashMap<>();
+        ciMap.put("INST2", ci);
+        CreditorInstitutionsResponse ciResponse = new CreditorInstitutionsResponse();
+        ciResponse.setCreditorInstitutions(ciMap);
+        when(pagoPaCacheClient.creditorInstitutions()).thenReturn(ciResponse);
+        // when(anagInstitutionService.findByInstitutionCode("INST2")).thenReturn(null);
+
+        // Mock findByStationCode and findByInstitutionCode
+        AnagStation mockStation = new AnagStation();
+        // If no setter, set field directly or use builder if available
+        // mockStation.setStationCode("STATION1");
+        when(anagStationService.findOneByName("STATION1")).thenReturn(Optional.of(mockStation));
+
+        AnagInstitution mockInstitution = new AnagInstitution();
+        // mockInstitution.setInstitutionCode("INST1");
+        when(anagInstitutionService.findByInstitutionCode("INST1")).thenReturn(mockInstitution);
 
         // Mock findOneByFiscalCode to return a DTO with PartnerIdentification
         AnagPartnerDTO partnerDTO = new AnagPartnerDTO();
@@ -79,5 +129,9 @@ public class LoadRegistryJobIT {
         verify(anagPartnerService, atLeastOnce()).saveAll(anyList());
         verify(anagStationService, atLeastOnce()).saveAll(anyList());
         verify(anagPartnerService, atLeastOnce()).updateStationsCount(eq(1L), eq(1L));
+        // Verify institution-station associations are saved
+        verify(anagStationAnagInstitutionService, atLeastOnce()).saveAll(anyList());
+        // Verify institutions are saved from loadInstitutions()
+        verify(anagInstitutionService, atLeastOnce()).saveAll(anyList());
     }
 }
