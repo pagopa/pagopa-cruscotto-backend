@@ -4534,6 +4534,56 @@
         }
       }
     },
+    "/api/instance-modules": {
+      "patch": {
+        "tags": [
+          "instance-module-resource"
+        ],
+        "operationId": "updateInstanceModule",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InstanceModuleDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/InstanceModuleDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/instance-modules/{id}": {
       "get": {
         "tags": [

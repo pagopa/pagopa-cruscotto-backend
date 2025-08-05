@@ -117,6 +117,8 @@ public final class AuthoritiesConstants {
     
     public static final String INSTANCE_MODULE_DETAIL = "GTW.INSTANCE_MODULE_DETAIL";    
     
+    public static final String INSTANCE_MODULE_MODIFICATION = "GTW.INSTANCE_MODULE_MODIFICATION";    
+    
     public static final String SHUTDOWN_LIST = "GTW.SHUTDOWN_LIST";    
     
     public static final String SHUTDOWN_DETAIL = "GTW.SHUTDOWN_DETAIL";
