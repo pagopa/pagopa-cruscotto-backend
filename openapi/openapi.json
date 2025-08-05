@@ -6687,6 +6687,48 @@
           }
         }
       }
+    },
+    "/v3/api-docs/springdocDefault": {
+      "get": {
+        "tags": [
+          "Api Docs"
+        ],
+        "summary": "Api Docs 'springdocDefault'",
+        "operationId": "apiDocSpring",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/api-docs/management": {
+      "get": {
+        "tags": [
+          "Api Docs"
+        ],
+        "summary": "Api Docs 'management'",
+        "operationId": "apiDocManagement",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
