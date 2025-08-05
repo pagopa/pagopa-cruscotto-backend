@@ -5,6 +5,11 @@ import com.nexigroup.pagopa.cruscotto.domain.enumeration.StationStatus;
 import com.nexigroup.pagopa.cruscotto.job.client.PagoPaCacheClient;
 import com.nexigroup.pagopa.cruscotto.service.AnagPartnerService;
 import com.nexigroup.pagopa.cruscotto.service.AnagStationService;
+import com.nexigroup.pagopa.cruscotto.service.AnagInstitutionService;
+import com.nexigroup.pagopa.cruscotto.service.AnagStationAnagInstitutionService;
+import com.nexigroup.pagopa.cruscotto.domain.AnagStationAnagInstitution;
+import com.nexigroup.pagopa.cruscotto.domain.AnagStation;
+import com.nexigroup.pagopa.cruscotto.domain.AnagInstitution;
 import com.nexigroup.pagopa.cruscotto.service.dto.AnagPartnerDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.AnagStationDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.PartnerIdentificationDTO;
@@ -35,12 +40,15 @@ import org.springframework.stereotype.Component;
 public class LoadRegistryJob extends QuartzJobBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoadRegistryJob.class);
-
+        
     private final PagoPaCacheClient pagoPaCacheClient;
 
     private final AnagPartnerService anagPartnerService;
 
     private final AnagStationService anagStationService;
+
+    private final AnagInstitutionService anagInstitutionService;
+    private final AnagStationAnagInstitutionService anagStationAnagInstitutionService;
 
     @Override
     protected void executeInternal(@NotNull JobExecutionContext context) {
@@ -50,7 +58,98 @@ public class LoadRegistryJob extends QuartzJobBean {
 
         loadStations();
 
+        loadInstitutions();
+
+        loadInstitutionsStations();
+
         LOGGER.info("End");
+    }
+    /**
+     * Loads institutions from PagoPA and fills anag_institution table.
+     * Uses PagoPaCacheClient.creditorInstitutions() and saves all institutions.
+     */
+    private void loadInstitutions() {
+        LOGGER.info("Call PagoPA to get creditorInstitutions");
+        CreditorInstitutionsResponse response = pagoPaCacheClient.creditorInstitutions();
+        int size = response.getCreditorInstitutions() != null ? response.getCreditorInstitutions().size() : 0;
+        LOGGER.info("{} records will be processed for institutions", size);
+
+        List<CreditorInstitution> institutions = new ArrayList<>();
+
+        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
+            Validator validator = factory.getValidator();
+            if (size > 0) {
+                for (CreditorInstitution ci : response.getCreditorInstitutions().values()) {
+                 Set<ConstraintViolation<CreditorInstitution>> violations = validator.validate(
+                        ci,
+                        ValidationGroups.RegistryJob.class
+                    );
+                if (violations.isEmpty()) {
+                        institutions.add(ci);
+                    } else {
+                        LOGGER.error("Invalid partner {}", ci);
+                        violations.forEach(violation -> LOGGER.error("{}: {}", violation.getPropertyPath(), violation.getMessage()));
+                    }    
+                
+            }
+        }
+            // Save all institutions
+            LOGGER.info("After validation {} records will be saved", institutions.size());
+
+            StopWatch stopWatch = new StopWatch();
+            stopWatch.start();
+
+            anagInstitutionService.saveAll(institutions);
+
+            stopWatch.stop();
+
+            LOGGER.info("Saved {} rows institution to database into {} seconds", institutions.size(), stopWatch.getTime(TimeUnit.SECONDS));
+            
+            
+        }
+    }
+
+        
+    
+    private void loadInstitutionsStations() {
+        LOGGER.info("Call PagoPA to get creditorInstitutionStations");
+        CreditorInstitutionStationsResponse response = pagoPaCacheClient.creditorInstitutionStations();
+        int size = response.getCreditorInstitutionStations() != null ? response.getCreditorInstitutionStations().size() : 0;
+        LOGGER.info("{} records will be processed for institution-station associations", size);
+
+        List<AnagStationAnagInstitution> associations = new ArrayList<>();
+
+        if (size > 0) {
+            for (CreditorInstitutionStation cis : response.getCreditorInstitutionStations().values()) {
+                // Find or create AnagStation and AnagInstitution by code
+                AnagStation station = anagStationService.findOneByName(cis.getStationCode()).orElse(null);
+                AnagInstitution institution = anagInstitutionService.findByInstitutionCode(cis.getCreditorInstitutionCode());
+                if (station != null && institution != null) {
+                    AnagStationAnagInstitution association = new AnagStationAnagInstitution();
+                    association.setAnagStation(station);
+                    association.setAnagInstitution(institution);
+                    association.setAca(cis.getAca());
+                    association.setStandin(cis.getStandin());
+                    associations.add(association);
+                } else {
+                    LOGGER.warn("Station or Institution not found for codes: {} / {}", cis.getStationCode(), cis.getCreditorInstitutionCode());
+                }
+            }
+            // Save all associations
+            
+            
+
+            LOGGER.info("After validation {} records will be saved", associations.size());
+
+            StopWatch stopWatch = new StopWatch();
+            stopWatch.start();
+
+            anagStationAnagInstitutionService.saveAll(associations);
+
+            stopWatch.stop();
+
+            LOGGER.info("Saved {} rows institutionStation to database into {} seconds", associations.size(), stopWatch.getTime(TimeUnit.SECONDS));
+        }
     }
 
     private void loadPartners() {

@@ -173,6 +173,8 @@ public final class AuthoritiesConstants {
 
     public static final String UNKNOWN = "UNKNOWN";
     
+    public static final String INSTITUTION_LIST = "GTW.INSTITUTION_LIST";
+    
 
     private AuthoritiesConstants() {}
 }
