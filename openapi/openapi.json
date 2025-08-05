@@ -8,7 +8,7 @@
       "name": "unlicensed",
       "url": ""
     },
-    "version": "0.6.12"
+    "version": "0.6.13"
   },
   "servers": [
     {
@@ -8117,12 +8117,18 @@
             "type": "string"
           }
         },
-        "required": ["id", "name", "fiscalCode"]
+        "required": [
+          "id",
+          "name",
+          "fiscalCode"
+        ]
       },
       "AnagInstitutionDTO": {
         "type": "object",
         "properties": {
-          "institutionIdentification": { "$ref": "#/components/schemas/InstitutionIdentificationDTO"},
+          "institutionIdentification": {
+            "$ref": "#/components/schemas/InstitutionIdentificationDTO"
+          },
           "stationName": {
             "type": "string"
           },
@@ -8142,7 +8148,12 @@
             "type": "boolean"
           }
         },
-        "required": ["institutionIdentification", "aca", "standin", "enabled"]
+        "required": [
+          "institutionIdentification",
+          "aca",
+          "standin",
+          "enabled"
+        ]
       },
       "PartnerIdentificationDTO": {
         "required": [
