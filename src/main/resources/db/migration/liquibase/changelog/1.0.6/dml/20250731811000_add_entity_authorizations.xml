@@ -22,9 +22,9 @@
 	
 	  DELETE from ${database.defaultSchemaName}.auth_fun_auth_perm where co_auth_permission_id = 10073 and co_auth_function_id = 10024;
 	  DELETE from ${database.defaultSchemaName}.auth_permission where co_id = 10073;
-	  DELETE from ${database.defaultSchemaName}.auth_function where co_id  = 10024;
 	  DELETE from ${database.defaultSchemaName}.auth_group_auth_func where co_auth_function_id = 10024 and co_auth_group_id = 1;
-	  
+	  DELETE from ${database.defaultSchemaName}.auth_function where co_id  = 10024;
+	  	  
 	</rollback>
   </changeSet>
 
