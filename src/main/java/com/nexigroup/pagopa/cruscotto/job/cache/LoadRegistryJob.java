@@ -146,6 +146,7 @@ public class LoadRegistryJob extends QuartzJobBean {
 
             anagStationAnagInstitutionService.saveAll(associations);
             anagStationService.updateAllStationsAssociatedInstitutionsCount();
+            anagPartnerService.updateAllPartnersInstitutionsCount();
             stopWatch.stop();
 
             LOGGER.info("Saved {} rows institutionStation to database into {} seconds", associations.size(), stopWatch.getTime(TimeUnit.SECONDS));
