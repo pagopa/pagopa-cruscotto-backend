@@ -183,7 +183,7 @@ application:
 
   liquibase:
     async-start: false
-    dbVersion: 1.0.5
+    dbVersion: 1.0.6
 
 decorator:
   datasource:
