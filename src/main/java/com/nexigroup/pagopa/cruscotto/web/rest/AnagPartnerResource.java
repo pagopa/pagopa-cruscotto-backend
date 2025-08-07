@@ -1,8 +1,5 @@
 package com.nexigroup.pagopa.cruscotto.web.rest;
 
-import java.util.List;
-import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springdoc.core.annotations.ParameterObject;
@@ -13,7 +10,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,6 +22,9 @@ import com.nexigroup.pagopa.cruscotto.service.AnagPartnerService;
 import com.nexigroup.pagopa.cruscotto.service.dto.AnagPartnerDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.AnagPartnerFilterDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.PartnerIdentificationDTO;
+
+import java.util.List;
+import java.util.Optional;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
@@ -86,7 +85,7 @@ public class AnagPartnerResource {
     @GetMapping("/anag-partners")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.PARTNER_LIST + "\")")
     public ResponseEntity<List<AnagPartnerDTO>> getAnagPartners(
-    		@Valid @ModelAttribute AnagPartnerFilterDTO filter,
+    	@Parameter(description = "Filter", required = false) @Valid @ParameterObject AnagPartnerFilterDTO filter,
         @Parameter(description = "Pageable", required = true) @ParameterObject Pageable pageable
     ) {
         log.debug("REST request to get Partners");
