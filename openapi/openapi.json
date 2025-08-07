@@ -5661,14 +5661,63 @@
         "operationId": "getAnagPartners",
         "parameters": [
           {
-            "name": "filter",
+                        "name": "partnerId",
             "in": "query",
-            "required": true,
+                        "required": false,
             "schema": {
-              "$ref": "#/components/schemas/AnagPartnerFilterDTO"
+                            "type": "integer",
+                            "format": "int64"
             }
           },
           {
+                        "name": "analyzed",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "qualified",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "lastAnalysisDate",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "analysisPeriodStartDate",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "analysisPeriodEndDate",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "showNotActive",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
             "name": "page",
             "in": "query",
             "description": "Zero-based page index (0..N)",
