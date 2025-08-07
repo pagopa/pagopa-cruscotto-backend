@@ -236,6 +236,9 @@ public class InstanceModuleServiceImpl implements InstanceModuleService {
 		boolean isInstanceInDraft = InstanceStatus.BOZZA == instanceModule.getInstance().getStatus();
 		boolean hasChanges = false;
 		
+		// Store original allowManualOutcome value for manualOutcome validation
+		boolean originalAllowManualOutcome = instanceModule.isAllowManualOutcome();
+		
 		// Update status if provided and instance is in draft
 		if (instanceModuleDTO.getStatus() != null && instanceModule.getStatus() != instanceModuleDTO.getStatus()) {
 			if (!isInstanceInDraft) {
@@ -256,7 +259,7 @@ public class InstanceModuleServiceImpl implements InstanceModuleService {
 		
 		// Update manualOutcome if provided and conditions are met
 		if (instanceModuleDTO.getManualOutcome() != null && instanceModule.getManualOutcome() != instanceModuleDTO.getManualOutcome()) {
-			if (!instanceModule.isAllowManualOutcome()) {
+			if (!originalAllowManualOutcome) {
 				throw new RuntimeException("Cannot update manualOutcome: allowManualOutcome is false");
 			}
 			/*
