@@ -60,8 +60,9 @@ public class AnagInstitutionServiceImpl implements AnagInstitutionService {
         for (CreditorInstitution ci : creditorInstitutions) {
             AnagInstitution example = new AnagInstitution();
             example.setFiscalCode(ci.getCreditorInstitutionCode());
-            example.setName(null);
             example.setEnabled(null);
+            example.setCreatedDate(null);
+            example.setLastModifiedDate(null);
             AnagInstitution anagInstitution = anagInstitutionRepository.findOne(org.springframework.data.domain.Example.of(example)).orElse(new AnagInstitution());
             anagInstitution.setFiscalCode(ci.getCreditorInstitutionCode());
             anagInstitution.setName(ci.getBusinessName());
