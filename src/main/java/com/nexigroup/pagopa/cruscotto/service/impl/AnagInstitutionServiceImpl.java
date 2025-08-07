@@ -45,12 +45,7 @@ public class AnagInstitutionServiceImpl implements AnagInstitutionService {
 
     @Override
     public AnagInstitution findByInstitutionCode(String institutionCode) {
-    	List<AnagInstitution> institutions = anagInstitutionRepository.findByFiscalCode(institutionCode);
-    	if(institutions != null && !institutions.isEmpty()) { //TODO discuss this
-    		log.warn("findByInstitutionCode returning {} items for code {}, getting the first one", institutions.size(), institutionCode);
-    		return institutions.get(0);
-    	}
-    	return null;
+    	return anagInstitutionRepository.findByFiscalCode(institutionCode);
     }
 
     @Override
