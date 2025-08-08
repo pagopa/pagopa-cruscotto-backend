@@ -78,11 +78,11 @@ public class AnagInstitutionServiceImpl implements AnagInstitutionService {
            BooleanBuilder builder = new BooleanBuilder();
 
            if (filter.getFiscalCode() != null) {
-               builder.and(QAnagInstitution.anagInstitution.fiscalCode.eq(filter.getFiscalCode()));
+               builder.or(QAnagInstitution.anagInstitution.fiscalCode.eq(filter.getFiscalCode()));
            }
            
            if (filter.getName() != null) {
-           	builder.and(QAnagInstitution.anagInstitution.name.eq(filter.getName()));
+           	builder.or(QAnagInstitution.anagInstitution.name.eq(filter.getName()));
            }
 
            JPQLQuery<AnagInstitution> jpql = queryBuilder.<AnagInstitution>createQuery().from(QAnagInstitution.anagInstitution).where(builder);
