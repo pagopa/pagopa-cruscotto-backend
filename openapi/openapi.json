@@ -8,7 +8,7 @@
       "name": "unlicensed",
       "url": ""
     },
-    "version": "0.6.12"
+    "version": "0.6.20"
   },
   "servers": [
     {
@@ -16,146 +16,17 @@
       "description": "Generated server url"
     }
   ],
+  "tags": [
+    {
+      "name": "Actuator",
+      "description": "Monitor and interact",
+      "externalDocs": {
+        "description": "Spring Boot Actuator Web API Documentation",
+        "url": "https://docs.spring.io/spring-boot/docs/current/actuator-api/html/"
+      }
+    }
+  ],
   "paths": {
-    "/api/institutions": {
-      "get": {
-        "tags": [
-          "institution-lookup-resource"
-        ],
-        "operationId": "lookupInstitutions",
-        "parameters": [
-          {
-            "name": "name",
-            "in": "query",
-            "description": "Partial or full institution name",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "fiscalCode",
-            "in": "query",
-            "description": "Partial or full institution fiscal code",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/InstitutionIdentificationDTO"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/anag-institutions": {
-      "get": {
-        "tags": [
-          "anag-institution-resource"
-        ],
-        "operationId": "getAllInstitutions",
-        "parameters": [
-          {
-            "name": "institutionId",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          },
-          {
-            "name": "partnerId",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          },
-          {
-            "name": "stationId",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          },
-          {
-            "name": "showNotEnabled",
-            "in": "query",
-            "description": "Visualizza non abilitate (default false)",
-            "required": false,
-            "schema": {
-              "type": "boolean",
-              "default": false
-            }
-          },
-          {
-            "name": "page",
-            "in": "query",
-            "description": "Zero-based page index (0..N)",
-            "required": false,
-            "schema": {
-              "minimum": 0,
-              "type": "integer",
-              "default": 0
-            }
-          },
-          {
-            "name": "size",
-            "in": "query",
-            "description": "The size of the page to be returned",
-            "required": false,
-            "schema": {
-              "minimum": 1,
-              "type": "integer",
-              "default": 20
-            }
-          },
-          {
-            "name": "sort",
-            "in": "query",
-            "description": "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.",
-            "required": false,
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AnagInstitutionDTO"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/shutdowns": {
       "get": {
         "tags": [
@@ -242,12 +113,15 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AnagPlannedShutdownDTO"
+                  }
                 }
               }
             }
@@ -262,15 +136,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AnagPlannedShutdownDTO"
-                  }
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -293,12 +164,12 @@
           "required": true
         },
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "$ref": "#/components/schemas/AnagPlannedShutdownDTO"
                 }
               }
             }
@@ -313,12 +184,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AnagPlannedShutdownDTO"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -341,12 +212,12 @@
           "required": true
         },
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "$ref": "#/components/schemas/AnagPlannedShutdownDTO"
                 }
               }
             }
@@ -361,12 +232,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AnagPlannedShutdownDTO"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -417,12 +288,15 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ModuleDTO"
+                  }
                 }
               }
             }
@@ -437,15 +311,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ModuleDTO"
-                  }
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -468,12 +339,12 @@
           "required": true
         },
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "$ref": "#/components/schemas/ModuleDTO"
                 }
               }
             }
@@ -488,12 +359,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ModuleDTO"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -516,12 +387,12 @@
           "required": true
         },
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "$ref": "#/components/schemas/ModuleDTO"
                 }
               }
             }
@@ -536,12 +407,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ModuleDTO"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -592,12 +463,15 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiConfigurationDTO"
+                  }
                 }
               }
             }
@@ -612,15 +486,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiConfigurationDTO"
-                  }
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -643,12 +514,12 @@
           "required": true
         },
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "$ref": "#/components/schemas/KpiConfigurationDTO"
                 }
               }
             }
@@ -663,12 +534,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/KpiConfigurationDTO"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -691,12 +562,12 @@
           "required": true
         },
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "$ref": "#/components/schemas/KpiConfigurationDTO"
                 }
               }
             }
@@ -711,12 +582,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/KpiConfigurationDTO"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -826,12 +697,15 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/InstanceDTO"
+                  }
                 }
               }
             }
@@ -846,15 +720,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/InstanceDTO"
-                  }
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -877,12 +748,12 @@
           "required": true
         },
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "$ref": "#/components/schemas/InstanceDTO"
                 }
               }
             }
@@ -897,12 +768,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/InstanceDTO"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -925,12 +796,12 @@
           "required": true
         },
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "$ref": "#/components/schemas/InstanceDTO"
                 }
               }
             }
@@ -945,12 +816,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/InstanceDTO"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -976,15 +847,8 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
+          "200": {
+            "description": "OK"
           },
           "4XX": {
             "description": "Client error codes",
@@ -996,8 +860,15 @@
               }
             }
           },
-          "200": {
-            "description": "OK"
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
           }
         }
       }
@@ -1045,12 +916,15 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AuthUserDTO"
+                  }
                 }
               }
             }
@@ -1065,15 +939,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AuthUserDTO"
-                  }
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -1096,12 +967,12 @@
           "required": true
         },
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "$ref": "#/components/schemas/AuthUserDTO"
                 }
               }
             }
@@ -1116,12 +987,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthUserDTO"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -1144,12 +1015,12 @@
           "required": true
         },
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "$ref": "#/components/schemas/AuthUser"
                 }
               }
             }
@@ -1164,12 +1035,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthUser"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -1195,15 +1066,8 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
+          "200": {
+            "description": "OK"
           },
           "4XX": {
             "description": "Client error codes",
@@ -1215,8 +1079,15 @@
               }
             }
           },
-          "200": {
-            "description": "OK"
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
           }
         }
       }
@@ -1284,12 +1155,15 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AuthPermissionDTO"
+                  }
                 }
               }
             }
@@ -1304,15 +1178,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AuthPermissionDTO"
-                  }
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -1335,12 +1206,12 @@
           "required": true
         },
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "$ref": "#/components/schemas/AuthPermissionDTO"
                 }
               }
             }
@@ -1355,12 +1226,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthPermissionDTO"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -1383,12 +1254,12 @@
           "required": true
         },
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "$ref": "#/components/schemas/AuthPermissionDTO"
                 }
               }
             }
@@ -1403,12 +1274,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthPermissionDTO"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -1479,12 +1350,15 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AuthGroupDTO"
+                  }
                 }
               }
             }
@@ -1499,15 +1373,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AuthGroupDTO"
-                  }
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -1530,12 +1401,12 @@
           "required": true
         },
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "$ref": "#/components/schemas/AuthGroupDTO"
                 }
               }
             }
@@ -1550,12 +1421,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthGroupDTO"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -1578,12 +1449,12 @@
           "required": true
         },
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "$ref": "#/components/schemas/AuthGroupDTO"
                 }
               }
             }
@@ -1598,12 +1469,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthGroupDTO"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -1631,15 +1502,8 @@
           "required": true
         },
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
+          "200": {
+            "description": "OK"
           },
           "4XX": {
             "description": "Client error codes",
@@ -1651,8 +1515,15 @@
               }
             }
           },
-          "200": {
-            "description": "OK"
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
           }
         }
       }
@@ -1720,12 +1591,15 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AuthFunctionDTO"
+                  }
                 }
               }
             }
@@ -1740,15 +1614,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AuthFunctionDTO"
-                  }
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -1771,12 +1642,12 @@
           "required": true
         },
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "$ref": "#/components/schemas/AuthFunctionDTO"
                 }
               }
             }
@@ -1791,12 +1662,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthFunctionDTO"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -1819,12 +1690,12 @@
           "required": true
         },
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "$ref": "#/components/schemas/AuthFunctionDTO"
                 }
               }
             }
@@ -1839,12 +1710,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthFunctionDTO"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -1859,12 +1730,12 @@
         ],
         "operationId": "logout",
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "object"
                 }
               }
             }
@@ -1879,12 +1750,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -1909,12 +1780,12 @@
           "required": true
         },
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "object"
                 }
               }
             }
@@ -1929,12 +1800,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -1959,15 +1830,8 @@
           "required": true
         },
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
+          "200": {
+            "description": "OK"
           },
           "4XX": {
             "description": "Client error codes",
@@ -1979,8 +1843,15 @@
               }
             }
           },
-          "200": {
-            "description": "OK"
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
           }
         }
       }
@@ -2016,15 +1887,8 @@
           "required": true
         },
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
+          "200": {
+            "description": "OK"
           },
           "4XX": {
             "description": "Client error codes",
@@ -2036,8 +1900,15 @@
               }
             }
           },
-          "200": {
-            "description": "OK"
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
           }
         }
       }
@@ -2073,15 +1944,8 @@
           "required": true
         },
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
+          "200": {
+            "description": "OK"
           },
           "4XX": {
             "description": "Client error codes",
@@ -2093,8 +1957,15 @@
               }
             }
           },
-          "200": {
-            "description": "OK"
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
           }
         }
       }
@@ -2106,12 +1977,12 @@
         ],
         "operationId": "getAccount",
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "$ref": "#/components/schemas/AuthUserDTO"
                 }
               }
             }
@@ -2126,12 +1997,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthUserDTO"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -2154,15 +2025,8 @@
           "required": true
         },
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
+          "200": {
+            "description": "OK"
           },
           "4XX": {
             "description": "Client error codes",
@@ -2174,8 +2038,15 @@
               }
             }
           },
-          "200": {
-            "description": "OK"
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
           }
         }
       }
@@ -2197,15 +2068,8 @@
           "required": true
         },
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
+          "200": {
+            "description": "OK"
           },
           "4XX": {
             "description": "Client error codes",
@@ -2217,8 +2081,15 @@
               }
             }
           },
-          "200": {
-            "description": "OK"
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
           }
         }
       }
@@ -2240,15 +2111,8 @@
           "required": true
         },
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
+          "200": {
+            "description": "OK"
           },
           "4XX": {
             "description": "Client error codes",
@@ -2260,8 +2124,15 @@
               }
             }
           },
-          "200": {
-            "description": "OK"
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
           }
         }
       }
@@ -2283,15 +2154,8 @@
           "required": true
         },
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
+          "200": {
+            "description": "OK"
           },
           "4XX": {
             "description": "Client error codes",
@@ -2303,8 +2167,15 @@
               }
             }
           },
-          "200": {
-            "description": "OK"
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
           }
         }
       }
@@ -2362,12 +2233,15 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaxonomyDTO"
+                  }
                 }
               }
             }
@@ -2382,15 +2256,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/TaxonomyDTO"
-                  }
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -2416,12 +2287,12 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "$ref": "#/components/schemas/TaxonomyDTO"
                 }
               }
             }
@@ -2436,12 +2307,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TaxonomyDTO"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -2501,12 +2372,15 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AnagStationDTO"
+                  }
                 }
               }
             }
@@ -2521,15 +2395,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AnagStationDTO"
-                  }
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -2555,12 +2426,12 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "$ref": "#/components/schemas/AnagStationDTO"
                 }
               }
             }
@@ -2575,12 +2446,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AnagStationDTO"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -2606,12 +2477,12 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "$ref": "#/components/schemas/AnagPlannedShutdownDTO"
                 }
               }
             }
@@ -2626,12 +2497,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AnagPlannedShutdownDTO"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -2655,15 +2526,8 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
+          "200": {
+            "description": "OK"
           },
           "4XX": {
             "description": "Client error codes",
@@ -2675,8 +2539,15 @@
               }
             }
           },
-          "200": {
-            "description": "OK"
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
           }
         }
       }
@@ -2740,12 +2611,15 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PartnerIdentificationDTO"
+                  }
                 }
               }
             }
@@ -2760,15 +2634,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/PartnerIdentificationDTO"
-                  }
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -2794,12 +2665,12 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "$ref": "#/components/schemas/AnagPartnerDTO"
                 }
               }
             }
@@ -2814,12 +2685,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AnagPartnerDTO"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -2886,12 +2757,15 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PagoPaTaxonomyAggregatePositionDTO"
+                  }
                 }
               }
             }
@@ -2906,15 +2780,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/PagoPaTaxonomyAggregatePositionDTO"
-                  }
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -2981,12 +2852,15 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PagoPaRecordedTimeoutDTO"
+                  }
                 }
               }
             }
@@ -3001,15 +2875,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/PagoPaRecordedTimeoutDTO"
-                  }
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -3076,12 +2947,15 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PagoPaPaymentReceiptDTO"
+                  }
                 }
               }
             }
@@ -3096,15 +2970,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/PagoPaPaymentReceiptDTO"
-                  }
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -3130,12 +3001,12 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "$ref": "#/components/schemas/ModuleDTO"
                 }
               }
             }
@@ -3150,12 +3021,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ModuleDTO"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -3179,15 +3050,8 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
+          "200": {
+            "description": "OK"
           },
           "4XX": {
             "description": "Client error codes",
@@ -3199,8 +3063,15 @@
               }
             }
           },
-          "200": {
-            "description": "OK"
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
           }
         }
       }
@@ -3248,12 +3119,15 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ModuleDTO"
+                  }
                 }
               }
             }
@@ -3268,15 +3142,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ModuleDTO"
-                  }
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -3301,15 +3172,8 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
+          "200": {
+            "description": "OK"
           },
           "4XX": {
             "description": "Client error codes",
@@ -3321,8 +3185,15 @@
               }
             }
           },
-          "200": {
-            "description": "OK"
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
           }
         }
       }
@@ -3345,12 +3216,15 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiB9ResultDTO"
+                  }
                 }
               }
             }
@@ -3365,15 +3239,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiB9ResultDTO"
-                  }
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -3399,12 +3270,15 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiB2ResultDTO"
+                  }
                 }
               }
             }
@@ -3419,15 +3293,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiB2ResultDTO"
-                  }
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -3453,12 +3324,15 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiA2ResultDTO"
+                  }
                 }
               }
             }
@@ -3473,15 +3347,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiA2ResultDTO"
-                  }
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -3507,12 +3378,15 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiA1ResultDTO"
+                  }
                 }
               }
             }
@@ -3527,15 +3401,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiA1ResultDTO"
-                  }
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -3561,12 +3432,15 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiB9DetailResultDTO"
+                  }
                 }
               }
             }
@@ -3581,15 +3455,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiB9DetailResultDTO"
-                  }
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -3615,12 +3486,15 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiB2DetailResultDTO"
+                  }
                 }
               }
             }
@@ -3635,15 +3509,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiB2DetailResultDTO"
-                  }
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -3669,12 +3540,15 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiA2DetailResultDTO"
+                  }
                 }
               }
             }
@@ -3689,15 +3563,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiA2DetailResultDTO"
-                  }
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -3723,12 +3594,15 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiA1DetailResultDTO"
+                  }
                 }
               }
             }
@@ -3743,15 +3617,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiA1DetailResultDTO"
-                  }
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -3777,12 +3648,12 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "$ref": "#/components/schemas/KpiConfigurationDTO"
                 }
               }
             }
@@ -3797,12 +3668,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/KpiConfigurationDTO"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -3828,12 +3699,15 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiB9AnalyticDataDTO"
+                  }
                 }
               }
             }
@@ -3848,15 +3722,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiB9AnalyticDataDTO"
-                  }
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -3882,12 +3753,15 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiB2AnalyticDataDTO"
+                  }
                 }
               }
             }
@@ -3902,15 +3776,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiB2AnalyticDataDTO"
-                  }
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -3936,12 +3807,15 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiA2AnalyticDataDTO"
+                  }
                 }
               }
             }
@@ -3956,15 +3830,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiA2AnalyticDataDTO"
-                  }
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -3990,12 +3861,15 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiA1AnalyticDataDTO"
+                  }
                 }
               }
             }
@@ -4010,15 +3884,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiA1AnalyticDataDTO"
-                  }
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -4051,12 +3922,13 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "integer",
+                  "format": "int32"
                 }
               }
             }
@@ -4071,13 +3943,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "integer",
-                  "format": "int32"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -4102,12 +3973,13 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "integer",
+                  "format": "int32"
                 }
               }
             }
@@ -4122,13 +3994,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "integer",
-                  "format": "int32"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -4153,12 +4024,13 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "integer",
+                  "format": "int32"
                 }
               }
             }
@@ -4173,13 +4045,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "integer",
-                  "format": "int32"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -4204,12 +4075,13 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "integer",
+                  "format": "int32"
                 }
               }
             }
@@ -4224,13 +4096,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "integer",
-                  "format": "int32"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -4255,12 +4126,13 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "integer",
+                  "format": "int32"
                 }
               }
             }
@@ -4275,13 +4147,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "integer",
-                  "format": "int32"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -4296,12 +4167,15 @@
         ],
         "operationId": "getAllJobs",
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/JobsDTO"
+                  }
                 }
               }
             }
@@ -4316,15 +4190,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/JobsDTO"
-                  }
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -4405,12 +4276,15 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/QrtzLogTriggerExecutedDTO"
+                  }
                 }
               }
             }
@@ -4425,6 +4299,78 @@
               }
             }
           },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/institutions": {
+      "get": {
+        "tags": [
+          "institution-resource"
+        ],
+        "operationId": "getInstitutionsLookup",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fiscalCode",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Zero-based page index (0..N)",
+            "required": false,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "The size of the page to be returned",
+            "required": false,
+            "schema": {
+              "minimum": 1,
+              "type": "integer",
+              "default": 20
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
           "200": {
             "description": "OK",
             "content": {
@@ -4432,8 +4378,28 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/QrtzLogTriggerExecutedDTO"
+                    "$ref": "#/components/schemas/InstitutionIdentificationDTO"
                   }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -4459,12 +4425,12 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "$ref": "#/components/schemas/InstanceDTO"
                 }
               }
             }
@@ -4479,12 +4445,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/InstanceDTO"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -4508,15 +4474,8 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
+          "200": {
+            "description": "OK"
           },
           "4XX": {
             "description": "Client error codes",
@@ -4528,8 +4487,15 @@
               }
             }
           },
-          "200": {
-            "description": "OK"
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
           }
         }
       }
@@ -4552,12 +4518,12 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "$ref": "#/components/schemas/InstanceModuleDTO"
                 }
               }
             }
@@ -4572,12 +4538,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/InstanceModuleDTO"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -4602,12 +4568,12 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "$ref": "#/components/schemas/AuthUserDTO"
                 }
               }
             }
@@ -4622,12 +4588,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthUserDTO"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -4650,15 +4616,8 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
+          "200": {
+            "description": "OK"
           },
           "4XX": {
             "description": "Client error codes",
@@ -4670,8 +4629,15 @@
               }
             }
           },
-          "200": {
-            "description": "OK"
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
           }
         }
       }
@@ -4694,12 +4660,12 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "$ref": "#/components/schemas/AuthUserDTO"
                 }
               }
             }
@@ -4714,12 +4680,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthUserDTO"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -4745,12 +4711,12 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "$ref": "#/components/schemas/AuthPermissionDTO"
                 }
               }
             }
@@ -4765,12 +4731,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthPermissionDTO"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -4794,15 +4760,8 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
+          "200": {
+            "description": "OK"
           },
           "4XX": {
             "description": "Client error codes",
@@ -4814,8 +4773,15 @@
               }
             }
           },
-          "200": {
-            "description": "OK"
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
           }
         }
       }
@@ -4872,12 +4838,15 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AuthPermissionDTO"
+                  }
                 }
               }
             }
@@ -4892,15 +4861,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AuthPermissionDTO"
-                  }
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -4968,12 +4934,15 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AuthPermissionDTO"
+                  }
                 }
               }
             }
@@ -4988,15 +4957,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AuthPermissionDTO"
-                  }
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -5022,12 +4988,12 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "$ref": "#/components/schemas/AuthGroupDTO"
                 }
               }
             }
@@ -5042,12 +5008,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthGroupDTO"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -5071,15 +5037,8 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
+          "200": {
+            "description": "OK"
           },
           "4XX": {
             "description": "Client error codes",
@@ -5091,8 +5050,15 @@
               }
             }
           },
-          "200": {
-            "description": "OK"
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
           }
         }
       }
@@ -5124,15 +5090,8 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
+          "200": {
+            "description": "OK"
           },
           "4XX": {
             "description": "Client error codes",
@@ -5144,8 +5103,15 @@
               }
             }
           },
-          "200": {
-            "description": "OK"
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
           }
         }
       }
@@ -5168,12 +5134,12 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "$ref": "#/components/schemas/AuthGroupDTO"
                 }
               }
             }
@@ -5188,12 +5154,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthGroupDTO"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -5219,12 +5185,12 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "$ref": "#/components/schemas/AuthFunctionDTO"
                 }
               }
             }
@@ -5239,12 +5205,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthFunctionDTO"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -5268,15 +5234,8 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
+          "200": {
+            "description": "OK"
           },
           "4XX": {
             "description": "Client error codes",
@@ -5288,8 +5247,15 @@
               }
             }
           },
-          "200": {
-            "description": "OK"
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
           }
         }
       }
@@ -5321,15 +5287,8 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
+          "200": {
+            "description": "OK"
           },
           "4XX": {
             "description": "Client error codes",
@@ -5341,8 +5300,15 @@
               }
             }
           },
-          "200": {
-            "description": "OK"
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
           }
         }
       }
@@ -5365,12 +5331,12 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "$ref": "#/components/schemas/AuthFunctionDTO"
                 }
               }
             }
@@ -5385,12 +5351,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthFunctionDTO"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -5450,12 +5416,15 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AuthFunctionDTO"
+                  }
                 }
               }
             }
@@ -5470,15 +5439,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AuthFunctionDTO"
-                  }
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -5546,12 +5512,15 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AuthFunctionDTO"
+                  }
                 }
               }
             }
@@ -5566,15 +5535,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AuthFunctionDTO"
-                  }
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -5651,12 +5617,15 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AnagStationDTO"
+                  }
                 }
               }
             }
@@ -5671,15 +5640,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AnagStationDTO"
-                  }
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -5695,11 +5661,60 @@
         "operationId": "getAnagPartners",
         "parameters": [
           {
-            "name": "filter",
+            "name": "partnerId",
             "in": "query",
-            "required": true,
+            "required": false,
             "schema": {
-              "$ref": "#/components/schemas/AnagPartnerFilterDTO"
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "analyzed",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "qualified",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "lastAnalysisDate",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "analysisPeriodStartDate",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "analysisPeriodEndDate",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "showNotActive",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
             }
           },
           {
@@ -5738,12 +5753,15 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AnagPartnerDTO"
+                  }
                 }
               }
             }
@@ -5758,6 +5776,97 @@
               }
             }
           },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/anag-institutions": {
+      "get": {
+        "tags": [
+          "institution-resource"
+        ],
+        "operationId": "getAllInstitutions",
+        "parameters": [
+          {
+            "name": "institutionId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "partnerId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "stationId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "showNotEnabled",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Zero-based page index (0..N)",
+            "required": false,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "The size of the page to be returned",
+            "required": false,
+            "schema": {
+              "minimum": 1,
+              "type": "integer",
+              "default": 20
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
           "200": {
             "description": "OK",
             "content": {
@@ -5765,8 +5874,28 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/AnagPartnerDTO"
+                    "$ref": "#/components/schemas/AnagInstitutionDTO"
                   }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -5792,15 +5921,8 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
+          "200": {
+            "description": "OK"
           },
           "4XX": {
             "description": "Client error codes",
@@ -5812,8 +5934,15 @@
               }
             }
           },
-          "200": {
-            "description": "OK"
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
           }
         }
       }
@@ -5836,26 +5965,6 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
           "200": {
             "description": "OK",
             "content": {
@@ -5878,6 +5987,26 @@
           },
           "404": {
             "description": "Not Found"
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
           }
         }
       },
@@ -5933,26 +6062,6 @@
         "summary": "Actuator root web endpoint",
         "operationId": "links",
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
           "200": {
             "description": "OK",
             "content": {
@@ -5990,6 +6099,26 @@
                 }
               }
             }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
           }
         }
       }
@@ -6002,26 +6131,6 @@
         "summary": "Actuator web endpoint 'threaddump'",
         "operationId": "threadDump",
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
           "200": {
             "description": "OK",
             "content": {
@@ -6043,6 +6152,26 @@
               "application/json": {
                 "schema": {
                   "type": "object"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -6078,12 +6207,17 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
+          "200": {
+            "description": "OK",
             "content": {
-              "application/json": {
+              "text/plain;version=0.0.4;charset=utf-8": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                  "type": "object"
+                }
+              },
+              "application/openmetrics-text;version=1.0.0;charset=utf-8": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
@@ -6098,17 +6232,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "5XX": {
+            "description": "Server error codes",
             "content": {
-              "text/plain;version=0.0.4;charset=utf-8": {
+              "application/json": {
                 "schema": {
-                  "type": "object"
-                }
-              },
-              "application/openmetrics-text;version=1.0.0;charset=utf-8": {
-                "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -6124,26 +6253,6 @@
         "summary": "Actuator web endpoint 'loggers'",
         "operationId": "loggers",
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
           "200": {
             "description": "OK",
             "content": {
@@ -6160,6 +6269,26 @@
               "application/json": {
                 "schema": {
                   "type": "object"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -6175,26 +6304,6 @@
         "summary": "Actuator web endpoint 'liquibase'",
         "operationId": "liquibaseBeans",
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
           "200": {
             "description": "OK",
             "content": {
@@ -6211,6 +6320,26 @@
               "application/json": {
                 "schema": {
                   "type": "object"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -6226,26 +6355,6 @@
         "summary": "Actuator web endpoint 'jhiopenapigroups'",
         "operationId": "allOpenApi",
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
           "200": {
             "description": "OK",
             "content": {
@@ -6262,6 +6371,26 @@
               "application/json": {
                 "schema": {
                   "type": "object"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -6277,26 +6406,6 @@
         "summary": "Actuator web endpoint 'jhimetrics'",
         "operationId": "allMetrics",
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
           "200": {
             "description": "OK",
             "content": {
@@ -6313,6 +6422,26 @@
               "application/json": {
                 "schema": {
                   "type": "object"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -6328,26 +6457,6 @@
         "summary": "Actuator web endpoint 'info'",
         "operationId": "info",
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
           "200": {
             "description": "OK",
             "content": {
@@ -6364,6 +6473,26 @@
               "application/json": {
                 "schema": {
                   "type": "object"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -6379,26 +6508,6 @@
         "summary": "Actuator web endpoint 'health'",
         "operationId": "health",
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
           "200": {
             "description": "OK",
             "content": {
@@ -6415,6 +6524,26 @@
               "application/json": {
                 "schema": {
                   "type": "object"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -6439,26 +6568,6 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
           "200": {
             "description": "OK",
             "content": {
@@ -6475,6 +6584,26 @@
               "application/json": {
                 "schema": {
                   "type": "object"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -6500,26 +6629,6 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
           "200": {
             "description": "OK",
             "content": {
@@ -6542,6 +6651,26 @@
           },
           "404": {
             "description": "Not Found"
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
           }
         }
       }
@@ -6554,26 +6683,6 @@
         "summary": "Actuator web endpoint 'configprops'",
         "operationId": "configurationProperties",
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
           "200": {
             "description": "OK",
             "content": {
@@ -6590,6 +6699,26 @@
               "application/json": {
                 "schema": {
                   "type": "object"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -6615,26 +6744,6 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
           "200": {
             "description": "OK",
             "content": {
@@ -6657,6 +6766,26 @@
           },
           "404": {
             "description": "Not Found"
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
           }
         }
       }
@@ -6669,26 +6798,6 @@
         "summary": "Actuator web endpoint 'caches'",
         "operationId": "caches",
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
           "200": {
             "description": "OK",
             "content": {
@@ -6705,6 +6814,26 @@
               "application/json": {
                 "schema": {
                   "type": "object"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -6749,26 +6878,6 @@
           }
         ],
         "responses": {
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
           "200": {
             "description": "OK",
             "content": {
@@ -6791,6 +6900,26 @@
           },
           "404": {
             "description": "Not Found"
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
           }
         }
       },
@@ -8103,47 +8232,6 @@
           }
         }
       },
-      "InstitutionIdentificationDTO": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "name": {
-            "type": "string"
-          },
-          "fiscalCode": {
-            "type": "string"
-          }
-        },
-        "required": ["id", "name", "fiscalCode"]
-      },
-      "AnagInstitutionDTO": {
-        "type": "object",
-        "properties": {
-          "institutionIdentification": { "$ref": "#/components/schemas/InstitutionIdentificationDTO"},
-          "stationName": {
-            "type": "string"
-          },
-          "partnerName": {
-            "type": "string"
-          },
-          "partnerFiscalCode": {
-            "type": "string"
-          },
-          "enabled": {
-            "type": "boolean"
-          },
-          "aca": {
-            "type": "boolean"
-          },
-          "standin": {
-            "type": "boolean"
-          }
-        },
-        "required": ["institutionIdentification", "aca", "standin", "enabled"]
-      },
       "PartnerIdentificationDTO": {
         "required": [
           "fiscalCode",
@@ -9178,6 +9266,21 @@
           }
         }
       },
+      "InstitutionIdentificationDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "fiscalCode": {
+            "type": "string"
+          }
+        }
+      },
       "AnagPartnerFilterDTO": {
         "type": "object",
         "properties": {
@@ -9205,6 +9308,32 @@
           }
         }
       },
+      "AnagInstitutionDTO": {
+        "type": "object",
+        "properties": {
+          "institutionIdentification": {
+            "$ref": "#/components/schemas/InstitutionIdentificationDTO"
+          },
+          "stationName": {
+            "type": "string"
+          },
+          "partnerName": {
+            "type": "string"
+          },
+          "partnerFiscalCode": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "aca": {
+            "type": "boolean"
+          },
+          "standIn": {
+            "type": "boolean"
+          }
+        }
+      },
       "Link": {
         "type": "object",
         "properties": {
@@ -9217,15 +9346,5 @@
         }
       }
     }
-  },
-  "tags": [
-    {
-      "name": "Actuator",
-      "description": "Monitor and interact",
-      "externalDocs": {
-        "description": "Spring Boot Actuator Web API Documentation",
-        "url": "https://docs.spring.io/spring-boot/docs/current/actuator-api/html/"
-      }
-    }
-  ]
+  }
 }
