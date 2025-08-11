@@ -1,6 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nexigroup.pagopa.cruscotto.domain.AnagPartner;
 import com.nexigroup.pagopa.cruscotto.domain.QAnagPartner;
+import com.nexigroup.pagopa.cruscotto.domain.QAnagStation;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.PartnerStatus;
 import com.nexigroup.pagopa.cruscotto.repository.AnagPartnerRepository;
 import com.nexigroup.pagopa.cruscotto.service.AnagPartnerService;
@@ -27,6 +29,7 @@ import com.nexigroup.pagopa.cruscotto.service.mapper.AnagPartnerMapper;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QdslUtility;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
@@ -182,7 +185,9 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
     @Override
     public void updateLastAnalysisDate(Long partnerId, java.time.Instant lastAnalysisDate) {
         anagPartnerRepository.findById(partnerId).ifPresent(partner -> {
-            partner.setLastAnalysisDate(LocalDate.from(lastAnalysisDate));
+            ZoneId zoneId = ZoneId.systemDefault();
+        	LocalDate localDate = lastAnalysisDate.atZone(zoneId).toLocalDate();
+        	partner.setLastAnalysisDate(localDate);
             anagPartnerRepository.save(partner);
         });
     }
@@ -264,7 +269,8 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
                     QAnagPartner.anagPartner.lastAnalysisDate.as("lastAnalysisDate"),
                     QAnagPartner.anagPartner.analysisPeriodStartDate.as("analysisPeriodStartDate"),
                     QAnagPartner.anagPartner.analysisPeriodEndDate.as("analysisPeriodEndDate"),
-                    QAnagPartner.anagPartner.stationsCount.as("stationsCount")
+                    QAnagPartner.anagPartner.stationsCount.as("stationsCount"),
+                    QAnagPartner.anagPartner.institutionsCount.as("institutionsCount")
 //                    
   
             )
@@ -287,6 +293,48 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
         log.debug("findAll END");
         return new PageImpl<>(result, pageable, total);
 	}
+    
+    @Override
+    public void updateInstitutionsCount(Long partnerId, Long institutionsCount) {
+        anagPartnerRepository.findById(partnerId).ifPresent(partner -> {
+            partner.setInstitutionsCount(institutionsCount);
+            anagPartnerRepository.save(partner);
+        });
+    }
+
+    @Override
+    public void updateAllPartnersInstitutionsCount() {
+        log.debug("updateAllPartnersInstitutionsCount START");
+        
+        // Query per ottenere tutti i partner con le loro stazioni e relative istituzioni associate
+        // Per ogni partner, somma il numero di istituzioni associate a tutte le sue stazioni
+        JPQLQuery<Tuple> query = queryBuilder.<Tuple>createQuery()
+            .select(
+                QAnagPartner.anagPartner.id,
+                QAnagStation.anagStation.associatedInstitutes.sum().coalesce(0)
+            )
+            .from(QAnagPartner.anagPartner)
+            .leftJoin(QAnagPartner.anagPartner.anagStations, QAnagStation.anagStation)
+            .groupBy(QAnagPartner.anagPartner.id);
+
+        List<Tuple> results = query.fetch();
+        
+        // Aggiorna il count per ogni partner
+        results.forEach(result -> {
+            Long partnerId = result.get(QAnagPartner.anagPartner.id);
+            Integer institutionsCountInt = result.get(QAnagStation.anagStation.associatedInstitutes.sum().coalesce(0));
+            Long institutionsCount = institutionsCountInt != null ? institutionsCountInt.longValue() : 0L;
+            
+            try {
+                updateInstitutionsCount(partnerId, institutionsCount);
+                log.debug("Updated partner {} with institutions count: {}", partnerId, institutionsCount);
+            } catch (Exception e) {
+                log.error("Failed to update institutions count for partner {}: {}", partnerId, e.getMessage());
+            }
+        });
+        
+        log.debug("updateAllPartnersInstitutionsCount END");
+    }
     
     @Override
     public Optional<AnagPartnerDTO> findOneByFiscalCode(String fiscalCode) {
