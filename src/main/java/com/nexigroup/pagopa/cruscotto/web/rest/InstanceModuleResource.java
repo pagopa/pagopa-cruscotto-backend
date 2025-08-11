@@ -76,7 +76,7 @@ public class InstanceModuleResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)}
      */
     @PatchMapping ("/instance-modules")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTANCE_MODULE_DETAIL + "\")") //TODO USE INSTANCE_MODULE_MODIFICATION
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTANCE_MODULE_MODIFICATION + "\")")
     public ResponseEntity<InstanceModuleDTO> updateInstanceModule(@RequestBody InstanceModuleDTO body) {
         log.debug("REST request to update InstanceModule with id: {}", body.getId());
         
