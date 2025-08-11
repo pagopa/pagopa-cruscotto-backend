@@ -76,6 +76,19 @@ public interface AnagPartnerService {
     void updateStationsCount(Long partnerId, Long stationsCount);
 
     /**
+     * Updates the institutions count of a partner.
+     *
+     * @param partnerId the unique identifier of the partner
+     * @param institutionsCount the new institutions count to set
+     */
+    void updateInstitutionsCount(Long partnerId, Long institutionsCount);
+
+    /**
+     * Updates the institutions count for all partners based on their associated stations.
+     */
+    void updateAllPartnersInstitutionsCount();
+
+    /**
      * Find a single AnagPartner entity based on its fiscal code.
      *
      * @param fiscalCode the fiscal code of the AnagPartner to retrieve

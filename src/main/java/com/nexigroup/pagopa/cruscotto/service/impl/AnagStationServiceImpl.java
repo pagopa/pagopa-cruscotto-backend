@@ -3,6 +3,7 @@ package com.nexigroup.pagopa.cruscotto.service.impl;
 import com.nexigroup.pagopa.cruscotto.domain.*;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.StationStatus;
 import com.nexigroup.pagopa.cruscotto.repository.AnagPartnerRepository;
+import com.nexigroup.pagopa.cruscotto.repository.AnagStationAnagInstitutionRepository;
 import com.nexigroup.pagopa.cruscotto.repository.AnagStationRepository;
 import com.nexigroup.pagopa.cruscotto.service.AnagStationService;
 import com.nexigroup.pagopa.cruscotto.service.dto.AnagStationDTO;
@@ -19,8 +20,11 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPQLQuery;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +50,8 @@ public class AnagStationServiceImpl implements AnagStationService {
     private final AnagStationRepository anagStationRepository;
 
     private final AnagPartnerRepository anagPartnerRepository;
+    
+    private final AnagStationAnagInstitutionRepository anagStationAnagInstitutionRepository;
 
     private final QueryBuilder queryBuilder;
 
@@ -57,11 +63,13 @@ public class AnagStationServiceImpl implements AnagStationService {
     public AnagStationServiceImpl(
         AnagStationRepository anagStationRepository,
         AnagPartnerRepository anagPartnerRepository,
+        AnagStationAnagInstitutionRepository anagStationAnagInstitutionRepository,
         QueryBuilder queryBuilder,
         AnagStationMapper anagStationMapper
     ) {
         this.anagStationRepository = anagStationRepository;
         this.anagPartnerRepository = anagPartnerRepository;
+        this.anagStationAnagInstitutionRepository = anagStationAnagInstitutionRepository;
         this.queryBuilder = queryBuilder;
         this.anagStationMapper = anagStationMapper;
     }
@@ -274,5 +282,33 @@ public class AnagStationServiceImpl implements AnagStationService {
 
         return new PageImpl<>(list, pageable, size);
     }
+
+	@Override
+	public void updateAllStationsAssociatedInstitutionsCount() {
+		 log.debug("updateAllStationsAssociatedInstitutionsCount START");
+	        
+	        // get all counts by station
+	        List<Object[]> institutionCounts = anagStationAnagInstitutionRepository.countInstitutionsByStation();
+	        
+	        // result to map
+	        Map<Long, Long> countsByStationId = institutionCounts.stream()
+	            .collect(Collectors.toMap(
+	                result -> (Long) result[0],  // stationId
+	                result -> (Long) result[1]   // count
+	            ));
+	        
+	        // update each station
+	        countsByStationId.forEach((stationId, count) -> {
+	            try {
+	                anagStationRepository.updateAssociatedInstitutesCount(stationId, count.intValue());
+	                
+	            } catch (Exception e) {
+	                log.error("can not update station {}: {}", stationId, e.getMessage());
+	            }
+	        });
+	        
+	        log.debug("updateAllStationsAssociatedInstitutionsCount END");
+		
+	}
 
 }
