@@ -187,6 +187,17 @@ public class PagoPaRecordedTimeoutServiceImpl implements PagoPaRecordedTimeoutSe
         if(filter.getStation() != null) {
             query.where(qPagoPaRecordedTimeout.station.eq(filter.getStation()));
         }
+        
+        if(filter.getMethod() != null) {
+        	query.where(qPagoPaRecordedTimeout.method.eq(filter.getMethod()));
+        }
+        
+        if(filter.getDay() != null) {
+        	LocalDateTime startDateTime = filter.getDay().atStartOfDay();
+            LocalDateTime endDateTime = filter.getDay().atTime(23, 59, 59, 0);
+            query.where(qPagoPaRecordedTimeout.startDate.goe(startDateTime.atZone(ZoneOffset.systemDefault()).toInstant()));
+            query.where(qPagoPaRecordedTimeout.endDate.loe(endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()));
+        }
 
         long total = query.fetchCount();
 

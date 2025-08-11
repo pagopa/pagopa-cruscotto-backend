@@ -2881,6 +2881,23 @@
             }
           },
           {
+             "name": "method",
+             "in": "query",
+             "required": false,
+             "schema": {
+             	"type": "string"
+             }
+          },
+          {
+             "name": "day",
+             "in": "query",
+             "required": false,
+             "schema": {
+ 	            "type": "string",
+                "format": "date"
+             }
+          },
+          {
             "name": "page",
             "in": "query",
             "description": "Zero-based page index (0..N)",
