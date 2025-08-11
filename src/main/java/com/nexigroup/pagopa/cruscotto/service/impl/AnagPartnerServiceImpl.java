@@ -1,6 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -182,7 +183,9 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
     @Override
     public void updateLastAnalysisDate(Long partnerId, java.time.Instant lastAnalysisDate) {
         anagPartnerRepository.findById(partnerId).ifPresent(partner -> {
-            partner.setLastAnalysisDate(LocalDate.from(lastAnalysisDate));
+        	ZoneId zoneId = ZoneId.systemDefault();
+        	LocalDate localDate = lastAnalysisDate.atZone(zoneId).toLocalDate();
+        	partner.setLastAnalysisDate(localDate);
             anagPartnerRepository.save(partner);
         });
     }
