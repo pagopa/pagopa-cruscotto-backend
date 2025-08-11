@@ -39,8 +39,6 @@ public class AnagPartnerDTO implements Serializable {
     
     private Long stationsCount;
 
-//    private Integer associatedInstitutes;
-//
-//    
+    private Long associatedInstitutes;    
 
 }

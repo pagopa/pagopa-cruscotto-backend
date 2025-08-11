@@ -54,4 +54,9 @@ public interface AnagStationService {
      * @return the list of stations.
      */
     Page<AnagStationDTO> findAll(AnagStationFilter filter, Pageable pageable);
+    
+    /**
+     * Update count for associated institutions
+     */
+    void updateAllStationsAssociatedInstitutionsCount(); 
 }

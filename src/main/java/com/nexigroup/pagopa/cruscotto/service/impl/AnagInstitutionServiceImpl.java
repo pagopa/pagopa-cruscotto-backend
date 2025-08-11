@@ -45,7 +45,7 @@ public class AnagInstitutionServiceImpl implements AnagInstitutionService {
 
     @Override
     public AnagInstitution findByInstitutionCode(String institutionCode) {
-        return anagInstitutionRepository.findByFiscalCode(institutionCode);
+    	return anagInstitutionRepository.findByFiscalCode(institutionCode);
     }
 
     @Override
@@ -55,8 +55,9 @@ public class AnagInstitutionServiceImpl implements AnagInstitutionService {
         for (CreditorInstitution ci : creditorInstitutions) {
             AnagInstitution example = new AnagInstitution();
             example.setFiscalCode(ci.getCreditorInstitutionCode());
-            example.setName(null);
             example.setEnabled(null);
+            example.setCreatedDate(null);
+            example.setLastModifiedDate(null);
             AnagInstitution anagInstitution = anagInstitutionRepository.findOne(org.springframework.data.domain.Example.of(example)).orElse(new AnagInstitution());
             anagInstitution.setFiscalCode(ci.getCreditorInstitutionCode());
             anagInstitution.setName(ci.getBusinessName());
@@ -77,11 +78,12 @@ public class AnagInstitutionServiceImpl implements AnagInstitutionService {
            BooleanBuilder builder = new BooleanBuilder();
 
            if (filter.getFiscalCode() != null) {
-               builder.and(QAnagInstitution.anagInstitution.fiscalCode.eq(filter.getFiscalCode()));
+               builder.or(QAnagInstitution.anagInstitution.fiscalCode.likeIgnoreCase("%"+filter.getFiscalCode()+"%"));
+               //predicate.or(QAnagPartner.anagPartner.name.likeIgnoreCase("%" + nameFilter + "%"));
            }
            
            if (filter.getName() != null) {
-           	builder.and(QAnagInstitution.anagInstitution.name.eq(filter.getName()));
+           	builder.or(QAnagInstitution.anagInstitution.name.likeIgnoreCase("%"+filter.getName()+"%"));
            }
 
            JPQLQuery<AnagInstitution> jpql = queryBuilder.<AnagInstitution>createQuery().from(QAnagInstitution.anagInstitution).where(builder);
