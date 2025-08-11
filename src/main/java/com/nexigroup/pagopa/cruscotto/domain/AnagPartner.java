@@ -63,6 +63,9 @@ public class AnagPartner extends AbstractAuditingEntity<Long> implements Seriali
     @Column(name = "QT_STATIONS_COUNT")
     private Long stationsCount;
 
+    @Column(name = "QT_INSTITUTIONS_COUNT")
+    private Long institutionsCount;
+
     @OneToMany(mappedBy = "anagPartner", fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<AnagStation> anagStations = new HashSet<>();
