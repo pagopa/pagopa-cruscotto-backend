@@ -7,6 +7,7 @@ import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.job.config.JobConstant;
 import com.nexigroup.pagopa.cruscotto.service.*;
 import com.nexigroup.pagopa.cruscotto.service.dto.*;
+import com.nexigroup.pagopa.cruscotto.service.util.TaxonomyValidationUtils;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -19,7 +20,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.AllArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobDetail;
@@ -156,7 +156,7 @@ public class KpiA2Job extends QuartzJobBean {
                                         sumPaymentsDaily = sumPaymentsDaily + pagoPaTaxonomyAggregatePositionDTO.getTotal();
 
                                         if (
-                                            !isCorrectPayment(
+                                            !TaxonomyValidationUtils.isCorrectPayment(
                                                 pagoPaTaxonomyAggregatePositionDTO.getTransferCategory(),
                                                 taxonomyTakingsIdentifierSet,
                                                 transferCategoryMap
@@ -254,33 +254,5 @@ public class KpiA2Job extends QuartzJobBean {
         BigDecimal bd = new BigDecimal(Double.toString(value));
         bd = bd.setScale(5, RoundingMode.HALF_UP);
         return bd.doubleValue();
-    }
-
-    private boolean isCorrectPayment(
-        String transferCategory,
-        Set<String> taxonomyTakingsIdentifierSet,
-        Map<String, Boolean> transferCategoryMap
-    ) {
-        if (StringUtils.isBlank(transferCategory) || CollectionUtils.isEmpty(taxonomyTakingsIdentifierSet)) {
-            return false;
-        }
-
-        String taxonomyTakingsIdentifier;
-        try {
-            if (!transferCategory.endsWith("/")) {
-                transferCategory = transferCategory + "/";
-            }
-
-            if (transferCategory.startsWith("9/")) {
-                taxonomyTakingsIdentifier = transferCategory.substring(0, 12);
-            } else {
-                taxonomyTakingsIdentifier = "9/" + transferCategory.substring(0, 10);
-            }
-        } catch (Exception e) {
-            LOGGER.error("Error in parsing transferCategory {}", transferCategory, e);
-            return false;
-        }
-
-        return transferCategoryMap.computeIfAbsent(taxonomyTakingsIdentifier, taxonomyTakingsIdentifierSet::contains);
     }
 }
