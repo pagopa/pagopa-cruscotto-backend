@@ -735,7 +735,7 @@ class InstanceModuleServiceImplTest {
 
             // Then
             assertThat(result).isPresent();
-            assertThat(result.get()).isEqualTo(instanceModule);
+            assertThat(result.orElseThrow()).isEqualTo(instanceModule);
             verify(instanceModuleRepository).findById(10L);
         }
 
