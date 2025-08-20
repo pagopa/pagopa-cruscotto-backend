@@ -1,7 +1,25 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
-import com.nexigroup.pagopa.cruscotto.domain.*;
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.nexigroup.pagopa.cruscotto.domain.AnagStation;
+import com.nexigroup.pagopa.cruscotto.domain.AuthUser;
+import com.nexigroup.pagopa.cruscotto.domain.Instance;
+import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
+import com.nexigroup.pagopa.cruscotto.domain.KpiB2DetailResult;
+import com.nexigroup.pagopa.cruscotto.domain.QInstanceModule;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisOutcome;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisType;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.InstanceStatus;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleStatus;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceModuleRepository;
 import com.nexigroup.pagopa.cruscotto.service.InstanceModuleService;
@@ -14,14 +32,6 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.QBean;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPQLQuery;
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service Implementation for managing {@link InstanceModule}.
@@ -186,4 +196,109 @@ public class InstanceModuleServiceImpl implements InstanceModuleService {
 
         return kpiB2DetailResult;
     }
+/*
+	@Override
+	public void updateStatusAndAllowManualOutcome(Long instanceModuleId, ModuleStatus status, Boolean allowManualOutcome) {
+        InstanceModule instanceModule = instanceModuleRepository
+                .findById(instanceModuleId)
+                .orElseThrow(() -> new IllegalArgumentException("InstanceModule not found"));
+        	if (InstanceStatus.BOZZA == instanceModule.getInstance().getStatus()) {
+        		instanceModule.setStatus(status);
+                instanceModule.setAllowManualOutcome(allowManualOutcome);
+                instanceModule.setLastModifiedDate(Instant.now());
+                instanceModuleRepository.save(instanceModule);	
+        	}
+            
+		
+	}*/
+
+	/**
+	 * Updates an InstanceModule with patch-style updates (only provided fields are modified).
+	 * This overloaded version accepts an AuthUser parameter to set the manualOutcomeUser when updating manualOutcome.
+	 * Business rules:
+	 * - status and allowManualOutcome can only be updated when instance is in BOZZA status
+	 * - manualOutcome can only be updated when allowManualOutcome is true AND analysisType is AUTOMATICA
+	 * 
+	 * @param instanceModuleDTO the DTO containing the fields to update
+	 * @param currentUser the user performing the update (used for manualOutcomeUser assignment)
+	 * @return the updated InstanceModuleDTO reflecting the current state
+	 * @throws IllegalArgumentException if InstanceModule is not found
+	 * @throws RuntimeException if business rules are violated
+	 */
+	@Override
+	public InstanceModuleDTO updateInstanceModule(InstanceModuleDTO instanceModuleDTO, AuthUser currentUser) {
+		// Retrieve the existing entity
+		InstanceModule instanceModule = instanceModuleRepository
+                .findById(instanceModuleDTO.getId())
+                .orElseThrow(() -> new IllegalArgumentException("InstanceModule not found"));
+		
+		// Check if the parent instance is in draft status
+		boolean isInstanceInDraft = InstanceStatus.BOZZA == instanceModule.getInstance().getStatus();
+		boolean hasChanges = false;
+		
+		// Store original allowManualOutcome value for manualOutcome validation
+		boolean originalAllowManualOutcome = instanceModule.isAllowManualOutcome();
+		
+		// Update status if provided and instance is in draft
+		if (instanceModuleDTO.getStatus() != null && instanceModule.getStatus() != instanceModuleDTO.getStatus()) {
+			if (!isInstanceInDraft) {
+				throw new RuntimeException("Cannot update status: instance is not in BOZZA status");
+			}
+			instanceModule.setStatus(instanceModuleDTO.getStatus());
+			hasChanges = true;
+		}
+		
+		// Update allowManualOutcome if provided and instance is in draft
+		if (instanceModuleDTO.getAllowManualOutcome() != null && instanceModule.isAllowManualOutcome() != instanceModuleDTO.getAllowManualOutcome()) {
+			if (!isInstanceInDraft) {
+				throw new RuntimeException("Cannot update allowManualOutcome: instance is not in BOZZA status");
+			}
+			instanceModule.setAllowManualOutcome(instanceModuleDTO.getAllowManualOutcome());
+			hasChanges = true;
+		}
+		
+		// Update manualOutcome if provided and conditions are met
+		if (instanceModuleDTO.getManualOutcome() != null && instanceModule.getManualOutcome() != instanceModuleDTO.getManualOutcome()) {
+			if (!originalAllowManualOutcome) {
+				throw new RuntimeException("Cannot update manualOutcome: allowManualOutcome is false");
+			}
+			/*
+			if (AnalysisType.AUTOMATICA != instanceModule.getAnalysisType()) {
+				throw new RuntimeException("Cannot update manualOutcome: analysisType is not AUTOMATICA");
+			}*/
+			instanceModule.setManualOutcome(instanceModuleDTO.getManualOutcome());
+			instanceModule.setManualOutcomeDate(Instant.now());
+			// Set the current user as manualOutcomeUser when updating manual outcome
+			instanceModule.setManualOutcomeUser(currentUser);
+			hasChanges = true;
+		}
+		
+		// Save only if there were changes
+		if (hasChanges) {
+			instanceModule.setLastModifiedDate(Instant.now());
+			instanceModuleRepository.save(instanceModule);
+		}
+		
+		// Build and return the updated DTO without re-querying the database
+		InstanceModuleDTO result = new InstanceModuleDTO();
+		result.setId(instanceModule.getId());
+		result.setInstanceId(instanceModule.getInstance().getId());
+		result.setModuleId(instanceModule.getModule().getId());
+		result.setModuleCode(instanceModule.getModuleCode());
+		result.setAnalysisType(instanceModule.getAnalysisType());
+		result.setAllowManualOutcome(instanceModule.isAllowManualOutcome());
+		result.setAutomaticOutcome(instanceModule.getAutomaticOutcome());
+		result.setAutomaticOutcomeDate(instanceModule.getAutomaticOutcomeDate());
+		result.setManualOutcome(instanceModule.getManualOutcome());
+		result.setManualOutcomeDate(instanceModule.getManualOutcomeDate());
+		result.setStatus(instanceModule.getStatus());
+		// Set user information if available
+		if (instanceModule.getManualOutcomeUser() != null) {
+			result.setAssignedUserId(instanceModule.getManualOutcomeUser().getId());
+			result.setAssignedUserFirstName(instanceModule.getManualOutcomeUser().getFirstName());
+			result.setAssignedUserLastName(instanceModule.getManualOutcomeUser().getLastName());
+		}
+		
+		return result;
+	}
 }

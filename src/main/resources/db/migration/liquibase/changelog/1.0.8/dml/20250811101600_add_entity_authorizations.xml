@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+ 
+  <changeSet id="20250731181300-1" author="system" context="dml">
+	<validCheckSum>ANY</validCheckSum>
+	<sql splitStatements="true" stripComments="true">
+	
+		INSERT INTO ${database.defaultSchemaName}.auth_permission (co_id,te_nome, te_modulo) VALUES(10074,'INSTANCE_MODULE_MODIFICATION', 'GTW');
+		INSERT INTO ${database.defaultSchemaName}.auth_fun_auth_perm (co_auth_permission_id, co_auth_function_id) VALUES(10074, 10005);
+		
+		
+	</sql>
+	<rollback>
+	
+	  DELETE from ${database.defaultSchemaName}.auth_permission where co_id = 10074;
+	  DELETE from ${database.defaultSchemaName}.auth_fun_auth_perm where co_auth_permission_id = 10074 and co_auth_function_id = 10005;
+	  	  
+	</rollback>
+  </changeSet>
+
+</databaseChangeLog>
