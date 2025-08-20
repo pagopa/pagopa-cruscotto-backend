@@ -6,7 +6,7 @@
 
   <groupId>com.nexigroup.pagopa.cruscotto</groupId>
   <artifactId>pagopa-cruscotto-backend</artifactId>
-  <version>0.6.21</version>
+  <version>0.6.22</version>
   <packaging>jar</packaging>
   <name>PagoPa Cruscotto Backend</name>
   <description>PagoPa Cruscotto Backend</description>
