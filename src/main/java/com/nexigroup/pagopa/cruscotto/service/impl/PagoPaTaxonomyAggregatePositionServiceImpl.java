@@ -3,10 +3,13 @@ package com.nexigroup.pagopa.cruscotto.service.impl;
 import com.nexigroup.pagopa.cruscotto.domain.PagoPaTaxonomyAggregatePosition;
 import com.nexigroup.pagopa.cruscotto.domain.QPagoPaTaxonomyAggregatePosition;
 import com.nexigroup.pagopa.cruscotto.service.PagoPaTaxonomyAggregatePositionService;
+import com.nexigroup.pagopa.cruscotto.service.TaxonomyService;
 import com.nexigroup.pagopa.cruscotto.service.dto.PagoPaTaxonomyAggregatePositionDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.PagoPaTaxonomyIncorrectDTO;
 import com.nexigroup.pagopa.cruscotto.service.filter.PagoPaTaxonomyAggregatePositionFilter;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QdslUtility;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
+import com.nexigroup.pagopa.cruscotto.service.util.TaxonomyValidationUtils;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
@@ -14,9 +17,15 @@ import com.querydsl.core.types.dsl.Expressions;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.querydsl.jpa.JPQLQuery;
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -36,9 +45,11 @@ public class PagoPaTaxonomyAggregatePositionServiceImpl implements PagoPaTaxonom
     private static final Logger LOGGER = LoggerFactory.getLogger(PagoPaTaxonomyAggregatePositionServiceImpl.class);
 
     private final QueryBuilder queryBuilder;
+    private final TaxonomyService taxonomyService;
 
-    public PagoPaTaxonomyAggregatePositionServiceImpl(QueryBuilder queryBuilder) {
+    public PagoPaTaxonomyAggregatePositionServiceImpl(QueryBuilder queryBuilder, TaxonomyService taxonomyService) {
         this.queryBuilder = queryBuilder;
+        this.taxonomyService = taxonomyService;
     }
 
     @Override
@@ -136,6 +147,59 @@ public class PagoPaTaxonomyAggregatePositionServiceImpl implements PagoPaTaxonom
             QPagoPaTaxonomyAggregatePosition.pagoPaTaxonomyAggregatePosition.startDate.as("startDate"),
             QPagoPaTaxonomyAggregatePosition.pagoPaTaxonomyAggregatePosition.endDate.as("endDate"),
             QPagoPaTaxonomyAggregatePosition.pagoPaTaxonomyAggregatePosition.total.as("total"));
+    }
+
+    @Override
+    public List<PagoPaTaxonomyIncorrectDTO> findIncorrectTaxonomyRecordsForPartnerAndDay(String fiscalCodePartner, LocalDate day) {
+        LOGGER.debug("Request to find incorrect taxonomy records for partner {} and day {}", fiscalCodePartner, day);
+
+        // get valid takingsIdentifier
+        List<String> validTakingsIdentifiers = taxonomyService.getAllUpdatedTakingsIdentifiers();
+        if (CollectionUtils.isEmpty(validTakingsIdentifiers)) {
+            LOGGER.warn("No valid takings identifiers found in taxonomy");
+            return List.of();
+        }
+
+        QPagoPaTaxonomyAggregatePosition qPagoPaTaxonomyAggregatePosition = 
+            QPagoPaTaxonomyAggregatePosition.pagoPaTaxonomyAggregatePosition;
+
+        LocalDateTime startDateTime = day.atStartOfDay();
+        LocalDateTime endDateTime = day.atTime(23, 59, 59, 0);
+
+        LOGGER.debug("query range date: from {} to {}", startDateTime, endDateTime);
+
+        List<PagoPaTaxonomyIncorrectDTO> results = queryBuilder
+            .createQueryFactory()
+            .select(
+                Projections.fields(
+                    PagoPaTaxonomyIncorrectDTO.class,
+                    qPagoPaTaxonomyAggregatePosition.startDate.min().as("fromHour"),
+                    qPagoPaTaxonomyAggregatePosition.endDate.max().as("endHour"),
+                    qPagoPaTaxonomyAggregatePosition.transferCategory.as("transferCategory"),
+                    qPagoPaTaxonomyAggregatePosition.total.sum().as("total")
+                )
+            )
+            .from(qPagoPaTaxonomyAggregatePosition)
+            .where(
+                qPagoPaTaxonomyAggregatePosition.cfPartner.eq(fiscalCodePartner)
+                .and(qPagoPaTaxonomyAggregatePosition.startDate.goe(startDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
+                .and(qPagoPaTaxonomyAggregatePosition.startDate.loe(endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
+            )
+            .groupBy(qPagoPaTaxonomyAggregatePosition.transferCategory)
+            .orderBy(qPagoPaTaxonomyAggregatePosition.transferCategory.asc())
+            .fetch();
+
+        // filter to keep only invalids
+        Set<String> taxonomyTakingsIdentifierSet = new HashSet<>(validTakingsIdentifiers);
+        Map<String, Boolean> transferCategoryMap = new HashMap<>();
+
+        return results.stream()
+            .filter(record -> !TaxonomyValidationUtils.isCorrectPayment(
+                record.getTransferCategory(),
+                taxonomyTakingsIdentifierSet,
+                transferCategoryMap
+            ))
+            .collect(Collectors.toList());
     }
 
 }

@@ -2,6 +2,7 @@ package com.nexigroup.pagopa.cruscotto.service;
 
 import com.nexigroup.pagopa.cruscotto.domain.PagoPaTaxonomyAggregatePosition;
 import com.nexigroup.pagopa.cruscotto.service.dto.PagoPaTaxonomyAggregatePositionDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.PagoPaTaxonomyIncorrectDTO;
 import com.nexigroup.pagopa.cruscotto.service.filter.PagoPaTaxonomyAggregatePositionFilter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,4 +18,6 @@ public interface PagoPaTaxonomyAggregatePositionService {
     List<PagoPaTaxonomyAggregatePositionDTO> findAllRecordIntoDayForPartner(String fiscalCodePartner, LocalDate day);
 
     Page<PagoPaTaxonomyAggregatePositionDTO> findAll(PagoPaTaxonomyAggregatePositionFilter filter, Pageable pageable);
+
+    List<PagoPaTaxonomyIncorrectDTO> findIncorrectTaxonomyRecordsForPartnerAndDay(String fiscalCodePartner, LocalDate day);
 }
