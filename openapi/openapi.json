@@ -2793,6 +2793,70 @@
         }
       }
     },
+    "/api/pago-pa/taxonomy-aggregate-position/drilldown": {
+      "get": {
+        "tags": [
+          "pago-pa-taxonomy-aggregate-position-resource"
+        ],
+        "operationId": "getIncorrectTaxonomyRecords",
+        "parameters": [
+          {
+            "name": "cfPartner",
+            "in": "query",
+            "description": "Codice fiscale del partner",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "day",
+            "in": "query",
+            "description": "Giornata di riferimento (formato: yyyy-MM-dd)",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PagoPaTaxonomyIncorrectDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/pago-pa/recorded-timeout": {
       "get": {
         "tags": [
@@ -8365,6 +8429,26 @@
           "endDate": {
             "type": "string",
             "format": "date-time"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "PagoPaTaxonomyIncorrectDTO": {
+        "type": "object",
+        "properties": {
+          "fromHour": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endHour": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "transferCategory": {
+            "type": "string"
           },
           "total": {
             "type": "integer",
