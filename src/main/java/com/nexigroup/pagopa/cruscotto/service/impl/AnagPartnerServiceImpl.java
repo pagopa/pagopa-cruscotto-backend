@@ -270,7 +270,7 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
                     QAnagPartner.anagPartner.analysisPeriodStartDate.as("analysisPeriodStartDate"),
                     QAnagPartner.anagPartner.analysisPeriodEndDate.as("analysisPeriodEndDate"),
                     QAnagPartner.anagPartner.stationsCount.as("stationsCount"),
-                    QAnagPartner.anagPartner.institutionsCount.as("institutionsCount")
+                    QAnagPartner.anagPartner.institutionsCount.as("associatedInstitutes")
 //                    
   
             )
