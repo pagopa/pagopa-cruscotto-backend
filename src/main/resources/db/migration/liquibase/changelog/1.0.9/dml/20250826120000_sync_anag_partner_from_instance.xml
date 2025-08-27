@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+  <!-- Sync anag_partner data with latest instance data -->
+  <changeSet id="20250826120000-1" author="system" context="dml">
+    <validCheckSum>ANY</validCheckSum>
+    <comment>Synchronize anag_partner analysis dates with latest instance data</comment>
+    
+    <sql splitStatements="false" stripComments="true">
+      UPDATE ${database.defaultSchemaName}.anag_partner 
+      SET 
+          dt_last_analysis_date = DATE(latest_instance.dt_last_analisys_date),
+          dt_analysis_period_start_date = latest_instance.dt_analisys_period_start_date,
+          dt_analysis_period_end_date = latest_instance.dt_analisys_period_end_date,
+          dt_last_modified_date = CURRENT_TIMESTAMP,
+          te_last_modified_by = 'SYSTEM_SYNC'
+      FROM (
+          SELECT DISTINCT ON (co_partner_id)
+              co_partner_id,
+              dt_last_analisys_date,
+              dt_analisys_period_start_date,
+              dt_analisys_period_end_date
+          FROM ${database.defaultSchemaName}.instance 
+          WHERE dt_last_analisys_date IS NOT NULL
+          ORDER BY co_partner_id, dt_last_analisys_date DESC
+      ) AS latest_instance
+      WHERE ${database.defaultSchemaName}.anag_partner.co_id = latest_instance.co_partner_id
+      AND (
+          ${database.defaultSchemaName}.anag_partner.dt_last_analysis_date IS NULL
+          OR ${database.defaultSchemaName}.anag_partner.dt_last_analysis_date != DATE(latest_instance.dt_last_analisys_date)
+      );
+    </sql>
+    
+  </changeSet>
+
+</databaseChangeLog>
