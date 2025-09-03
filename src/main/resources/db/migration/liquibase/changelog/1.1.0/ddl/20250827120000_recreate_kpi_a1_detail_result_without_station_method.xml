@@ -6,7 +6,7 @@
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-  <changeSet id="20250827120000-1" author="system" context="ddl">
+  <!-- <changeSet id="20250827120000-1" author="system" context="ddl">
     <comment>Drop foreign key constraint from kpi_a1_analytic_data that references kpi_a1_detail_result</comment>
     <dropForeignKeyConstraint baseTableName="KPI_A1_ANALYTIC_DATA" 
                               constraintName="fk_tbcrusc8_kpia1anadata_tbcrusc8_kpia1detres"/>
@@ -17,7 +17,7 @@
                                referencedColumnNames="CO_ID"
                                referencedTableName="KPI_A1_DETAIL_RESULT"/>
     </rollback>
-  </changeSet>
+  </changeSet> -->
 
   <changeSet id="20250827120000-2" author="system" context="ddl">
     <comment>Rename existing KPI_A1_DETAIL_RESULT table to preserve existing data</comment>
@@ -118,6 +118,8 @@
                                 constraintName="fk_tbcrusc8_kpia1detres_tbcrusc8_kpia1res"/>
     </rollback>
   </changeSet>
+  
+  
 <!--
   <changeSet id="20250827120000-6" author="system" context="ddl">
     <comment>Recreate foreign key constraint from kpi_a1_analytic_data to new kpi_a1_detail_result table</comment>
