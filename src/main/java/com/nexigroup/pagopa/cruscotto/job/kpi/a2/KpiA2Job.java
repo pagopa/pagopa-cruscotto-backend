@@ -61,6 +61,8 @@ public class KpiA2Job extends QuartzJobBean {
 
     private final Scheduler scheduler;
 
+    private final KpiA2AnalyticIncorrectTaxonomyDataService kpiA2AnalyticIncorrectTaxonomyDataService;
+
     @Override
     protected void executeInternal(@NotNull JobExecutionContext context) {
         LOGGER.info("Start calculate kpi A.2");
@@ -208,7 +210,29 @@ public class KpiA2Job extends QuartzJobBean {
                             kpiA2DetailResultService.save(kpiA2DetailResultDTO);
 
                             kpiA2AnalyticDataDTOS.forEach(kpiA2AnalyticData -> {
+
                                 kpiA2AnalyticData.setKpiA2DetailResultId(kpiA2DetailResultDTO.getId());
+                                // Fetch incorrect taxonomy records for this analytic data
+                                List<PagoPaTaxonomyIncorrectDTO> incorrectRecords =
+                                    pagoPaTaxonomyAggregatePositionService.findIncorrectTaxonomyRecordsForPartnerAndDay(
+                                        instanceDTO.getPartnerFiscalCode(),
+                                        kpiA2AnalyticData.getEvaluationDate()
+                                    );
+
+                                // Map and save to new table
+                                List<KpiA2AnalyticIncorrectTaxonomyDataDTO> incorrectTaxonomyDataList = incorrectRecords.stream()
+                                    .map(record -> {
+                                        KpiA2AnalyticIncorrectTaxonomyDataDTO dto = new KpiA2AnalyticIncorrectTaxonomyDataDTO();
+                                        dto.setKpiA2AnalyticDataId(kpiA2AnalyticData.getId());
+                                        dto.setTransferCategory(record.getTransferCategory());
+                                        dto.setTotal(record.getTotal());
+                                        dto.setFromHour(record.getFromHour());
+                                        dto.setEndHour(record.getEndHour());
+                                        return dto;
+                                    })
+                                    .collect(java.util.stream.Collectors.toList());
+
+                                kpiA2AnalyticIncorrectTaxonomyDataService.saveAll(incorrectTaxonomyDataList);
                             });
 
                             kpiA2AnalyticDataService.saveAll(kpiA2AnalyticDataDTOS);
