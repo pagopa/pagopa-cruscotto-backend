@@ -212,6 +212,9 @@ public class KpiA2Job extends QuartzJobBean {
                             kpiA2AnalyticDataDTOS.forEach(kpiA2AnalyticData -> {
 
                                 kpiA2AnalyticData.setKpiA2DetailResultId(kpiA2DetailResultDTO.getId());
+
+                                kpiA2AnalyticDataService.save(kpiA2AnalyticData);
+
                                 // Fetch incorrect taxonomy records for this analytic data
                                 List<PagoPaTaxonomyIncorrectDTO> incorrectRecords =
                                     pagoPaTaxonomyAggregatePositionService.findIncorrectTaxonomyRecordsForPartnerAndDay(
@@ -234,8 +237,6 @@ public class KpiA2Job extends QuartzJobBean {
 
                                 kpiA2AnalyticIncorrectTaxonomyDataService.saveAll(incorrectTaxonomyDataList);
                             });
-
-                            kpiA2AnalyticDataService.saveAll(kpiA2AnalyticDataDTOS);
 
                             LOGGER.info("Final outcome {}", outcomeStatus);
                             kpiA2ResultService.updateKpiA2ResultOutcome(kpiA2ResultDTO.getId(), outcomeStatus);
