@@ -9,9 +9,17 @@ import java.util.List;
  */
 
 public interface KpiA2AnalyticDataService {
-    void saveAll(List<KpiA2AnalyticDataDTO> kpiA2AnalyticDataDTOS);
+    
 
     int deleteAllByInstanceModule(long instanceModuleId);
 
     List<KpiA2AnalyticDataDTO> findByDetailResultId(long detailResultId);
+
+    /**
+     * Save kpiA2AnalyticData and return saved entity as DTO.
+     *
+     * @param kpiA2AnalyticDataDTO the entity to save.
+     * @return saved KpiA2AnalyticDataDTO
+     */
+    KpiA2AnalyticDataDTO save(KpiA2AnalyticDataDTO kpiA2AnalyticDataDTO);
 }

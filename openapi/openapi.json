@@ -8,7 +8,7 @@
       "name": "unlicensed",
       "url": ""
     },
-    "version": "0.6.25"
+    "version": "0.7.2"
   },
   "servers": [
     {
@@ -2793,30 +2793,21 @@
         }
       }
     },
-    "/api/pago-pa/taxonomy-aggregate-position/drilldown": {
+    "/api/kpi-a2-analytic-incorrect-taxonomy-data/{analyticDataId}": {
       "get": {
         "tags": [
-          "pago-pa-taxonomy-aggregate-position-resource"
+          "kpi-a2-analytic-incorrect-taxonomy-data-resource"
         ],
-        "operationId": "getIncorrectTaxonomyRecords",
+        "operationId": "getByAnalyticDataId",
         "parameters": [
           {
-            "name": "cfPartner",
-            "in": "query",
-            "description": "Codice fiscale del partner",
+            "name": "analyticDataId",
+            "in": "path",
+            "description": "ID of the analytic data",
             "required": true,
             "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "day",
-            "in": "query",
-            "description": "Giornata di riferimento (formato: yyyy-MM-dd)",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "date"
+              "type": "integer",
+              "format": "int64"
             }
           }
         ],
@@ -2824,11 +2815,11 @@
           "200": {
             "description": "OK",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/PagoPaTaxonomyIncorrectDTO"
+                    "$ref": "#/components/schemas/KpiA2AnalyticIncorrectTaxonomyDataDTO"
                   }
                 }
               }
@@ -8453,7 +8444,7 @@
           }
         }
       },
-      "PagoPaTaxonomyIncorrectDTO": {
+      "KpiA2AnalyticIncorrectTaxonomyDataDTO": {
         "type": "object",
         "properties": {
           "fromHour": {
