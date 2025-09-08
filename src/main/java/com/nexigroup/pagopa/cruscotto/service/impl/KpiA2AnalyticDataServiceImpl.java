@@ -54,29 +54,35 @@ public class KpiA2AnalyticDataServiceImpl implements KpiA2AnalyticDataService {
     }
 
     /**
-     * Save all kpiA2AnalyticData.
+     * Save kpiA2AnalyticData and return saved entity as DTO.
      *
-     * @param kpiA2AnalyticDataDTOS the entities to save.
+     * @param kpiA2AnalyticDataDTO the entity to save.
+     * @return saved KpiA2AnalyticDataDTO
      */
     @Override
-    public void saveAll(List<KpiA2AnalyticDataDTO> kpiA2AnalyticDataDTOS) {
-        kpiA2AnalyticDataDTOS.forEach(kpiA2AnalyticDataDTO -> {
-            Instance instance = instanceRepository
+    public KpiA2AnalyticDataDTO save(KpiA2AnalyticDataDTO kpiA2AnalyticDataDTO) {
+
+        Instance instance = instanceRepository
                 .findById(kpiA2AnalyticDataDTO.getInstanceId())
                 .orElseThrow(() -> new IllegalArgumentException("Instance not found"));
 
-            InstanceModule instanceModule = instanceModuleRepository
+        InstanceModule instanceModule = instanceModuleRepository
                 .findById(kpiA2AnalyticDataDTO.getInstanceModuleId())
                 .orElseThrow(() -> new IllegalArgumentException("InstanceModule not found"));
 
-            KpiA2DetailResult kpiA2DetailResult = kpiA2DetailResultRepository
+        KpiA2DetailResult kpiA2DetailResult = kpiA2DetailResultRepository
                 .findById(kpiA2AnalyticDataDTO.getKpiA2DetailResultId())
                 .orElseThrow(() -> new IllegalArgumentException("KpiA2DetailResult not found"));
 
-            KpiA2AnalyticData kpiA2AnalyticData = getkpiA2AnalyticData(kpiA2AnalyticDataDTO, instance, instanceModule, kpiA2DetailResult);
+        KpiA2AnalyticData kpiA2AnalyticData = getkpiA2AnalyticData(kpiA2AnalyticDataDTO, instance, instanceModule,
+                kpiA2DetailResult);
 
-            kpiA2AnalyticDataRepository.save(kpiA2AnalyticData);
-        });
+        KpiA2AnalyticData saved = kpiA2AnalyticDataRepository.save(kpiA2AnalyticData);
+
+        
+        kpiA2AnalyticDataDTO.setId(saved.getId());
+
+        return kpiA2AnalyticDataDTO;
     }
 
     private static @NotNull KpiA2AnalyticData getkpiA2AnalyticData(
