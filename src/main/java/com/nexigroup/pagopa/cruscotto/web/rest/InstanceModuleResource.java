@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.nexigroup.pagopa.cruscotto.domain.AuthUser;
 import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
 import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
+import com.nexigroup.pagopa.cruscotto.service.CalculateStateInstanceService;
 import com.nexigroup.pagopa.cruscotto.service.InstanceModuleService;
 import com.nexigroup.pagopa.cruscotto.service.dto.InstanceModuleDTO;
 import com.nexigroup.pagopa.cruscotto.service.util.UserUtils;
@@ -30,19 +31,17 @@ public class InstanceModuleResource {
 
     private final Logger log = LoggerFactory.getLogger(InstanceModuleResource.class);
 
-    private static final String ENTITY_NAME = "instanceModule";
 
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
     private final InstanceModuleService instanceModuleService;
-    
     private final UserUtils userUtils;
-    
-
-    public InstanceModuleResource(InstanceModuleService instanceModuleService, UserUtils userUtils) {
+    private final CalculateStateInstanceService calculateStateInstanceService;
+    public InstanceModuleResource(InstanceModuleService instanceModuleService, UserUtils userUtils, CalculateStateInstanceService calculateStateInstanceService) {
         this.instanceModuleService = instanceModuleService;
         this.userUtils = userUtils;
+        this.calculateStateInstanceService = calculateStateInstanceService;
     }
 
     /**
@@ -78,21 +77,20 @@ public class InstanceModuleResource {
     @PatchMapping ("/instance-modules")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTANCE_MODULE_MODIFICATION + "\")")
     public ResponseEntity<InstanceModuleDTO> updateInstanceModule(@RequestBody InstanceModuleDTO body) {
-        log.debug("REST request to update InstanceModule with id: {}", body.getId());
-        
-        // Get current authenticated user information
-        AuthUser currentUser = userUtils.getLoggedUser();
-        log.debug("User '{}' (ID: {}, Name: {} {}) is updating InstanceModule with id: {}", 
-                currentUser.getLogin(), 
-                currentUser.getId(),
-                currentUser.getFirstName(), 
-                currentUser.getLastName(), 
-                body.getId());
-        
-        
-        InstanceModuleDTO result = instanceModuleService.updateInstanceModule(body, currentUser);
-        
-        log.info("InstanceModule with id: {} successfully updated by user: {}", body.getId(), currentUser.getLogin());
-        return ResponseEntity.ok(result);
+    log.debug("REST request to update InstanceModule with id: {}", body.getId());
+
+    // Get current authenticated user information
+    AuthUser currentUser = userUtils.getLoggedUser();
+    log.debug("User '{}' (ID: {}, Name: {} {}) is updating InstanceModule with id: {}", 
+        currentUser.getLogin(), 
+        currentUser.getId(),
+        currentUser.getFirstName(), 
+        currentUser.getLastName(), 
+        body.getId());
+
+    InstanceModuleDTO result = calculateStateInstanceService.updateModuleAndInstanceState(body, currentUser);
+
+    log.info("InstanceModule with id: {} successfully updated by user: {}", body.getId(), currentUser.getLogin());
+    return ResponseEntity.ok(result);
     }
 }
