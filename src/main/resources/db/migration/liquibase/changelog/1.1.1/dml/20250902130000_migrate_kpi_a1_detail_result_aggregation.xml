@@ -54,7 +54,7 @@
     </rollback>
   </changeSet>
   
-  <changeSet id="20250902130000-3" author="system" context="dml">
+  <changeSet id="20250902130000-2" author="system" context="dml">
       <comment>Set the foreign key in kpi_a1_analytic_data to the correct value from kpi_a1_detail_result for each matching row</comment>
       <sql>
         UPDATE kpi_a1_analytic_data a
@@ -64,7 +64,8 @@
              a.dt_analisys_date = d.dt_analisys_date
             AND a.co_instance_id = d.co_instance_id
             AND a.co_instance_module_id = d.co_instance_module_id
-            AND a.dt_evaluation_date BETWEEN d.dt_evaluation_start_date AND d.dt_evaluation_end_date;
+            AND a.dt_evaluation_date BETWEEN d.dt_evaluation_start_date AND d.dt_evaluation_end_date
+            AND d.te_evaluation_type = 'MESE';
       </sql>
       <rollback>
         -- No rollback: deleted data cannot be restored automatically
