@@ -468,10 +468,14 @@ public class InstanceServiceImpl implements InstanceService {
 
         JPAUpdateClause jpql = queryBuilder.updateQuery(QInstance.instance);
 
+        Instant now = Instant.now();
+        String currentUser = userUtils.getLoggedUser().getLogin();
         jpql
             .set(QInstance.instance.status, InstanceStatus.ESEGUITA)
             .set(QInstance.instance.lastAnalysisDate, lastAnalysisDate)
             .set(QInstance.instance.lastAnalysisOutcome, lastAnalysisOutcome)
+            .set(QInstance.instance.lastModifiedDate, now)
+            .set(QInstance.instance.lastModifiedBy, currentUser)
             .where(QInstance.instance.id.eq(id))
             .execute();
     }
