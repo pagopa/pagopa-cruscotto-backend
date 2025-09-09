@@ -1,16 +1,11 @@
+
 package com.nexigroup.pagopa.cruscotto.job.kpi;
 
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisOutcome;
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisType;
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.InstanceStatus;
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleStatus;
-import com.nexigroup.pagopa.cruscotto.service.*;
-import com.nexigroup.pagopa.cruscotto.service.dto.*;
-import java.time.Instant;
+import com.nexigroup.pagopa.cruscotto.service.InstanceService;
+import com.nexigroup.pagopa.cruscotto.service.CalculateStateInstanceService;
+import com.nexigroup.pagopa.cruscotto.service.dto.InstanceDTO;
 import java.util.List;
 import lombok.AllArgsConstructor;
-import org.apache.commons.lang3.BooleanUtils;
-import org.jetbrains.annotations.NotNull;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.slf4j.Logger;
@@ -28,13 +23,10 @@ public class CalculateStateInstanceJob extends QuartzJobBean {
     private static final Integer LIMIT = 50;
 
     private final InstanceService instanceService;
-
-    private final InstanceModuleService instanceModuleService;
-
-    private final AnagPartnerService anagPartnerService;
+    private final CalculateStateInstanceService calculateStateInstanceService;
 
     @Override
-    protected void executeInternal(@NotNull JobExecutionContext context) {
+    protected void executeInternal(@org.springframework.lang.NonNull JobExecutionContext context) {
         LOGGER.info("Start calculate state instance");
 
         Long instanceId = (context.getTrigger().getJobDataMap().get("instanceId") != null)
@@ -45,84 +37,13 @@ public class CalculateStateInstanceJob extends QuartzJobBean {
 
         if (instanceId != null) {
             InstanceDTO instanceDTO = instanceService.findOne(instanceId).orElseThrow(() -> new NullPointerException("Instance not found"));
-
-            calculateStateInstance(instanceDTO);
+            calculateStateInstanceService.calculateStateInstance(instanceDTO);
         } else {
             List<InstanceDTO> instanceDTOS = instanceService.findInstanceToCalculate(LIMIT);
-
-            instanceDTOS.forEach(this::calculateStateInstance);
+            instanceDTOS.forEach(calculateStateInstanceService::calculateStateInstance);
         }
         LOGGER.info("End");
     }
 
-    private void calculateStateInstance(InstanceDTO instanceDTO) {
-        LOGGER.info("Instance id {}", instanceDTO.getId());
-
-        List<InstanceModuleDTO> instanceModuleDTOS = instanceModuleService.findAllByInstanceId(instanceDTO.getId());
-
-        int ko = 0;
-        int standBy = 0;
-
-        if (instanceModuleDTOS.isEmpty()) {
-            LOGGER.info("No instance module found");
-        } else {
-            for (InstanceModuleDTO instanceModuleDTO : instanceModuleDTOS) {
-                LOGGER.info("Instance module {} status {}", instanceModuleDTO.getModuleCode(), instanceModuleDTO.getStatus());
-                if (instanceModuleDTO.getStatus().compareTo(ModuleStatus.ATTIVO) == 0) {
-                    if (instanceModuleDTO.getAnalysisType().compareTo(AnalysisType.AUTOMATICA) == 0) {
-                        switch (instanceModuleDTO.getAutomaticOutcome()) {
-                            case STANDBY:
-                                standBy++;
-                                break;
-                            case OK:
-                                if (instanceModuleDTO.getManualOutcome() != null) {
-                                    if (instanceModuleDTO.getManualOutcome().compareTo(AnalysisOutcome.KO) == 0) {
-                                        ko++;
-                                    }
-                                }
-                                break;
-                            case KO:
-                                if (instanceModuleDTO.getManualOutcome() != null) {
-                                    if (instanceModuleDTO.getManualOutcome().compareTo(AnalysisOutcome.KO) == 0) {
-                                        ko++;
-                                    } else {
-                                        ko++;
-                                    }
-                                } else {
-                                    ko++;
-                                }
-                                break;
-                        }
-                    } else if (instanceModuleDTO.getAnalysisType().compareTo(AnalysisType.MANUALE) == 0) {
-                        switch (instanceModuleDTO.getManualOutcome()) {
-                            case STANDBY:
-                                standBy++;
-                                break;
-                            case KO:
-                                ko++;
-                                break;
-                        }
-                    }
-                }
-            }
-        }
-
-        if (standBy == 0) {
-            Instant now = Instant.now();
-            instanceService.updateExecuteStateAndLastAnalysis(
-                instanceDTO.getId(),
-                now,
-                ko > 0 ? AnalysisOutcome.KO : AnalysisOutcome.OK
-            );
-            anagPartnerService.updateLastAnalysisDate(instanceDTO.getPartnerId(), now);
-            if (BooleanUtils.toBooleanDefaultIfNull(instanceDTO.getChangePartnerQualified(), false)) {
-                anagPartnerService.changePartnerQualified(instanceDTO.getPartnerId(), ko > 0 ? Boolean.FALSE : Boolean.TRUE);
-            }
-            anagPartnerService.updateAnalysisPeriodDates(
-                instanceDTO.getPartnerId(),
-                instanceDTO.getAnalysisPeriodStartDate(),
-                instanceDTO.getAnalysisPeriodEndDate()
-            );
-        }
-    }
+    // Business logic moved to CalculateStateInstanceService
 }
