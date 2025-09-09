@@ -138,6 +138,7 @@ public class KpiA2Job extends QuartzJobBean {
                             AtomicReference<Long> totIncorrectPaymentsPeriod = new AtomicReference<>(0L);
                             List<KpiA2AnalyticDataDTO> kpiA2AnalyticDataDTOS = new ArrayList<>();
                             Map<String, Boolean> transferCategoryMap = new HashMap<>();
+                            Map<LocalDate, List<PagoPaTaxonomyAggregatePositionDTO>> taxonomyAggregatePositionMap = new HashMap<>();
 
                             instanceDTO
                                 .getAnalysisPeriodStartDate()
@@ -150,6 +151,7 @@ public class KpiA2Job extends QuartzJobBean {
                                             instanceDTO.getPartnerFiscalCode(),
                                             date
                                         );
+
 
                                     long sumPaymentsDaily = 0;
                                     long sumIncorrectPaymentsDaily = 0;
@@ -166,6 +168,10 @@ public class KpiA2Job extends QuartzJobBean {
                                         ) {
                                             sumIncorrectPaymentsDaily =
                                                 sumIncorrectPaymentsDaily + pagoPaTaxonomyAggregatePositionDTO.getTotal();
+                                                // Save in map with key: partnerFiscalCode + '_' + date
+                                                //String taxonomyKey = instanceDTO.getPartnerFiscalCode() + "_" + date;
+                                                taxonomyAggregatePositionMap.put(date, pagoPaTaxonomyAggregatePositionDTOS);
+
                                         }
                                     }
 
@@ -215,22 +221,20 @@ public class KpiA2Job extends QuartzJobBean {
 
                                 kpiA2AnalyticDataService.save(kpiA2AnalyticData);
 
-                                // Fetch incorrect taxonomy records for this analytic data
-                                List<PagoPaTaxonomyIncorrectDTO> incorrectRecords =
-                                    pagoPaTaxonomyAggregatePositionService.findIncorrectTaxonomyRecordsForPartnerAndDay(
-                                        instanceDTO.getPartnerFiscalCode(),
-                                        kpiA2AnalyticData.getEvaluationDate()
-                                    );
+                                
+                                
 
                                 // Map and save to new table
-                                List<KpiA2AnalyticIncorrectTaxonomyDataDTO> incorrectTaxonomyDataList = incorrectRecords.stream()
+                                List<KpiA2AnalyticIncorrectTaxonomyDataDTO> incorrectTaxonomyDataList = taxonomyAggregatePositionMap.entrySet().stream()
+                                    .filter(entry -> entry.getKey().equals(kpiA2AnalyticData.getEvaluationDate()))
+                                    .flatMap(entry -> entry.getValue().stream())
                                     .map(record -> {
                                         KpiA2AnalyticIncorrectTaxonomyDataDTO dto = new KpiA2AnalyticIncorrectTaxonomyDataDTO();
                                         dto.setKpiA2AnalyticDataId(kpiA2AnalyticData.getId());
                                         dto.setTransferCategory(record.getTransferCategory());
                                         dto.setTotal(record.getTotal());
-                                        dto.setFromHour(record.getFromHour());
-                                        dto.setEndHour(record.getEndHour());
+                                        dto.setFromHour(record.getStartDate());
+                                        dto.setEndHour(record.getEndDate());
                                         return dto;
                                     })
                                     .collect(java.util.stream.Collectors.toList());
