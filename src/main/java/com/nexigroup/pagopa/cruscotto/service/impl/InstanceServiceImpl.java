@@ -463,13 +463,13 @@ public class InstanceServiceImpl implements InstanceService {
     }
 
     @Override
-    public void updateExecuteStateAndLastAnalysis(Long id, Instant lastAnalysisDate, AnalysisOutcome lastAnalysisOutcome) {
+    public void updateExecuteStateAndLastAnalysis(Long id, Instant lastAnalysisDate, AnalysisOutcome lastAnalysisOutcome, String currentUser) {
         LOGGER.debug("Request to update Instance {}", id);
 
         JPAUpdateClause jpql = queryBuilder.updateQuery(QInstance.instance);
 
         Instant now = Instant.now();
-        String currentUser = userUtils.getLoggedUser().getLogin();
+        
         jpql
             .set(QInstance.instance.status, InstanceStatus.ESEGUITA)
             .set(QInstance.instance.lastAnalysisDate, lastAnalysisDate)
