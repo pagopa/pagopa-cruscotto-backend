@@ -33,7 +33,7 @@ public class KpiA2AnalyticIncorrectTaxonomyDataServiceImpl implements KpiA2Analy
 
     @Override
     public List<KpiA2AnalyticIncorrectTaxonomyDataDTO> findByKpiA2AnalyticDataId(Long analyticDataId) {
-        return repository.findByKpiA2AnalyticDataIdOrderByFromHourDesc(analyticDataId).stream()
+        return repository.findByKpiA2AnalyticDataIdOrderByFromHourAsc(analyticDataId).stream()
             .map(entity -> {
                 KpiA2AnalyticIncorrectTaxonomyDataDTO dto = new KpiA2AnalyticIncorrectTaxonomyDataDTO();
                 dto.setId(entity.getId());

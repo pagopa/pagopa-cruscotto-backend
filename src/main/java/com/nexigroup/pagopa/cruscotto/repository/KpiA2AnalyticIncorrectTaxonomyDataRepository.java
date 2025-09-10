@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface KpiA2AnalyticIncorrectTaxonomyDataRepository extends JpaRepository<KpiA2AnalyticIncorrectTaxonomyData, Long> {
-	List<KpiA2AnalyticIncorrectTaxonomyData> findByKpiA2AnalyticDataIdOrderByFromHourDesc(Long analyticDataId);
+	List<KpiA2AnalyticIncorrectTaxonomyData> findByKpiA2AnalyticDataIdOrderByFromHourAsc(Long analyticDataId);
 }
