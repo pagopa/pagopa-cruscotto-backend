@@ -3,6 +3,7 @@ package com.nexigroup.pagopa.cruscotto.service.impl;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisOutcome;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleStatus;
+import com.nexigroup.pagopa.cruscotto.job.config.JobConstant;
 import com.nexigroup.pagopa.cruscotto.service.AnagPartnerService;
 import com.nexigroup.pagopa.cruscotto.service.CalculateStateInstanceService;
 import com.nexigroup.pagopa.cruscotto.service.InstanceModuleService;
@@ -37,13 +38,17 @@ public class CalculateStateInstanceServiceImpl implements CalculateStateInstance
         // Update the instance state
         InstanceDTO instanceDTO = instanceService.findOne(updatedModule.getInstanceId()).orElse(null);
         if (instanceDTO != null) {
-            calculateStateInstance(instanceDTO);
+            calculateStateInstance(instanceDTO, user.getLogin());
         }
         return updatedModule;
     }
 
     @Override
     public void calculateStateInstance(InstanceDTO instanceDTO) {
+        calculateStateInstance(instanceDTO, JobConstant.CALCULATE_STATE_INSTANCE_JOB);
+    }
+
+    public void calculateStateInstance(InstanceDTO instanceDTO, String currentUser) {
         LOGGER.info("Instance id {}", instanceDTO.getId());
         List<InstanceModuleDTO> instanceModuleDTOS = instanceModuleService.findAllByInstanceId(instanceDTO.getId());
         int ko = 0;
@@ -99,7 +104,8 @@ public class CalculateStateInstanceServiceImpl implements CalculateStateInstance
             instanceService.updateExecuteStateAndLastAnalysis(
                 instanceDTO.getId(),
                 now,
-                ko > 0 ? AnalysisOutcome.KO : AnalysisOutcome.OK
+                ko > 0 ? AnalysisOutcome.KO : AnalysisOutcome.OK,
+                currentUser
             );
             anagPartnerService.updateLastAnalysisDate(instanceDTO.getPartnerId(), now);
             if (BooleanUtils.toBooleanDefaultIfNull(instanceDTO.getChangePartnerQualified(), false)) {
