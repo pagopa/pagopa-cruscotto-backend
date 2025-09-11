@@ -75,8 +75,6 @@ public class CalculateStateInstanceServiceImpl implements CalculateStateInstance
                                 if (instanceModuleDTO.getManualOutcome() != null) {
                                     if (instanceModuleDTO.getManualOutcome().compareTo(AnalysisOutcome.KO) == 0) {
                                         ko++;
-                                    } else {
-                                        ko++;
                                     }
                                 } else {
                                     ko++;
