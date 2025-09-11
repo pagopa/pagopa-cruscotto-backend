@@ -1,17 +1,20 @@
 
 package com.nexigroup.pagopa.cruscotto.job.kpi;
 
-import com.nexigroup.pagopa.cruscotto.service.InstanceService;
-import com.nexigroup.pagopa.cruscotto.service.CalculateStateInstanceService;
-import com.nexigroup.pagopa.cruscotto.service.dto.InstanceDTO;
-import java.util.List;
-import lombok.AllArgsConstructor;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
+
+import com.nexigroup.pagopa.cruscotto.service.CalculateStateInstanceService;
+import com.nexigroup.pagopa.cruscotto.service.InstanceService;
+import com.nexigroup.pagopa.cruscotto.service.dto.InstanceDTO;
+
+import java.util.List;
+
+import lombok.AllArgsConstructor;
 
 @Component
 @AllArgsConstructor
