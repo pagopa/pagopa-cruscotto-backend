@@ -12,8 +12,6 @@ API - See the [OpenApi 3 here](https://editor-next.swagger.io/?url=https://raw.g
 
 ## Project Structure
 
-Node is required for generation and recommended for development. `package.json` is always generated for a better development experience with prettier, commit hooks, scripts and so on.
-
 `/src/*` structure follows default Java structure.
 
 `/src/main/docker` - Docker configurations for the application and services that the application depends on
