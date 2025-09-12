@@ -49,7 +49,7 @@ public interface PagoPaRecordedTimeoutService {
         String fiscalCodePartner,
         LocalDate startDay,
         LocalDate endDay
-    )
+    );
     
     List<PagoPaRecordedTimeoutDTO> findAllRecordIntoDayForPartner(String fiscalCodePartner, java.time.LocalDate day);
 
