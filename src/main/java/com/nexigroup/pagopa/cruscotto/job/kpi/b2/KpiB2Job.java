@@ -68,6 +68,7 @@ public class KpiB2Job extends QuartzJobBean {
                 long idStation = anagStationService.findIdByNameOrCreate(station, instanceDTO.getPartnerId());
                 LocalDate start = instanceDTO.getAnalysisPeriodStartDate();
                 LocalDate end = instanceDTO.getAnalysisPeriodEndDate();
+
                 for (LocalDate date = start; !date.isAfter(end); date = date.plusDays(1)) {
                     List<PagoPaRecordedTimeoutDTO> dailyRecords = pagoPaRecordedTimeoutService.findAllRecordIntoDayForPartnerStationAndMethod(
                         instanceDTO.getPartnerFiscalCode(), station, method, date);
@@ -102,12 +103,21 @@ public class KpiB2Job extends QuartzJobBean {
         return analyticDataList;
     }
 
-    private List<KpiB2DetailResultDTO> aggregateKpiB2DetailResult(InstanceDTO instanceDTO, InstanceModuleDTO instanceModuleDTO, Map<String, List<String>> stations, double averageTimeLimit, double eligibilityThreshold, double tolerance, AtomicReference<KpiB2ResultDTO> kpiB2ResultRef) {
+    private List<KpiB2DetailResultDTO> aggregateKpiB2DetailResult(InstanceDTO instanceDTO, InstanceModuleDTO instanceModuleDTO, Map<String, List<String>> stations, double averageTimeLimit, double eligibilityThreshold, double tolerance, AtomicReference<KpiB2ResultDTO> kpiB2ResultRef, List<AnagPlannedShutdownDTO> maintenance) {
         List<KpiB2DetailResultDTO> detailResults = new ArrayList<>();
         LocalDate analysisStart = instanceDTO.getAnalysisPeriodStartDate();
         LocalDate analysisEnd = instanceDTO.getAnalysisPeriodEndDate();
         LocalDate current = analysisStart.withDayOfMonth(1);
         AtomicReference<OutcomeStatus> kpiB2ResultFinalOutcome = new AtomicReference<>(OutcomeStatus.OK);
+        AtomicReference<Long> totRecordMonth = new AtomicReference<>();
+
+        
+
+        long totRecordInstance = pagoPaRecordedTimeoutService.sumRecordIntoPeriodForPartner(
+                                    instanceDTO.getPartnerFiscalCode(),
+                                    instanceDTO.getAnalysisPeriodStartDate(),
+                                    instanceDTO.getAnalysisPeriodEndDate()
+                                );
 
         long sumTotReqTotal = 0;
         double sumWeightsTotal = 0.0;
@@ -119,6 +129,13 @@ public class KpiB2Job extends QuartzJobBean {
             if (lastDayOfMonth.isAfter(analysisEnd)) {
                 lastDayOfMonth = analysisEnd;
             }
+
+            totRecordMonth.set(pagoPaRecordedTimeoutService.sumRecordIntoPeriodForPartner(
+                                                    instanceDTO.getPartnerFiscalCode(),
+                                                    firstDayOfMonth,
+                                                    lastDayOfMonth
+                                                )
+                                            );
 
             
 
@@ -132,13 +149,33 @@ public class KpiB2Job extends QuartzJobBean {
                 double avgTime = Double.isNaN(record.getAvgTime()) ? 0.0 : record.getAvgTime();
                 sumTotReqMontly += record.getTotReq();
                 sumWeightsMontly += (record.getTotReq() * avgTime);
+
+                double monthWeight = (double) (record.getTotReq() * 100) / totRecordMonth.get();
+                double totalWeight = (double) (record.getTotReq() * 100) / totRecordInstance;
                 if (avgTime > averageTimeLimit) {
-                    sumMonthOverTimeLimit += record.getTotReq();
+                    boolean exclude = maintenance
+                            .stream().filter(maintenanceRecord -> maintenanceRecord.getStationName().equals(record.getStation()))
+                            .map(anagPlannedShutdownDTO -> {
+                                Boolean excludePlanned = isInstantInRangeInclusive(
+                                        record.getStartDate(),
+                                        anagPlannedShutdownDTO.getShutdownStartDate(),
+                                        anagPlannedShutdownDTO.getShutdownEndDate()) &&
+                                        isInstantInRangeInclusive(
+                                                record.getEndDate(),
+                                                anagPlannedShutdownDTO.getShutdownStartDate(),
+                                                anagPlannedShutdownDTO.getShutdownEndDate());
+                                return excludePlanned;
+                            })
+                            .anyMatch(Boolean::booleanValue);
+                    if (!exclude) {
+                        sumMonthOverTimeLimit += monthWeight;
+                        sumTotalOverTimeLimit += totalWeight;
+                    }
                 }
             }
             sumTotReqTotal += sumTotReqMontly;
             sumWeightsTotal += sumWeightsMontly;
-            sumTotalOverTimeLimit += sumMonthOverTimeLimit;
+            
             double weightedAverageMontly = sumTotReqMontly > 0 ? sumWeightsMontly / sumTotReqMontly : 0.0;
             KpiB2DetailResultDTO detailResult = new KpiB2DetailResultDTO();
             detailResult.setInstanceId(instanceDTO.getId());
@@ -249,6 +286,30 @@ public class KpiB2Job extends QuartzJobBean {
                     instanceDTO.getAnalysisPeriodStartDate(),
                     instanceDTO.getAnalysisPeriodEndDate()
                 );
+                List<AnagPlannedShutdownDTO> maintenance = new ArrayList<>();
+                if (BooleanUtils.toBooleanDefaultIfNull(kpiConfigurationDTO.getExcludePlannedShutdown(), false)) {
+                                maintenance.addAll(
+                                    anagPlannedShutdownService.findAllByTypePlannedIntoPeriod(
+                                        instanceDTO.getPartnerId(),
+                                        TypePlanned.PROGRAMMATO,
+                                        instanceDTO.getAnalysisPeriodStartDate(),
+                                        instanceDTO.getAnalysisPeriodEndDate()
+                                    )
+                                );
+                            }
+
+                            if (BooleanUtils.toBooleanDefaultIfNull(kpiConfigurationDTO.getExcludeUnplannedShutdown(), false)) {
+                                maintenance.addAll(
+                                    anagPlannedShutdownService.findAllByTypePlannedIntoPeriod(
+                                        instanceDTO.getPartnerId(),
+                                        TypePlanned.NON_PROGRAMMATO,
+                                        instanceDTO.getAnalysisPeriodStartDate(),
+                                        instanceDTO.getAnalysisPeriodEndDate()
+                                    )
+                                );
+                            }
+
+                            LOGGER.info("Found {} rows of maintenance", maintenance.size());
                 // --- Aggregation: KpiB2Result ---
                 KpiB2ResultDTO kpiB2ResultDTO = aggregateKpiB2Result(instanceDTO, instanceModuleDTO, kpiConfigurationDTO, stations);
                 AtomicReference<KpiB2ResultDTO> kpiB2ResultRef = new AtomicReference<>(kpiB2ResultService.save(kpiB2ResultDTO));
@@ -260,13 +321,14 @@ public class KpiB2Job extends QuartzJobBean {
                     kpiB2ResultDTO.getAverageTimeLimit(),
                     kpiB2ResultDTO.getEligibilityThreshold(),
                     kpiB2ResultDTO.getTolerance(),
-                    kpiB2ResultRef
+                    kpiB2ResultRef,
+                    maintenance
                 );
                 for (KpiB2DetailResultDTO detailResult : detailResults) {
                     AtomicReference<KpiB2DetailResultDTO> kpiB2DetailResultRef = new AtomicReference<>(kpiB2DetailResultService.save(detailResult));
 
                     // --- Aggregation: KpiB2AnalyticData ---
-                    List<AnagPlannedShutdownDTO> maintenance = new ArrayList<>();
+                    
                     List<KpiB2AnalyticDataDTO> analyticDataList = aggregateKpiB2AnalyticData(
                             instanceDTO,
                             instanceModuleDTO,
@@ -325,6 +387,13 @@ public class KpiB2Job extends QuartzJobBean {
         return bd.doubleValue();
     }
 
-    
+    private boolean isInstantInRangeInclusive(Instant instantToCheck, Instant startInstant, Instant endInstant) {
+        return (
+            (instantToCheck.atZone(ZoneOffset.systemDefault()).isEqual(startInstant.atZone(ZoneOffset.systemDefault())) ||
+                instantToCheck.atZone(ZoneOffset.systemDefault()).isAfter(startInstant.atZone(ZoneOffset.systemDefault()))) &&
+            (instantToCheck.atZone(ZoneOffset.systemDefault()).isEqual(endInstant.atZone(ZoneOffset.systemDefault())) ||
+                instantToCheck.atZone(ZoneOffset.systemDefault()).isBefore(endInstant.atZone(ZoneOffset.systemDefault())))
+        );
+    }
 }
 

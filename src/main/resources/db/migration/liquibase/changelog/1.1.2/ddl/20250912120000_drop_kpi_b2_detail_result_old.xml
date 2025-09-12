@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+  <changeSet id="20250903120000-1" author="system" context="ddl">
+    <comment>Drop the old KPI_B2_DETAIL_RESULT_OLD table after migration</comment>
+    <dropTable tableName="KPI_B2_DETAIL_RESULT_OLD"/>
+    <rollback>
+      <!-- No rollback: table is dropped permanently -->
+    </rollback>
+  </changeSet>
+
+</databaseChangeLog>
