@@ -32,12 +32,26 @@ public interface PagoPaRecordedTimeoutService {
         LocalDate endDate
     );
 
+    Long sumRecordIntoPeriodForPartner(
+        String fiscalCodePartner,
+        LocalDate startDate,
+        LocalDate endDate
+    );
+
     List<PagoPaRecordedTimeoutDTO> findAllRecordIntoDayForPartnerStationAndMethod(
         String fiscalCodePartner,
         String station,
         String method,
         LocalDate day
     );
+    
+    public List<PagoPaRecordedTimeoutDTO> findAllRecordIntoPeriodForPartner(
+        String fiscalCodePartner,
+        LocalDate startDay,
+        LocalDate endDay
+    )
+    
+    List<PagoPaRecordedTimeoutDTO> findAllRecordIntoDayForPartner(String fiscalCodePartner, java.time.LocalDate day);
 
     Page<PagoPaRecordedTimeoutDTO> findAll(PagoPaRecordedTimeoutFilter filter, Pageable pageable);
 
