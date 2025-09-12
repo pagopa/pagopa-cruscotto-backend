@@ -18,7 +18,7 @@
     <comment>Create new KPI_B2_DETAIL_RESULT table without CO_STATION_ID and TE_METHOD columns</comment>
     <createTable tableName="KPI_B2_DETAIL_RESULT">
  	    <column name="CO_ID" type="bigint">
-        <constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_KPIB2DETARESU"/>
+        <constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_KPIB2DETARESUAGGR"/>
       </column>
       <column name="CO_INSTANCE_ID" type="bigint">
         <constraints nullable="false"/>
