@@ -139,12 +139,10 @@ public class KpiB2DetailResultServiceImpl implements KpiB2DetailResultService {
     @Override
     public List<KpiB2DetailResultDTO> findByResultId(long resultId) {
         final QKpiB2DetailResult qKpiB2DetailResult = QKpiB2DetailResult.kpiB2DetailResult;
-        final QAnagStation qAnagStation = QAnagStation.anagStation;
 
         JPQLQuery<KpiB2DetailResultDTO> query = queryBuilder
             .createQuery()
             .from(qKpiB2DetailResult)
-            .leftJoin(qKpiB2DetailResult.station, qAnagStation)
             .where(qKpiB2DetailResult.kpiB2Result.id.eq(resultId))
             .select(
                 Projections.fields(
@@ -160,8 +158,7 @@ public class KpiB2DetailResultServiceImpl implements KpiB2DetailResultService {
                     qKpiB2DetailResult.avgTime.as("avgTime"),
                     qKpiB2DetailResult.overTimeLimit.as("overTimeLimit"),
                     qKpiB2DetailResult.outcome.as("outcome"),
-                    qKpiB2DetailResult.kpiB2Result.id.as("kpiB2ResultId"),
-                    qAnagStation.name.as("stationName")
+                    qKpiB2DetailResult.kpiB2Result.id.as("kpiB2ResultId")
                 )
             );
 
