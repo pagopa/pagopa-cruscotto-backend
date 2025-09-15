@@ -94,8 +94,6 @@ public class KpiB2DetailResultServiceImpl implements KpiB2DetailResultService {
         kpiB2DetailResult.setInstance(instance);
         kpiB2DetailResult.setInstanceModule(instanceModule);
         kpiB2DetailResult.setAnalysisDate(kpiB2DetailResultDTO.getAnalysisDate());
-        kpiB2DetailResult.setStation(station);
-        kpiB2DetailResult.setMethod(kpiB2DetailResultDTO.getMethod());
         kpiB2DetailResult.setEvaluationType(kpiB2DetailResultDTO.getEvaluationType());
         kpiB2DetailResult.setEvaluationStartDate(kpiB2DetailResultDTO.getEvaluationStartDate());
         kpiB2DetailResult.setEvaluationEndDate(kpiB2DetailResultDTO.getEvaluationEndDate());
@@ -116,8 +114,6 @@ public class KpiB2DetailResultServiceImpl implements KpiB2DetailResultService {
             kpiB2DetailResult.getInstanceModule() != null ? kpiB2DetailResult.getInstanceModule().getId() : null
         );
         kpiB2DetailResultDTO.setAnalysisDate(kpiB2DetailResult.getAnalysisDate());
-        kpiB2DetailResultDTO.setStationId(kpiB2DetailResult.getStation() != null ? kpiB2DetailResult.getStation().getId() : null);
-        kpiB2DetailResultDTO.setMethod(kpiB2DetailResult.getMethod());
         kpiB2DetailResultDTO.setEvaluationType(kpiB2DetailResult.getEvaluationType());
         kpiB2DetailResultDTO.setEvaluationStartDate(kpiB2DetailResult.getEvaluationStartDate());
         kpiB2DetailResultDTO.setEvaluationEndDate(kpiB2DetailResult.getEvaluationEndDate());
