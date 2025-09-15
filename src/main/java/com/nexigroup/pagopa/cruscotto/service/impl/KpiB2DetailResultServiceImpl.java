@@ -153,8 +153,6 @@ public class KpiB2DetailResultServiceImpl implements KpiB2DetailResultService {
                     qKpiB2DetailResult.instance.id.as("instanceId"),
                     qKpiB2DetailResult.instanceModule.id.as("instanceModuleId"),
                     qKpiB2DetailResult.analysisDate.as("analysisDate"),
-                    qKpiB2DetailResult.station.id.as("stationId"),
-                    qKpiB2DetailResult.method.as("method"),
                     qKpiB2DetailResult.evaluationType.as("evaluationType"),
                     qKpiB2DetailResult.evaluationStartDate.as("evaluationStartDate"),
                     qKpiB2DetailResult.evaluationEndDate.as("evaluationEndDate"),
