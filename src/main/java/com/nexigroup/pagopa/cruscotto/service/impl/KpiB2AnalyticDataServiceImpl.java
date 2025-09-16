@@ -4,6 +4,7 @@ import com.nexigroup.pagopa.cruscotto.domain.*;
 import com.nexigroup.pagopa.cruscotto.repository.*;
 import com.nexigroup.pagopa.cruscotto.service.KpiB2AnalyticDataService;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2AnalyticDataDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2DetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPQLQuery;
@@ -49,6 +50,38 @@ public class KpiB2AnalyticDataServiceImpl implements KpiB2AnalyticDataService {
         this.kpiB2AnalyticDataRepository = kpiB2AnalyticDataRepository;
         this.kpiB2DetailResultRepository = kpiB2DetailResultRepository;
         this.queryBuilder = queryBuilder;
+    }
+
+    /**
+     * Save kpiB2AnalyticData.
+     *
+     * @param kpiB2AnalyticDataDTO the entity to save.
+     */
+    @Override
+    public KpiB2AnalyticDataDTO save(KpiB2AnalyticDataDTO kpiB2AnalyticDataDTO) {
+        Instance instance = instanceRepository
+            .findById(kpiB2AnalyticDataDTO.getInstanceId())
+            .orElseThrow(() -> new IllegalArgumentException("Instance not found"));
+
+        InstanceModule instanceModule = instanceModuleRepository
+            .findById(kpiB2AnalyticDataDTO.getInstanceModuleId())
+            .orElseThrow(() -> new IllegalArgumentException("InstanceModule not found"));
+
+        AnagStation station = anagStationRepository
+            .findById(kpiB2AnalyticDataDTO.getStationId())
+            .orElseThrow(() -> new IllegalArgumentException("Station not found"));
+
+        KpiB2DetailResult kpiB2DResult = kpiB2DetailResultRepository
+            .findById(kpiB2AnalyticDataDTO.getKpiB2DetailResultId())
+            .orElseThrow(() -> new IllegalArgumentException("KpiB2DetailResult not found"));
+
+        KpiB2AnalyticData kpiB2AnalyticData = getkpiB2AnalyticData(kpiB2AnalyticDataDTO, instance, instanceModule, station, kpiB2DResult);
+
+        kpiB2AnalyticData = kpiB2AnalyticDataRepository.save(kpiB2AnalyticData);
+
+        kpiB2AnalyticDataDTO.setId(kpiB2AnalyticData.getId());
+
+        return kpiB2AnalyticDataDTO;
     }
 
     /**
