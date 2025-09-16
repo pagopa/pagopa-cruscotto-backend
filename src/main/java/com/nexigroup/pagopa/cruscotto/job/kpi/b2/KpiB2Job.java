@@ -400,13 +400,15 @@ public class KpiB2Job extends QuartzJobBean {
                         List<KpiB2AnalyticDrillDownDTO> drillDowns = aggregateKpiB2AnalyticDataDrillDown(
                             kpiB2AnalyticDataRef,
                             filteredPeriodRecords.stream()
-                                    .filter(record -> record.getStartDate().atZone(ZoneOffset.systemDefault())
-                                                .toLocalDate().isEqual(analyticData.getEvaluationDate())
-                                    )
-                                    .collect(java.util.stream.Collectors.toList()),
+                                .filter(record ->
+                                    record.getStartDate().atZone(ZoneOffset.systemDefault()).toLocalDate().isEqual(analyticData.getEvaluationDate()) &&
+                                    record.getStation().equals(analyticData.getStationName()) &&
+                                    record.getMethod().equals(analyticData.getMethod())
+                                )
+                                .collect(java.util.stream.Collectors.toList()),
                             detailResult.getEvaluationStartDate(),
-                            detailResult.getEvaluationEndDate());
-
+                            detailResult.getEvaluationEndDate()
+                        );
                         kpiB2AnalyticDrillDownService.saveAll(drillDowns);    
                     }
                 }}
