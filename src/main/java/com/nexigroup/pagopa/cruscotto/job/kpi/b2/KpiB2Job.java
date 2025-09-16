@@ -54,35 +54,70 @@ public class KpiB2Job extends QuartzJobBean {
 
     private final KpiB2AnalyticDataService kpiB2AnalyticDataService;
 
+    private final KpiB2AnalyticDrillDownService kpiB2AnalyticDrillDownService;
+
     private final KpiB2DetailResultService kpiB2DetailResultService;
 
     private final KpiB2ResultService kpiB2ResultService;
 
     private final Scheduler scheduler;
-    
-    private List<KpiB2AnalyticDataDTO> aggregateKpiB2AnalyticData(InstanceDTO instanceDTO, InstanceModuleDTO instanceModuleDTO, Map<String, List<String>> stations, double averageTimeLimit, List<AnagPlannedShutdownDTO> maintenance, AtomicReference<KpiB2DetailResultDTO> kpiB2DetailResultRef) {
-        List<KpiB2AnalyticDataDTO> analyticDataList = new ArrayList<>();
-        
-        for (String station : stations.keySet()) {
-            for (String method : stations.get(station)) {
-                long idStation = anagStationService.findIdByNameOrCreate(station, instanceDTO.getPartnerId());
-                LocalDate start = instanceDTO.getAnalysisPeriodStartDate();
-                LocalDate end = instanceDTO.getAnalysisPeriodEndDate();
 
-                for (LocalDate date = start; !date.isAfter(end); date = date.plusDays(1)) {
-                    List<PagoPaRecordedTimeoutDTO> dailyRecords = pagoPaRecordedTimeoutService.findAllRecordIntoDayForPartnerStationAndMethod(
-                        instanceDTO.getPartnerFiscalCode(), station, method, date);
-                    long sumTotReqDaily = 0;
-                    long sumReqOkDaily = 0;
-                    long sumReqTimeoutDaily = 0;
-                    double sumWeightsDaily = 0.0;
-                    for (PagoPaRecordedTimeoutDTO record : dailyRecords) {
-                        sumTotReqDaily += record.getTotReq();
-                        sumReqOkDaily += record.getReqOk();
-                        sumReqTimeoutDaily += record.getReqTimeout();
-                        double avgTime = Double.isNaN(record.getAvgTime()) ? 0.0 : record.getAvgTime();
-                        sumWeightsDaily += (record.getTotReq() * avgTime);
-                    }
+    private List<KpiB2AnalyticDrillDownDTO> aggregateKpiB2AnalyticDataDrillDown(
+     AtomicReference<KpiB2AnalyticDataDTO> kpiB2AnalyticDataRef,
+     List<PagoPaRecordedTimeoutDTO> filteredPeriodRecords,
+     LocalDate detailResultEvaluationStartDate,
+     LocalDate detailResultEvaluationEndDate) {
+     
+       return filteredPeriodRecords.stream().map(record -> {
+                                        KpiB2AnalyticDrillDownDTO dto = new KpiB2AnalyticDrillDownDTO();
+                                        dto.setKpiB2AnalyticDataId(kpiB2AnalyticDataRef.get().getId());
+                                        dto.setAverageTimeMs(record.getAvgTime());
+                                        dto.setTotalRequests(record.getTotReq());
+                                        dto.setOkRequests(record.getReqOk());
+                                        dto.setFromHour(record.getStartDate());
+                                        dto.setEndHour(record.getEndDate());
+                                        return dto;
+                                    })
+                                    .collect(java.util.stream.Collectors.toList());
+    
+    
+    
+    }
+    
+    private List<KpiB2AnalyticDataDTO> aggregateKpiB2AnalyticData(InstanceDTO instanceDTO,
+     InstanceModuleDTO instanceModuleDTO,
+     double averageTimeLimit,
+     AtomicReference<KpiB2DetailResultDTO> kpiB2DetailResultRef,
+     List<PagoPaRecordedTimeoutDTO> filteredPeriodRecords,
+     LocalDate detailResultEvaluationStartDate,
+     LocalDate detailResultEvaluationEndDate) {
+
+        List<KpiB2AnalyticDataDTO> analyticDataList = new ArrayList<>();
+
+        // Group by station and method
+        Map<String, Map<String, List<PagoPaRecordedTimeoutDTO>>> grouped = filteredPeriodRecords.stream()
+            .collect(java.util.stream.Collectors.groupingBy(
+                PagoPaRecordedTimeoutDTO::getStation,
+                java.util.stream.Collectors.groupingBy(PagoPaRecordedTimeoutDTO::getMethod)
+            ));
+
+        for (Map.Entry<String, Map<String, List<PagoPaRecordedTimeoutDTO>>> stationEntry : grouped.entrySet()) {
+            String station = stationEntry.getKey();
+            long idStation = anagStationService.findIdByNameOrCreate(station, instanceDTO.getPartnerId());
+            Map<String, List<PagoPaRecordedTimeoutDTO>> methodMap = stationEntry.getValue();
+            for (Map.Entry<String, List<PagoPaRecordedTimeoutDTO>> methodEntry : methodMap.entrySet()) {
+                String method = methodEntry.getKey();
+                List<PagoPaRecordedTimeoutDTO> records = methodEntry.getValue();
+                // For each day in the period
+                for (LocalDate date = detailResultEvaluationStartDate; !date.isAfter(detailResultEvaluationEndDate); date = date.plusDays(1)) {
+                    final LocalDate currentDate = date;
+                    List<PagoPaRecordedTimeoutDTO> dailyRecords = records.stream()
+                        .filter(r -> r.getStartDate().atZone(ZoneOffset.systemDefault()).toLocalDate().isEqual(currentDate))
+                        .collect(java.util.stream.Collectors.toList());
+                    long sumTotReqDaily = dailyRecords.stream().mapToLong(PagoPaRecordedTimeoutDTO::getTotReq).sum();
+                    long sumReqOkDaily = dailyRecords.stream().mapToLong(PagoPaRecordedTimeoutDTO::getReqOk).sum();
+                    long sumReqTimeoutDaily = dailyRecords.stream().mapToLong(PagoPaRecordedTimeoutDTO::getReqTimeout).sum();
+                    double sumWeightsDaily = dailyRecords.stream().mapToDouble(r -> r.getTotReq() * (Double.isNaN(r.getAvgTime()) ? 0.0 : r.getAvgTime())).sum();
                     double weightedAverageDaily = sumTotReqDaily > 0 ? sumWeightsDaily / sumTotReqDaily : 0.0;
                     KpiB2AnalyticDataDTO analyticData = new KpiB2AnalyticDataDTO();
                     analyticData.setInstanceId(instanceDTO.getId());
@@ -103,7 +138,13 @@ public class KpiB2Job extends QuartzJobBean {
         return analyticDataList;
     }
 
-    private List<KpiB2DetailResultDTO> aggregateKpiB2DetailResult(InstanceDTO instanceDTO, InstanceModuleDTO instanceModuleDTO, Map<String, List<String>> stations, double averageTimeLimit, double eligibilityThreshold, double tolerance, AtomicReference<KpiB2ResultDTO> kpiB2ResultRef, List<AnagPlannedShutdownDTO> maintenance) {
+    private List<KpiB2DetailResultDTO> aggregateKpiB2DetailResult(InstanceDTO instanceDTO,
+     InstanceModuleDTO instanceModuleDTO,
+       double averageTimeLimit,
+        double eligibilityThreshold,
+         double tolerance,
+          AtomicReference<KpiB2ResultDTO> kpiB2ResultRef,
+        List<PagoPaRecordedTimeoutDTO> filteredPeriodRecords) {
         List<KpiB2DetailResultDTO> detailResults = new ArrayList<>();
         LocalDate analysisStart = instanceDTO.getAnalysisPeriodStartDate();
         LocalDate analysisEnd = instanceDTO.getAnalysisPeriodEndDate();
@@ -111,41 +152,35 @@ public class KpiB2Job extends QuartzJobBean {
         AtomicReference<OutcomeStatus> kpiB2ResultFinalOutcome = new AtomicReference<>(OutcomeStatus.OK);
         AtomicReference<Long> totRecordMonth = new AtomicReference<>();
 
-        
-
-        long totRecordInstance = pagoPaRecordedTimeoutService.sumRecordIntoPeriodForPartner(
-                                    instanceDTO.getPartnerFiscalCode(),
-                                    instanceDTO.getAnalysisPeriodStartDate(),
-                                    instanceDTO.getAnalysisPeriodEndDate()
-                                );
+        long totRecordInstance = filteredPeriodRecords.stream()
+                .mapToLong(PagoPaRecordedTimeoutDTO::getTotReq)
+                .sum();
 
         long sumTotReqTotal = 0;
         double sumWeightsTotal = 0.0;
         double sumTotalOverTimeLimit = 0.0;
+        
         while (!current.isAfter(analysisEnd)) {
 
-            LocalDate firstDayOfMonth = current.withDayOfMonth(1);
-            LocalDate lastDayOfMonth = current.with(TemporalAdjusters.lastDayOfMonth());
-            if (lastDayOfMonth.isAfter(analysisEnd)) {
-                lastDayOfMonth = analysisEnd;
-            }
+            LocalDate firstDayOfMonth = current.withDayOfMonth(1).isBefore(analysisStart) ? analysisEnd :current.withDayOfMonth(1);
+            LocalDate lastDayOfMonth = current.with(TemporalAdjusters.lastDayOfMonth()).isAfter(analysisEnd) ? analysisStart : current.with(TemporalAdjusters.lastDayOfMonth());
 
-            totRecordMonth.set(pagoPaRecordedTimeoutService.sumRecordIntoPeriodForPartner(
-                                                    instanceDTO.getPartnerFiscalCode(),
-                                                    firstDayOfMonth,
-                                                    lastDayOfMonth
-                                                )
-                                            );
-
-            
 
             long sumTotReqMontly = 0;
             double sumWeightsMontly = 0.0;
             double sumMonthOverTimeLimit = 0.0;
             
-            List<PagoPaRecordedTimeoutDTO> periodRecords = pagoPaRecordedTimeoutService.findAllRecordIntoPeriodForPartner(
-                    instanceDTO.getPartnerFiscalCode(), firstDayOfMonth, lastDayOfMonth);
-            for (PagoPaRecordedTimeoutDTO record : periodRecords) {
+            List<PagoPaRecordedTimeoutDTO> monthPeriodRecords = filteredPeriodRecords.stream()
+                .filter(record -> {
+                    final LocalDate recordDate = record.getStartDate().atZone(ZoneOffset.systemDefault()).toLocalDate();
+                    return !recordDate.isBefore(firstDayOfMonth) && !recordDate.isAfter(lastDayOfMonth);
+                })
+                .collect(java.util.stream.Collectors.toList());
+            
+            totRecordMonth.set(monthPeriodRecords.stream()
+                .mapToLong(PagoPaRecordedTimeoutDTO::getTotReq)
+                .sum());
+            for (PagoPaRecordedTimeoutDTO record : monthPeriodRecords) {
                 double avgTime = Double.isNaN(record.getAvgTime()) ? 0.0 : record.getAvgTime();
                 sumTotReqMontly += record.getTotReq();
                 sumWeightsMontly += (record.getTotReq() * avgTime);
@@ -153,24 +188,10 @@ public class KpiB2Job extends QuartzJobBean {
                 double monthWeight = (double) (record.getTotReq() * 100) / totRecordMonth.get();
                 double totalWeight = (double) (record.getTotReq() * 100) / totRecordInstance;
                 if (avgTime > averageTimeLimit) {
-                    boolean exclude = maintenance
-                            .stream().filter(maintenanceRecord -> maintenanceRecord.getStationName().equals(record.getStation()))
-                            .map(anagPlannedShutdownDTO -> {
-                                Boolean excludePlanned = isInstantInRangeInclusive(
-                                        record.getStartDate(),
-                                        anagPlannedShutdownDTO.getShutdownStartDate(),
-                                        anagPlannedShutdownDTO.getShutdownEndDate()) &&
-                                        isInstantInRangeInclusive(
-                                                record.getEndDate(),
-                                                anagPlannedShutdownDTO.getShutdownStartDate(),
-                                                anagPlannedShutdownDTO.getShutdownEndDate());
-                                return excludePlanned;
-                            })
-                            .anyMatch(Boolean::booleanValue);
-                    if (!exclude) {
-                        sumMonthOverTimeLimit += monthWeight;
-                        sumTotalOverTimeLimit += totalWeight;
-                    }
+                    
+                    sumMonthOverTimeLimit += monthWeight;
+                    sumTotalOverTimeLimit += totalWeight;
+                    
                 }
             }
             sumTotReqTotal += sumTotReqMontly;
@@ -227,7 +248,7 @@ public class KpiB2Job extends QuartzJobBean {
         return detailResults;
     }
 
-    private KpiB2ResultDTO aggregateKpiB2Result(InstanceDTO instanceDTO, InstanceModuleDTO instanceModuleDTO, KpiConfigurationDTO kpiConfigurationDTO, Map<String, List<String>> stations) {
+    private KpiB2ResultDTO aggregateKpiB2Result(InstanceDTO instanceDTO, InstanceModuleDTO instanceModuleDTO, KpiConfigurationDTO kpiConfigurationDTO, List<PagoPaRecordedTimeoutDTO> records) {
         KpiB2ResultDTO kpiB2ResultDTO = new KpiB2ResultDTO();
         kpiB2ResultDTO.setInstanceId(instanceDTO.getId());
         kpiB2ResultDTO.setInstanceModuleId(instanceModuleDTO.getId());
@@ -238,7 +259,7 @@ public class KpiB2Job extends QuartzJobBean {
         kpiB2ResultDTO.setTolerance(kpiConfigurationDTO.getTolerance() != null ? kpiConfigurationDTO.getTolerance() : 0.0);
         kpiB2ResultDTO.setAverageTimeLimit(kpiConfigurationDTO.getAverageTimeLimit() != null ? kpiConfigurationDTO.getAverageTimeLimit() : 0.0);
         kpiB2ResultDTO.setEvaluationType(kpiConfigurationDTO.getEvaluationType());
-        kpiB2ResultDTO.setOutcome(!stations.isEmpty() ? OutcomeStatus.STANDBY : OutcomeStatus.OK);
+        kpiB2ResultDTO.setOutcome(!records.isEmpty() ? OutcomeStatus.STANDBY : OutcomeStatus.OK);
         return kpiB2ResultDTO;
     }
 
@@ -281,11 +302,7 @@ public class KpiB2Job extends QuartzJobBean {
                 kpiB2AnalyticDataService.deleteAllByInstanceModule(instanceModuleDTO.getId());
                 kpiB2DetailResultService.deleteAllByInstanceModule(instanceModuleDTO.getId());
                 kpiB2ResultService.deleteAllByInstanceModule(instanceModuleDTO.getId());
-                Map<String, List<String>> stations = pagoPaRecordedTimeoutService.findAllStationAndMethodIntoPeriodForPartner(
-                    instanceDTO.getPartnerFiscalCode(),
-                    instanceDTO.getAnalysisPeriodStartDate(),
-                    instanceDTO.getAnalysisPeriodEndDate()
-                );
+                
                 List<AnagPlannedShutdownDTO> maintenance = new ArrayList<>();
                 if (BooleanUtils.toBooleanDefaultIfNull(kpiConfigurationDTO.getExcludePlannedShutdown(), false)) {
                                 maintenance.addAll(
@@ -309,35 +326,91 @@ public class KpiB2Job extends QuartzJobBean {
                                 );
                             }
 
-                            LOGGER.info("Found {} rows of maintenance", maintenance.size());
+                LOGGER.info("Found {} rows of maintenance", maintenance.size());
+
+                // Fetch all records for the analysis period
+                List<PagoPaRecordedTimeoutDTO> periodRecords = pagoPaRecordedTimeoutService
+                        .findAllRecordIntoPeriodForPartner(
+                                instanceDTO.getPartnerFiscalCode(),
+                                instanceDTO.getAnalysisPeriodStartDate(),
+                                instanceDTO.getAnalysisPeriodEndDate());
+
                 // --- Aggregation: KpiB2Result ---
-                KpiB2ResultDTO kpiB2ResultDTO = aggregateKpiB2Result(instanceDTO, instanceModuleDTO, kpiConfigurationDTO, stations);
+                KpiB2ResultDTO kpiB2ResultDTO = aggregateKpiB2Result(instanceDTO, instanceModuleDTO, kpiConfigurationDTO, periodRecords);
                 AtomicReference<KpiB2ResultDTO> kpiB2ResultRef = new AtomicReference<>(kpiB2ResultService.save(kpiB2ResultDTO));
+
+                // Filter out records that should be excluded due to maintenance
+                List<PagoPaRecordedTimeoutDTO> filteredPeriodRecords = new ArrayList<>();
+                for (PagoPaRecordedTimeoutDTO record : periodRecords) {
+                    boolean exclude = maintenance
+                            .stream()
+                            .filter(maintenanceRecord -> maintenanceRecord.getStationName().equals(record.getStation()))
+                            .map(anagPlannedShutdownDTO -> isInstantInRangeInclusive(
+                                    record.getStartDate(),
+                                    anagPlannedShutdownDTO.getShutdownStartDate(),
+                                    anagPlannedShutdownDTO.getShutdownEndDate()) &&
+                                    isInstantInRangeInclusive(
+                                            record.getEndDate(),
+                                            anagPlannedShutdownDTO.getShutdownStartDate(),
+                                            anagPlannedShutdownDTO.getShutdownEndDate())
+
+                            )
+                            .anyMatch(Boolean::booleanValue);
+                    if (!exclude) {
+                        filteredPeriodRecords.add(record);
+                    }
+                }
+
                 // --- Aggregation: KpiB2DetailResult ---
                 List<KpiB2DetailResultDTO> detailResults = aggregateKpiB2DetailResult(
-                    instanceDTO,
-                    instanceModuleDTO,
-                    stations,
-                    kpiB2ResultDTO.getAverageTimeLimit(),
-                    kpiB2ResultDTO.getEligibilityThreshold(),
-                    kpiB2ResultDTO.getTolerance(),
-                    kpiB2ResultRef,
-                    maintenance
-                );
+                        instanceDTO,
+                        instanceModuleDTO,
+                        kpiB2ResultDTO.getAverageTimeLimit(),
+                        kpiB2ResultDTO.getEligibilityThreshold(),
+                        kpiB2ResultDTO.getTolerance(),
+                        kpiB2ResultRef,
+                        filteredPeriodRecords);
                 for (KpiB2DetailResultDTO detailResult : detailResults) {
                     AtomicReference<KpiB2DetailResultDTO> kpiB2DetailResultRef = new AtomicReference<>(kpiB2DetailResultService.save(detailResult));
 
+                    if (detailResult.getEvaluationType() == EvaluationType.MESE) {
+
+
                     // --- Aggregation: KpiB2AnalyticData ---
-                    
                     List<KpiB2AnalyticDataDTO> analyticDataList = aggregateKpiB2AnalyticData(
                             instanceDTO,
                             instanceModuleDTO,
-                            stations,
                             kpiB2ResultDTO.getAverageTimeLimit(),
-                            maintenance,
-                            kpiB2DetailResultRef);
-                    kpiB2AnalyticDataService.saveAll(analyticDataList);
-                }
+                            kpiB2DetailResultRef,
+                            filteredPeriodRecords.stream()
+                                    .filter(record -> {
+                                        LocalDate recordDate = record.getStartDate().atZone(ZoneOffset.systemDefault())
+                                                .toLocalDate();
+                                        return !recordDate.isBefore(detailResult.getEvaluationStartDate())
+                                                && !recordDate.isAfter(detailResult.getEvaluationEndDate());
+                                    })
+                                    .collect(java.util.stream.Collectors.toList()),
+                            detailResult.getEvaluationStartDate(),
+                            detailResult.getEvaluationEndDate());
+
+                    
+                    for (KpiB2AnalyticDataDTO analyticData : analyticDataList) {
+                         AtomicReference<KpiB2AnalyticDataDTO> kpiB2AnalyticDataRef = new AtomicReference<>(kpiB2AnalyticDataService.save(analyticData));      
+                         
+                         // --- Aggregation: DrillDown ---
+                        List<KpiB2AnalyticDrillDownDTO> drillDowns = aggregateKpiB2AnalyticDataDrillDown(
+                            kpiB2AnalyticDataRef,
+                            filteredPeriodRecords.stream()
+                                    .filter(record -> record.getStartDate().atZone(ZoneOffset.systemDefault())
+                                                .toLocalDate().isEqual(analyticData.getEvaluationDate())
+                                    )
+                                    .collect(java.util.stream.Collectors.toList()),
+                            detailResult.getEvaluationStartDate(),
+                            detailResult.getEvaluationEndDate());
+
+                        kpiB2AnalyticDrillDownService.saveAll(drillDowns);    
+                    }
+                }}
                 
                 // Final outcome update
                 kpiB2ResultService.updateKpiB2ResultOutcome(kpiB2ResultRef.get().getId(), OutcomeStatus.OK);
