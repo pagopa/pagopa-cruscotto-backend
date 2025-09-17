@@ -54,6 +54,8 @@ public class KpiA1Job extends QuartzJobBean {
 
     private final AnagPlannedShutdownService anagPlannedShutdownService;
 
+    private final KpiA1AnalyticDrillDownService kpiA1AnalyticDrillDownService;
+
     private final KpiA1AnalyticDataService kpiA1AnalyticDataService;
 
     private final KpiA1DetailResultService kpiA1DetailResultService;
@@ -160,6 +162,8 @@ public class KpiA1Job extends QuartzJobBean {
                             AtomicReference<Long> totReqPeriod = new AtomicReference<>(0L);
                             AtomicReference<Long> totTimeoutReqPeriod = new AtomicReference<>(0L);
 
+                            Map<LocalDate, List<PagoPaRecordedTimeoutDTO>> pagoPaRecordedTimeoutMap = new HashMap<>();
+
                             stations.forEach((station, methods) -> {
                                 LOGGER.info("Station {}", station);
 
@@ -201,6 +205,7 @@ public class KpiA1Job extends QuartzJobBean {
                                     List<KpiA1AnalyticDataDTO> kpiA1AnalyticDataDTOS = new ArrayList<>();
                                     AtomicReference<LocalDate> firstDayOfMonth = new AtomicReference<>();
                                     AtomicReference<LocalDate> lastDayOfMonth = new AtomicReference<>();
+
 
                                     instanceDTO
                                         .getAnalysisPeriodStartDate()
@@ -267,6 +272,7 @@ public class KpiA1Job extends QuartzJobBean {
                                                     })
                                                     .anyMatch(Boolean::booleanValue);
                                                 if (!exclude) {
+                                                    pagoPaRecordedTimeoutMap.computeIfAbsent(date, k -> new ArrayList<>()).add(pagoPaRecordedTimeoutDTO);
                                                     sumValidTimeouReqtDaily =
                                                         sumValidTimeouReqtDaily + pagoPaRecordedTimeoutDTO.getReqTimeout();
                                                 }
@@ -381,8 +387,32 @@ public class KpiA1Job extends QuartzJobBean {
                                         LOGGER.warn("Nessun detailResult trovato per il mese {} della transazione in data {}", 
                                                   evaluationMonth, kpiA1AnalyticData.getEvaluationDate());
                                     }
+
+
+                                    allKpiA1AnalyticDataDTOS.forEach(kpiA2AnalyticData -> {
+                                        kpiA1AnalyticDataService.save(kpiA1AnalyticData);
+                                    // Map and save to new table
+                                List<KpiA1AnalyticDrillDownDTO> drillDownList = pagoPaRecordedTimeoutMap.entrySet().stream()
+                                    .filter(entry -> entry.getKey().equals(kpiA1AnalyticData.getEvaluationDate()))
+                                    .flatMap(entry -> entry.getValue().stream())
+                                    .filter(record -> record.getStation().equals(kpiA1AnalyticData.getStationName()))
+                                    .filter(record -> record.getMethod().equals(kpiA1AnalyticData.getMethod()))
+                                    .map(record -> {
+                                        KpiA1AnalyticDrillDownDTO dto = new KpiA1AnalyticDrillDownDTO();
+                                        dto.setKpiA1AnalyticDataId(kpiA1AnalyticData.getId());
+                                        dto.setOkRequests(record.getReqOk());
+                                        dto.setTotalRequests(record.getTotReq());
+                                        dto.setReqTimeout(record.getReqTimeout());
+                                        dto.setFromHour(record.getStartDate());
+                                        dto.setToHour(record.getEndDate());
+                                        return dto;
+                                    })
+                                    .collect(java.util.stream.Collectors.toList());
+
+                                kpiA1AnalyticDrillDownService.saveAll(drillDownList);
+                                    });
                                 });
-                                kpiA1AnalyticDataService.saveAll(allKpiA1AnalyticDataDTOS);
+                                
                             }
 
                             // Crea il KpiA1DetailResultDTO per il periodo totale
