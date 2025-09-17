@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!-- Include previous version -->
+    <include file="db.changelog-master-1.1.0.xml" relativeToChangelogFile="true"/> <!-- TODOOOOOOOOO db.changelog-master-1.1.2.xml-->
+
+    <!-- Drop Station Constraints for KPI B9 Tables -->
+    <include file="1.1.3/ddl/20250915150000_drop_station_constraints_kpi_b9.xml" relativeToChangelogFile="true"/>
+    
+    <!-- Drop Station Columns from KPI B9 Tables -->
+    <include file="1.1.3/ddl/20250915150100_drop_station_columns_kpi_b9.xml" relativeToChangelogFile="true"/>
+
+    <!-- Add PagoPa Payment Receipt Drilldown Table -->
+    <include file="1.1.3/ddl/20250918100000_added_entity_PagoPaPaymentReceiptDrilldown.xml" relativeToChangelogFile="true"/>
+    
+    <!-- Add PagoPa Payment Receipt Drilldown Constraints -->
+    <include file="1.1.3/ddl/20250918100001_added_entity_constraints_PagoPaPaymentReceiptDrilldown.xml" relativeToChangelogFile="true"/>
+
+</databaseChangeLog>
