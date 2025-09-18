@@ -25,7 +25,7 @@
             <column name="ok_requests" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column name="average_time_ms" type="DOUBLE PRECISION">
+            <column name="req_timeout" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
         </createTable>
