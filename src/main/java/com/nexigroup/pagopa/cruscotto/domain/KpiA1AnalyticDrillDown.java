@@ -2,6 +2,7 @@ package com.nexigroup.pagopa.cruscotto.domain;
 
 import jakarta.persistence.*;
 import java.io.Serializable;
+import java.time.Instant;
 
 @Entity
 @Table(name = "kpi_a1_analytic_drilldown")
@@ -14,10 +15,10 @@ public class KpiA1AnalyticDrillDown implements Serializable {
     private Long kpiA1AnalyticDataId;
 
     @Column(name = "from_hour", nullable = false)
-    private String fromHour;
+    private Instant fromHour;
 
     @Column(name = "to_hour", nullable = false)
-    private String toHour;
+    private Instant toHour;
 
     @Column(name = "total_requests", nullable = false)
     private Long totalRequests;
@@ -25,22 +26,22 @@ public class KpiA1AnalyticDrillDown implements Serializable {
     @Column(name = "ok_requests", nullable = false)
     private Long okRequests;
 
-    @Column(name = "average_time_ms", nullable = false)
-    private Double averageTimeMs;
+    @Column(name = "req_timeout", nullable = false)
+    private Long reqTimeout;
 
     // Getters and setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public Long getKpiA1AnalyticDataId() { return kpiA1AnalyticDataId; }
     public void setKpiA1AnalyticDataId(Long kpiA1AnalyticDataId) { this.kpiA1AnalyticDataId = kpiA1AnalyticDataId; }
-    public String getFromHour() { return fromHour; }
-    public void setFromHour(String fromHour) { this.fromHour = fromHour; }
-    public String getToHour() { return toHour; }
-    public void setToHour(String toHour) { this.toHour = toHour; }
+    public Instant getFromHour() { return fromHour; }
+    public void setFromHour(Instant fromHour) { this.fromHour = fromHour; }
+    public Instant getToHour() { return toHour; }
+    public void setToHour(Instant toHour) { this.toHour = toHour; }
     public Long getTotalRequests() { return totalRequests; }
     public void setTotalRequests(Long totalRequests) { this.totalRequests = totalRequests; }
     public Long getOkRequests() { return okRequests; }
     public void setOkRequests(Long okRequests) { this.okRequests = okRequests; }
-    public Double getAverageTimeMs() { return averageTimeMs; }
-    public void setAverageTimeMs(Double averageTimeMs) { this.averageTimeMs = averageTimeMs; }
+    public Long getReqTimeout() { return reqTimeout; }
+    public void setReqTimeout(Long reqTimeout) { this.reqTimeout = reqTimeout; }
 }

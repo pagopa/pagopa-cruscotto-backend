@@ -38,7 +38,7 @@ public class KpiA1AnalyticDrillDownServiceImpl implements KpiA1AnalyticDrillDown
         dto.setToHour(entity.getToHour());
         dto.setTotalRequests(entity.getTotalRequests());
         dto.setOkRequests(entity.getOkRequests());
-        dto.setAverageTimeMs(entity.getAverageTimeMs());
+        dto.setReqTimeout(entity.getReqTimeout());
         return dto;
     }
 
@@ -50,7 +50,7 @@ public class KpiA1AnalyticDrillDownServiceImpl implements KpiA1AnalyticDrillDown
         entity.setToHour(dto.getToHour());
         entity.setTotalRequests(dto.getTotalRequests());
         entity.setOkRequests(dto.getOkRequests());
-        entity.setAverageTimeMs(dto.getAverageTimeMs());
+        entity.setReqTimeout(dto.getReqTimeout());
         return entity;
     }
 }
