@@ -494,7 +494,7 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
                     anagPlannedShutdown.shutdownEndDate.as("shutdownEndDate"),
                     anagPlannedShutdown.year.as("year"),
                     anagPlannedShutdown.externalId.as("externalId"),
-                    anagPlannedShutdown.anagStation.id.as("stationName")
+                    anagPlannedShutdown.anagStation.name.as("stationName")
                 )
             )
             .from(anagPlannedShutdown)
