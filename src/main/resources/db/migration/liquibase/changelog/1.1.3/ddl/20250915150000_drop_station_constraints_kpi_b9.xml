@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20250915150000-1" author="system" context="ddl">
+        <!-- Remove foreign key constraint for station in KPI_B9_DETAIL_RESULT only -->
+        <dropForeignKeyConstraint baseTableName="KPI_B9_DETAIL_RESULT"
+                                  constraintName="FK_TB${project_name}_KPIB9DETRES_TB${project_name}_STATION"/>
+        
+        <rollback>
+            <!-- Restore foreign key constraint for KPI_B9_DETAIL_RESULT -->
+            <addForeignKeyConstraint baseColumnNames="CO_STATION_ID"
+                                     baseTableName="KPI_B9_DETAIL_RESULT"
+                                     constraintName="FK_TB${project_name}_KPIB9DETRES_TB${project_name}_STATION"
+                                     referencedColumnNames="CO_ID"
+                                     referencedTableName="ANAG_STATION"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

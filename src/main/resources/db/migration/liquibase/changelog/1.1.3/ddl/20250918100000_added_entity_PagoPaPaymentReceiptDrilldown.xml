@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+  <changeSet id="20250918100000-1" author="system" context="ddl">
+    <createSequence sequenceName="SQ${project_name}_PAGOPAPAYRECDRILL" startValue="3000" cacheSize="20"/>
+  </changeSet>
+
+  <changeSet id="20250918100000-2" author="system" context="ddl">
+    <createTable tableName="PAGOPA_PAYMENT_RECEIPT_DRILLDOWN">
+      <column name="CO_ID" type="bigint">
+        <constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_PAGOPAPAYRECDRILL"/>
+      </column>
+      <column name="CO_INSTANCE_ID" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_INSTANCE_MODULE_ID" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_STATION_ID" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DT_ANALYSIS_DATE" type="date">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DT_EVALUATION_DATE" type="date">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DT_START_TIME" type="TIMESTAMP WITHOUT TIME ZONE">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DT_END_TIME" type="TIMESTAMP WITHOUT TIME ZONE">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_TOT_RES" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_RES_OK" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_RES_KO" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <rollback>
+      DROP TABLE ${database.defaultSchemaName}.PAGOPA_PAYMENT_RECEIPT_DRILLDOWN CASCADE CONSTRAINTS;
+    </rollback>
+  </changeSet>
+
+  <changeSet id="20250918100000-3" author="system" context="ddl">
+    <createIndex indexName="IX${project_name}_PAGOPAPAYRECDRILL"
+				 tableName="PAGOPA_PAYMENT_RECEIPT_DRILLDOWN">
+      <column name="CO_INSTANCE_ID"/>
+      <column name="CO_STATION_ID"/>
+      <column name="DT_EVALUATION_DATE"/>
+    </createIndex>
+
+    <createIndex indexName="IX${project_name}_PAGOPAPAYRECDRILL_01"
+				 tableName="PAGOPA_PAYMENT_RECEIPT_DRILLDOWN">
+      <column name="CO_INSTANCE_MODULE_ID"/>
+    </createIndex>
+
+    <createIndex indexName="IX${project_name}_PAGOPAPAYRECDRILL_02"
+				 tableName="PAGOPA_PAYMENT_RECEIPT_DRILLDOWN">
+      <column name="DT_START_TIME"/>
+      <column name="DT_END_TIME"/>
+    </createIndex>
+  </changeSet>
+
+</databaseChangeLog>

@@ -23,8 +23,6 @@ public class KpiB9DetailResultServiceImpl implements KpiB9DetailResultService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KpiB9DetailResultServiceImpl.class);
 
-    private final AnagStationRepository anagStationRepository;
-
     private final InstanceRepository instanceRepository;
 
     private final InstanceModuleRepository instanceModuleRepository;
@@ -36,14 +34,12 @@ public class KpiB9DetailResultServiceImpl implements KpiB9DetailResultService {
     private final QueryBuilder queryBuilder;
 
     public KpiB9DetailResultServiceImpl(
-        AnagStationRepository anagStationRepository,
         InstanceRepository instanceRepository,
         InstanceModuleRepository instanceModuleRepository,
         KpiB9DetailResultRepository kpiB9DetailResultRepository,
         KpiB9ResultRepository kpiB9ResultRepository,
         QueryBuilder queryBuilder
     ) {
-        this.anagStationRepository = anagStationRepository;
         this.instanceRepository = instanceRepository;
         this.instanceModuleRepository = instanceModuleRepository;
         this.kpiB9DetailResultRepository = kpiB9DetailResultRepository;
@@ -66,15 +62,11 @@ public class KpiB9DetailResultServiceImpl implements KpiB9DetailResultService {
             .findById(kpiB9DetailResultDTO.getInstanceModuleId())
             .orElseThrow(() -> new IllegalArgumentException("InstanceModule not found"));
 
-        AnagStation station = anagStationRepository
-            .findById(kpiB9DetailResultDTO.getStationId())
-            .orElseThrow(() -> new IllegalArgumentException("Station not found"));
-
         KpiB9Result kpiB9DResult = kpiB9ResultRepository
             .findById(kpiB9DetailResultDTO.getKpiB9ResultId())
             .orElseThrow(() -> new IllegalArgumentException("KpiB9Result not found"));
 
-        KpiB9DetailResult kpiB9DetailResult = getKpiB9DetailResult(kpiB9DetailResultDTO, instance, instanceModule, station, kpiB9DResult);
+        KpiB9DetailResult kpiB9DetailResult = getKpiB9DetailResult(kpiB9DetailResultDTO, instance, instanceModule, kpiB9DResult);
 
         kpiB9DetailResult = kpiB9DetailResultRepository.save(kpiB9DetailResult);
 
@@ -87,14 +79,12 @@ public class KpiB9DetailResultServiceImpl implements KpiB9DetailResultService {
         KpiB9DetailResultDTO kpiB9DetailResultDTO,
         Instance instance,
         InstanceModule instanceModule,
-        AnagStation station,
         KpiB9Result kpiB9Result
     ) {
         KpiB9DetailResult kpiB9DetailResult = new KpiB9DetailResult();
         kpiB9DetailResult.setInstance(instance);
         kpiB9DetailResult.setInstanceModule(instanceModule);
         kpiB9DetailResult.setAnalysisDate(kpiB9DetailResultDTO.getAnalysisDate());
-        kpiB9DetailResult.setStation(station);
         kpiB9DetailResult.setEvaluationType(kpiB9DetailResultDTO.getEvaluationType());
         kpiB9DetailResult.setEvaluationStartDate(kpiB9DetailResultDTO.getEvaluationStartDate());
         kpiB9DetailResult.setEvaluationEndDate(kpiB9DetailResultDTO.getEvaluationEndDate());
@@ -115,7 +105,6 @@ public class KpiB9DetailResultServiceImpl implements KpiB9DetailResultService {
             kpiB9DetailResult.getInstanceModule() != null ? kpiB9DetailResult.getInstanceModule().getId() : null
         );
         kpiB9DetailResultDTO.setAnalysisDate(kpiB9DetailResult.getAnalysisDate());
-        kpiB9DetailResultDTO.setStationId(kpiB9DetailResult.getStation() != null ? kpiB9DetailResult.getStation().getId() : null);
         kpiB9DetailResultDTO.setEvaluationType(kpiB9DetailResult.getEvaluationType());
         kpiB9DetailResultDTO.setEvaluationStartDate(kpiB9DetailResult.getEvaluationStartDate());
         kpiB9DetailResultDTO.setEvaluationEndDate(kpiB9DetailResult.getEvaluationEndDate());
@@ -137,12 +126,10 @@ public class KpiB9DetailResultServiceImpl implements KpiB9DetailResultService {
     @Override
     public List<KpiB9DetailResultDTO> findByResultId(long resultId) {
         final QKpiB9DetailResult qKpiB9DetailResult = QKpiB9DetailResult.kpiB9DetailResult;
-        final QAnagStation qAnagStation = QAnagStation.anagStation;
 
         JPQLQuery<KpiB9DetailResultDTO> query = queryBuilder
             .createQuery()
             .from(qKpiB9DetailResult)
-            .leftJoin(qKpiB9DetailResult.station, qAnagStation)
             .where(qKpiB9DetailResult.kpiB9Result.id.eq(resultId))
             .select(
                 Projections.fields(
@@ -151,7 +138,6 @@ public class KpiB9DetailResultServiceImpl implements KpiB9DetailResultService {
                     qKpiB9DetailResult.instance.id.as("instanceId"),
                     qKpiB9DetailResult.instanceModule.id.as("instanceModuleId"),
                     qKpiB9DetailResult.analysisDate.as("analysisDate"),
-                    qKpiB9DetailResult.station.id.as("stationId"),
                     qKpiB9DetailResult.evaluationType.as("evaluationType"),
                     qKpiB9DetailResult.evaluationStartDate.as("evaluationStartDate"),
                     qKpiB9DetailResult.evaluationEndDate.as("evaluationEndDate"),
@@ -159,8 +145,7 @@ public class KpiB9DetailResultServiceImpl implements KpiB9DetailResultService {
                     qKpiB9DetailResult.resKo.as("resKo"),
                     qKpiB9DetailResult.resKoPercentage.as("resKoPercentage"),
                     qKpiB9DetailResult.outcome.as("outcome"),
-                    qKpiB9DetailResult.kpiB9Result.id.as("kpiB9ResultId"),
-                    qAnagStation.name.as("stationName")
+                    qKpiB9DetailResult.kpiB9Result.id.as("kpiB9ResultId")
                 )
             );
 
