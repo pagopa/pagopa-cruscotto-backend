@@ -8,7 +8,7 @@
 
   <include file="1.1.2/ddl/20250912120000_recreate_kpi_b2_detail_result_without_station_method.xml" relativeToChangelogFile="true"/>
   <include file="1.1.2/dml/20250912130000_migrate_kpi_b2_detail_result_aggregation.xml" relativeToChangelogFile="true"/>
-  <include file="1.1.2/dml/V1_1_2__create_kpi_b2_analytic_drilldown_table.xml" relativeToChangelogFile="true"/>
+  <include file="1.1.2/ddl/V1_1_2__create_kpi_b2_analytic_drilldown_table.xml" relativeToChangelogFile="true"/>
   
   <!-- <include file="1.1.2/ddl/20250912120000_drop_kpi_b2_detail_result_old.xml" relativeToChangelogFile="true"/> -->
 </databaseChangeLog>
