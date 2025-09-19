@@ -166,7 +166,7 @@ application:
 
   liquibase:
     async-start: false
-    dbVersion: 1.1.1
+    dbVersion: 1.1.2
 
 decorator:
   datasource:

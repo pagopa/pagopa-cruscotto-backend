@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+  <changeSet id="20250912130000-1" author="system" context="dml">
+    <comment>Migrate and aggregate data from KPI_B2_DETAIL_RESULT_OLD to new KPI_B2_DETAIL_RESULT, ignoring station/method columns and using MIN(TE_OUTCOME)</comment>
+    <sql>
+      INSERT INTO KPI_B2_DETAIL_RESULT (
+        CO_ID,
+        CO_INSTANCE_ID,
+        CO_INSTANCE_MODULE_ID,
+        DT_ANALISYS_DATE,
+        TE_EVALUATION_TYPE,
+        DT_EVALUATION_START_DATE,
+        DT_EVALUATION_END_DATE,
+        CO_TOT_REQ,
+        CO_AVG_TIME,
+        CO_OVER_TIME_LIMIT,
+        TE_OUTCOME,
+        CO_KPI_B2_RESULT_ID
+      )
+      SELECT
+        MIN(CO_ID),
+        CO_INSTANCE_ID,
+        CO_INSTANCE_MODULE_ID,
+        DT_ANALISYS_DATE,
+        TE_EVALUATION_TYPE,
+        DT_EVALUATION_START_DATE,
+        DT_EVALUATION_END_DATE,
+        SUM(CO_TOT_REQ) AS CO_TOT_REQ,
+        CASE WHEN SUM(CO_TOT_REQ) = 0 THEN 0 ELSE SUM(CO_TOT_REQ * CO_AVG_TIME) / SUM(CO_TOT_REQ) END AS CO_AVG_TIME,
+        SUM(CO_OVER_TIME_LIMIT) AS CO_OVER_TIME_LIMIT,
+        MIN(TE_OUTCOME) AS TE_OUTCOME,
+        CO_KPI_B2_RESULT_ID
+      FROM KPI_B2_DETAIL_RESULT_OLD
+      GROUP BY
+        CO_INSTANCE_ID,
+        CO_INSTANCE_MODULE_ID,
+        DT_ANALISYS_DATE,
+        TE_EVALUATION_TYPE,
+        DT_EVALUATION_START_DATE,
+        DT_EVALUATION_END_DATE,
+        CO_KPI_B2_RESULT_ID;
+    </sql>
+    <rollback>
+      DELETE FROM KPI_B2_DETAIL_RESULT;
+    </rollback>
+  </changeSet>
+  
+  <changeSet id="20250912130000-2" author="system" context="dml">
+      <comment>Set the foreign key in kpi_B2_analytic_data to the correct value from kpi_B2_detail_result for each matching row</comment>
+      <sql>
+        UPDATE kpi_B2_analytic_data a
+         SET co_kpi_B2_detail_result_id = d.co_id
+         FROM kpi_B2_detail_result d
+            WHERE
+             a.dt_analisys_date = d.dt_analisys_date
+            AND a.co_instance_id = d.co_instance_id
+            AND a.co_instance_module_id = d.co_instance_module_id
+            AND a.dt_evaluation_date BETWEEN d.dt_evaluation_start_date AND d.dt_evaluation_end_date
+            AND d.te_evaluation_type = 'MESE';
+      </sql>
+      <rollback>
+        -- No rollback: deleted data cannot be restored automatically
+      </rollback>
+    </changeSet>
+
+  <changeSet id="20250912130000-3" author="system" context="ddl">
+    <dropForeignKeyConstraint baseTableName="KPI_B2_ANALYTIC_DATA"
+                              constraintName="FK_TB${project_name}_KPIB2ANADATA_TB${project_name}_KPIB2DETRES"/>
+    <addForeignKeyConstraint baseColumnNames="CO_KPI_B2_DETAIL_RESULT_ID"
+                             baseTableName="KPI_B2_ANALYTIC_DATA"
+                             constraintName="FK_TB${project_name}_KPIB2ANADATA_TB${project_name}_KPIB2DETRES"
+                             referencedColumnNames="CO_ID"
+                             referencedTableName="KPI_B2_DETAIL_RESULT"/>
+</changeSet>
+
+    
+</databaseChangeLog>

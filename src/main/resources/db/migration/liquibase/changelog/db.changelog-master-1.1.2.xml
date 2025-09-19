@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+  <include file="db.changelog-master-1.1.0.xml"  relativeToChangelogFile="true"/>
+
+  <include file="1.1.2/ddl/20250912120000_recreate_kpi_b2_detail_result_without_station_method.xml" relativeToChangelogFile="true"/>
+  <include file="1.1.2/dml/20250912130000_migrate_kpi_b2_detail_result_aggregation.xml" relativeToChangelogFile="true"/>
+  <include file="1.1.2/ddl/V1_1_2__create_kpi_b2_analytic_drilldown_table.xml" relativeToChangelogFile="true"/>
+  
+  <!-- <include file="1.1.2/ddl/20250912120000_drop_kpi_b2_detail_result_old.xml" relativeToChangelogFile="true"/> -->
+</databaseChangeLog>
