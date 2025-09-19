@@ -2174,6 +2174,23 @@
         ],
         "operationId": "getAllPagoPaRecordedTimeout",
         "parameters": [
+                  {
+             "name": "method",
+             "in": "query",
+             "required": false,
+             "schema": {
+             	"type": "string"
+             }
+          },
+          {
+             "name": "day",
+             "in": "query",
+             "required": false,
+             "schema": {
+ 	            "type": "string",
+                "format": "date"
+             }
+          },
           {
             "name": "page",
             "in": "query",
