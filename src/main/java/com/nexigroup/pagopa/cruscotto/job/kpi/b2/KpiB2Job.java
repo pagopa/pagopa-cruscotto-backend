@@ -9,7 +9,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.Month;
 import java.time.ZoneOffset;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
@@ -36,7 +35,6 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 @DisallowConcurrentExecution
 public class KpiB2Job extends QuartzJobBean {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(KpiB2Job.class);
 
     private final InstanceService instanceService;
@@ -55,112 +53,260 @@ public class KpiB2Job extends QuartzJobBean {
 
     private final KpiB2AnalyticDataService kpiB2AnalyticDataService;
 
+    private final KpiB2AnalyticDrillDownService kpiB2AnalyticDrillDownService;
+
     private final KpiB2DetailResultService kpiB2DetailResultService;
 
     private final KpiB2ResultService kpiB2ResultService;
 
     private final Scheduler scheduler;
 
+    private List<KpiB2AnalyticDrillDownDTO> aggregateKpiB2AnalyticDataDrillDown(
+     AtomicReference<KpiB2AnalyticDataDTO> kpiB2AnalyticDataRef,
+     List<PagoPaRecordedTimeoutDTO> filteredPeriodRecords,
+     LocalDate detailResultEvaluationStartDate,
+     LocalDate detailResultEvaluationEndDate) {
+     
+       return filteredPeriodRecords.stream().map(record -> {
+                                        KpiB2AnalyticDrillDownDTO dto = new KpiB2AnalyticDrillDownDTO();
+                                        dto.setKpiB2AnalyticDataId(kpiB2AnalyticDataRef.get().getId());
+                                        dto.setAverageTimeMs(record.getAvgTime());
+                                        dto.setTotalRequests(record.getTotReq());
+                                        dto.setOkRequests(record.getReqOk());
+                                        dto.setFromHour(record.getStartDate());
+                                        dto.setEndHour(record.getEndDate());
+                                        return dto;
+                                    })
+                                    .collect(java.util.stream.Collectors.toList());
+    
+    
+    
+    }
+    
+    private List<KpiB2AnalyticDataDTO> aggregateKpiB2AnalyticData(InstanceDTO instanceDTO,
+     InstanceModuleDTO instanceModuleDTO,
+     double averageTimeLimit,
+     AtomicReference<KpiB2DetailResultDTO> kpiB2DetailResultRef,
+     List<PagoPaRecordedTimeoutDTO> filteredPeriodRecords,
+     LocalDate detailResultEvaluationStartDate,
+     LocalDate detailResultEvaluationEndDate) {
+
+        List<KpiB2AnalyticDataDTO> analyticDataList = new ArrayList<>();
+
+        // Group by station and method
+        Map<String, Map<String, List<PagoPaRecordedTimeoutDTO>>> grouped = filteredPeriodRecords.stream()
+            .collect(java.util.stream.Collectors.groupingBy(
+                PagoPaRecordedTimeoutDTO::getStation,
+                java.util.stream.Collectors.groupingBy(PagoPaRecordedTimeoutDTO::getMethod)
+            ));
+
+        for (Map.Entry<String, Map<String, List<PagoPaRecordedTimeoutDTO>>> stationEntry : grouped.entrySet()) {
+            String station = stationEntry.getKey();
+            long idStation = anagStationService.findIdByNameOrCreate(station, instanceDTO.getPartnerId());
+            Map<String, List<PagoPaRecordedTimeoutDTO>> methodMap = stationEntry.getValue();
+            for (Map.Entry<String, List<PagoPaRecordedTimeoutDTO>> methodEntry : methodMap.entrySet()) {
+                String method = methodEntry.getKey();
+                List<PagoPaRecordedTimeoutDTO> records = methodEntry.getValue();
+                // For each day in the period
+                for (LocalDate date = detailResultEvaluationStartDate; !date.isAfter(detailResultEvaluationEndDate); date = date.plusDays(1)) {
+                    final LocalDate currentDate = date;
+                    List<PagoPaRecordedTimeoutDTO> dailyRecords = records.stream()
+                        .filter(r -> r.getStartDate().atZone(ZoneOffset.systemDefault()).toLocalDate().isEqual(currentDate))
+                        .collect(java.util.stream.Collectors.toList());
+                    long sumTotReqDaily = dailyRecords.stream().mapToLong(PagoPaRecordedTimeoutDTO::getTotReq).sum();
+                    long sumReqOkDaily = dailyRecords.stream().mapToLong(PagoPaRecordedTimeoutDTO::getReqOk).sum();
+                    long sumReqTimeoutDaily = dailyRecords.stream().mapToLong(PagoPaRecordedTimeoutDTO::getReqTimeout).sum();
+                    double sumWeightsDaily = dailyRecords.stream().mapToDouble(r -> r.getTotReq() * (Double.isNaN(r.getAvgTime()) ? 0.0 : r.getAvgTime())).sum();
+                    double weightedAverageDaily = sumTotReqDaily > 0 ? sumWeightsDaily / sumTotReqDaily : 0.0;
+                    KpiB2AnalyticDataDTO analyticData = new KpiB2AnalyticDataDTO();
+                    analyticData.setInstanceId(instanceDTO.getId());
+                    analyticData.setInstanceModuleId(instanceModuleDTO.getId());
+                    analyticData.setAnalysisDate(LocalDate.now());
+                    analyticData.setStationId(idStation);
+                    analyticData.setMethod(method);
+                    analyticData.setEvaluationDate(date);
+                    analyticData.setTotReq(sumTotReqDaily);
+                    analyticData.setReqOk(sumReqOkDaily);
+                    analyticData.setReqTimeout(sumReqTimeoutDaily);
+                    analyticData.setAvgTime(roundToNDecimalPlaces(weightedAverageDaily));
+                    analyticData.setKpiB2DetailResultId(kpiB2DetailResultRef.get().getId());
+                    analyticDataList.add(analyticData);
+                }
+            }
+        }
+        return analyticDataList;
+    }
+
+    private List<KpiB2DetailResultDTO> aggregateKpiB2DetailResult(InstanceDTO instanceDTO,
+     InstanceModuleDTO instanceModuleDTO,
+       double averageTimeLimit,
+        double eligibilityThreshold,
+         double tolerance,
+          AtomicReference<KpiB2ResultDTO> kpiB2ResultRef,
+        List<PagoPaRecordedTimeoutDTO> filteredPeriodRecords) {
+        List<KpiB2DetailResultDTO> detailResults = new ArrayList<>();
+        LocalDate analysisStart = instanceDTO.getAnalysisPeriodStartDate();
+        LocalDate analysisEnd = instanceDTO.getAnalysisPeriodEndDate();
+        LocalDate current = analysisStart.withDayOfMonth(1);
+        AtomicReference<OutcomeStatus> kpiB2ResultFinalOutcome = new AtomicReference<>(OutcomeStatus.OK);
+        AtomicReference<Long> totRecordMonth = new AtomicReference<>();
+
+        long totRecordInstance = filteredPeriodRecords.stream()
+                .mapToLong(PagoPaRecordedTimeoutDTO::getTotReq)
+                .sum();
+
+        long sumTotReqTotal = 0;
+        double sumWeightsTotal = 0.0;
+        double sumTotalOverTimeLimit = 0.0;
+        
+        while (!current.isAfter(analysisEnd)) {
+
+            LocalDate firstDayOfMonth = current.withDayOfMonth(1).isBefore(analysisStart) ? analysisEnd :current.withDayOfMonth(1);
+            LocalDate lastDayOfMonth = current.with(TemporalAdjusters.lastDayOfMonth()).isAfter(analysisEnd) ? analysisStart : current.with(TemporalAdjusters.lastDayOfMonth());
+
+
+            long sumTotReqMontly = 0;
+            double sumWeightsMontly = 0.0;
+            double sumMonthOverTimeLimit = 0.0;
+            
+            List<PagoPaRecordedTimeoutDTO> monthPeriodRecords = filteredPeriodRecords.stream()
+                .filter(record -> {
+                    final LocalDate recordDate = record.getStartDate().atZone(ZoneOffset.systemDefault()).toLocalDate();
+                    return !recordDate.isBefore(firstDayOfMonth) && !recordDate.isAfter(lastDayOfMonth);
+                })
+                .collect(java.util.stream.Collectors.toList());
+            
+            totRecordMonth.set(monthPeriodRecords.stream()
+                .mapToLong(PagoPaRecordedTimeoutDTO::getTotReq)
+                .sum());
+            for (PagoPaRecordedTimeoutDTO record : monthPeriodRecords) {
+                double avgTime = Double.isNaN(record.getAvgTime()) ? 0.0 : record.getAvgTime();
+                sumTotReqMontly += record.getTotReq();
+                sumWeightsMontly += (record.getTotReq() * avgTime);
+
+                double monthWeight = (double) (record.getTotReq() * 100) / totRecordMonth.get();
+                double totalWeight = (double) (record.getTotReq() * 100) / totRecordInstance;
+                if (avgTime > averageTimeLimit) {
+                    
+                    sumMonthOverTimeLimit += monthWeight;
+                    sumTotalOverTimeLimit += totalWeight;
+                    
+                }
+            }
+            sumTotReqTotal += sumTotReqMontly;
+            sumWeightsTotal += sumWeightsMontly;
+            
+            double weightedAverageMontly = sumTotReqMontly > 0 ? sumWeightsMontly / sumTotReqMontly : 0.0;
+            KpiB2DetailResultDTO detailResult = new KpiB2DetailResultDTO();
+            detailResult.setInstanceId(instanceDTO.getId());
+            detailResult.setInstanceModuleId(instanceModuleDTO.getId());
+            detailResult.setAnalysisDate(LocalDate.now());
+            detailResult.setEvaluationType(EvaluationType.MESE);
+            detailResult.setEvaluationStartDate(firstDayOfMonth);
+            detailResult.setEvaluationEndDate(lastDayOfMonth);
+            detailResult.setTotReq(sumTotReqMontly);
+            detailResult.setAvgTime(roundToNDecimalPlaces(weightedAverageMontly));
+            detailResult.setOverTimeLimit(roundToNDecimalPlaces(sumMonthOverTimeLimit));
+            detailResult.setKpiB2ResultId(kpiB2ResultRef.get().getId());
+            OutcomeStatus outcomeStatus = OutcomeStatus.OK;
+            if (sumMonthOverTimeLimit > (eligibilityThreshold + tolerance)) {
+                outcomeStatus = OutcomeStatus.KO;
+            }
+            if (
+                outcomeStatus.compareTo(OutcomeStatus.KO) == 0
+            ) {
+                kpiB2ResultFinalOutcome.set(OutcomeStatus.KO);
+            }
+            detailResult.setOutcome(outcomeStatus);
+            detailResults.add(detailResult);
+
+            
+            current = current.plusMonths(1);
+        }
+
+        // Add TOTALE detail result for the whole analysis period
+            double weightedAverageTotal = sumTotReqTotal > 0 ? sumWeightsTotal / sumTotReqTotal : 0.0;
+            KpiB2DetailResultDTO totalDetailResult = new KpiB2DetailResultDTO();
+            totalDetailResult.setInstanceId(instanceDTO.getId());
+            totalDetailResult.setInstanceModuleId(instanceModuleDTO.getId());
+            totalDetailResult.setAnalysisDate(LocalDate.now());
+            totalDetailResult.setEvaluationType(EvaluationType.TOTALE);
+            totalDetailResult.setEvaluationStartDate(analysisStart);
+            totalDetailResult.setEvaluationEndDate(analysisEnd);
+            totalDetailResult.setTotReq(sumTotReqTotal);
+            totalDetailResult.setAvgTime(roundToNDecimalPlaces(weightedAverageTotal));
+            totalDetailResult.setOverTimeLimit(roundToNDecimalPlaces(sumTotalOverTimeLimit));
+            totalDetailResult.setKpiB2ResultId(kpiB2ResultRef.get().getId());
+            OutcomeStatus totalOutcomeStatus = OutcomeStatus.OK;
+            if (sumTotalOverTimeLimit > (eligibilityThreshold + tolerance)) {
+                totalOutcomeStatus = OutcomeStatus.KO;
+            }
+            totalDetailResult.setOutcome(totalOutcomeStatus);
+            detailResults.add(totalDetailResult);
+            
+        return detailResults;
+    }
+
+    private KpiB2ResultDTO aggregateKpiB2Result(InstanceDTO instanceDTO, InstanceModuleDTO instanceModuleDTO, KpiConfigurationDTO kpiConfigurationDTO, List<PagoPaRecordedTimeoutDTO> records) {
+        KpiB2ResultDTO kpiB2ResultDTO = new KpiB2ResultDTO();
+        kpiB2ResultDTO.setInstanceId(instanceDTO.getId());
+        kpiB2ResultDTO.setInstanceModuleId(instanceModuleDTO.getId());
+        kpiB2ResultDTO.setAnalysisDate(LocalDate.now());
+        kpiB2ResultDTO.setExcludePlannedShutdown(BooleanUtils.toBooleanDefaultIfNull(kpiConfigurationDTO.getExcludePlannedShutdown(), false));
+        kpiB2ResultDTO.setExcludeUnplannedShutdown(BooleanUtils.toBooleanDefaultIfNull(kpiConfigurationDTO.getExcludeUnplannedShutdown(), false));
+        kpiB2ResultDTO.setEligibilityThreshold(kpiConfigurationDTO.getEligibilityThreshold() != null ? kpiConfigurationDTO.getEligibilityThreshold() : 0.0);
+        kpiB2ResultDTO.setTolerance(kpiConfigurationDTO.getTolerance() != null ? kpiConfigurationDTO.getTolerance() : 0.0);
+        kpiB2ResultDTO.setAverageTimeLimit(kpiConfigurationDTO.getAverageTimeLimit() != null ? kpiConfigurationDTO.getAverageTimeLimit() : 0.0);
+        kpiB2ResultDTO.setEvaluationType(kpiConfigurationDTO.getEvaluationType());
+        kpiB2ResultDTO.setOutcome(!records.isEmpty() ? OutcomeStatus.STANDBY : OutcomeStatus.OK);
+        return kpiB2ResultDTO;
+    }
+
     @Override
     protected void executeInternal(@NotNull JobExecutionContext context) {
         LOGGER.info("Start calculate kpi B.2");
-
         if (!applicationProperties.getJob().getKpiB2Job().isEnabled()) {
             LOGGER.info("Job calculate kpi B.2 disabled. Exit...");
             return;
         }
-
         List<InstanceDTO> instanceDTOS = instanceService.findInstanceToCalculate(
             ModuleCode.B2,
             applicationProperties.getJob().getKpiB2Job().getLimit()
         );
-
         if (instanceDTOS.isEmpty()) {
             LOGGER.info("No instance to calculate B.2. Exit....");
-        } else {
-            KpiConfigurationDTO kpiConfigurationDTO = kpiConfigurationService
-                .findKpiConfigurationByCode(ModuleCode.B2.code)
-                .orElseThrow(() -> new NullPointerException("KPI B.2 Configuration not found"));
-
-            LOGGER.info("Kpi configuration {}", kpiConfigurationDTO);
-
-            Double eligibilityThreshold = kpiConfigurationDTO.getEligibilityThreshold() != null
-                ? kpiConfigurationDTO.getEligibilityThreshold()
-                : 0.0;
-            Double tolerance = kpiConfigurationDTO.getTolerance() != null ? kpiConfigurationDTO.getTolerance() : 0.0;
-            Double averageTimeLimit = kpiConfigurationDTO.getAverageTimeLimit() != null ? kpiConfigurationDTO.getAverageTimeLimit() : 0.0;
-
-            List<String> errors = new ArrayList<>();
-            instanceDTOS.forEach(instanceDTO -> {
-                try {
-                    LOGGER.info(
-                        "Start elaboration instance {} for partner {} - {} with period {} - {}",
-                        instanceDTO.getInstanceIdentification(),
-                        instanceDTO.getPartnerFiscalCode(),
-                        instanceDTO.getPartnerName(),
-                        instanceDTO.getAnalysisPeriodStartDate(),
-                        instanceDTO.getAnalysisPeriodEndDate()
-                    );
-
-                    instanceService.updateInstanceStatusInProgress(instanceDTO.getId());
-
-                    InstanceModuleDTO instanceModuleDTO = instanceModuleService
-                        .findOne(instanceDTO.getId(), kpiConfigurationDTO.getModuleId())
-                        .orElseThrow(() -> new NullPointerException("KPI B.2 InstanceModule not found"));
-
-                    LOGGER.info("Deletion phase for any previous processing in error");
-
-                    int kpiB2AnalyticRecordsDataDeleted = kpiB2AnalyticDataService.deleteAllByInstanceModule(instanceModuleDTO.getId());
-                    LOGGER.info("{} kpiB2AnalyticData records deleted", kpiB2AnalyticRecordsDataDeleted);
-
-                    int kpiB2DetailResultDeleted = kpiB2DetailResultService.deleteAllByInstanceModule(instanceModuleDTO.getId());
-                    LOGGER.info("{} kpiB2DetailResult records deleted", kpiB2DetailResultDeleted);
-
-                    int kpiB2ResultDeleted = kpiB2ResultService.deleteAllByInstanceModule(instanceModuleDTO.getId());
-                    LOGGER.info("{} kpiB2ResultDeleted records deleted", kpiB2ResultDeleted);
-
-                    Map<String, List<String>> stations = pagoPaRecordedTimeoutService.findAllStationAndMethodIntoPeriodForPartner(
-                        instanceDTO.getPartnerFiscalCode(),
-                        instanceDTO.getAnalysisPeriodStartDate(),
-                        instanceDTO.getAnalysisPeriodEndDate()
-                    );
-
-                    AtomicReference<KpiB2ResultDTO> kpiB2ResultRef = new AtomicReference<>();
-
-                    KpiB2ResultDTO kpiB2ResultDTO = new KpiB2ResultDTO();
-                    kpiB2ResultDTO.setInstanceId(instanceDTO.getId());
-                    kpiB2ResultDTO.setInstanceModuleId(instanceModuleDTO.getId());
-                    kpiB2ResultDTO.setAnalysisDate(LocalDate.now());
-                    kpiB2ResultDTO.setExcludePlannedShutdown(
-                        BooleanUtils.toBooleanDefaultIfNull(kpiConfigurationDTO.getExcludePlannedShutdown(), false)
-                    );
-                    kpiB2ResultDTO.setExcludeUnplannedShutdown(
-                        BooleanUtils.toBooleanDefaultIfNull(kpiConfigurationDTO.getExcludeUnplannedShutdown(), false)
-                    );
-                    kpiB2ResultDTO.setEligibilityThreshold(eligibilityThreshold);
-                    kpiB2ResultDTO.setTolerance(tolerance);
-                    kpiB2ResultDTO.setAverageTimeLimit(averageTimeLimit);
-                    kpiB2ResultDTO.setEvaluationType(kpiConfigurationDTO.getEvaluationType());
-                    kpiB2ResultDTO.setOutcome(!stations.isEmpty() ? OutcomeStatus.STANDBY : OutcomeStatus.OK);
-
-                    kpiB2ResultRef.set(kpiB2ResultService.save(kpiB2ResultDTO));
-
-                    AtomicReference<OutcomeStatus> kpiB2ResultFinalOutcome = new AtomicReference<>(OutcomeStatus.OK);
-
-                    if (stations.isEmpty()) {
-                        LOGGER.info("No stations found");
-                    } else {
-                        stations.forEach((station, methods) -> {
-                            LOGGER.info("Station {}", station);
-
-                            long idStation = anagStationService.findIdByNameOrCreate(station, instanceDTO.getPartnerId());
-
-                            List<AnagPlannedShutdownDTO> maintenance = new ArrayList<>();
-                            if (BooleanUtils.toBooleanDefaultIfNull(kpiConfigurationDTO.getExcludePlannedShutdown(), false)) {
+            return;
+        }
+        KpiConfigurationDTO kpiConfigurationDTO = kpiConfigurationService
+            .findKpiConfigurationByCode(ModuleCode.B2.code)
+            .orElseThrow(() -> new NullPointerException("KPI B.2 Configuration not found"));
+        LOGGER.info("Kpi configuration {}", kpiConfigurationDTO);
+        List<String> errors = new ArrayList<>();
+        for (InstanceDTO instanceDTO : instanceDTOS) {
+            try {
+                LOGGER.info(
+                    "Start elaboration instance {} for partner {} - {} with period {} - {}",
+                    instanceDTO.getInstanceIdentification(),
+                    instanceDTO.getPartnerFiscalCode(),
+                    instanceDTO.getPartnerName(),
+                    instanceDTO.getAnalysisPeriodStartDate(),
+                    instanceDTO.getAnalysisPeriodEndDate()
+                );
+                instanceService.updateInstanceStatusInProgress(instanceDTO.getId());
+                InstanceModuleDTO instanceModuleDTO = instanceModuleService
+                    .findOne(instanceDTO.getId(), kpiConfigurationDTO.getModuleId())
+                    .orElseThrow(() -> new NullPointerException("KPI B.2 InstanceModule not found"));
+                // instanceModuleId is now handled locally in aggregation methods
+                LOGGER.info("Deletion phase for any previous processing in error");
+                kpiB2AnalyticDataService.deleteAllByInstanceModule(instanceModuleDTO.getId());
+                kpiB2DetailResultService.deleteAllByInstanceModule(instanceModuleDTO.getId());
+                kpiB2ResultService.deleteAllByInstanceModule(instanceModuleDTO.getId());
+                
+                List<AnagPlannedShutdownDTO> maintenance = new ArrayList<>();
+                if (BooleanUtils.toBooleanDefaultIfNull(kpiConfigurationDTO.getExcludePlannedShutdown(), false)) {
                                 maintenance.addAll(
                                     anagPlannedShutdownService.findAllByTypePlannedIntoPeriod(
                                         instanceDTO.getPartnerId(),
-                                        idStation,
                                         TypePlanned.PROGRAMMATO,
                                         instanceDTO.getAnalysisPeriodStartDate(),
                                         instanceDTO.getAnalysisPeriodEndDate()
@@ -172,7 +318,6 @@ public class KpiB2Job extends QuartzJobBean {
                                 maintenance.addAll(
                                     anagPlannedShutdownService.findAllByTypePlannedIntoPeriod(
                                         instanceDTO.getPartnerId(),
-                                        idStation,
                                         TypePlanned.NON_PROGRAMMATO,
                                         instanceDTO.getAnalysisPeriodStartDate(),
                                         instanceDTO.getAnalysisPeriodEndDate()
@@ -180,301 +325,132 @@ public class KpiB2Job extends QuartzJobBean {
                                 );
                             }
 
-                            LOGGER.info("Found {} rows of maintenance", maintenance.size());
+                LOGGER.info("Found {} rows of maintenance", maintenance.size());
 
-                            methods.forEach(method -> {
-                                LOGGER.info("Method {}", method);
-                                long totRecordInstance = pagoPaRecordedTimeoutService.sumRecordIntoPeriodForPartnerStationAndMethod(
-                                    instanceDTO.getPartnerFiscalCode(),
-                                    station,
-                                    method,
-                                    instanceDTO.getAnalysisPeriodStartDate(),
-                                    instanceDTO.getAnalysisPeriodEndDate()
-                                );
+                // Fetch all records for the analysis period
+                List<PagoPaRecordedTimeoutDTO> periodRecords = pagoPaRecordedTimeoutService
+                        .findAllRecordIntoPeriodForPartner(
+                                instanceDTO.getPartnerFiscalCode(),
+                                instanceDTO.getAnalysisPeriodStartDate(),
+                                instanceDTO.getAnalysisPeriodEndDate());
 
-                                LOGGER.info("Tot Record Instance {}", totRecordInstance);
-                                AtomicReference<Month> prevMonth = new AtomicReference<>();
-                                AtomicReference<Long> totRecordMonth = new AtomicReference<>();
-                                AtomicReference<Double> totMonthWeight = new AtomicReference<>(0.0);
-                                AtomicReference<Double> totPeriodWeight = new AtomicReference<>(0.0);
-                                AtomicReference<Double> totMonthOverTimeLimit = new AtomicReference<>(0.0);
-                                AtomicReference<Double> totPeriodOverTimeLimit = new AtomicReference<>(0.0);
-                                List<KpiB2AnalyticDataDTO> kpiB2AnalyticDataDTOS = new ArrayList<>();
-                                List<KpiB2DetailResultDTO> kpiB2DetailResultDTOS = new ArrayList<>();
-                                AtomicReference<LocalDate> firstDayOfMonth = new AtomicReference<>();
-                                AtomicReference<LocalDate> lastDayOfMonth = new AtomicReference<>();
+                // --- Aggregation: KpiB2Result ---
+                KpiB2ResultDTO kpiB2ResultDTO = aggregateKpiB2Result(instanceDTO, instanceModuleDTO, kpiConfigurationDTO, periodRecords);
+                AtomicReference<KpiB2ResultDTO> kpiB2ResultRef = new AtomicReference<>(kpiB2ResultService.save(kpiB2ResultDTO));
 
-                                instanceDTO
-                                    .getAnalysisPeriodStartDate()
-                                    .datesUntil(instanceDTO.getAnalysisPeriodEndDate().plusDays(1))
-                                    .forEach(date -> {
-                                        LOGGER.info("Date {}", date);
+                // Filter out records that should be excluded due to maintenance
+                List<PagoPaRecordedTimeoutDTO> filteredPeriodRecords = new ArrayList<>();
+                for (PagoPaRecordedTimeoutDTO record : periodRecords) {
+                    boolean exclude = maintenance
+                            .stream()
+                            .filter(maintenanceRecord -> maintenanceRecord.getStationName().equals(record.getStation()))
+                            .map(anagPlannedShutdownDTO -> isInstantInRangeInclusive(
+                                    record.getStartDate(),
+                                    anagPlannedShutdownDTO.getShutdownStartDate(),
+                                    anagPlannedShutdownDTO.getShutdownEndDate()) &&
+                                    isInstantInRangeInclusive(
+                                            record.getEndDate(),
+                                            anagPlannedShutdownDTO.getShutdownStartDate(),
+                                            anagPlannedShutdownDTO.getShutdownEndDate())
 
-                                        //            LocalDate firstDayOfMonth; // date.with(TemporalAdjusters.firstDayOfMonth());
-                                        //           LocalDate lastDayOfMonth; // date.with(TemporalAdjusters.lastDayOfMonth());
-                                        Month currentMonth = date.getMonth();
-
-                                        /*  if (date.isEqual(firstDayOfMonth)) {
-                                                totMonthWeight.set(0.0);
-                                                totMonthOverTimeLimit.set(0.0);
-                                                kpiB2AnalyticDataDTOS.clear();
-                                            } */
-
-                                        if (prevMonth.get() == null || prevMonth.get().compareTo(currentMonth) != 0) {
-                                            if (prevMonth.get() == null) {
-                                                firstDayOfMonth.set(instanceDTO.getAnalysisPeriodStartDate());
-                                            } else {
-                                                //if(prevMonth.get().compareTo(currentMonth) != 0) {
-                                                firstDayOfMonth.set(date.with(TemporalAdjusters.firstDayOfMonth()));
-                                                totMonthWeight.set(0.0);
-                                                totMonthOverTimeLimit.set(0.0);
-                                                kpiB2AnalyticDataDTOS.clear();
-                                            }
-
-                                            if (currentMonth.compareTo(instanceDTO.getAnalysisPeriodEndDate().getMonth()) == 0) {
-                                                lastDayOfMonth.set(instanceDTO.getAnalysisPeriodEndDate());
-                                            } else {
-                                                lastDayOfMonth.set(date.with(TemporalAdjusters.lastDayOfMonth()));
-                                            }
-
-                                            totRecordMonth.set(
-                                                pagoPaRecordedTimeoutService.sumRecordIntoPeriodForPartnerStationAndMethod(
-                                                    instanceDTO.getPartnerFiscalCode(),
-                                                    station,
-                                                    method,
-                                                    firstDayOfMonth.get(),
-                                                    lastDayOfMonth.get()
-                                                )
-                                            );
-
-                                            LOGGER.info("Tot Record Month {}", totRecordMonth.get());
-                                        }
-
-                                        List<PagoPaRecordedTimeoutDTO> pagoPaRecordedTimeoutDTOS =
-                                            pagoPaRecordedTimeoutService.findAllRecordIntoDayForPartnerStationAndMethod(
-                                                instanceDTO.getPartnerFiscalCode(),
-                                                station,
-                                                method,
-                                                date
-                                            );
-
-                                        long sumTotReqDaily = 0;
-                                        long sumReqOkDaily = 0;
-                                        long sumReqTimeoutDaily = 0;
-                                        double sumWeightsDaily = 0L;
-
-                                        for (PagoPaRecordedTimeoutDTO pagoPaRecordedTimeoutDTO : pagoPaRecordedTimeoutDTOS) {
-                                            sumTotReqDaily = sumTotReqDaily + pagoPaRecordedTimeoutDTO.getTotReq();
-                                            sumReqOkDaily = sumReqOkDaily + pagoPaRecordedTimeoutDTO.getReqOk();
-                                            sumReqTimeoutDaily = sumReqTimeoutDaily + pagoPaRecordedTimeoutDTO.getReqTimeout();
-
-                                            pagoPaRecordedTimeoutDTO.setAvgTime(
-                                                Double.isNaN(pagoPaRecordedTimeoutDTO.getAvgTime())
-                                                    ? 0.0
-                                                    : pagoPaRecordedTimeoutDTO.getAvgTime()
-                                            );
-
-                                            sumWeightsDaily =
-                                                sumWeightsDaily +
-                                                (pagoPaRecordedTimeoutDTO.getTotReq() * pagoPaRecordedTimeoutDTO.getAvgTime());
-
-                                            double monthWeight =
-                                                (double) (pagoPaRecordedTimeoutDTO.getTotReq() * 100) / totRecordMonth.get();
-                                            double totalWeight = (double) (pagoPaRecordedTimeoutDTO.getTotReq() * 100) / totRecordInstance;
-
-                                            totMonthWeight.set(totMonthWeight.get() + monthWeight);
-                                            totPeriodWeight.set(totPeriodWeight.get() + totalWeight);
-
-                                            if (pagoPaRecordedTimeoutDTO.getAvgTime() > averageTimeLimit) {
-                                                boolean exclude = maintenance
-                                                    .stream()
-                                                    .map(anagPlannedShutdownDTO -> {
-                                                        Boolean excludePlanned =
-                                                            isInstantInRangeInclusive(
-                                                                pagoPaRecordedTimeoutDTO.getStartDate(),
-                                                                anagPlannedShutdownDTO.getShutdownStartDate(),
-                                                                anagPlannedShutdownDTO.getShutdownEndDate()
-                                                            ) &&
-                                                            isInstantInRangeInclusive(
-                                                                pagoPaRecordedTimeoutDTO.getEndDate(),
-                                                                anagPlannedShutdownDTO.getShutdownStartDate(),
-                                                                anagPlannedShutdownDTO.getShutdownEndDate()
-                                                            );
-                                                        return excludePlanned;
-                                                    })
-                                                    .anyMatch(Boolean::booleanValue);
-                                                if (!exclude) {
-                                                    totMonthOverTimeLimit.set(totMonthOverTimeLimit.get() + monthWeight);
-                                                    totPeriodOverTimeLimit.set(totPeriodOverTimeLimit.get() + totalWeight);
-                                                }
-                                            }
-                                        }
-
-                                        double weightedAverageDaily = sumTotReqDaily > 0 ? sumWeightsDaily / sumTotReqDaily : 0.0;
-
-                                        KpiB2AnalyticDataDTO kpiB2AnalyticDataDTO = new KpiB2AnalyticDataDTO();
-                                        kpiB2AnalyticDataDTO.setInstanceId(instanceDTO.getId());
-                                        kpiB2AnalyticDataDTO.setInstanceModuleId(instanceModuleDTO.getId());
-                                        kpiB2AnalyticDataDTO.setAnalysisDate(LocalDate.now());
-                                        kpiB2AnalyticDataDTO.setStationId(idStation);
-                                        kpiB2AnalyticDataDTO.setMethod(method);
-                                        kpiB2AnalyticDataDTO.setEvaluationDate(date);
-                                        kpiB2AnalyticDataDTO.setTotReq(sumTotReqDaily);
-                                        kpiB2AnalyticDataDTO.setReqOk(sumReqOkDaily);
-                                        kpiB2AnalyticDataDTO.setReqTimeout(sumReqTimeoutDaily);
-                                        kpiB2AnalyticDataDTO.setAvgTime(roundToNDecimalPlaces(weightedAverageDaily));
-
-                                        kpiB2AnalyticDataDTOS.add(kpiB2AnalyticDataDTO);
-
-                                        if (date.isEqual(lastDayOfMonth.get())) {
-                                            long sumTotReqMontly = 0;
-                                            double sumWeightsMontly = 0L;
-
-                                            for (KpiB2AnalyticDataDTO kpiB2AnalyticData : kpiB2AnalyticDataDTOS) {
-                                                sumTotReqMontly = sumTotReqMontly + kpiB2AnalyticData.getTotReq();
-                                                sumWeightsMontly =
-                                                    sumWeightsMontly + (kpiB2AnalyticData.getTotReq() * kpiB2AnalyticData.getAvgTime());
-                                            }
-
-                                            double weightedAverageMontly = sumTotReqMontly > 0 ? sumWeightsMontly / sumTotReqMontly : 0.0;
-
-                                            KpiB2DetailResultDTO kpiB2DetailResultDTO = new KpiB2DetailResultDTO();
-                                            kpiB2DetailResultDTO.setInstanceId(instanceDTO.getId());
-                                            kpiB2DetailResultDTO.setInstanceModuleId(instanceModuleDTO.getId());
-                                            kpiB2DetailResultDTO.setAnalysisDate(LocalDate.now());
-                                            kpiB2DetailResultDTO.setStationId(idStation);
-                                            kpiB2DetailResultDTO.setMethod(method);
-                                            kpiB2DetailResultDTO.setEvaluationType(EvaluationType.MESE);
-                                            kpiB2DetailResultDTO.setEvaluationStartDate(firstDayOfMonth.get());
-                                            kpiB2DetailResultDTO.setEvaluationEndDate(lastDayOfMonth.get());
-                                            kpiB2DetailResultDTO.setTotReq(sumTotReqMontly);
-                                            kpiB2DetailResultDTO.setAvgTime(roundToNDecimalPlaces(weightedAverageMontly));
-                                            kpiB2DetailResultDTO.setOverTimeLimit(roundToNDecimalPlaces(totMonthOverTimeLimit.get()));
-                                            kpiB2DetailResultDTO.setKpiB2ResultId(kpiB2ResultRef.get().getId());
-
-                                            OutcomeStatus outcomeStatus = OutcomeStatus.OK;
-
-                                            //   if (kpiConfigurationDTO.getEvaluationType().compareTo(EvaluationType.MESE) == 0) {
-                                            if (totMonthOverTimeLimit.get() > (eligibilityThreshold + tolerance)) {
-                                                outcomeStatus = OutcomeStatus.KO;
-                                            }
-                                            //     }
-
-                                            if (
-                                                kpiConfigurationDTO.getEvaluationType().compareTo(EvaluationType.MESE) == 0 &&
-                                                outcomeStatus.compareTo(OutcomeStatus.KO) == 0
-                                            ) {
-                                                kpiB2ResultFinalOutcome.set(OutcomeStatus.KO);
-                                            }
-
-                                            kpiB2DetailResultDTO.setOutcome(outcomeStatus);
-
-                                            kpiB2DetailResultDTO = kpiB2DetailResultService.save(kpiB2DetailResultDTO);
-
-                                            kpiB2DetailResultDTOS.add(kpiB2DetailResultDTO);
-
-                                            KpiB2DetailResultDTO finalKpiB2DetailResultDTO = kpiB2DetailResultDTO;
-
-                                            kpiB2AnalyticDataDTOS.forEach(kpiB2AnalyticData -> {
-                                                kpiB2AnalyticData.setKpiB2DetailResultId(finalKpiB2DetailResultDTO.getId());
-                                            });
-
-                                            kpiB2AnalyticDataService.saveAll(kpiB2AnalyticDataDTOS);
-                                        }
-
-                                        prevMonth.set(currentMonth);
-                                    });
-
-                                long sumTotReqPeriod = 0;
-                                double sumWeightsPeriod = 0L;
-
-                                for (KpiB2DetailResultDTO kpiB2DetailResult : kpiB2DetailResultDTOS) {
-                                    sumTotReqPeriod = sumTotReqPeriod + kpiB2DetailResult.getTotReq();
-                                    sumWeightsPeriod = sumWeightsPeriod + (kpiB2DetailResult.getTotReq() * kpiB2DetailResult.getAvgTime());
-                                }
-
-                                double weightedAveragePeriod = sumTotReqPeriod > 0 ? sumWeightsPeriod / sumTotReqPeriod : 0.0;
-
-                                KpiB2DetailResultDTO kpiB2DetailResultDTO = new KpiB2DetailResultDTO();
-                                kpiB2DetailResultDTO.setInstanceId(instanceDTO.getId());
-                                kpiB2DetailResultDTO.setInstanceModuleId(instanceModuleDTO.getId());
-                                kpiB2DetailResultDTO.setAnalysisDate(LocalDate.now());
-                                kpiB2DetailResultDTO.setStationId(idStation);
-                                kpiB2DetailResultDTO.setMethod(method);
-                                kpiB2DetailResultDTO.setEvaluationType(EvaluationType.TOTALE);
-                                kpiB2DetailResultDTO.setEvaluationStartDate(instanceDTO.getAnalysisPeriodStartDate());
-                                kpiB2DetailResultDTO.setEvaluationEndDate(instanceDTO.getAnalysisPeriodEndDate());
-                                kpiB2DetailResultDTO.setTotReq(totRecordInstance);
-                                kpiB2DetailResultDTO.setAvgTime(roundToNDecimalPlaces(weightedAveragePeriod));
-                                kpiB2DetailResultDTO.setOverTimeLimit(roundToNDecimalPlaces(totPeriodOverTimeLimit.get()));
-                                kpiB2DetailResultDTO.setKpiB2ResultId(kpiB2ResultRef.get().getId());
-
-                                OutcomeStatus outcomeStatus = OutcomeStatus.OK;
-
-                                //  if (kpiConfigurationDTO.getEvaluationType().compareTo(EvaluationType.TOTALE) == 0) {
-                                if (totPeriodOverTimeLimit.get() > (eligibilityThreshold + tolerance)) {
-                                    outcomeStatus = OutcomeStatus.KO;
-                                }
-                                //   }
-
-                                if (
-                                    kpiConfigurationDTO.getEvaluationType().compareTo(EvaluationType.TOTALE) == 0 &&
-                                    outcomeStatus.compareTo(OutcomeStatus.KO) == 0
-                                ) {
-                                    kpiB2ResultFinalOutcome.set(OutcomeStatus.KO);
-                                }
-
-                                kpiB2DetailResultDTO.setOutcome(outcomeStatus);
-
-                                kpiB2DetailResultService.save(kpiB2DetailResultDTO);
-                            });
-                        });
-
-                        LOGGER.info("Final outcome {}", kpiB2ResultFinalOutcome.get());
-                        kpiB2ResultService.updateKpiB2ResultOutcome(kpiB2ResultRef.get().getId(), kpiB2ResultFinalOutcome.get());
+                            )
+                            .anyMatch(Boolean::booleanValue);
+                    if (!exclude) {
+                        filteredPeriodRecords.add(record);
                     }
-                    instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(), kpiB2ResultFinalOutcome.get());
+                }
 
-                    // Trigger
-                    JobDetail job = scheduler.getJobDetail(JobKey.jobKey(JobConstant.CALCULATE_STATE_INSTANCE_JOB, "DEFAULT"));
+                // --- Aggregation: KpiB2DetailResult ---
+                List<KpiB2DetailResultDTO> detailResults = aggregateKpiB2DetailResult(
+                        instanceDTO,
+                        instanceModuleDTO,
+                        kpiB2ResultDTO.getAverageTimeLimit(),
+                        kpiB2ResultDTO.getEligibilityThreshold(),
+                        kpiB2ResultDTO.getTolerance(),
+                        kpiB2ResultRef,
+                        filteredPeriodRecords);
+                for (KpiB2DetailResultDTO detailResult : detailResults) {
+                    AtomicReference<KpiB2DetailResultDTO> kpiB2DetailResultRef = new AtomicReference<>(kpiB2DetailResultService.save(detailResult));
 
-                    Trigger trigger = TriggerBuilder.newTrigger()
-                        .usingJobData("instanceId", instanceDTO.getId())
-                        .withSchedule(SimpleScheduleBuilder.simpleSchedule().withMisfireHandlingInstructionFireNow().withRepeatCount(0))
-                        .forJob(job)
-                        .build();
+                    if (detailResult.getEvaluationType() == EvaluationType.MESE) {
 
-                    scheduler.scheduleJob(trigger);
-                } catch (Exception e) {
-                    errors.add(
-                        String.format(
-                            "Error in elaboration instance %s for partner %s - %s with period %s - %s. Exception: %s",
-                            instanceDTO.getInstanceIdentification(),
-                            instanceDTO.getPartnerFiscalCode(),
-                            instanceDTO.getPartnerName(),
-                            instanceDTO.getAnalysisPeriodStartDate(),
-                            instanceDTO.getAnalysisPeriodEndDate(),
-                            e.getMessage()
-                        )
-                    );
 
-                    LOGGER.error(
-                        "Error in elaboration instance {} for partner {} - {} with period {} - {}",
+                    // --- Aggregation: KpiB2AnalyticData ---
+                    List<KpiB2AnalyticDataDTO> analyticDataList = aggregateKpiB2AnalyticData(
+                            instanceDTO,
+                            instanceModuleDTO,
+                            kpiB2ResultDTO.getAverageTimeLimit(),
+                            kpiB2DetailResultRef,
+                            filteredPeriodRecords.stream()
+                                    .filter(record -> {
+                                        LocalDate recordDate = record.getStartDate().atZone(ZoneOffset.systemDefault())
+                                                .toLocalDate();
+                                        return !recordDate.isBefore(detailResult.getEvaluationStartDate())
+                                                && !recordDate.isAfter(detailResult.getEvaluationEndDate());
+                                    })
+                                    .collect(java.util.stream.Collectors.toList()),
+                            detailResult.getEvaluationStartDate(),
+                            detailResult.getEvaluationEndDate());
+
+                    
+                    for (KpiB2AnalyticDataDTO analyticData : analyticDataList) {
+                         AtomicReference<KpiB2AnalyticDataDTO> kpiB2AnalyticDataRef = new AtomicReference<>(kpiB2AnalyticDataService.save(analyticData));      
+                         
+                         // --- Aggregation: DrillDown ---
+                        List<KpiB2AnalyticDrillDownDTO> drillDowns = aggregateKpiB2AnalyticDataDrillDown(
+                            kpiB2AnalyticDataRef,
+                            filteredPeriodRecords.stream()
+                                .filter(record ->
+                                    record.getStartDate().atZone(ZoneOffset.systemDefault()).toLocalDate().isEqual(analyticData.getEvaluationDate()) &&
+                                    record.getStation().equals(analyticData.getStationName()) &&
+                                    record.getMethod().equals(analyticData.getMethod())
+                                )
+                                .collect(java.util.stream.Collectors.toList()),
+                            detailResult.getEvaluationStartDate(),
+                            detailResult.getEvaluationEndDate()
+                        );
+                        kpiB2AnalyticDrillDownService.saveAll(drillDowns);    
+                    }
+                }}
+                
+                // Final outcome update
+                kpiB2ResultService.updateKpiB2ResultOutcome(kpiB2ResultRef.get().getId(), OutcomeStatus.OK);
+                instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(), OutcomeStatus.OK);
+                // Trigger
+                JobDetail job = scheduler.getJobDetail(JobKey.jobKey(JobConstant.CALCULATE_STATE_INSTANCE_JOB, "DEFAULT"));
+                Trigger trigger = TriggerBuilder.newTrigger()
+                    .usingJobData("instanceId", instanceDTO.getId())
+                    .withSchedule(SimpleScheduleBuilder.simpleSchedule().withMisfireHandlingInstructionFireNow().withRepeatCount(0))
+                    .forJob(job)
+                    .build();
+                scheduler.scheduleJob(trigger);
+            } catch (Exception e) {
+                errors.add(
+                    String.format(
+                        "Error in elaboration instance %s for partner %s - %s with period %s - %s. Exception: %s",
                         instanceDTO.getInstanceIdentification(),
                         instanceDTO.getPartnerFiscalCode(),
                         instanceDTO.getPartnerName(),
                         instanceDTO.getAnalysisPeriodStartDate(),
                         instanceDTO.getAnalysisPeriodEndDate(),
-                        e
-                    );
-                }
-            });
-
-            if (!errors.isEmpty()) {
-                StringBuilder sb = new StringBuilder();
-                errors.forEach(error -> sb.append(error).append("\n"));
-                throw new RuntimeException(sb.toString());
+                        e.getMessage()
+                    )
+                );
+                LOGGER.error(
+                    "Error in elaboration instance {} for partner {} - {} with period {} - {}",
+                    instanceDTO.getInstanceIdentification(),
+                    instanceDTO.getPartnerFiscalCode(),
+                    instanceDTO.getPartnerName(),
+                    instanceDTO.getAnalysisPeriodStartDate(),
+                    instanceDTO.getAnalysisPeriodEndDate(),
+                    e
+                );
             }
+        }
+        if (!errors.isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            errors.forEach(error -> sb.append(error).append("\n"));
+            throw new RuntimeException(sb.toString());
         }
         LOGGER.info("End");
     }
@@ -494,3 +470,4 @@ public class KpiB2Job extends QuartzJobBean {
         );
     }
 }
+

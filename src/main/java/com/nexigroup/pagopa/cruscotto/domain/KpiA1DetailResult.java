@@ -16,7 +16,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.LocalDate;
 import lombok.Getter;
@@ -64,17 +63,6 @@ public class KpiA1DetailResult implements Serializable {
     @NotNull
     @Column(name = "DT_ANALISYS_DATE", nullable = false)
     private LocalDate analysisDate;
-
-    @JsonIgnore
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CO_STATION_ID", nullable = false)
-    private AnagStation station;
-
-    @Size(min = 1, max = 255)
-    @NotNull
-    @Column(name = "TE_METHOD", length = 255, nullable = false)
-    private String method;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -137,10 +125,6 @@ public class KpiA1DetailResult implements Serializable {
             instanceModule +
             ", analysisDate=" +
             analysisDate +
-            ", station=" +
-            station +
-            ", method=" +
-            method +
             ", evaluationType=" +
             evaluationType +
             ", evaluationStartDate=" +
