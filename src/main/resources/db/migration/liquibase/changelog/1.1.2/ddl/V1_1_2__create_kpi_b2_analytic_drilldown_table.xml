@@ -44,7 +44,7 @@
                 baseColumnNames="kpi_b2_analytic_data_id"
                 constraintName="FK_TB${project_name}_KPIB2ANALDRILLDOWN_TB${project_name}_KPIB2ANALYTICDATA"
                 referencedTableName="kpi_b2_analytic_data"
-                referencedColumnNames="id"/>
+                referencedColumnNames="co_id"/>
     </changeSet>
 
 </databaseChangeLog>
