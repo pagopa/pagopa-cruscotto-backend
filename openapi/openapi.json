@@ -3808,6 +3808,78 @@
         }
       }
     },
+    "/api/kpi-b9/drilldown/instance/{instanceId}/station/{stationId}": {
+            "get": {
+                "tags": [
+                    "pago-pa-payment-receipt-drilldown-resource"
+                ],
+                "operationId": "getQuarterHourDrilldown",
+                "parameters": [
+                    {
+                        "name": "instanceId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "stationId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "evaluationDate",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
+                "responses": {
+                    "4XX": {
+                        "description": "Client error codes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemDetailWithCause"
+                                }
+                            }
+                        }
+                    },
+                    "5XX": {
+                        "description": "Server error codes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemDetailWithCause"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/PagoPaPaymentReceiptDrilldownDTO"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
     "/api/kpi-analytic-data/b9/module/{detailResultId}": {
       "get": {
         "tags": [
@@ -9242,6 +9314,65 @@
           }
         }
       },
+      "PagoPaPaymentReceiptDrilldownDTO": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "instanceId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "instanceModuleId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "stationId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "stationName": {
+                        "type": "string"
+                    },
+                    "analysisDate": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "evaluationDate": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "startTime": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "endTime": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "timeSlot": {
+                        "type": "string"
+                    },
+                    "totRes": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "resOk": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "resKo": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "resKoPercentage": {
+                        "type": "number",
+                        "format": "double"
+                    }
+                }
+            },
       "KpiB9AnalyticDataDTO": {
         "required": [
           "analysisDate",

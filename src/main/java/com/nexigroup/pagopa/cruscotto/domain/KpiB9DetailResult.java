@@ -64,12 +64,6 @@ public class KpiB9DetailResult implements Serializable {
     @Column(name = "DT_ANALISYS_DATE", nullable = false)
     private LocalDate analysisDate;
 
-    @JsonIgnore
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CO_STATION_ID", nullable = false)
-    private AnagStation station;
-
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "TE_EVALUATION_TYPE", nullable = false)
@@ -131,8 +125,6 @@ public class KpiB9DetailResult implements Serializable {
             instanceModule +
             ", analysisDate=" +
             analysisDate +
-            ", station=" +
-            station +
             ", evaluationType=" +
             evaluationType +
             ", evaluationStartDate=" +
