@@ -45,6 +45,92 @@ public class PagoPaRecordedTimeoutServiceImpl implements PagoPaRecordedTimeoutSe
     }
 
     /**
+     * Get all records for a partner on a specific period (all stations/methods).
+     * @param fiscalCodePartner the fiscal code of a partner.
+     * @param day the day to filter.
+     * @return the list of PagoPaRecordedTimeoutDTO for that day and partner.
+     */
+    @Override
+    public List<PagoPaRecordedTimeoutDTO> findAllRecordIntoPeriodForPartner(
+        String fiscalCodePartner,
+        LocalDate startDay,
+        LocalDate endDay
+    ) {
+        QPagoPaRecordedTimeout qPagoPaRecordedTimeout = QPagoPaRecordedTimeout.pagoPaRecordedTimeout;
+        LocalDateTime startDateTime = startDay.atStartOfDay();
+        LocalDateTime endDateTime = endDay.atTime(23, 59, 59, 0);
+        LOGGER.info(startDateTime.toString());
+        LOGGER.info(endDateTime.toString());
+        return queryBuilder
+            .createQueryFactory()
+            .select(
+                Projections.fields(
+                    PagoPaRecordedTimeoutDTO.class,
+                    qPagoPaRecordedTimeout.id.as("id"),
+                    qPagoPaRecordedTimeout.cfPartner.as("cfPartner"),
+                    qPagoPaRecordedTimeout.station.as("station"),
+                    qPagoPaRecordedTimeout.method.as("method"),
+                    qPagoPaRecordedTimeout.startDate.as("startDate"),
+                    qPagoPaRecordedTimeout.endDate.as("endDate"),
+                    qPagoPaRecordedTimeout.totReq.as("totReq"),
+                    qPagoPaRecordedTimeout.reqOk.as("reqOk"),
+                    qPagoPaRecordedTimeout.reqTimeout.as("reqTimeout"),
+                    qPagoPaRecordedTimeout.avgTime.as("avgTime")
+                )
+            )
+            .from(qPagoPaRecordedTimeout)
+            .where(
+                qPagoPaRecordedTimeout.cfPartner.eq(fiscalCodePartner)
+                    .and(qPagoPaRecordedTimeout.startDate.goe(startDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
+                    .and(qPagoPaRecordedTimeout.startDate.loe(endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
+            )
+            .orderBy(new OrderSpecifier<>(Order.ASC, Expressions.stringPath("startDate")))
+            .fetch();
+    }
+
+    /**
+     * Get all records for a partner on a specific day (all stations/methods).
+     * @param fiscalCodePartner the fiscal code of a partner.
+     * @param day the day to filter.
+     * @return the list of PagoPaRecordedTimeoutDTO for that day and partner.
+     */
+    @Override
+    public List<PagoPaRecordedTimeoutDTO> findAllRecordIntoDayForPartner(
+        String fiscalCodePartner,
+        LocalDate day
+    ) {
+        QPagoPaRecordedTimeout qPagoPaRecordedTimeout = QPagoPaRecordedTimeout.pagoPaRecordedTimeout;
+        LocalDateTime startDateTime = day.atStartOfDay();
+        LocalDateTime endDateTime = day.atTime(23, 59, 59, 0);
+        LOGGER.info(startDateTime.toString());
+        LOGGER.info(endDateTime.toString());
+        return queryBuilder
+            .createQueryFactory()
+            .select(
+                Projections.fields(
+                    PagoPaRecordedTimeoutDTO.class,
+                    qPagoPaRecordedTimeout.id.as("id"),
+                    qPagoPaRecordedTimeout.cfPartner.as("cfPartner"),
+                    qPagoPaRecordedTimeout.station.as("station"),
+                    qPagoPaRecordedTimeout.method.as("method"),
+                    qPagoPaRecordedTimeout.startDate.as("startDate"),
+                    qPagoPaRecordedTimeout.endDate.as("endDate"),
+                    qPagoPaRecordedTimeout.totReq.as("totReq"),
+                    qPagoPaRecordedTimeout.reqOk.as("reqOk"),
+                    qPagoPaRecordedTimeout.reqTimeout.as("reqTimeout"),
+                    qPagoPaRecordedTimeout.avgTime.as("avgTime")
+                )
+            )
+            .from(qPagoPaRecordedTimeout)
+            .where(
+                qPagoPaRecordedTimeout.cfPartner.eq(fiscalCodePartner)
+                    .and(qPagoPaRecordedTimeout.startDate.goe(startDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
+                    .and(qPagoPaRecordedTimeout.startDate.loe(endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
+            )
+            .orderBy(new OrderSpecifier<>(Order.ASC, Expressions.stringPath("startDate")))
+            .fetch();
+    }
+    /**
      * Get station and method into a period for a partner.
      *
      * @param fiscalCodePartner the fiscal code of a partner.
@@ -113,6 +199,33 @@ public class PagoPaRecordedTimeoutServiceImpl implements PagoPaRecordedTimeoutSe
                     .eq(fiscalCodePartner)
                     .and(qPagoPaRecordedTimeout.station.eq(station))
                     .and(qPagoPaRecordedTimeout.method.eq(method))
+                    .and(qPagoPaRecordedTimeout.startDate.goe(startDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
+                    .and(qPagoPaRecordedTimeout.startDate.loe(endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
+            )
+            .fetchOne();
+    }
+
+    @Override
+    public Long sumRecordIntoPeriodForPartner(
+        String fiscalCodePartner,
+        LocalDate startDate,
+        LocalDate endDate
+    ) {
+        QPagoPaRecordedTimeout qPagoPaRecordedTimeout = QPagoPaRecordedTimeout.pagoPaRecordedTimeout;
+
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.atTime(23, 59, 59, 0);
+
+        LOGGER.info(startDateTime.toString());
+        LOGGER.info(endDateTime.toString());
+
+        return queryBuilder
+            .createQueryFactory()
+            .select(qPagoPaRecordedTimeout.totReq.sum())
+            .from(qPagoPaRecordedTimeout)
+            .where(
+                qPagoPaRecordedTimeout.cfPartner
+                    .eq(fiscalCodePartner)
                     .and(qPagoPaRecordedTimeout.startDate.goe(startDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
                     .and(qPagoPaRecordedTimeout.startDate.loe(endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
             )

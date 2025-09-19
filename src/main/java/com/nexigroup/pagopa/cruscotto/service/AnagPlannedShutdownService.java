@@ -86,4 +86,11 @@ public interface AnagPlannedShutdownService {
         LocalDate startDate,
         LocalDate endDate
     );
+
+    List<AnagPlannedShutdownDTO> findAllByTypePlannedIntoPeriod(
+        Long partnerId,
+        TypePlanned typePlanned,
+        LocalDate startDate,
+        LocalDate endDate
+    );
 }

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="1.1.2-create-kpi-b2-analytic-drilldown-table" author="system">
+        <createTable tableName="kpi_b2_analytic_drilldown">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_KPIB2ANALDRILLDOWN"/>
+            </column>
+            <column name="kpi_b2_analytic_data_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="from_hour" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="end_hour" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_requests" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ok_requests" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="average_time_ms" type="DOUBLE PRECISION">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createSequence sequenceName="SQ${project_name}_KPIB2ANALDRILLDOWN" startValue="1"/>
+
+    </changeSet>
+
+    <changeSet id="1.1.2-create-index-kpi-b2-analytic-data-id" author="system">
+        <createIndex indexName="IX${project_name}_KPIB2ANALDRILLDOWN_01" tableName="kpi_b2_analytic_drilldown">
+            <column name="kpi_b2_analytic_data_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="1.1.2-add-foreignkey-kpi-b2-analytic-data-id" author="system">
+        <addForeignKeyConstraint baseTableName="kpi_b2_analytic_drilldown"
+                baseColumnNames="kpi_b2_analytic_data_id"
+                constraintName="FK_TB${project_name}_KPIB2ANALDRILLDOWN_TB${project_name}_KPIB2ANALYTICDATA"
+                referencedTableName="kpi_b2_analytic_data"
+                referencedColumnNames="co_id"/>
+    </changeSet>
+
+</databaseChangeLog>

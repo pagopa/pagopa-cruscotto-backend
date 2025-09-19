@@ -184,8 +184,6 @@ public class InstanceModuleServiceImpl implements InstanceModuleService {
         kpiB2DetailResult.setInstance(instance);
         kpiB2DetailResult.setInstanceModule(instanceModule);
         kpiB2DetailResult.setAnalysisDate(kpiB2DetailResultDTO.getAnalysisDate());
-        kpiB2DetailResult.setStation(station);
-        kpiB2DetailResult.setMethod(kpiB2DetailResultDTO.getMethod());
         kpiB2DetailResult.setEvaluationType(kpiB2DetailResultDTO.getEvaluationType());
         kpiB2DetailResult.setEvaluationStartDate(kpiB2DetailResultDTO.getEvaluationStartDate());
         kpiB2DetailResult.setEvaluationEndDate(kpiB2DetailResultDTO.getEvaluationEndDate());
