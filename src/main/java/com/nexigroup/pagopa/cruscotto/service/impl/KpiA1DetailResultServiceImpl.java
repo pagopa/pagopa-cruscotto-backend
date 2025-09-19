@@ -1,33 +1,29 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
-import com.nexigroup.pagopa.cruscotto.domain.*;
-import com.nexigroup.pagopa.cruscotto.domain.AnagStation;
+import java.util.List;
+
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.nexigroup.pagopa.cruscotto.domain.Instance;
 import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
 import com.nexigroup.pagopa.cruscotto.domain.KpiA1DetailResult;
 import com.nexigroup.pagopa.cruscotto.domain.KpiA1Result;
-import com.nexigroup.pagopa.cruscotto.repository.*;
+import com.nexigroup.pagopa.cruscotto.domain.QAnagStation;
+import com.nexigroup.pagopa.cruscotto.domain.QKpiA1DetailResult;
 import com.nexigroup.pagopa.cruscotto.repository.AnagStationRepository;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceModuleRepository;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
 import com.nexigroup.pagopa.cruscotto.repository.KpiA1DetailResultRepository;
 import com.nexigroup.pagopa.cruscotto.repository.KpiA1ResultRepository;
 import com.nexigroup.pagopa.cruscotto.service.KpiA1DetailResultService;
-import com.nexigroup.pagopa.cruscotto.service.KpiA1DetailResultService;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA1DetailResultDTO;
-import com.nexigroup.pagopa.cruscotto.service.dto.KpiA1DetailResultDTO;
-import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2DetailResultDTO;
-import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPQLQuery;
-import java.util.List;
-import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service Implementation for managing {@link KpiA1DetailResult}.
@@ -81,15 +77,11 @@ public class KpiA1DetailResultServiceImpl implements KpiA1DetailResultService {
             .findById(kpiA1DetailResultDTO.getInstanceModuleId())
             .orElseThrow(() -> new IllegalArgumentException("InstanceModule not found"));
 
-        AnagStation station = anagStationRepository
-            .findById(kpiA1DetailResultDTO.getStationId())
-            .orElseThrow(() -> new IllegalArgumentException("Station not found"));
-
         KpiA1Result kpiA1DResult = kpiA1ResultRepository
             .findById(kpiA1DetailResultDTO.getKpiA1ResultId())
             .orElseThrow(() -> new IllegalArgumentException("KpiA1Result not found"));
 
-        KpiA1DetailResult kpiA1DetailResult = getKpiA1DetailResult(kpiA1DetailResultDTO, instance, instanceModule, station, kpiA1DResult);
+        KpiA1DetailResult kpiA1DetailResult = getKpiA1DetailResult(kpiA1DetailResultDTO, instance, instanceModule, kpiA1DResult);
 
         kpiA1DetailResult = kpiA1DetailResultRepository.save(kpiA1DetailResult);
 
@@ -102,15 +94,12 @@ public class KpiA1DetailResultServiceImpl implements KpiA1DetailResultService {
         KpiA1DetailResultDTO kpiA1DetailResultDTO,
         Instance instance,
         InstanceModule instanceModule,
-        AnagStation station,
         KpiA1Result kpiA1Result
     ) {
         KpiA1DetailResult kpiA1DetailResult = new KpiA1DetailResult();
         kpiA1DetailResult.setInstance(instance);
         kpiA1DetailResult.setInstanceModule(instanceModule);
         kpiA1DetailResult.setAnalysisDate(kpiA1DetailResultDTO.getAnalysisDate());
-        kpiA1DetailResult.setStation(station);
-        kpiA1DetailResult.setMethod(kpiA1DetailResultDTO.getMethod());
         kpiA1DetailResult.setEvaluationType(kpiA1DetailResultDTO.getEvaluationType());
         kpiA1DetailResult.setEvaluationStartDate(kpiA1DetailResultDTO.getEvaluationStartDate());
         kpiA1DetailResult.setEvaluationEndDate(kpiA1DetailResultDTO.getEvaluationEndDate());
@@ -131,12 +120,10 @@ public class KpiA1DetailResultServiceImpl implements KpiA1DetailResultService {
     @Override
     public List<KpiA1DetailResultDTO> findByResultId(long resultId) {
         final QKpiA1DetailResult qKpiA1DetailResult = QKpiA1DetailResult.kpiA1DetailResult;
-        final QAnagStation qAnagStation = QAnagStation.anagStation;
-
+        
         JPQLQuery<KpiA1DetailResultDTO> query = queryBuilder
             .createQuery()
             .from(qKpiA1DetailResult)
-            .leftJoin(qKpiA1DetailResult.station, qAnagStation)
             .where(qKpiA1DetailResult.kpiA1Result.id.eq(resultId))
             .select(
                 Projections.fields(
@@ -145,9 +132,6 @@ public class KpiA1DetailResultServiceImpl implements KpiA1DetailResultService {
                     qKpiA1DetailResult.instance.id.as("instanceId"),
                     qKpiA1DetailResult.instanceModule.id.as("instanceModuleId"),
                     qKpiA1DetailResult.analysisDate.as("analysisDate"),
-                    qKpiA1DetailResult.station.id.as("stationId"),
-                    qAnagStation.name.as("stationName"),
-                    qKpiA1DetailResult.method.as("method"),
                     qKpiA1DetailResult.evaluationType.as("evaluationType"),
                     qKpiA1DetailResult.evaluationStartDate.as("evaluationStartDate"),
                     qKpiA1DetailResult.evaluationEndDate.as("evaluationEndDate"),

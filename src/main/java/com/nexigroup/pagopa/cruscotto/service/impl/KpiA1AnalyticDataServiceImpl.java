@@ -1,11 +1,6 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
 import com.nexigroup.pagopa.cruscotto.domain.*;
-import com.nexigroup.pagopa.cruscotto.domain.AnagStation;
-import com.nexigroup.pagopa.cruscotto.domain.Instance;
-import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
-import com.nexigroup.pagopa.cruscotto.domain.KpiA1AnalyticData;
-import com.nexigroup.pagopa.cruscotto.domain.KpiA1DetailResult;
 import com.nexigroup.pagopa.cruscotto.repository.*;
 import com.nexigroup.pagopa.cruscotto.repository.AnagStationRepository;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceModuleRepository;
@@ -181,5 +176,43 @@ public class KpiA1AnalyticDataServiceImpl implements KpiA1AnalyticDataService {
             );
 
         return query.fetch();
+    }
+
+    /**
+     * Save kpiA1AnalyticData.
+     *
+     * @param kpiA1AnalyticDataDTO the entity to save.
+     */
+    @Override
+    public KpiA1AnalyticDataDTO save(KpiA1AnalyticDataDTO kpiA1AnalyticDataDTO) {
+        Instance instance = instanceRepository
+                .findById(kpiA1AnalyticDataDTO.getInstanceId())
+                .orElseThrow(() -> new IllegalArgumentException("Instance not found"));
+
+            InstanceModule instanceModule = instanceModuleRepository
+                .findById(kpiA1AnalyticDataDTO.getInstanceModuleId())
+                .orElseThrow(() -> new IllegalArgumentException("InstanceModule not found"));
+
+            AnagStation station = anagStationRepository
+                .findById(kpiA1AnalyticDataDTO.getStationId())
+                .orElseThrow(() -> new IllegalArgumentException("Station not found"));
+
+            KpiA1DetailResult kpiA1DetailResult = kpiA1DetailResultRepository
+                .findById(kpiA1AnalyticDataDTO.getKpiA1DetailResultId())
+                .orElseThrow(() -> new IllegalArgumentException("KpiA1DetailResult not found"));
+
+            KpiA1AnalyticData kpiA1AnalyticData = getkpiA1AnalyticData(
+                kpiA1AnalyticDataDTO,
+                instance,
+                instanceModule,
+                station,
+                kpiA1DetailResult
+            );
+
+            kpiA1AnalyticData = kpiA1AnalyticDataRepository.save(kpiA1AnalyticData);
+
+        kpiA1AnalyticDataDTO.setId(kpiA1AnalyticData.getId());
+
+        return kpiA1AnalyticDataDTO;
     }
 }
