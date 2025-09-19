@@ -13,12 +13,13 @@ import java.time.Month;
 import java.time.ZoneOffset;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.BooleanUtils;
-import org.jetbrains.annotations.NotNull;
+import org.springframework.lang.NonNull;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
@@ -53,6 +54,8 @@ public class KpiA1Job extends QuartzJobBean {
 
     private final AnagPlannedShutdownService anagPlannedShutdownService;
 
+    private final KpiA1AnalyticDrillDownService kpiA1AnalyticDrillDownService;
+
     private final KpiA1AnalyticDataService kpiA1AnalyticDataService;
 
     private final KpiA1DetailResultService kpiA1DetailResultService;
@@ -62,7 +65,7 @@ public class KpiA1Job extends QuartzJobBean {
     private final Scheduler scheduler;
 
     @Override
-    protected void executeInternal(@NotNull JobExecutionContext context) {
+    protected void executeInternal(@NonNull JobExecutionContext context) {
         LOGGER.info("Start calculate kpi A.1");
 
         try {
@@ -148,6 +151,19 @@ public class KpiA1Job extends QuartzJobBean {
                         if (stations.isEmpty()) {
                             LOGGER.info("No stations found");
                         } else {
+                            // Aggregazione per periodo (mese) - tutti i dati saranno aggregati senza considerare stationId e method
+                            Map<Month, Long> monthlyTotReq = new HashMap<>();
+                            Map<Month, Long> monthlyReqTimeout = new HashMap<>();
+                            Map<Month, LocalDate> monthlyStartDate = new HashMap<>();
+                            Map<Month, LocalDate> monthlyEndDate = new HashMap<>();
+                            Map<Month, List<OutcomeStatus>> monthlyOutcomes = new HashMap<>();
+                            List<KpiA1AnalyticDataDTO> allKpiA1AnalyticDataDTOS = new ArrayList<>();
+                            
+                            AtomicReference<Long> totReqPeriod = new AtomicReference<>(0L);
+                            AtomicReference<Long> totTimeoutReqPeriod = new AtomicReference<>(0L);
+
+                            Map<LocalDate, List<PagoPaRecordedTimeoutDTO>> pagoPaRecordedTimeoutMap = new HashMap<>();
+
                             stations.forEach((station, methods) -> {
                                 LOGGER.info("Station {}", station);
 
@@ -186,12 +202,10 @@ public class KpiA1Job extends QuartzJobBean {
                                     AtomicReference<Month> prevMonth = new AtomicReference<>();
                                     AtomicReference<Long> totReqMonth = new AtomicReference<>(0L);
                                     AtomicReference<Long> totTimeoutReqMonth = new AtomicReference<>(0L);
-                                    AtomicReference<Long> totReqPeriod = new AtomicReference<>(0L);
-                                    AtomicReference<Long> totTimeoutReqPeriod = new AtomicReference<>(0L);
                                     List<KpiA1AnalyticDataDTO> kpiA1AnalyticDataDTOS = new ArrayList<>();
-                                    List<KpiA1DetailResultDTO> kpiA1DetailResultDTOS = new ArrayList<>();
                                     AtomicReference<LocalDate> firstDayOfMonth = new AtomicReference<>();
                                     AtomicReference<LocalDate> lastDayOfMonth = new AtomicReference<>();
+
 
                                     instanceDTO
                                         .getAnalysisPeriodStartDate()
@@ -258,6 +272,7 @@ public class KpiA1Job extends QuartzJobBean {
                                                     })
                                                     .anyMatch(Boolean::booleanValue);
                                                 if (!exclude) {
+                                                    pagoPaRecordedTimeoutMap.computeIfAbsent(date, k -> new ArrayList<>()).add(pagoPaRecordedTimeoutDTO);
                                                     sumValidTimeouReqtDaily =
                                                         sumValidTimeouReqtDaily + pagoPaRecordedTimeoutDTO.getReqTimeout();
                                                 }
@@ -281,96 +296,165 @@ public class KpiA1Job extends QuartzJobBean {
                                             kpiA1AnalyticDataDTOS.add(kpiA1AnalyticDataDTO);
 
                                             if (date.isEqual(lastDayOfMonth.get())) {
-                                                totReqPeriod.set(totReqPeriod.get() + totReqMonth.get());
-                                                totTimeoutReqPeriod.set(totTimeoutReqPeriod.get() + totTimeoutReqMonth.get());
-
+                                                // Aggregazione mensile
+                                                monthlyTotReq.merge(currentMonth, totReqMonth.get(), Long::sum);
+                                                monthlyReqTimeout.merge(currentMonth, totTimeoutReqMonth.get(), Long::sum);
+                                                
+                                                // Imposta le date del mese se non già presenti
+                                                monthlyStartDate.putIfAbsent(currentMonth, firstDayOfMonth.get());
+                                                monthlyEndDate.put(currentMonth, lastDayOfMonth.get());
+                                                
+                                                // Calcola outcome per questa combinazione station-method e aggiungilo alla lista
                                                 Long totReqMonthValue = totReqMonth.get();
                                                 double percTimeoutReqMonth = totReqMonthValue.compareTo(0L) > 0
                                                     ? (double) (totTimeoutReqMonth.get() * 100) / totReqMonthValue
                                                     : 0.0;
-
-                                                KpiA1DetailResultDTO kpiA1DetailResultDTO = new KpiA1DetailResultDTO();
-                                                kpiA1DetailResultDTO.setInstanceId(instanceDTO.getId());
-                                                kpiA1DetailResultDTO.setInstanceModuleId(instanceModuleDTO.getId());
-                                                kpiA1DetailResultDTO.setAnalysisDate(LocalDate.now());
-                                                kpiA1DetailResultDTO.setStationId(idStation);
-                                                kpiA1DetailResultDTO.setMethod(method);
-                                                kpiA1DetailResultDTO.setEvaluationType(EvaluationType.MESE);
-                                                kpiA1DetailResultDTO.setEvaluationStartDate(firstDayOfMonth.get());
-                                                kpiA1DetailResultDTO.setEvaluationEndDate(lastDayOfMonth.get());
-                                                kpiA1DetailResultDTO.setTotReq(totReqMonth.get());
-                                                kpiA1DetailResultDTO.setReqTimeout(totTimeoutReqMonth.get());
-                                                kpiA1DetailResultDTO.setTimeoutPercentage(roundToNDecimalPlaces(percTimeoutReqMonth));
-                                                kpiA1DetailResultDTO.setKpiA1ResultId(kpiA1ResultRef.get().getId());
-
+                                                
                                                 OutcomeStatus outcomeStatus = OutcomeStatus.OK;
-
                                                 if (percTimeoutReqMonth > (eligibilityThreshold + tolerance)) {
                                                     outcomeStatus = OutcomeStatus.KO;
                                                 }
-
-                                                if (
-                                                    kpiConfigurationDTO.getEvaluationType().compareTo(EvaluationType.MESE) == 0 &&
-                                                    outcomeStatus.compareTo(OutcomeStatus.KO) == 0
-                                                ) {
-                                                    kpiA1ResultFinalOutcome.set(OutcomeStatus.KO);
-                                                }
-
-                                                kpiA1DetailResultDTO.setOutcome(outcomeStatus);
-
-                                                kpiA1DetailResultDTO = kpiA1DetailResultService.save(kpiA1DetailResultDTO);
-
-                                                kpiA1DetailResultDTOS.add(kpiA1DetailResultDTO);
-
-                                                KpiA1DetailResultDTO finalKpiA1DetailResultDTO = kpiA1DetailResultDTO;
-
-                                                kpiA1AnalyticDataDTOS.forEach(kpiA1AnalyticData -> {
-                                                    kpiA1AnalyticData.setKpiA1DetailResultId(finalKpiA1DetailResultDTO.getId());
-                                                });
-
-                                                kpiA1AnalyticDataService.saveAll(kpiA1AnalyticDataDTOS);
+                                                
+                                                monthlyOutcomes.computeIfAbsent(currentMonth, k -> new ArrayList<>()).add(outcomeStatus);
+                                                
+                                                allKpiA1AnalyticDataDTOS.addAll(kpiA1AnalyticDataDTOS);
                                             }
 
                                             prevMonth.set(currentMonth);
                                         });
 
-                                    Long totReqPeriodValue = totReqPeriod.get();
-                                    double percTimeoutReqPeriod = totReqPeriodValue.compareTo(0L) > 0
-                                        ? (double) (totTimeoutReqPeriod.get() * 100) / totReqPeriodValue
-                                        : 0.0;
-
-                                    KpiA1DetailResultDTO kpiA1DetailResultDTO = new KpiA1DetailResultDTO();
-                                    kpiA1DetailResultDTO.setInstanceId(instanceDTO.getId());
-                                    kpiA1DetailResultDTO.setInstanceModuleId(instanceModuleDTO.getId());
-                                    kpiA1DetailResultDTO.setAnalysisDate(LocalDate.now());
-                                    kpiA1DetailResultDTO.setStationId(idStation);
-                                    kpiA1DetailResultDTO.setMethod(method);
-                                    kpiA1DetailResultDTO.setEvaluationType(EvaluationType.TOTALE);
-                                    kpiA1DetailResultDTO.setEvaluationStartDate(instanceDTO.getAnalysisPeriodStartDate());
-                                    kpiA1DetailResultDTO.setEvaluationEndDate(instanceDTO.getAnalysisPeriodEndDate());
-                                    kpiA1DetailResultDTO.setTotReq(totReqPeriod.get());
-                                    kpiA1DetailResultDTO.setReqTimeout(totTimeoutReqPeriod.get());
-                                    kpiA1DetailResultDTO.setTimeoutPercentage(roundToNDecimalPlaces(percTimeoutReqPeriod));
-                                    kpiA1DetailResultDTO.setKpiA1ResultId(kpiA1ResultRef.get().getId());
-
-                                    OutcomeStatus outcomeStatus = OutcomeStatus.OK;
-
-                                    if (percTimeoutReqPeriod > (eligibilityThreshold + tolerance)) {
-                                        outcomeStatus = OutcomeStatus.KO;
-                                    }
-
-                                    if (
-                                        kpiConfigurationDTO.getEvaluationType().compareTo(EvaluationType.TOTALE) == 0 &&
-                                        outcomeStatus.compareTo(OutcomeStatus.KO) == 0
-                                    ) {
-                                        kpiA1ResultFinalOutcome.set(OutcomeStatus.KO);
-                                    }
-
-                                    kpiA1DetailResultDTO.setOutcome(outcomeStatus);
-
-                                    kpiA1DetailResultService.save(kpiA1DetailResultDTO);
+                                    totReqPeriod.set(totReqPeriod.get() + totReqMonth.get());
+                                    totTimeoutReqPeriod.set(totTimeoutReqPeriod.get() + totTimeoutReqMonth.get());
                                 });
                             });
+                            
+                            // Crea i KpiA1DetailResultDTO aggregati per mese
+                            List<KpiA1DetailResultDTO> monthlyDetailResults = new ArrayList<>();
+                            for (Month month : monthlyTotReq.keySet()) {
+                                Long totalReqMonth = monthlyTotReq.get(month);
+                                Long totalTimeoutMonth = monthlyReqTimeout.get(month);
+                                
+                                double percTimeoutReqMonth = totalReqMonth.compareTo(0L) > 0
+                                    ? (double) (totalTimeoutMonth * 100) / totalReqMonth
+                                    : 0.0;
+
+                                KpiA1DetailResultDTO kpiA1DetailResultDTO = new KpiA1DetailResultDTO();
+                                kpiA1DetailResultDTO.setInstanceId(instanceDTO.getId());
+                                kpiA1DetailResultDTO.setInstanceModuleId(instanceModuleDTO.getId());
+                                kpiA1DetailResultDTO.setAnalysisDate(LocalDate.now());
+                                kpiA1DetailResultDTO.setEvaluationType(EvaluationType.MESE);
+                                kpiA1DetailResultDTO.setEvaluationStartDate(monthlyStartDate.get(month));
+                                kpiA1DetailResultDTO.setEvaluationEndDate(monthlyEndDate.get(month));
+                                kpiA1DetailResultDTO.setTotReq(totalReqMonth);
+                                kpiA1DetailResultDTO.setReqTimeout(totalTimeoutMonth);
+                                kpiA1DetailResultDTO.setTimeoutPercentage(roundToNDecimalPlaces(percTimeoutReqMonth));
+                                kpiA1DetailResultDTO.setKpiA1ResultId(kpiA1ResultRef.get().getId());
+
+                                // L'outcome è OK solo se tutti gli outcome individuali sono OK
+                                List<OutcomeStatus> outcomes = monthlyOutcomes.get(month);
+                                OutcomeStatus aggregatedOutcome = outcomes.stream().allMatch(outcome -> outcome == OutcomeStatus.OK) 
+                                    ? OutcomeStatus.OK 
+                                    : OutcomeStatus.KO;
+                                
+                                kpiA1DetailResultDTO.setOutcome(aggregatedOutcome);
+
+                                if (
+                                    kpiConfigurationDTO.getEvaluationType().compareTo(EvaluationType.MESE) == 0 &&
+                                    aggregatedOutcome.compareTo(OutcomeStatus.KO) == 0
+                                ) {
+                                    kpiA1ResultFinalOutcome.set(OutcomeStatus.KO);
+                                }
+
+                                kpiA1DetailResultDTO = kpiA1DetailResultService.save(kpiA1DetailResultDTO);
+                                monthlyDetailResults.add(kpiA1DetailResultDTO);
+                            }
+                            
+                            // Associa ogni KpiA1AnalyticData al detailResult corrispondente al suo mese
+                            if (!monthlyDetailResults.isEmpty() && !allKpiA1AnalyticDataDTOS.isEmpty()) {
+                                // Crea una mappa per associare ogni mese al suo detailResult
+                                Map<Month, KpiA1DetailResultDTO> monthToDetailResult = new HashMap<>();
+                                for (KpiA1DetailResultDTO detailResult : monthlyDetailResults) {
+                                    Month month = detailResult.getEvaluationStartDate().getMonth();
+                                    monthToDetailResult.put(month, detailResult);
+                                }
+                                
+                                allKpiA1AnalyticDataDTOS.forEach(kpiA1AnalyticData -> {
+                                    Month evaluationMonth = kpiA1AnalyticData.getEvaluationDate().getMonth();
+                                    KpiA1DetailResultDTO correspondingDetailResult = monthToDetailResult.get(evaluationMonth);
+                                    if (correspondingDetailResult != null) {
+                                        kpiA1AnalyticData.setKpiA1DetailResultId(correspondingDetailResult.getId());
+                                    } else {
+                                        LOGGER.warn("Nessun detailResult trovato per il mese {} della transazione in data {}", 
+                                                  evaluationMonth, kpiA1AnalyticData.getEvaluationDate());
+                                    }
+
+
+                                    allKpiA1AnalyticDataDTOS.forEach(kpiA2AnalyticData -> {
+                                        kpiA1AnalyticDataService.save(kpiA1AnalyticData);
+                                    // Map and save to new table
+                                List<KpiA1AnalyticDrillDownDTO> drillDownList = pagoPaRecordedTimeoutMap.entrySet().stream()
+                                    .filter(entry -> entry.getKey().equals(kpiA1AnalyticData.getEvaluationDate()))
+                                    .flatMap(entry -> entry.getValue().stream())
+                                    .filter(record -> record.getStation().equals(kpiA1AnalyticData.getStationName()))
+                                    .filter(record -> record.getMethod().equals(kpiA1AnalyticData.getMethod()))
+                                    .map(record -> {
+                                        KpiA1AnalyticDrillDownDTO dto = new KpiA1AnalyticDrillDownDTO();
+                                        dto.setKpiA1AnalyticDataId(kpiA1AnalyticData.getId());
+                                        dto.setOkRequests(record.getReqOk());
+                                        dto.setTotalRequests(record.getTotReq());
+                                        dto.setReqTimeout(record.getReqTimeout());
+                                        dto.setFromHour(record.getStartDate());
+                                        dto.setToHour(record.getEndDate());
+                                        return dto;
+                                    })
+                                    .collect(java.util.stream.Collectors.toList());
+
+                                kpiA1AnalyticDrillDownService.saveAll(drillDownList);
+                                    });
+                                });
+                                
+                            }
+
+                            // Crea il KpiA1DetailResultDTO per il periodo totale
+                            // Calcola i totali sommando i valori dai detailResult mensili
+                            Long totalReqFromMonths = monthlyDetailResults.stream()
+                                .mapToLong(KpiA1DetailResultDTO::getTotReq)
+                                .sum();
+                            Long totalTimeoutFromMonths = monthlyDetailResults.stream()
+                                .mapToLong(KpiA1DetailResultDTO::getReqTimeout)
+                                .sum();
+                            
+                            double percTimeoutReqPeriod = totalReqFromMonths.compareTo(0L) > 0
+                                ? (double) (totalTimeoutFromMonths * 100) / totalReqFromMonths
+                                : 0.0;
+
+                            KpiA1DetailResultDTO kpiA1DetailResultDTO = new KpiA1DetailResultDTO();
+                            kpiA1DetailResultDTO.setInstanceId(instanceDTO.getId());
+                            kpiA1DetailResultDTO.setInstanceModuleId(instanceModuleDTO.getId());
+                            kpiA1DetailResultDTO.setAnalysisDate(LocalDate.now());
+                            kpiA1DetailResultDTO.setEvaluationType(EvaluationType.TOTALE);
+                            kpiA1DetailResultDTO.setEvaluationStartDate(instanceDTO.getAnalysisPeriodStartDate());
+                            kpiA1DetailResultDTO.setEvaluationEndDate(instanceDTO.getAnalysisPeriodEndDate());
+                            kpiA1DetailResultDTO.setTotReq(totalReqFromMonths);
+                            kpiA1DetailResultDTO.setReqTimeout(totalTimeoutFromMonths);
+                            kpiA1DetailResultDTO.setTimeoutPercentage(roundToNDecimalPlaces(percTimeoutReqPeriod));
+                            kpiA1DetailResultDTO.setKpiA1ResultId(kpiA1ResultRef.get().getId());
+
+                            // L'outcome del periodo totale è OK solo se tutti gli outcome mensili sono OK
+                            boolean allMonthlyOutcomesOK = monthlyDetailResults.stream()
+                                .allMatch(result -> result.getOutcome() == OutcomeStatus.OK);
+                            
+                            OutcomeStatus periodOutcome = allMonthlyOutcomesOK ? OutcomeStatus.OK : OutcomeStatus.KO;
+                            kpiA1DetailResultDTO.setOutcome(periodOutcome);
+
+                            if (
+                                kpiConfigurationDTO.getEvaluationType().compareTo(EvaluationType.TOTALE) == 0 &&
+                                periodOutcome.compareTo(OutcomeStatus.KO) == 0
+                            ) {
+                                kpiA1ResultFinalOutcome.set(OutcomeStatus.KO);
+                            }
+
+                            kpiA1DetailResultService.save(kpiA1DetailResultDTO);
 
                             LOGGER.info("Final outcome {}", kpiA1ResultFinalOutcome.get());
                             kpiA1ResultService.updateKpiA1ResultOutcome(kpiA1ResultRef.get().getId(), kpiA1ResultFinalOutcome.get());

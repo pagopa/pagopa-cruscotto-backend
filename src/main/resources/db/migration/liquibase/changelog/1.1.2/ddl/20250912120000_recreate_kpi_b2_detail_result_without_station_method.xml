@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+  <changeSet id="20250912120000-1" author="system" context="ddl">
+    <comment>Rename existing KPI_B2_DETAIL_RESULT table to preserve existing data</comment>
+    <renameTable oldTableName="KPI_B2_DETAIL_RESULT" newTableName="KPI_B2_DETAIL_RESULT_OLD"/>
+    <rollback>
+      <renameTable oldTableName="KPI_B2_DETAIL_RESULT_OLD" newTableName="KPI_B2_DETAIL_RESULT"/>
+    </rollback>
+  </changeSet>
+
+  <changeSet id="20250912120000-2" author="system" context="ddl">
+    <comment>Create new KPI_B2_DETAIL_RESULT table without CO_STATION_ID and TE_METHOD columns</comment>
+    <createTable tableName="KPI_B2_DETAIL_RESULT">
+ 	    <column name="CO_ID" type="bigint">
+        <constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_KPIB2DETARESUAGGR"/>
+      </column>
+      <column name="CO_INSTANCE_ID" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_INSTANCE_MODULE_ID" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DT_ANALISYS_DATE" type="date">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TE_EVALUATION_TYPE" type="varchar(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DT_EVALUATION_START_DATE" type="date">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DT_EVALUATION_END_DATE" type="date">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_TOT_REQ" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_AVG_TIME" type="double">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_OVER_TIME_LIMIT" type="double">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TE_OUTCOME" type="varchar(10)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_KPI_B2_RESULT_ID" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <rollback>
+      <dropTable tableName="KPI_B2_DETAIL_RESULT"/>
+    </rollback>
+  </changeSet>
+
+  <changeSet id="20250912120000-3" author="system" context="ddl">
+    <comment>Create indexes for the new KPI_B2_DETAIL_RESULT table</comment>
+    <createIndex indexName="IX${project_name}_KPIB2DETARESUAGGR"
+				 tableName="KPI_B2_DETAIL_RESULT">
+      <column name="CO_INSTANCE_MODULE_ID"/>
+    </createIndex>
+
+    <createIndex indexName="IX${project_name}_KPIB2DETARESUAGGR_01"
+				 tableName="KPI_B2_DETAIL_RESULT">
+      <column name="CO_KPI_B2_RESULT_ID"/>
+    </createIndex>
+    <rollback>
+      <dropIndex indexName="IX${project_name}_KPIB2DETARESUAGGR" tableName="KPI_B2_DETAIL_RESULT"/>
+      <dropIndex indexName="IX${project_name}_KPIB2DETARESUAGGR_01" tableName="KPI_B2_DETAIL_RESULT"/>
+    </rollback>
+  </changeSet>
+
+  <changeSet id="20250912120000-4" author="system" context="ddl">
+    <comment>Add foreign key constraints to the new KPI_B2_DETAIL_RESULT table</comment>
+    
+    <addForeignKeyConstraint baseColumnNames="CO_INSTANCE_ID"
+                             baseTableName="KPI_B2_DETAIL_RESULT"
+                             constraintName="FK_TB${project_name}_KPIB2DETRES_TB${project_name}_INSTANCE"
+                             referencedColumnNames="CO_ID"
+                             referencedTableName="INSTANCE"/>
+
+    <addForeignKeyConstraint baseColumnNames="CO_INSTANCE_MODULE_ID"
+                             baseTableName="KPI_B2_DETAIL_RESULT"
+                             constraintName="FK_TB${project_name}_KPIB2DETRES_TB${project_name}_INSTANCEMOD"
+                             referencedColumnNames="CO_ID"
+                             referencedTableName="INSTANCE_MODULE"/>
+
+    <addForeignKeyConstraint baseColumnNames="CO_KPI_B2_RESULT_ID"
+                             baseTableName="KPI_B2_DETAIL_RESULT"
+                             constraintName="FK_TB${project_name}_KPIB2DETRES_TB${project_name}_KPIB2RES"
+                             referencedColumnNames="CO_ID"
+                             referencedTableName="KPI_B2_RESULT"/>
+    <rollback>
+      <dropForeignKeyConstraint baseTableName="KPI_B2_DETAIL_RESULT" 
+                                constraintName="FK_TB${project_name}_KPIB2DETRES_TB${project_name}_INSTANCE"/>
+      <dropForeignKeyConstraint baseTableName="KPI_B2_DETAIL_RESULT" 
+                                constraintName="FK_TB${project_name}_KPIB2DETRES_TB${project_name}_INSTANCEMOD"/>
+      <dropForeignKeyConstraint baseTableName="KPI_B2_DETAIL_RESULT" 
+                                constraintName="FK_TB${project_name}_KPIB2DETRES_TB${project_name}_KPIB2RES"/>
+    </rollback>
+  </changeSet>
+  
+
+</databaseChangeLog>

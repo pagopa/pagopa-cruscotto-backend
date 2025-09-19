@@ -166,7 +166,11 @@ application:
 
   liquibase:
     async-start: false
+<<<<<<< HEAD
     dbVersion: 1.1.3
+=======
+    dbVersion: 1.1.2
+>>>>>>> refs/remotes/origin/dev
 
 decorator:
   datasource:
