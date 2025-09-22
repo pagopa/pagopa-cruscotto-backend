@@ -8,7 +8,7 @@
       "name": "unlicensed",
       "url": ""
     },
-    "version": "0.7.6"
+    "version": "0.7.7"
   },
   "servers": [
     {
@@ -2927,21 +2927,21 @@
             }
           },
           {
-             "name": "method",
-             "in": "query",
-             "required": false,
-             "schema": {
-             	"type": "string"
-             }
+            "name": "method",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           },
           {
-             "name": "day",
-             "in": "query",
-             "required": false,
-             "schema": {
- 	            "type": "string",
-                "format": "date"
-             }
+            "name": "day",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
           },
           {
             "name": "page",
@@ -3809,77 +3809,77 @@
       }
     },
     "/api/kpi-b9/drilldown/instance/{instanceId}/station/{stationId}": {
-            "get": {
-                "tags": [
-                    "pago-pa-payment-receipt-drilldown-resource"
-                ],
-                "operationId": "getQuarterHourDrilldown",
-                "parameters": [
-                    {
-                        "name": "instanceId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "format": "int64"
-                        }
-                    },
-                    {
-                        "name": "stationId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "format": "int64"
-                        }
-                    },
-                    {
-                        "name": "evaluationDate",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "format": "date"
-                        }
-                    }
-                ],
-                "responses": {
-                    "4XX": {
-                        "description": "Client error codes",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemDetailWithCause"
-                                }
-                            }
-                        }
-                    },
-                    "5XX": {
-                        "description": "Server error codes",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemDetailWithCause"
-                                }
-                            }
-                        }
-                    },
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/PagoPaPaymentReceiptDrilldownDTO"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+      "get": {
+        "tags": [
+          "pago-pa-payment-receipt-drilldown-resource"
+        ],
+        "operationId": "getQuarterHourDrilldown",
+        "parameters": [
+          {
+            "name": "instanceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
             }
-        },
+          },
+          {
+            "name": "stationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "evaluationDate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PagoPaPaymentReceiptDrilldownDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/kpi-analytic-data/b9/module/{detailResultId}": {
       "get": {
         "tags": [
@@ -8627,48 +8627,48 @@
         }
       },
       "KpiB2AnalyticDrillDownDTO": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "integer",
-                    "format": "int64"
-                  },
-                  "kpiB2AnalyticDataId": {
-                    "type": "integer",
-                    "format": "int64"
-                  },
-                  "fromHour": {
-                    "type": "string",
-                    "description": "Start hour in HH:mm format"
-                  },
-                  "toHour": {
-                    "type": "string",
-                    "description": "End hour in HH:mm format"
-                  },
-                  "totalRequests": {
-                    "type": "integer",
-                    "description": "Total number of requests"
-                  },
-                  "okRequests": {
-                    "type": "integer",
-                    "description": "Number of OK requests"
-                  },
-                  "averageTimeMs": {
-                    "type": "number",
-                    "format": "double",
-                    "description": "Average time in milliseconds"
-                  }
-                },
-                "required": [
-                  "id",
-                  "kpiB2AnalyticDataId",
-                  "fromHour",
-                  "toHour",
-                  "totalRequests",
-                  "okRequests",
-                  "averageTimeMs"
-                ]
-              },
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "kpiB2AnalyticDataId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "fromHour": {
+            "type": "string",
+            "description": "Start hour in HH:mm format"
+          },
+          "toHour": {
+            "type": "string",
+            "description": "End hour in HH:mm format"
+          },
+          "totalRequests": {
+            "type": "integer",
+            "description": "Total number of requests"
+          },
+          "okRequests": {
+            "type": "integer",
+            "description": "Number of OK requests"
+          },
+          "averageTimeMs": {
+            "type": "number",
+            "format": "double",
+            "description": "Average time in milliseconds"
+          }
+        },
+        "required": [
+          "id",
+          "kpiB2AnalyticDataId",
+          "fromHour",
+          "toHour",
+          "totalRequests",
+          "okRequests",
+          "averageTimeMs"
+        ]
+      },
       "KpiA2AnalyticIncorrectTaxonomyDataDTO": {
         "type": "object",
         "properties": {
@@ -9315,64 +9315,64 @@
         }
       },
       "PagoPaPaymentReceiptDrilldownDTO": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "format": "int64"
-                    },
-                    "instanceId": {
-                        "type": "integer",
-                        "format": "int64"
-                    },
-                    "instanceModuleId": {
-                        "type": "integer",
-                        "format": "int64"
-                    },
-                    "stationId": {
-                        "type": "integer",
-                        "format": "int64"
-                    },
-                    "stationName": {
-                        "type": "string"
-                    },
-                    "analysisDate": {
-                        "type": "string",
-                        "format": "date"
-                    },
-                    "evaluationDate": {
-                        "type": "string",
-                        "format": "date"
-                    },
-                    "startTime": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "endTime": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "timeSlot": {
-                        "type": "string"
-                    },
-                    "totRes": {
-                        "type": "integer",
-                        "format": "int64"
-                    },
-                    "resOk": {
-                        "type": "integer",
-                        "format": "int64"
-                    },
-                    "resKo": {
-                        "type": "integer",
-                        "format": "int64"
-                    },
-                    "resKoPercentage": {
-                        "type": "number",
-                        "format": "double"
-                    }
-                }
-            },
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceModuleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "stationId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "stationName": {
+            "type": "string"
+          },
+          "analysisDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "evaluationDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "startTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "timeSlot": {
+            "type": "string"
+          },
+          "totRes": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "resOk": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "resKo": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "resKoPercentage": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
       "KpiB9AnalyticDataDTO": {
         "required": [
           "analysisDate",
