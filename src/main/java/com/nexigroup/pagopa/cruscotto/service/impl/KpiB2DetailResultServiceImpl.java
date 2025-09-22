@@ -66,15 +66,11 @@ public class KpiB2DetailResultServiceImpl implements KpiB2DetailResultService {
             .findById(kpiB2DetailResultDTO.getInstanceModuleId())
             .orElseThrow(() -> new IllegalArgumentException("InstanceModule not found"));
 
-        AnagStation station = anagStationRepository
-            .findById(kpiB2DetailResultDTO.getStationId())
-            .orElseThrow(() -> new IllegalArgumentException("Station not found"));
-
         KpiB2Result kpiB2DResult = kpiB2ResultRepository
             .findById(kpiB2DetailResultDTO.getKpiB2ResultId())
             .orElseThrow(() -> new IllegalArgumentException("KpiB2Result not found"));
 
-        KpiB2DetailResult kpiB2DetailResult = getKpiB2DetailResult(kpiB2DetailResultDTO, instance, instanceModule, station, kpiB2DResult);
+        KpiB2DetailResult kpiB2DetailResult = getKpiB2DetailResult(kpiB2DetailResultDTO, instance, instanceModule, kpiB2DResult);
 
         kpiB2DetailResult = kpiB2DetailResultRepository.save(kpiB2DetailResult);
 
@@ -87,7 +83,6 @@ public class KpiB2DetailResultServiceImpl implements KpiB2DetailResultService {
         KpiB2DetailResultDTO kpiB2DetailResultDTO,
         Instance instance,
         InstanceModule instanceModule,
-        AnagStation station,
         KpiB2Result kpiB2Result
     ) {
         KpiB2DetailResult kpiB2DetailResult = new KpiB2DetailResult();
