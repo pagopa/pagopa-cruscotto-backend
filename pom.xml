@@ -903,21 +903,6 @@
           <artifactId>sonar-maven-plugin</artifactId>
           <version>${sonar-maven-plugin.version}</version>
         </plugin>
-        <plugin>
-          <groupId>org.gaul</groupId>
-          <artifactId>modernizer-maven-plugin</artifactId>
-          <version>2.7.0</version>
-          <executions>
-            <execution>
-              <goals>
-                <goal>modernizer</goal>
-              </goals>
-            </execution>
-          </executions>
-          <configuration>
-            <javaVersion>${java.version}</javaVersion>
-          </configuration>
-        </plugin>
       </plugins>
     </pluginManagement>
   </build>
