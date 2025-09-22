@@ -64,17 +64,6 @@ public class KpiB2DetailResult implements Serializable {
     @Column(name = "DT_ANALISYS_DATE", nullable = false)
     private LocalDate analysisDate;
 
-    @JsonIgnore
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CO_STATION_ID", nullable = false)
-    private AnagStation station;
-
-    @Size(min = 1, max = 255)
-    @NotNull
-    @Column(name = "TE_METHOD", length = 255, nullable = false)
-    private String method;
-
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "TE_EVALUATION_TYPE", nullable = false)
@@ -137,11 +126,6 @@ public class KpiB2DetailResult implements Serializable {
             instanceModule +
             ", analysisDate=" +
             analysisDate +
-            ", station=" +
-            station +
-            ", method='" +
-            method +
-            '\'' +
             ", evaluationType=" +
             evaluationType +
             ", evaluationStartDate=" +

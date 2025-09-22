@@ -467,6 +467,58 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
             .fetch();
     }
 
+    @Override
+    public List<AnagPlannedShutdownDTO> findAllByTypePlannedIntoPeriod(
+        Long partnerId,
+        TypePlanned typePlanned,
+        LocalDate startDate,
+        LocalDate endDate
+    ) {
+        QAnagPlannedShutdown anagPlannedShutdown = QAnagPlannedShutdown.anagPlannedShutdown;
+
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.atTime(23, 59, 59, 0);
+
+        LOGGER.info(startDateTime.toString());
+        LOGGER.info(endDateTime.toString());
+
+        return queryBuilder
+            .createQueryFactory()
+            .select(
+                Projections.fields(
+                    AnagPlannedShutdownDTO.class,
+                    anagPlannedShutdown.id.as("id"),
+                    anagPlannedShutdown.typePlanned.as("typePlanned"),
+                    anagPlannedShutdown.standInd.as("standInd"),
+                    anagPlannedShutdown.shutdownStartDate.as("shutdownStartDate"),
+                    anagPlannedShutdown.shutdownEndDate.as("shutdownEndDate"),
+                    anagPlannedShutdown.year.as("year"),
+                    anagPlannedShutdown.externalId.as("externalId"),
+                    anagPlannedShutdown.anagStation.name.as("stationName")
+                )
+            )
+            .from(anagPlannedShutdown)
+            .where(
+                anagPlannedShutdown.anagPartner.id
+                    .eq(partnerId)
+                    .and(anagPlannedShutdown.typePlanned.eq(typePlanned))
+                    .and(
+                        anagPlannedShutdown.shutdownStartDate
+                            .between(
+                                startDateTime.atZone(ZoneOffset.systemDefault()).toInstant(),
+                                endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()
+                            )
+                            .or(
+                                anagPlannedShutdown.shutdownEndDate.between(
+                                    startDateTime.atZone(ZoneOffset.systemDefault()).toInstant(),
+                                    endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()
+                                )
+                            )
+                    )
+            )
+            .fetch();
+    }
+
     private static @NotNull AnagPlannedShutdown getAnagPlannedShutdown(
         AnagPlannedShutdownDTO anagPlannedShutdownDTO,
         AnagPartner partner,

@@ -36,14 +36,6 @@ public class KpiB2DetailResultDTO implements Serializable {
     private LocalDate analysisDate;
 
     @NotNull(groups = { ValidationGroups.KpiB2Job.class })
-    private Long stationId;
-
-    private String stationName;
-
-    @NotNull(groups = { ValidationGroups.KpiB2Job.class })
-    private String method;
-
-    @NotNull(groups = { ValidationGroups.KpiB2Job.class })
     private EvaluationType evaluationType;
 
     @NotNull(groups = { ValidationGroups.KpiB2Job.class })

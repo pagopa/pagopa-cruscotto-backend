@@ -14,4 +14,11 @@ public interface KpiB2AnalyticDataService {
     int deleteAllByInstanceModule(long instanceModuleId);
 
     List<KpiB2AnalyticDataDTO> findByDetailResultId(long detailResultId);
+
+    /**
+     * Save kpiB2AnalyticData.
+     *
+     * @param kpiB2AnalyticDataDTO the entity to save.
+     */
+    KpiB2AnalyticDataDTO save(KpiB2AnalyticDataDTO kpiB2AnalyticDataDTO);
 }

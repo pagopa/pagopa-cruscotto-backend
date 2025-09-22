@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20250915150100-1" author="system" context="ddl">
+        <!-- Remove station column from KPI_B9_DETAIL_RESULT only -->
+        <dropColumn tableName="KPI_B9_DETAIL_RESULT" columnName="CO_STATION_ID"/>
+        
+        <rollback>
+            <!-- Restore station column in KPI_B9_DETAIL_RESULT -->
+            <addColumn tableName="KPI_B9_DETAIL_RESULT">
+                <column name="CO_STATION_ID" type="bigint">
+                    <constraints nullable="false"/>
+                </column>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
