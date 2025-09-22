@@ -32,9 +32,6 @@ public class KpiB9DetailResultDTO implements Serializable {
     private LocalDate analysisDate;
 
     @NotNull(groups = { ValidationGroups.KpiB9Job.class })
-    private Long stationId;
-
-    @NotNull(groups = { ValidationGroups.KpiB9Job.class })
     private EvaluationType evaluationType;
 
     @NotNull(groups = { ValidationGroups.KpiB9Job.class })
@@ -56,8 +53,6 @@ public class KpiB9DetailResultDTO implements Serializable {
     private OutcomeStatus outcome;
 
     private Long kpiB9ResultId;
-    
-    private String stationName;
 
     @Override
     public String toString() {
@@ -70,8 +65,6 @@ public class KpiB9DetailResultDTO implements Serializable {
             instanceModuleId +
             ", analysisDate=" +
             analysisDate +
-            ", stationId=" +
-            stationId +
             ", evaluationType=" +
             evaluationType +
             ", evaluationStartDate=" +

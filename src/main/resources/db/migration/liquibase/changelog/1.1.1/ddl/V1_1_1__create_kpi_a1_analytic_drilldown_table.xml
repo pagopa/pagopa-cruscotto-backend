@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="create-kpi-a1-analytic-drilldown-table" author="system">
+        <createTable tableName="kpi_a1_analytic_drilldown">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_KPIA1ANALDRILLDOWN"/>
+            </column>
+            <column name="kpi_a1_analytic_data_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="from_hour" type="VARCHAR(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="to_hour" type="VARCHAR(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_requests" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ok_requests" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="req_timeout" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createSequence sequenceName="SQ${project_name}_KPIA1ANALDRILLDOWN" startValue="1"/>
+        <addForeignKeyConstraint 
+            baseTableName="kpi_a1_analytic_drilldown"
+            baseColumnNames="kpi_a1_analytic_data_id"
+            referencedTableName="kpi_a1_analytic_data"
+            referencedColumnNames="co_id"
+            constraintName="FK_TB${project_name}_KPIA1ANALDRILLDOWN_TB${project_name}_KPIA1ANALYTICDATA"/>
+        <createIndex 
+            tableName="kpi_a1_analytic_drilldown" 
+            indexName="IX${project_name}_KPIA1ANALDRILLDOWN_01">
+            <column name="kpi_a1_analytic_data_id"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>

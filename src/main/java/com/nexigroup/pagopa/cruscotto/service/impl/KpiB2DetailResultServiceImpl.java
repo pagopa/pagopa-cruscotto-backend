@@ -66,15 +66,11 @@ public class KpiB2DetailResultServiceImpl implements KpiB2DetailResultService {
             .findById(kpiB2DetailResultDTO.getInstanceModuleId())
             .orElseThrow(() -> new IllegalArgumentException("InstanceModule not found"));
 
-        AnagStation station = anagStationRepository
-            .findById(kpiB2DetailResultDTO.getStationId())
-            .orElseThrow(() -> new IllegalArgumentException("Station not found"));
-
         KpiB2Result kpiB2DResult = kpiB2ResultRepository
             .findById(kpiB2DetailResultDTO.getKpiB2ResultId())
             .orElseThrow(() -> new IllegalArgumentException("KpiB2Result not found"));
 
-        KpiB2DetailResult kpiB2DetailResult = getKpiB2DetailResult(kpiB2DetailResultDTO, instance, instanceModule, station, kpiB2DResult);
+        KpiB2DetailResult kpiB2DetailResult = getKpiB2DetailResult(kpiB2DetailResultDTO, instance, instanceModule, kpiB2DResult);
 
         kpiB2DetailResult = kpiB2DetailResultRepository.save(kpiB2DetailResult);
 
@@ -87,15 +83,12 @@ public class KpiB2DetailResultServiceImpl implements KpiB2DetailResultService {
         KpiB2DetailResultDTO kpiB2DetailResultDTO,
         Instance instance,
         InstanceModule instanceModule,
-        AnagStation station,
         KpiB2Result kpiB2Result
     ) {
         KpiB2DetailResult kpiB2DetailResult = new KpiB2DetailResult();
         kpiB2DetailResult.setInstance(instance);
         kpiB2DetailResult.setInstanceModule(instanceModule);
         kpiB2DetailResult.setAnalysisDate(kpiB2DetailResultDTO.getAnalysisDate());
-        kpiB2DetailResult.setStation(station);
-        kpiB2DetailResult.setMethod(kpiB2DetailResultDTO.getMethod());
         kpiB2DetailResult.setEvaluationType(kpiB2DetailResultDTO.getEvaluationType());
         kpiB2DetailResult.setEvaluationStartDate(kpiB2DetailResultDTO.getEvaluationStartDate());
         kpiB2DetailResult.setEvaluationEndDate(kpiB2DetailResultDTO.getEvaluationEndDate());
@@ -116,8 +109,6 @@ public class KpiB2DetailResultServiceImpl implements KpiB2DetailResultService {
             kpiB2DetailResult.getInstanceModule() != null ? kpiB2DetailResult.getInstanceModule().getId() : null
         );
         kpiB2DetailResultDTO.setAnalysisDate(kpiB2DetailResult.getAnalysisDate());
-        kpiB2DetailResultDTO.setStationId(kpiB2DetailResult.getStation() != null ? kpiB2DetailResult.getStation().getId() : null);
-        kpiB2DetailResultDTO.setMethod(kpiB2DetailResult.getMethod());
         kpiB2DetailResultDTO.setEvaluationType(kpiB2DetailResult.getEvaluationType());
         kpiB2DetailResultDTO.setEvaluationStartDate(kpiB2DetailResult.getEvaluationStartDate());
         kpiB2DetailResultDTO.setEvaluationEndDate(kpiB2DetailResult.getEvaluationEndDate());
@@ -139,12 +130,10 @@ public class KpiB2DetailResultServiceImpl implements KpiB2DetailResultService {
     @Override
     public List<KpiB2DetailResultDTO> findByResultId(long resultId) {
         final QKpiB2DetailResult qKpiB2DetailResult = QKpiB2DetailResult.kpiB2DetailResult;
-        final QAnagStation qAnagStation = QAnagStation.anagStation;
 
         JPQLQuery<KpiB2DetailResultDTO> query = queryBuilder
             .createQuery()
             .from(qKpiB2DetailResult)
-            .leftJoin(qKpiB2DetailResult.station, qAnagStation)
             .where(qKpiB2DetailResult.kpiB2Result.id.eq(resultId))
             .select(
                 Projections.fields(
@@ -153,8 +142,6 @@ public class KpiB2DetailResultServiceImpl implements KpiB2DetailResultService {
                     qKpiB2DetailResult.instance.id.as("instanceId"),
                     qKpiB2DetailResult.instanceModule.id.as("instanceModuleId"),
                     qKpiB2DetailResult.analysisDate.as("analysisDate"),
-                    qKpiB2DetailResult.station.id.as("stationId"),
-                    qKpiB2DetailResult.method.as("method"),
                     qKpiB2DetailResult.evaluationType.as("evaluationType"),
                     qKpiB2DetailResult.evaluationStartDate.as("evaluationStartDate"),
                     qKpiB2DetailResult.evaluationEndDate.as("evaluationEndDate"),
@@ -162,8 +149,7 @@ public class KpiB2DetailResultServiceImpl implements KpiB2DetailResultService {
                     qKpiB2DetailResult.avgTime.as("avgTime"),
                     qKpiB2DetailResult.overTimeLimit.as("overTimeLimit"),
                     qKpiB2DetailResult.outcome.as("outcome"),
-                    qKpiB2DetailResult.kpiB2Result.id.as("kpiB2ResultId"),
-                    qAnagStation.name.as("stationName")
+                    qKpiB2DetailResult.kpiB2Result.id.as("kpiB2ResultId")
                 )
             );
 
