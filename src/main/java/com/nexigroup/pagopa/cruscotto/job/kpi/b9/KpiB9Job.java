@@ -267,8 +267,8 @@ public class KpiB9Job extends QuartzJobBean {
                                         if (!pagoPaPaymentReceiptDTOS.isEmpty()) {
                                             try {
                                                 // Use optimized method that doesn't reload entities
-                                                Instance instanceEntity = instanceModuleService.findById(instanceModuleDTO.getId()).get().getInstance();
-                                                InstanceModule instanceModuleEntity = instanceModuleService.findById(instanceModuleDTO.getId()).get();
+                                                Instance instanceEntity = instanceModuleService.findById(instanceModuleDTO.getId()).orElseThrow().getInstance();
+                                                InstanceModule instanceModuleEntity = instanceModuleService.findById(instanceModuleDTO.getId()).orElseThrow();
                                                 AnagStation stationEntity = anagStationService.findOneByName(station).orElse(null);
                                                 
                                                 if (stationEntity != null) {
