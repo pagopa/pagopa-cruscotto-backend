@@ -6,6 +6,8 @@ import com.nexigroup.pagopa.cruscotto.service.KpiB2AnalyticDrillDownService;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2AnalyticDrillDownDTO;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -13,6 +15,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class KpiB2AnalyticDrillDownServiceImpl implements KpiB2AnalyticDrillDownService {
     private final KpiB2AnalyticDrillDownRepository repository;
 
