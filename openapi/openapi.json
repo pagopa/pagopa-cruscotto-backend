@@ -2798,7 +2798,7 @@
         "tags": [
           "kpi-b2-analytic-drilldown-resource"
         ],
-        "operationId": "getByAnalyticDataId",
+        "operationId": "getB2DrillDownByAnalyticDataId",
         "parameters": [
           {
             "name": "analyticDataId",
@@ -2853,7 +2853,7 @@
         "tags": [
           "kpi-a2-analytic-incorrect-taxonomy-data-resource"
         ],
-        "operationId": "getByAnalyticDataId",
+        "operationId": "getIncorrectTaxonomyByAnalyticDataId",
         "parameters": [
           {
             "name": "analyticDataId",
@@ -4101,7 +4101,7 @@
         "tags": [
           "kpi-a1-analytic-drilldown-resource"
         ],
-        "operationId": "getByAnalyticDataId",
+        "operationId": "getA1DrillDownByAnalyticDataId",
         "parameters": [
           {
             "name": "analyticDataId",
