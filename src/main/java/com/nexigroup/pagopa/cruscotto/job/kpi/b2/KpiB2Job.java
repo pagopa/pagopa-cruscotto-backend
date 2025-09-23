@@ -299,8 +299,8 @@ public class KpiB2Job extends QuartzJobBean {
                 // instanceModuleId is now handled locally in aggregation methods
                 LOGGER.info("Deletion phase for any previous processing in error");
                 // Delete KpiB2AnalyticDrillDown records for all analyticDataIds belonging to this instanceModule
-                List<KpiB2AnalyticDataDTO> analyticDataList = kpiB2AnalyticDataService.findByInstanceModuleId(instanceModuleDTO.getId());
-                List<Long> analyticDataIds = analyticDataList.stream().map(KpiB2AnalyticDataDTO::getId).toList();
+                List<KpiB2AnalyticDataDTO> analyticDataListToDelete = kpiB2AnalyticDataService.findByInstanceModuleId(instanceModuleDTO.getId());
+                List<Long> analyticDataIds = analyticDataListToDelete.stream().map(KpiB2AnalyticDataDTO::getId).toList();
                 kpiB2AnalyticDrillDownService.deleteByKpiB2AnalyticDataIds(analyticDataIds);
                 LOGGER.info("Deleted kpiB2AnalyticDrillDown records for analyticDataIds: {}", analyticDataIds);
                 kpiB2AnalyticDataService.deleteAllByInstanceModule(instanceModuleDTO.getId());
