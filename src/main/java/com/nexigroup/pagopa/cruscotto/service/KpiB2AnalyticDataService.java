@@ -21,4 +21,11 @@ public interface KpiB2AnalyticDataService {
      * @param kpiB2AnalyticDataDTO the entity to save.
      */
     KpiB2AnalyticDataDTO save(KpiB2AnalyticDataDTO kpiB2AnalyticDataDTO);
+    
+    /**
+     * Find all KpiB2AnalyticDataDTO by instanceModuleId.
+     * @param instanceModuleId the instance module id
+     * @return list of KpiB2AnalyticDataDTO
+     */
+    List<KpiB2AnalyticDataDTO> findByInstanceModuleId(Long instanceModuleId);
 }

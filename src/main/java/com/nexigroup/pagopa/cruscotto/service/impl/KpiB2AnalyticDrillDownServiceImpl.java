@@ -50,4 +50,10 @@ public class KpiB2AnalyticDrillDownServiceImpl implements KpiB2AnalyticDrillDown
             })
             .collect(Collectors.toList());
     }
+
+    @Override
+    public void deleteByKpiB2AnalyticDataIds(List<Long> analyticDataIds) {
+        if (analyticDataIds == null || analyticDataIds.isEmpty()) return;
+        repository.deleteByKpiB2AnalyticDataIdIn(analyticDataIds);
+    }
 }
