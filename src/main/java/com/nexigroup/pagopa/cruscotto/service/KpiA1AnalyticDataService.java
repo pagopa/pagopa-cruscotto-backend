@@ -15,5 +15,7 @@ public interface KpiA1AnalyticDataService {
 
     List<KpiA1AnalyticDataDTO> findByDetailResultId(long detailResultId);
 
+    List<KpiA1AnalyticDataDTO> findByInstanceModuleId(Long instanceModuleId);
+
     KpiA1AnalyticDataDTO save(KpiA1AnalyticDataDTO kpiA1AnalyticDataDTO);
 }
