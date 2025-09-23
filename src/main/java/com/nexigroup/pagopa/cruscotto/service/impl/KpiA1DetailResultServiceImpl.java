@@ -125,6 +125,7 @@ public class KpiA1DetailResultServiceImpl implements KpiA1DetailResultService {
             .createQuery()
             .from(qKpiA1DetailResult)
             .where(qKpiA1DetailResult.kpiA1Result.id.eq(resultId))
+            .orderBy(qKpiA1DetailResult.evaluationStartDate.asc())
             .select(
                 Projections.fields(
                     KpiA1DetailResultDTO.class,

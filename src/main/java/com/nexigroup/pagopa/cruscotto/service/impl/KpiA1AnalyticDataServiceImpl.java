@@ -30,6 +30,32 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class KpiA1AnalyticDataServiceImpl implements KpiA1AnalyticDataService {
+    @Override
+    public List<KpiA1AnalyticDataDTO> findByInstanceModuleId(Long instanceModuleId) {
+        final QKpiA1AnalyticData qKpiA1AnalyticData = QKpiA1AnalyticData.kpiA1AnalyticData;
+        JPQLQuery<KpiA1AnalyticDataDTO> query = queryBuilder
+            .createQuery()
+            .from(qKpiA1AnalyticData)
+            .where(qKpiA1AnalyticData.instanceModule.id.eq(instanceModuleId))
+            .select(
+                Projections.fields(
+                    KpiA1AnalyticDataDTO.class,
+                    qKpiA1AnalyticData.id.as("id"),
+                    qKpiA1AnalyticData.instance.id.as("instanceId"),
+                    qKpiA1AnalyticData.instanceModule.id.as("instanceModuleId"),
+                    qKpiA1AnalyticData.analysisDate.as("analysisDate"),
+                    qKpiA1AnalyticData.station.id.as("stationId"),
+                    qKpiA1AnalyticData.method.as("method"),
+                    qKpiA1AnalyticData.evaluationDate.as("evaluationDate"),
+                    qKpiA1AnalyticData.totReq.as("totReq"),
+                    qKpiA1AnalyticData.reqOk.as("reqOk"),
+                    qKpiA1AnalyticData.reqTimeoutReal.as("reqTimeoutReal"),
+                    qKpiA1AnalyticData.reqTimeoutValid.as("reqTimeoutValid"),
+                    qKpiA1AnalyticData.kpiA1DetailResult.id.as("kpiA1DetailResultId")
+                )
+            );
+        return query.fetch();
+    }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KpiA1AnalyticDataServiceImpl.class);
 

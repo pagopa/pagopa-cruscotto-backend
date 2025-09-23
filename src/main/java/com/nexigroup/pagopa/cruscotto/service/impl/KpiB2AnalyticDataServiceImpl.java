@@ -178,4 +178,34 @@ public class KpiB2AnalyticDataServiceImpl implements KpiB2AnalyticDataService {
             );
         return query.fetch();
     }
+    
+    /**
+     * Find all KpiB2AnalyticDataDTO by instanceModuleId.
+     * @param instanceModuleId the instance module id
+     * @return list of KpiB2AnalyticDataDTO
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<KpiB2AnalyticDataDTO> findByInstanceModuleId(Long instanceModuleId) {
+        QKpiB2AnalyticData q = QKpiB2AnalyticData.kpiB2AnalyticData;
+        JPQLQuery<KpiB2AnalyticDataDTO> query = queryBuilder
+            .<KpiB2AnalyticData>createQuery()
+            .from(q)
+            .where(q.instanceModule.id.eq(instanceModuleId))
+            .select(Projections.fields(
+                KpiB2AnalyticDataDTO.class,
+                q.id.as("id"),
+                q.instance.id.as("instanceId"),
+                q.instanceModule.id.as("instanceModuleId"),
+                q.station.id.as("stationId"),
+                q.method.as("method"),
+                q.evaluationDate.as("evaluationDate"),
+                q.totReq.as("totReq"),
+                q.reqOk.as("reqOk"),
+                q.reqTimeout.as("reqTimeout"),
+                q.avgTime.as("avgTime"),
+                q.kpiB2DetailResult.id.as("kpiB2DetailResultId")
+            ));
+        return query.fetch();
+    }
 }
