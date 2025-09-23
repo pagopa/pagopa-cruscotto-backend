@@ -13,10 +13,10 @@
             <column name="kpi_a1_analytic_data_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column name="from_hour" type="VARCHAR(10)">
+            <column name="from_hour" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column name="to_hour" type="VARCHAR(10)">
+            <column name="to_hour" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
             <column name="total_requests" type="BIGINT">

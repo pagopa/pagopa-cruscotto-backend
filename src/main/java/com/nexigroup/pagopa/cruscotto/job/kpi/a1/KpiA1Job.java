@@ -112,6 +112,12 @@ public class KpiA1Job extends QuartzJobBean {
 
                         LOGGER.info("Deletion phase for any previous processing in error");
 
+                        // Delete KpiA1AnalyticDrillDown records for all analyticDataIds belonging to this instanceModule
+                        List<KpiA1AnalyticDataDTO> analyticDataList = kpiA1AnalyticDataService.findByInstanceModuleId(instanceModuleDTO.getId());
+                        List<Long> analyticDataIds = analyticDataList.stream().map(KpiA1AnalyticDataDTO::getId).toList();
+                        kpiA1AnalyticDrillDownService.deleteByKpiA1AnalyticDataIds(analyticDataIds);
+                        LOGGER.info("Deleted kpiA1AnalyticDrillDown records for analyticDataIds: {}", analyticDataIds);
+
                         int kpiA1AnalyticRecordsDataDeleted = kpiA1AnalyticDataService.deleteAllByInstanceModule(instanceModuleDTO.getId());
                         LOGGER.info("{} kpiA1AnalyticData records deleted", kpiA1AnalyticRecordsDataDeleted);
 
@@ -286,6 +292,7 @@ public class KpiA1Job extends QuartzJobBean {
                                             kpiA1AnalyticDataDTO.setInstanceModuleId(instanceModuleDTO.getId());
                                             kpiA1AnalyticDataDTO.setAnalysisDate(LocalDate.now());
                                             kpiA1AnalyticDataDTO.setStationId(idStation);
+                                            kpiA1AnalyticDataDTO.setStationName(station);
                                             kpiA1AnalyticDataDTO.setMethod(method);
                                             kpiA1AnalyticDataDTO.setEvaluationDate(date);
                                             kpiA1AnalyticDataDTO.setTotReq(sumTotReqDaily);
@@ -377,42 +384,45 @@ public class KpiA1Job extends QuartzJobBean {
                                     Month month = detailResult.getEvaluationStartDate().getMonth();
                                     monthToDetailResult.put(month, detailResult);
                                 }
-                                
+
                                 allKpiA1AnalyticDataDTOS.forEach(kpiA1AnalyticData -> {
                                     Month evaluationMonth = kpiA1AnalyticData.getEvaluationDate().getMonth();
-                                    KpiA1DetailResultDTO correspondingDetailResult = monthToDetailResult.get(evaluationMonth);
+                                    KpiA1DetailResultDTO correspondingDetailResult = monthToDetailResult
+                                            .get(evaluationMonth);
                                     if (correspondingDetailResult != null) {
                                         kpiA1AnalyticData.setKpiA1DetailResultId(correspondingDetailResult.getId());
                                     } else {
-                                        LOGGER.warn("Nessun detailResult trovato per il mese {} della transazione in data {}", 
-                                                  evaluationMonth, kpiA1AnalyticData.getEvaluationDate());
+                                        LOGGER.warn(
+                                                "Nessun detailResult trovato per il mese {} della transazione in data {}",
+                                                evaluationMonth, kpiA1AnalyticData.getEvaluationDate());
                                     }
 
-
-                                    allKpiA1AnalyticDataDTOS.forEach(kpiA2AnalyticData -> {
-                                        kpiA1AnalyticDataService.save(kpiA1AnalyticData);
+                                    kpiA1AnalyticDataService.save(kpiA1AnalyticData);
                                     // Map and save to new table
-                                List<KpiA1AnalyticDrillDownDTO> drillDownList = pagoPaRecordedTimeoutMap.entrySet().stream()
-                                    .filter(entry -> entry.getKey().equals(kpiA1AnalyticData.getEvaluationDate()))
-                                    .flatMap(entry -> entry.getValue().stream())
-                                    .filter(record -> record.getStation().equals(kpiA1AnalyticData.getStationName()))
-                                    .filter(record -> record.getMethod().equals(kpiA1AnalyticData.getMethod()))
-                                    .map(record -> {
-                                        KpiA1AnalyticDrillDownDTO dto = new KpiA1AnalyticDrillDownDTO();
-                                        dto.setKpiA1AnalyticDataId(kpiA1AnalyticData.getId());
-                                        dto.setOkRequests(record.getReqOk());
-                                        dto.setTotalRequests(record.getTotReq());
-                                        dto.setReqTimeout(record.getReqTimeout());
-                                        dto.setFromHour(record.getStartDate());
-                                        dto.setToHour(record.getEndDate());
-                                        return dto;
-                                    })
-                                    .collect(java.util.stream.Collectors.toList());
+                                    List<KpiA1AnalyticDrillDownDTO> drillDownList = pagoPaRecordedTimeoutMap.entrySet()
+                                            .stream()
+                                            .filter(entry -> entry.getKey()
+                                                    .equals(kpiA1AnalyticData.getEvaluationDate()))
+                                            .flatMap(entry -> entry.getValue().stream())
+                                            .filter(record -> record.getStation()
+                                                    .equals(kpiA1AnalyticData.getStationName()))
+                                            .filter(record -> record.getMethod().equals(kpiA1AnalyticData.getMethod()))
+                                            .map(record -> {
+                                                KpiA1AnalyticDrillDownDTO dto = new KpiA1AnalyticDrillDownDTO();
+                                                dto.setKpiA1AnalyticDataId(kpiA1AnalyticData.getId());
+                                                dto.setOkRequests(record.getReqOk());
+                                                dto.setTotalRequests(record.getTotReq());
+                                                dto.setReqTimeout(record.getReqTimeout());
+                                                dto.setFromHour(record.getStartDate());
+                                                dto.setToHour(record.getEndDate());
+                                                return dto;
+                                            })
+                                            .collect(java.util.stream.Collectors.toList());
 
-                                kpiA1AnalyticDrillDownService.saveAll(drillDownList);
-                                    });
+                                    kpiA1AnalyticDrillDownService.saveAll(drillDownList);
+
                                 });
-                                
+
                             }
 
                             // Crea il KpiA1DetailResultDTO per il periodo totale
