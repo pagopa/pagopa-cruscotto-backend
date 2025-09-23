@@ -18,6 +18,8 @@ public class JobConstant {
 
     public static final String KPI_B9_JOB = "kpiB9Job";
 
+    public static final String KPI_B3_JOB = "kpiB3Job";
+
     public static final String CALCULATE_STATE_INSTANCE_JOB = "calculateStateInstanceJob";
 
     public static final String CLEAR_LOG_JOB = "clearLogJob";
