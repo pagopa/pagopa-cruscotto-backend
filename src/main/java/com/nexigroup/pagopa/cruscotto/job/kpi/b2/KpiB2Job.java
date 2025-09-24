@@ -123,6 +123,7 @@ public class KpiB2Job extends QuartzJobBean {
                     analyticData.setInstanceModuleId(instanceModuleDTO.getId());
                     analyticData.setAnalysisDate(LocalDate.now());
                     analyticData.setStationId(idStation);
+                    analyticData.setStationName(station);
                     analyticData.setMethod(method);
                     analyticData.setEvaluationDate(date);
                     analyticData.setTotReq(sumTotReqDaily);
