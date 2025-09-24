@@ -163,10 +163,10 @@ public class KpiB2Job extends QuartzJobBean {
 
         while (!current.isAfter(analysisEnd)) {
 
-            LocalDate firstDayOfMonth = current.withDayOfMonth(1).isBefore(analysisStart) ? analysisEnd
+            LocalDate firstDayOfMonth = current.withDayOfMonth(1).isBefore(analysisStart) ? analysisStart
                     : current.withDayOfMonth(1);
             LocalDate lastDayOfMonth = current.with(TemporalAdjusters.lastDayOfMonth()).isAfter(analysisEnd)
-                    ? analysisStart
+                    ? analysisEnd
                     : current.with(TemporalAdjusters.lastDayOfMonth());
 
             long sumTotReqMontly = 0;
