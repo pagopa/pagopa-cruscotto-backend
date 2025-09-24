@@ -7,5 +7,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface KpiA1AnalyticDrillDownRepository extends JpaRepository<KpiA1AnalyticDrillDown, Long> {
-    List<KpiA1AnalyticDrillDown> findByKpiA1AnalyticDataId(Long analyticDataId);
+    List<KpiA1AnalyticDrillDown> findByKpiA1AnalyticDataIdOrderByFromHourAsc(Long analyticDataId);
+
+    void deleteByKpiA1AnalyticDataIdIn(List<Long> analyticDataIds);
 }

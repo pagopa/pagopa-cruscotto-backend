@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface KpiB2AnalyticDrillDownRepository extends JpaRepository<KpiB2AnalyticDrillDown, Long> {
     List<KpiB2AnalyticDrillDown> findByKpiB2AnalyticDataIdOrderByFromHourAsc(Long kpiB2AnalyticDataId);
+
+    void deleteByKpiB2AnalyticDataIdIn(List<Long> analyticDataIds);
 }

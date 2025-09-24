@@ -8,15 +8,21 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class KpiA1AnalyticDrillDownServiceImpl implements KpiA1AnalyticDrillDownService {
+    @Override
+    public void deleteByKpiA1AnalyticDataIds(List<Long> analyticDataIds) {
+        repository.deleteByKpiA1AnalyticDataIdIn(analyticDataIds);
+    }
     private final KpiA1AnalyticDrillDownRepository repository;
 
     @Override
     public List<KpiA1AnalyticDrillDownDTO> findByKpiA1AnalyticDataId(Long analyticDataId) {
-        return repository.findByKpiA1AnalyticDataId(analyticDataId)
+        return repository.findByKpiA1AnalyticDataIdOrderByFromHourAsc(analyticDataId)
             .stream()
             .map(this::toDto)
             .collect(Collectors.toList());
