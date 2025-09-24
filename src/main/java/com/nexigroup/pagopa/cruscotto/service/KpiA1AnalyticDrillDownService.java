@@ -6,4 +6,5 @@ import java.util.List;
 public interface KpiA1AnalyticDrillDownService {
     List<KpiA1AnalyticDrillDownDTO> findByKpiA1AnalyticDataId(Long analyticDataId);
     void saveAll(List<KpiA1AnalyticDrillDownDTO> drillDowns);
+    void deleteByKpiA1AnalyticDataIds(List<Long> analyticDataIds);
 }
