@@ -144,6 +144,7 @@ public class KpiB9AnalyticDataServiceImpl implements KpiB9AnalyticDataService {
             .from(qKpiB9AnalyticData)
             .leftJoin(qKpiB9AnalyticData.station, qAnagStation)
             .where(qKpiB9AnalyticData.kpiB9DetailResult.id.eq(detailResultId))
+            .orderBy(qKpiB9AnalyticData.evaluationDate.asc())
             .select(
                 Projections.fields(
                     KpiB9AnalyticDataDTO.class,
