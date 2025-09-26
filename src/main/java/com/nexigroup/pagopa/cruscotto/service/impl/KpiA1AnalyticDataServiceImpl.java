@@ -182,6 +182,10 @@ public class KpiA1AnalyticDataServiceImpl implements KpiA1AnalyticDataService {
             .from(qKpiA1AnalyticData)
             .leftJoin(qKpiA1AnalyticData.station, qAnagStation)
             .where(qKpiA1AnalyticData.kpiA1DetailResult.id.eq(detailResultId))
+            .orderBy(qKpiA1AnalyticData.evaluationDate.asc(),
+                     qAnagStation.name.asc(),
+                     qKpiA1AnalyticData.method.asc()
+                     )
             .select(
                 Projections.fields(
                     KpiA1AnalyticDataDTO.class,
