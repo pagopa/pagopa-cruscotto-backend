@@ -131,6 +131,9 @@ public class KpiB9DetailResultServiceImpl implements KpiB9DetailResultService {
             .createQuery()
             .from(qKpiB9DetailResult)
             .where(qKpiB9DetailResult.kpiB9Result.id.eq(resultId))
+            .orderBy(
+                qKpiB9DetailResult.evaluationType.asc(),
+                qKpiB9DetailResult.evaluationStartDate.asc())
             .select(
                 Projections.fields(
                     KpiB9DetailResultDTO.class,

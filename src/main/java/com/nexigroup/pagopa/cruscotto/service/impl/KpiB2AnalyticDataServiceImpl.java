@@ -158,6 +158,10 @@ public class KpiB2AnalyticDataServiceImpl implements KpiB2AnalyticDataService {
             .from(qKpiB2AnalyticData)
             .leftJoin(qKpiB2AnalyticData.station, qAnagStation)
             .where(qKpiB2AnalyticData.kpiB2DetailResult.id.eq(detailResultId)) // Filtro per detailResultId
+            .orderBy(qKpiB2AnalyticData.evaluationDate.asc(),
+                     qAnagStation.name.asc(),
+                     qKpiB2AnalyticData.method.asc()
+                     )
             .select(
                 Projections.fields(
                     KpiB2AnalyticDataDTO.class,

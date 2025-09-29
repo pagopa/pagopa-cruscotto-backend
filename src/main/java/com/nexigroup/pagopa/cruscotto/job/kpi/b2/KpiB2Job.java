@@ -123,6 +123,7 @@ public class KpiB2Job extends QuartzJobBean {
                     analyticData.setInstanceModuleId(instanceModuleDTO.getId());
                     analyticData.setAnalysisDate(LocalDate.now());
                     analyticData.setStationId(idStation);
+                    analyticData.setStationName(station);
                     analyticData.setMethod(method);
                     analyticData.setEvaluationDate(date);
                     analyticData.setTotReq(sumTotReqDaily);
@@ -138,17 +139,18 @@ public class KpiB2Job extends QuartzJobBean {
     }
 
     private List<KpiB2DetailResultDTO> aggregateKpiB2DetailResult(InstanceDTO instanceDTO,
-     InstanceModuleDTO instanceModuleDTO,
-       double averageTimeLimit,
-        double eligibilityThreshold,
-         double tolerance,
-          AtomicReference<KpiB2ResultDTO> kpiB2ResultRef,
-        List<PagoPaRecordedTimeoutDTO> filteredPeriodRecords) {
+            InstanceModuleDTO instanceModuleDTO,
+            double averageTimeLimit,
+            double eligibilityThreshold,
+            double tolerance,
+            AtomicReference<KpiB2ResultDTO> kpiB2ResultRef,
+            List<PagoPaRecordedTimeoutDTO> filteredPeriodRecords,
+            AtomicReference<OutcomeStatus> kpiB2ResultFinalOutcome) {
         List<KpiB2DetailResultDTO> detailResults = new ArrayList<>();
         LocalDate analysisStart = instanceDTO.getAnalysisPeriodStartDate();
         LocalDate analysisEnd = instanceDTO.getAnalysisPeriodEndDate();
         LocalDate current = analysisStart.withDayOfMonth(1);
-        AtomicReference<OutcomeStatus> kpiB2ResultFinalOutcome = new AtomicReference<>(OutcomeStatus.OK);
+
         AtomicReference<Long> totRecordMonth = new AtomicReference<>();
 
         long totRecordInstance = filteredPeriodRecords.stream()
@@ -158,27 +160,30 @@ public class KpiB2Job extends QuartzJobBean {
         long sumTotReqTotal = 0;
         double sumWeightsTotal = 0.0;
         double sumTotalOverTimeLimit = 0.0;
-        
+
         while (!current.isAfter(analysisEnd)) {
 
-            LocalDate firstDayOfMonth = current.withDayOfMonth(1).isBefore(analysisStart) ? analysisEnd :current.withDayOfMonth(1);
-            LocalDate lastDayOfMonth = current.with(TemporalAdjusters.lastDayOfMonth()).isAfter(analysisEnd) ? analysisStart : current.with(TemporalAdjusters.lastDayOfMonth());
-
+            LocalDate firstDayOfMonth = current.withDayOfMonth(1).isBefore(analysisStart) ? analysisStart
+                    : current.withDayOfMonth(1);
+            LocalDate lastDayOfMonth = current.with(TemporalAdjusters.lastDayOfMonth()).isAfter(analysisEnd)
+                    ? analysisEnd
+                    : current.with(TemporalAdjusters.lastDayOfMonth());
 
             long sumTotReqMontly = 0;
             double sumWeightsMontly = 0.0;
             double sumMonthOverTimeLimit = 0.0;
-            
+
             List<PagoPaRecordedTimeoutDTO> monthPeriodRecords = filteredPeriodRecords.stream()
-                .filter(record -> {
-                    final LocalDate recordDate = record.getStartDate().atZone(ZoneOffset.systemDefault()).toLocalDate();
-                    return !recordDate.isBefore(firstDayOfMonth) && !recordDate.isAfter(lastDayOfMonth);
-                })
-                .collect(java.util.stream.Collectors.toList());
-            
+                    .filter(record -> {
+                        final LocalDate recordDate = record.getStartDate().atZone(ZoneOffset.systemDefault())
+                                .toLocalDate();
+                        return !recordDate.isBefore(firstDayOfMonth) && !recordDate.isAfter(lastDayOfMonth);
+                    })
+                    .collect(java.util.stream.Collectors.toList());
+
             totRecordMonth.set(monthPeriodRecords.stream()
-                .mapToLong(PagoPaRecordedTimeoutDTO::getTotReq)
-                .sum());
+                    .mapToLong(PagoPaRecordedTimeoutDTO::getTotReq)
+                    .sum());
             for (PagoPaRecordedTimeoutDTO record : monthPeriodRecords) {
                 double avgTime = Double.isNaN(record.getAvgTime()) ? 0.0 : record.getAvgTime();
                 sumTotReqMontly += record.getTotReq();
@@ -187,15 +192,15 @@ public class KpiB2Job extends QuartzJobBean {
                 double monthWeight = (double) (record.getTotReq() * 100) / totRecordMonth.get();
                 double totalWeight = (double) (record.getTotReq() * 100) / totRecordInstance;
                 if (avgTime > averageTimeLimit) {
-                    
+
                     sumMonthOverTimeLimit += monthWeight;
                     sumTotalOverTimeLimit += totalWeight;
-                    
+
                 }
             }
             sumTotReqTotal += sumTotReqMontly;
             sumWeightsTotal += sumWeightsMontly;
-            
+
             double weightedAverageMontly = sumTotReqMontly > 0 ? sumWeightsMontly / sumTotReqMontly : 0.0;
             KpiB2DetailResultDTO detailResult = new KpiB2DetailResultDTO();
             detailResult.setInstanceId(instanceDTO.getId());
@@ -212,38 +217,36 @@ public class KpiB2Job extends QuartzJobBean {
             if (sumMonthOverTimeLimit > (eligibilityThreshold + tolerance)) {
                 outcomeStatus = OutcomeStatus.KO;
             }
-            if (
-                outcomeStatus.compareTo(OutcomeStatus.KO) == 0
-            ) {
-                kpiB2ResultFinalOutcome.set(OutcomeStatus.KO);
-            }
+
             detailResult.setOutcome(outcomeStatus);
             detailResults.add(detailResult);
 
-            
             current = current.plusMonths(1);
         }
 
         // Add TOTALE detail result for the whole analysis period
-            double weightedAverageTotal = sumTotReqTotal > 0 ? sumWeightsTotal / sumTotReqTotal : 0.0;
-            KpiB2DetailResultDTO totalDetailResult = new KpiB2DetailResultDTO();
-            totalDetailResult.setInstanceId(instanceDTO.getId());
-            totalDetailResult.setInstanceModuleId(instanceModuleDTO.getId());
-            totalDetailResult.setAnalysisDate(LocalDate.now());
-            totalDetailResult.setEvaluationType(EvaluationType.TOTALE);
-            totalDetailResult.setEvaluationStartDate(analysisStart);
-            totalDetailResult.setEvaluationEndDate(analysisEnd);
-            totalDetailResult.setTotReq(sumTotReqTotal);
-            totalDetailResult.setAvgTime(roundToNDecimalPlaces(weightedAverageTotal));
-            totalDetailResult.setOverTimeLimit(roundToNDecimalPlaces(sumTotalOverTimeLimit));
-            totalDetailResult.setKpiB2ResultId(kpiB2ResultRef.get().getId());
-            OutcomeStatus totalOutcomeStatus = OutcomeStatus.OK;
-            if (sumTotalOverTimeLimit > (eligibilityThreshold + tolerance)) {
-                totalOutcomeStatus = OutcomeStatus.KO;
-            }
-            totalDetailResult.setOutcome(totalOutcomeStatus);
-            detailResults.add(totalDetailResult);
-            
+        double weightedAverageTotal = sumTotReqTotal > 0 ? sumWeightsTotal / sumTotReqTotal : 0.0;
+        KpiB2DetailResultDTO totalDetailResult = new KpiB2DetailResultDTO();
+        totalDetailResult.setInstanceId(instanceDTO.getId());
+        totalDetailResult.setInstanceModuleId(instanceModuleDTO.getId());
+        totalDetailResult.setAnalysisDate(LocalDate.now());
+        totalDetailResult.setEvaluationType(EvaluationType.TOTALE);
+        totalDetailResult.setEvaluationStartDate(analysisStart);
+        totalDetailResult.setEvaluationEndDate(analysisEnd);
+        totalDetailResult.setTotReq(sumTotReqTotal);
+        totalDetailResult.setAvgTime(roundToNDecimalPlaces(weightedAverageTotal));
+        totalDetailResult.setOverTimeLimit(roundToNDecimalPlaces(sumTotalOverTimeLimit));
+        totalDetailResult.setKpiB2ResultId(kpiB2ResultRef.get().getId());
+        OutcomeStatus totalOutcomeStatus = OutcomeStatus.OK;
+        if (sumTotalOverTimeLimit > (eligibilityThreshold + tolerance)) {
+            totalOutcomeStatus = OutcomeStatus.KO;
+        }
+        if (totalOutcomeStatus.compareTo(OutcomeStatus.KO) == 0) {
+            kpiB2ResultFinalOutcome.set(OutcomeStatus.KO);
+        }
+        totalDetailResult.setOutcome(totalOutcomeStatus);
+        detailResults.add(totalDetailResult);
+
         return detailResults;
     }
 
@@ -264,6 +267,7 @@ public class KpiB2Job extends QuartzJobBean {
 
     @Override
     protected void executeInternal(@NotNull JobExecutionContext context) {
+        AtomicReference<OutcomeStatus> kpiB2ResultFinalOutcome = new AtomicReference<>(OutcomeStatus.OK);
         LOGGER.info("Start calculate kpi B.2");
         if (!applicationProperties.getJob().getKpiB2Job().isEnabled()) {
             LOGGER.info("Job calculate kpi B.2 disabled. Exit...");
@@ -373,7 +377,8 @@ public class KpiB2Job extends QuartzJobBean {
                         kpiB2ResultDTO.getEligibilityThreshold(),
                         kpiB2ResultDTO.getTolerance(),
                         kpiB2ResultRef,
-                        filteredPeriodRecords);
+                        filteredPeriodRecords,
+                        kpiB2ResultFinalOutcome);
                 for (KpiB2DetailResultDTO detailResult : detailResults) {
                     AtomicReference<KpiB2DetailResultDTO> kpiB2DetailResultRef = new AtomicReference<>(kpiB2DetailResultService.save(detailResult));
 
@@ -419,8 +424,10 @@ public class KpiB2Job extends QuartzJobBean {
                 }}
                 
                 // Final outcome update
-                kpiB2ResultService.updateKpiB2ResultOutcome(kpiB2ResultRef.get().getId(), OutcomeStatus.OK);
-                instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(), OutcomeStatus.OK);
+                LOGGER.info("Final outcome {}", kpiB2ResultFinalOutcome.get());
+                kpiB2ResultService.updateKpiB2ResultOutcome(kpiB2ResultRef.get().getId(), kpiB2ResultFinalOutcome.get());
+                instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(), kpiB2ResultFinalOutcome.get());
+                
                 // Trigger
                 JobDetail job = scheduler.getJobDetail(JobKey.jobKey(JobConstant.CALCULATE_STATE_INSTANCE_JOB, "DEFAULT"));
                 Trigger trigger = TriggerBuilder.newTrigger()
