@@ -151,6 +151,10 @@ application:
       url: https://api.dev.platform.pagopa.it/api-config-cache/p/v1
       api-key-name: ocp-apim-subscription-key
       api-key-value: 52f2f22cf8f94544baf9bfd2760f3dbd
+    stand-in:
+      url: https://api.dev.platform.pagopa.it/technical-support/stand-in/api/v1
+      api-key-name: ocp-apim-subscription-key
+      api-key-value: b7e8c50e8f9b4a1d8a1e8f2c8b1a4e6f
   job:
     load-taxonomy-job:
       enabled: true

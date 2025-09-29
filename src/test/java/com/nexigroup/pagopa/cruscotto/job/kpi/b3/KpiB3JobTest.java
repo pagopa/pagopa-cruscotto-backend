@@ -28,6 +28,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class)
 class KpiB3JobTest {
@@ -48,6 +49,27 @@ class KpiB3JobTest {
     private Scheduler scheduler;
 
     @Mock
+    private com.nexigroup.pagopa.cruscotto.repository.KpiB3ResultRepository kpiB3ResultRepository;
+
+    @Mock
+    private com.nexigroup.pagopa.cruscotto.repository.KpiB3DetailResultRepository kpiB3DetailResultRepository;
+
+    @Mock
+    private com.nexigroup.pagopa.cruscotto.repository.KpiB3AnalyticDataRepository kpiB3AnalyticDataRepository;
+
+    @Mock
+    private com.nexigroup.pagopa.cruscotto.repository.InstanceRepository instanceRepository;
+
+    @Mock
+    private com.nexigroup.pagopa.cruscotto.repository.InstanceModuleRepository instanceModuleRepository;
+
+    @Mock
+    private com.nexigroup.pagopa.cruscotto.repository.AnagStationRepository anagStationRepository;
+
+    @Mock
+    private com.nexigroup.pagopa.cruscotto.job.client.PagoPaStandInClient pagoPaStandInClient;
+
+    @Mock
     private JobExecutionContext jobExecutionContext;
 
     @InjectMocks
@@ -65,7 +87,7 @@ class KpiB3JobTest {
         jobConfig = new ApplicationProperties.Job();
         jobConfig.setKpiB3Job(kpiB3JobConfig);
 
-        when(applicationProperties.getJob()).thenReturn(jobConfig);
+        lenient().when(applicationProperties.getJob()).thenReturn(jobConfig);
     }
 
     @Test
@@ -108,11 +130,27 @@ class KpiB3JobTest {
 
         InstanceModuleDTO instanceModule = new InstanceModuleDTO();
         instanceModule.setId(10L);
+        instanceModule.setInstanceId(1L);
 
         KpiConfigurationDTO kpiConfig = new KpiConfigurationDTO();
         kpiConfig.setModuleId(100L);
         kpiConfig.setEligibilityThreshold(90.0);
         kpiConfig.setTolerance(5.0);
+        kpiConfig.setExcludePlannedShutdown(false);
+        kpiConfig.setExcludeUnplannedShutdown(false);
+        kpiConfig.setEvaluationType(com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType.TOTALE);
+
+        // Mock per le entità domain necessarie per il salvataggio
+        com.nexigroup.pagopa.cruscotto.domain.Instance domainInstance = new com.nexigroup.pagopa.cruscotto.domain.Instance();
+        domainInstance.setId(1L);
+        
+        com.nexigroup.pagopa.cruscotto.domain.InstanceModule domainInstanceModule = new com.nexigroup.pagopa.cruscotto.domain.InstanceModule();
+        domainInstanceModule.setId(10L);
+
+        // Mock per l'API response (nessun evento = OK)
+        com.nexigroup.pagopa.cruscotto.job.standin.StandInEventsResponse emptyResponse = 
+            new com.nexigroup.pagopa.cruscotto.job.standin.StandInEventsResponse();
+        emptyResponse.setEvents(Collections.emptyList());
 
         when(instanceService.findInstanceToCalculate(ModuleCode.B3, 10))
             .thenReturn(Arrays.asList(instance));
@@ -120,6 +158,14 @@ class KpiB3JobTest {
             .thenReturn(Optional.of(kpiConfig));
         when(instanceModuleService.findOne(instance.getId(), kpiConfig.getModuleId()))
             .thenReturn(Optional.of(instanceModule));
+        when(pagoPaStandInClient.getStandInEvents(anyString(), anyString(), anyString()))
+            .thenReturn(emptyResponse);
+        when(instanceRepository.findById(instance.getId()))
+            .thenReturn(Optional.of(domainInstance));
+        when(instanceModuleRepository.findById(instanceModule.getId()))
+            .thenReturn(Optional.of(domainInstanceModule));
+        when(kpiB3ResultRepository.save(any()))
+            .thenReturn(new com.nexigroup.pagopa.cruscotto.domain.KpiB3Result());
 
         // When
         kpiB3Job.executeInternal(jobExecutionContext);
@@ -127,6 +173,10 @@ class KpiB3JobTest {
         // Then
         verify(instanceService).findInstanceToCalculate(ModuleCode.B3, 10);
         verify(kpiConfigurationService).findKpiConfigurationByCode(ModuleCode.B3.code);
+        verify(instanceModuleService, times(2)).findOne(instance.getId(), kpiConfig.getModuleId());
+        verify(pagoPaStandInClient).getStandInEvents(anyString(), anyString(), anyString());
+        verify(kpiB3ResultRepository).deleteAllByInstanceModuleId(instanceModule.getId());
+        verify(kpiB3ResultRepository).save(any());
         verify(instanceModuleService).updateAutomaticOutcome(
             eq(instanceModule.getId()),
             eq(OutcomeStatus.OK)
