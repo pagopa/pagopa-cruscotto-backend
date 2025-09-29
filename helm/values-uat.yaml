@@ -74,6 +74,8 @@ microservice-chart:
     ENV_BACK_OFFICE_API_KEY_NAME: 'ocp-apim-subscription-key'
     ENV_CACHE_URL: 'https://api.uat.platform.pagopa.it/api-config-cache/p/v1' # /cache/keys ...
     ENV_CACHE_API_KEY_NAME: 'ocp-apim-subscription-key'
+    ENV_STAND_IN_URL: 'https://api.uat.platform.pagopa.it/technical-support/stand-in/api/v1' # /events ...
+    ENV_STAND_IN_API_KEY_NAME: 'ocp-apim-subscription-key'
     ENV_DATASOURCE_URL: 'jdbc:postgresql://pagopa-u-itn-crusc8-flexible-postgresql.postgres.database.azure.com:5432/cruscotto?sslmode=require&prepareThreshold=0&currentSchema=cruscotto'
     ENV_DATASOURCE_USERNAME: 'cruscotto'
     SITE_BASE_URL: 'https://crusc8.uat.platform.pagopa.it/'
@@ -85,6 +87,7 @@ microservice-chart:
     # https://learn.microsoft.com/en-us/azure/api-management/api-management-subscriptions#use-a-subscription-keyX/x
     ENV_BACK_OFFICE_API_KEY_VALUE: 'pagopa-bo-api-key-value'
     ENV_CACHE_API_KEY_VALUE: 'pagopa-cache-api-key-value'
+    ENV_STAND_IN_API_KEY_VALUE: 'pagopa-standin-api-key-value'
     AWS_ACCESS_KEY: 'cruscotto-aws-access-key'
     AWS_SECRET_KEY: 'cruscotto-aws-secret-key'
     AWS_SES_USER: 'cruscotto-aws-ses-user'

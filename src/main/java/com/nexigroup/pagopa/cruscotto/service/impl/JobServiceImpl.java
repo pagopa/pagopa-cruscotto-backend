@@ -19,11 +19,14 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.QBean;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPQLQuery;
+import com.nexigroup.pagopa.cruscotto.job.standin.InitializeStandInDataJob;
 import jakarta.transaction.Transactional;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.*;
@@ -31,6 +34,7 @@ import org.quartz.Trigger.TriggerState;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -57,10 +61,13 @@ public class JobServiceImpl implements JobService {
     private final SchedulerFactoryBean schedulerFactoryBean;
 
     private final QueryBuilder queryBuilder;
+    
+    private final ApplicationContext applicationContext;
 
-    public JobServiceImpl(SchedulerFactoryBean schedulerFactoryBean, QueryBuilder queryBuilder) {
+    public JobServiceImpl(SchedulerFactoryBean schedulerFactoryBean, QueryBuilder queryBuilder, ApplicationContext applicationContext) {
         this.schedulerFactoryBean = schedulerFactoryBean;
         this.queryBuilder = queryBuilder;
+        this.applicationContext = applicationContext;
     }
 
     /**
@@ -138,6 +145,27 @@ public class JobServiceImpl implements JobService {
         try {
             schedulerFactoryBean.getScheduler().triggerJob(jobKey);
             LOGGER.debug("Job with jobKey :{} started now succesfully.", jobName);
+            return true;
+        } catch (SchedulerException e) {
+            LOGGER.debug("SchedulerException while starting job now with key :{} message :{}", jobName, e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Start a job now with parameters
+     */
+    @Override
+    public boolean startJobNow(String jobName, Map<String, Object> jobData) {
+        LOGGER.debug("Request received for starting job now with parameters.");
+
+        String groupKey = "DEFAULT";
+        JobKey jobKey = new JobKey(jobName, groupKey);
+        LOGGER.debug("Parameters received for starting job now : jobKey :{}, data: {}", jobName, jobData);
+        try {
+            JobDataMap dataMap = new JobDataMap(jobData);
+            schedulerFactoryBean.getScheduler().triggerJob(jobKey, dataMap);
+            LOGGER.debug("Job with jobKey :{} started now successfully with parameters.", jobName);
             return true;
         } catch (SchedulerException e) {
             LOGGER.debug("SchedulerException while starting job now with key :{} message :{}", jobName, e.getMessage());
