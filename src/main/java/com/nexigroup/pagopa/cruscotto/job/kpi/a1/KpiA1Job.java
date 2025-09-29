@@ -450,19 +450,20 @@ public class KpiA1Job extends QuartzJobBean {
                             kpiA1DetailResultDTO.setTimeoutPercentage(roundToNDecimalPlaces(percTimeoutReqPeriod));
                             kpiA1DetailResultDTO.setKpiA1ResultId(kpiA1ResultRef.get().getId());
 
-                            // L'outcome del periodo totale è OK solo se tutti gli outcome mensili sono OK
-                            boolean allMonthlyOutcomesOK = monthlyDetailResults.stream()
-                                .allMatch(result -> result.getOutcome() == OutcomeStatus.OK);
-                            
-                            OutcomeStatus periodOutcome = allMonthlyOutcomesOK ? OutcomeStatus.OK : OutcomeStatus.KO;
-                            kpiA1DetailResultDTO.setOutcome(periodOutcome);
+                            OutcomeStatus outcomeStatus = OutcomeStatus.OK;
+
+                                    if (percTimeoutReqPeriod > (eligibilityThreshold + tolerance)) {
+                                        outcomeStatus = OutcomeStatus.KO;
+                                    }
 
                             if (
                                 kpiConfigurationDTO.getEvaluationType().compareTo(EvaluationType.TOTALE) == 0 &&
-                                periodOutcome.compareTo(OutcomeStatus.KO) == 0
+                                outcomeStatus.compareTo(OutcomeStatus.KO) == 0
                             ) {
                                 kpiA1ResultFinalOutcome.set(OutcomeStatus.KO);
                             }
+
+                            kpiA1DetailResultDTO.setOutcome(outcomeStatus);
 
                             kpiA1DetailResultService.save(kpiA1DetailResultDTO);
 
