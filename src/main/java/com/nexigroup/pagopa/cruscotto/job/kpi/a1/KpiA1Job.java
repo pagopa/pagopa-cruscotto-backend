@@ -162,7 +162,6 @@ public class KpiA1Job extends QuartzJobBean {
                             Map<Month, Long> monthlyReqTimeout = new HashMap<>();
                             Map<Month, LocalDate> monthlyStartDate = new HashMap<>();
                             Map<Month, LocalDate> monthlyEndDate = new HashMap<>();
-                            Map<Month, List<OutcomeStatus>> monthlyOutcomes = new HashMap<>();
                             List<KpiA1AnalyticDataDTO> allKpiA1AnalyticDataDTOS = new ArrayList<>();
                             
                             AtomicReference<Long> totReqPeriod = new AtomicReference<>(0L);
@@ -312,18 +311,6 @@ public class KpiA1Job extends QuartzJobBean {
                                                 monthlyEndDate.put(currentMonth, lastDayOfMonth.get());
                                                 
                                                 // Calcola outcome per questa combinazione station-method e aggiungilo alla lista
-                                                Long totReqMonthValue = totReqMonth.get();
-                                                double percTimeoutReqMonth = totReqMonthValue.compareTo(0L) > 0
-                                                    ? (double) (totTimeoutReqMonth.get() * 100) / totReqMonthValue
-                                                    : 0.0;
-                                                
-                                                OutcomeStatus outcomeStatus = OutcomeStatus.OK;
-                                                if (percTimeoutReqMonth > (eligibilityThreshold + tolerance)) {
-                                                    outcomeStatus = OutcomeStatus.KO;
-                                                }
-                                                
-                                                monthlyOutcomes.computeIfAbsent(currentMonth, k -> new ArrayList<>()).add(outcomeStatus);
-                                                
                                                 allKpiA1AnalyticDataDTOS.addAll(kpiA1AnalyticDataDTOS);
                                             }
 
@@ -357,11 +344,11 @@ public class KpiA1Job extends QuartzJobBean {
                                 kpiA1DetailResultDTO.setTimeoutPercentage(roundToNDecimalPlaces(percTimeoutReqMonth));
                                 kpiA1DetailResultDTO.setKpiA1ResultId(kpiA1ResultRef.get().getId());
 
-                                // L'outcome è OK solo se tutti gli outcome individuali sono OK
-                                List<OutcomeStatus> outcomes = monthlyOutcomes.get(month);
-                                OutcomeStatus aggregatedOutcome = outcomes.stream().allMatch(outcome -> outcome == OutcomeStatus.OK) 
-                                    ? OutcomeStatus.OK 
-                                    : OutcomeStatus.KO;
+                                // Calcola l'outcome basato sulla percentuale aggregata del mese
+                                OutcomeStatus aggregatedOutcome = OutcomeStatus.OK;
+                                if (percTimeoutReqMonth > (eligibilityThreshold + tolerance)) {
+                                    aggregatedOutcome = OutcomeStatus.KO;
+                                }
                                 
                                 kpiA1DetailResultDTO.setOutcome(aggregatedOutcome);
 
