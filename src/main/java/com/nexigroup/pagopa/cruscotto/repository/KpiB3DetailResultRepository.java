@@ -23,4 +23,9 @@ public interface KpiB3DetailResultRepository extends JpaRepository<KpiB3DetailRe
         "SELECT kpiB3DetailResult FROM KpiB3DetailResult kpiB3DetailResult WHERE kpiB3DetailResult.instanceModule.id = :instanceModuleId ORDER BY kpiB3DetailResult.analysisDate DESC"
     )
     List<KpiB3DetailResult> findAllByInstanceModuleIdOrderByAnalysisDateDesc(@Param("instanceModuleId") Long instanceModuleId);
+
+    @Query(
+        "SELECT kpiB3DetailResult FROM KpiB3DetailResult kpiB3DetailResult WHERE kpiB3DetailResult.kpiB3Result.id = :resultId ORDER BY kpiB3DetailResult.analysisDate DESC"
+    )
+    List<KpiB3DetailResult> findAllByResultIdOrderByAnalysisDateDesc(@Param("resultId") Long resultId);
 }
