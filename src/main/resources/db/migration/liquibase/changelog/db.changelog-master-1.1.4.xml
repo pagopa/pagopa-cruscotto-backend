@@ -28,4 +28,7 @@
     <!-- Update module B.3 configuration for automatic KPI calculation -->
     <include file="1.1.4/dml/20250923150000_update_module_b3_configuration.xml" relativeToChangelogFile="true"/>
 
+    <!-- Add KPI B.3 authorizations -->
+    <include file="1.1.4/dml/20251001174300_add_kpi_b3_authorizations.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>
