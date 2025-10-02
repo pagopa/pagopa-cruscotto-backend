@@ -222,11 +222,7 @@ public class KpiB9Job extends QuartzJobBean {
                                         List<PagoPaPaymentReceiptDTO> validPagoPaPaymentReceiptDTOS = new ArrayList<>();
 
                                         for (PagoPaPaymentReceiptDTO pagoPaPaymentReceiptDTO : pagoPaPaymentReceiptDTOS) {
-                                            // Always count all values for statistical purposes (following KpiA1Job logic)
-                                            sumTotResDaily += pagoPaPaymentReceiptDTO.getTotRes();
-                                            sumResOkDaily += pagoPaPaymentReceiptDTO.getResOk();
-                                            sumRealResKoDaily += pagoPaPaymentReceiptDTO.getResKo();
-
+                                            
                                             boolean exclude = maintenance
                                                 .stream()
                                                 .map(anagPlannedShutdownDTO -> {
@@ -249,6 +245,9 @@ public class KpiB9Job extends QuartzJobBean {
                                             if (!exclude) {
                                                 validPagoPaPaymentReceiptDTOS.add(pagoPaPaymentReceiptDTO);
                                                 sumValidResKoDaily += pagoPaPaymentReceiptDTO.getResKo();
+                                                sumTotResDaily += pagoPaPaymentReceiptDTO.getTotRes();
+                                                sumResOkDaily += pagoPaPaymentReceiptDTO.getResOk();
+                                                sumRealResKoDaily += pagoPaPaymentReceiptDTO.getResKo();
                                             }
                                         }
 
