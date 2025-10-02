@@ -217,27 +217,37 @@ public class KpiB9Job extends QuartzJobBean {
                                         long sumResOkDaily = 0;
                                         long sumRealResKoDaily = 0;
                                         long sumValidResKoDaily = 0;
+                                        
+                                        // Track non-excluded records for drilldown (following KpiA1Job logic)
+                                        List<PagoPaPaymentReceiptDTO> validPagoPaPaymentReceiptDTOS = new ArrayList<>();
 
                                         for (PagoPaPaymentReceiptDTO pagoPaPaymentReceiptDTO : pagoPaPaymentReceiptDTOS) {
+                                            // Always count all values for statistical purposes (following KpiA1Job logic)
                                             sumTotResDaily += pagoPaPaymentReceiptDTO.getTotRes();
                                             sumResOkDaily += pagoPaPaymentReceiptDTO.getResOk();
                                             sumRealResKoDaily += pagoPaPaymentReceiptDTO.getResKo();
 
                                             boolean exclude = maintenance
                                                 .stream()
-                                                .anyMatch(anagPlannedShutdownDTO -> 
-                                                    isInstantInRangeInclusive(
-                                                        pagoPaPaymentReceiptDTO.getStartDate(),
-                                                        anagPlannedShutdownDTO.getShutdownStartDate(),
-                                                        anagPlannedShutdownDTO.getShutdownEndDate()
-                                                    ) &&
-                                                    isInstantInRangeInclusive(
-                                                        pagoPaPaymentReceiptDTO.getEndDate(),
-                                                        anagPlannedShutdownDTO.getShutdownStartDate(),
-                                                        anagPlannedShutdownDTO.getShutdownEndDate()
-                                                    )
-                                                );
+                                                .map(anagPlannedShutdownDTO -> {
+                                                    Boolean excludePlanned =
+                                                        isInstantInRangeInclusive(
+                                                            pagoPaPaymentReceiptDTO.getStartDate(),
+                                                            anagPlannedShutdownDTO.getShutdownStartDate(),
+                                                            anagPlannedShutdownDTO.getShutdownEndDate()
+                                                        ) &&
+                                                        isInstantInRangeInclusive(
+                                                            pagoPaPaymentReceiptDTO.getEndDate(),
+                                                            anagPlannedShutdownDTO.getShutdownStartDate(),
+                                                            anagPlannedShutdownDTO.getShutdownEndDate()
+                                                        );
+                                                    return excludePlanned;
+                                                })
+                                                .anyMatch(Boolean::booleanValue);
+                                            
+                                            // Only count ResKo for KPI calculation if not in maintenance period
                                             if (!exclude) {
+                                                validPagoPaPaymentReceiptDTOS.add(pagoPaPaymentReceiptDTO);
                                                 sumValidResKoDaily += pagoPaPaymentReceiptDTO.getResKo();
                                             }
                                         }
@@ -263,8 +273,8 @@ public class KpiB9Job extends QuartzJobBean {
                                         monthlyAnalyticData.computeIfAbsent(yearMonth, k -> new ArrayList<>());
                                         monthlyAnalyticData.get(yearMonth).add(kpiB9AnalyticDataDTO);
 
-                                        // Add quarter-hour drilldown data to batch if there are transactions
-                                        if (!pagoPaPaymentReceiptDTOS.isEmpty()) {
+                                        // Add quarter-hour drilldown data to batch if there are valid (non-excluded) transactions
+                                        if (!validPagoPaPaymentReceiptDTOS.isEmpty()) {
                                             try {
                                                 // Use optimized method that doesn't reload entities
                                                 Instance instanceEntity = instanceModuleService.findById(instanceModuleDTO.getId()).orElseThrow().getInstance();
@@ -279,7 +289,7 @@ public class KpiB9Job extends QuartzJobBean {
                                                         stationEntity,
                                                         date,
                                                         analysisDate,
-                                                        pagoPaPaymentReceiptDTOS
+                                                        validPagoPaPaymentReceiptDTOS
                                                     );
                                                     LOGGER.debug("Added drilldown data to batch for station {} on date {}", station, date);
                                                 }
