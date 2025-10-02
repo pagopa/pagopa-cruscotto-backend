@@ -242,7 +242,7 @@ public class PagoPaRecordedTimeoutServiceImpl implements PagoPaRecordedTimeoutSe
         QPagoPaRecordedTimeout qPagoPaRecordedTimeout = QPagoPaRecordedTimeout.pagoPaRecordedTimeout;
 
         LocalDateTime startDateTime = day.atStartOfDay();
-        LocalDateTime endDateTime = day.atTime(23, 59, 59, 0);
+        LocalDateTime endDateTime = day.plusDays(1).atStartOfDay();
 
         LOGGER.info(startDateTime.toString());
         LOGGER.info(endDateTime.toString());
@@ -271,7 +271,7 @@ public class PagoPaRecordedTimeoutServiceImpl implements PagoPaRecordedTimeoutSe
                     .and(qPagoPaRecordedTimeout.station.eq(station))
                     .and(qPagoPaRecordedTimeout.method.eq(method))
                     .and(qPagoPaRecordedTimeout.startDate.goe(startDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
-                    .and(qPagoPaRecordedTimeout.startDate.loe(endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
+                    .and(qPagoPaRecordedTimeout.startDate.lt(endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
             )
             .orderBy(new OrderSpecifier<>(Order.ASC, Expressions.stringPath("startDate")))
             .fetch();
