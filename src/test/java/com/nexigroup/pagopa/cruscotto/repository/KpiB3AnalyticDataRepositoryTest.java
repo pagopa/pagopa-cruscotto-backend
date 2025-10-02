@@ -6,6 +6,7 @@ import com.nexigroup.pagopa.cruscotto.domain.Instance;
 import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
 import com.nexigroup.pagopa.cruscotto.domain.AnagStation;
 import com.nexigroup.pagopa.cruscotto.domain.KpiB3Result;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -63,8 +64,10 @@ class KpiB3AnalyticDataRepositoryTest {
         detailResult.setAnagStation(station);
         detailResult.setKpiB3Result(kpiResult);
         detailResult.setAnalysisDate(LocalDate.now());
-        detailResult.setTotalIncidents(0);
-        detailResult.setTotalEvents(0);
+        detailResult.setEvaluationType(EvaluationType.MESE);
+        detailResult.setEvaluationStartDate(LocalDate.now());
+        detailResult.setEvaluationEndDate(LocalDate.now());
+        detailResult.setTotalStandIn(0);
         detailResult.setOutcome(true);
         detailResult = entityManager.persistAndFlush(detailResult);
     }

@@ -9554,11 +9554,22 @@
             "type": "string",
             "format": "date"
           },
-          "totalIncidents": {
-            "type": "integer",
-            "format": "int32"
+          "evaluationType": {
+            "type": "string",
+            "enum": [
+              "MESE",
+              "TOTALE"
+            ]
           },
-          "totalEvents": {
+          "evaluationStartDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "evaluationEndDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "totalStandIn": {
             "type": "integer",
             "format": "int32"
           },

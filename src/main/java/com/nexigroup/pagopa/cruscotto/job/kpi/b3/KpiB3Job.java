@@ -249,15 +249,15 @@ public class KpiB3Job extends QuartzJobBean {
             List<PagopaNumeroStandin> partnerStandInData = filterStandInDataByPartner(
                 standInData, instanceDTO.getPartnerFiscalCode(), analysisStart, analysisEnd, kpiConfigurationDTO);
             
-            // Calculate total incidents (Stand-In events count)
-            int totalIncidents = partnerStandInData.stream()
+            // Calculate total stand-in incidents count
+            int totalStandIn = partnerStandInData.stream()
                 .mapToInt(PagopaNumeroStandin::getStandInCount)
                 .sum();
             
-            boolean hasIncidents = totalIncidents > 0;
+            boolean hasIncidents = totalStandIn > 0;
             
             LOGGER.info("Found {} stand-in events for partner {} in period {} - {}", 
-                       totalIncidents, instanceDTO.getPartnerFiscalCode(), analysisStart, analysisEnd);
+                       totalStandIn, instanceDTO.getPartnerFiscalCode(), analysisStart, analysisEnd);
             
             // Log details for debugging
             if (hasIncidents && LOGGER.isDebugEnabled()) {
@@ -272,8 +272,8 @@ public class KpiB3Job extends QuartzJobBean {
             // KPI B.3 "Zero Incident": OK if no stand-in events, KO otherwise
             OutcomeStatus outcome = hasIncidents ? OutcomeStatus.KO : OutcomeStatus.OK;
             
-            LOGGER.info("KPI B.3 calculation result for instance {}: {} incidents found, outcome: {}", 
-                       instanceDTO.getInstanceIdentification(), totalIncidents, outcome);
+            LOGGER.info("KPI B.3 calculation result for instance {}: {} stand-in incidents found, outcome: {}", 
+                       instanceDTO.getInstanceIdentification(), totalStandIn, outcome);
             
             // Retrieve InstanceModuleDTO and save results
             InstanceModuleDTO instanceModuleDTO = instanceModuleService

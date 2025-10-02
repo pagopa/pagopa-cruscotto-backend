@@ -1,5 +1,6 @@
 package com.nexigroup.pagopa.cruscotto.service.dto;
 
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import java.io.Serializable;
 import java.time.LocalDate;
 import lombok.Data;
@@ -22,9 +23,13 @@ public class KpiB3DetailResultDTO implements Serializable {
 
     private LocalDate analysisDate;
 
-    private Integer totalIncidents;
+    private EvaluationType evaluationType;
 
-    private Integer totalEvents;
+    private LocalDate evaluationStartDate;
+
+    private LocalDate evaluationEndDate;
+
+    private Integer totalStandIn;
 
     private Boolean outcome;
 

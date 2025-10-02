@@ -1,6 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -59,11 +60,21 @@ public class KpiB3DetailResult implements Serializable {
     @Column(name = "DT_ANALISYS_DATE", nullable = false)
     private LocalDate analysisDate;
 
-    @Column(name = "CO_TOTAL_INCIDENTS")
-    private Integer totalIncidents;
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "TE_EVALUATION_TYPE", nullable = false)
+    private EvaluationType evaluationType;
 
-    @Column(name = "CO_TOTAL_EVENTS")
-    private Integer totalEvents;
+    @NotNull
+    @Column(name = "DT_EVALUATION_START_DATE", nullable = false)
+    private LocalDate evaluationStartDate;
+
+    @NotNull
+    @Column(name = "DT_EVALUATION_END_DATE", nullable = false)
+    private LocalDate evaluationEndDate;
+
+    @Column(name = "CO_TOTAL_STANDIN")
+    private Integer totalStandIn;
 
     @Column(name = "FL_OUTCOME")
     private Boolean outcome;
@@ -97,8 +108,10 @@ public class KpiB3DetailResult implements Serializable {
         return "KpiB3DetailResult{" +
             "id=" + id +
             ", analysisDate='" + analysisDate + "'" +
-            ", totalIncidents=" + totalIncidents +
-            ", totalEvents=" + totalEvents +
+            ", evaluationType='" + evaluationType + "'" +
+            ", evaluationStartDate='" + evaluationStartDate + "'" +
+            ", evaluationEndDate='" + evaluationEndDate + "'" +
+            ", totalStandIn=" + totalStandIn +
             ", outcome='" + outcome + "'" +
             "}";
     }

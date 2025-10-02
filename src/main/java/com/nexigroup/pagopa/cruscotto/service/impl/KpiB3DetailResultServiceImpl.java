@@ -101,8 +101,10 @@ public class KpiB3DetailResultServiceImpl implements KpiB3DetailResultService {
         kpiB3DetailResult.setAnagStation(anagStation);
         kpiB3DetailResult.setKpiB3Result(kpiB3Result);
         kpiB3DetailResult.setAnalysisDate(kpiB3DetailResultDTO.getAnalysisDate());
-        kpiB3DetailResult.setTotalIncidents(kpiB3DetailResultDTO.getTotalIncidents());
-        kpiB3DetailResult.setTotalEvents(kpiB3DetailResultDTO.getTotalEvents());
+        kpiB3DetailResult.setEvaluationType(kpiB3DetailResultDTO.getEvaluationType());
+        kpiB3DetailResult.setEvaluationStartDate(kpiB3DetailResultDTO.getEvaluationStartDate());
+        kpiB3DetailResult.setEvaluationEndDate(kpiB3DetailResultDTO.getEvaluationEndDate());
+        kpiB3DetailResult.setTotalStandIn(kpiB3DetailResultDTO.getTotalStandIn());
         kpiB3DetailResult.setOutcome(kpiB3DetailResultDTO.getOutcome());
 
         return kpiB3DetailResult;
@@ -144,8 +146,10 @@ public class KpiB3DetailResultServiceImpl implements KpiB3DetailResultService {
         dto.setAnagStationId(kpiB3DetailResult.getAnagStation().getId());
         dto.setKpiB3ResultId(kpiB3DetailResult.getKpiB3Result().getId());
         dto.setAnalysisDate(kpiB3DetailResult.getAnalysisDate());
-        dto.setTotalIncidents(kpiB3DetailResult.getTotalIncidents());
-        dto.setTotalEvents(kpiB3DetailResult.getTotalEvents());
+        dto.setEvaluationType(kpiB3DetailResult.getEvaluationType());
+        dto.setEvaluationStartDate(kpiB3DetailResult.getEvaluationStartDate());
+        dto.setEvaluationEndDate(kpiB3DetailResult.getEvaluationEndDate());
+        dto.setTotalStandIn(kpiB3DetailResult.getTotalStandIn());
         dto.setOutcome(kpiB3DetailResult.getOutcome());
         return dto;
     }

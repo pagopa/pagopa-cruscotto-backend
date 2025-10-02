@@ -173,11 +173,10 @@ public class KpiB3DataServiceImpl implements KpiB3DataService {
             
             LOGGER.debug("Processing station {}: found {} Stand-In records", stationCode, stationStandInData.size());
             
-            // Count total incidents and events for this station
-            int totalIncidents = stationStandInData.stream()
+            // Count total stand-in incidents for this station
+            int totalStandIn = stationStandInData.stream()
                 .mapToInt(PagopaNumeroStandin::getStandInCount)
                 .sum();
-            int totalEvents = stationStandInData.size(); // Number of Stand-In records for this station
             
             // Create detail result for this station
             KpiB3DetailResult detailResult = new KpiB3DetailResult();
@@ -186,14 +185,17 @@ public class KpiB3DataServiceImpl implements KpiB3DataService {
             detailResult.setAnagStation(station);
             detailResult.setKpiB3Result(kpiResult);
             detailResult.setAnalysisDate(analysisDate);
-            detailResult.setTotalIncidents(totalIncidents);
-            detailResult.setTotalEvents(totalEvents);
-            detailResult.setOutcome(totalIncidents == 0); // Boolean: true = OK (zero incidents), false = KO
+            detailResult.setEvaluationType(kpiResult.getEvaluationType());
+            // For now, use analysis date as both start and end (this should be calculated based on evaluation type)
+            detailResult.setEvaluationStartDate(analysisDate);
+            detailResult.setEvaluationEndDate(analysisDate);
+            detailResult.setTotalStandIn(totalStandIn);
+            detailResult.setOutcome(totalStandIn == 0); // Boolean: true = OK (zero incidents), false = KO
             
             KpiB3DetailResult savedDetailResult = kpiB3DetailResultRepository.save(detailResult);
             
-            LOGGER.debug("Saved KPI B.3 detail result for station {}: {} incidents, {} events, outcome: {}", 
-                        station.getName(), totalIncidents, totalEvents, totalIncidents == 0 ? "OK" : "KO");
+            LOGGER.debug("Saved KPI B.3 detail result for station {}: {} stand-in incidents, outcome: {}", 
+                        station.getName(), totalStandIn, totalStandIn == 0 ? "OK" : "KO");
             
             // Save analytic data only for stations that have actual stand-in events
             LOGGER.debug("Station {} has {} stand-in records", station.getName(), stationStandInData.size());
