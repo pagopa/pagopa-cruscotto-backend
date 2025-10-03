@@ -4207,9 +4207,9 @@
     "/api/kpi-b3-pagopa-data/{analyticDataId}": {
       "get": {
         "tags": [
-          "kpi-b3-pagopa-data-resource"
+          "kpi-b-3-pagopa-data-resource"
         ],
-        "operationId": "getKpiB3PagopaDataByAnalyticDataId",
+        "operationId": "getByAnalyticDataId",
         "parameters": [
           {
             "name": "analyticDataId",
@@ -9974,73 +9974,60 @@
         }
       },
       "PagopaNumeroStandinDTO": {
+        "required": [
+          "dataDate",
+          "intervalEnd",
+          "intervalStart",
+          "standInCount",
+          "stationCode"
+        ],
         "type": "object",
         "properties": {
           "id": {
-            "type": "string",
-            "description": "Unique identifier for the PagoPA stand-in event"
+            "type": "integer",
+            "format": "int64"
           },
-          "dataOraEvento": {
-            "type": "string",
-            "format": "date-time",
-            "description": "Date and time of the event"
+          "stationCode": {
+            "maxLength": 255,
+            "minLength": 0,
+            "type": "string"
           },
-          "identificativoDominio": {
+          "intervalStart": {
             "type": "string",
-            "description": "Domain identifier for the creditor institution"
+            "format": "date-time"
           },
-          "identificativoStazioneIntermediarioPa": {
+          "intervalEnd": {
             "type": "string",
-            "description": "Intermediary PA station identifier"
+            "format": "date-time"
           },
-          "canaleOrigine": {
-            "type": "string",
-            "description": "Original payment channel"
+          "standInCount": {
+            "type": "integer",
+            "format": "int32"
           },
-          "parametriSpecificiInterfaccia": {
-            "type": "string",
-            "description": "Interface specific parameters"
+          "eventType": {
+            "maxLength": 50,
+            "minLength": 0,
+            "type": "string"
           },
-          "esito": {
+          "dataDate": {
             "type": "string",
-            "description": "Transaction outcome"
+            "format": "date-time"
           },
-          "tipoVersamento": {
+          "loadTimestamp": {
             "type": "string",
-            "description": "Type of payment"
+            "format": "date-time"
           },
-          "tipoEvento": {
-            "type": "string",
-            "description": "Type of event"
+          "partnerId": {
+            "type": "integer",
+            "format": "int64"
           },
-          "categoriaEvento": {
-            "type": "string",
-            "description": "Event category"
+          "partnerName": {
+            "type": "string"
           },
-          "sottoTipoEvento": {
-            "type": "string",
-            "description": "Event subtype"
-          },
-          "identificativoFruitore": {
-            "type": "string",
-            "description": "Fruitor identifier"
-          },
-          "identificativoErogatore": {
-            "type": "string",
-            "description": "Service provider identifier"
-          },
-          "identificativoUnivocoVersamento": {
-            "type": "string",
-            "description": "Unique payment identifier"
-          },
-          "codiceContestoPagamento": {
-            "type": "string",
-            "description": "Payment context code"
-          },
-          "insertedDate": {
-            "type": "string",
-            "format": "date-time",
-            "description": "Record insertion timestamp"
+          "partnerFiscalCode": {
+            "maxLength": 255,
+            "minLength": 0,
+            "type": "string"
           }
         }
       },
