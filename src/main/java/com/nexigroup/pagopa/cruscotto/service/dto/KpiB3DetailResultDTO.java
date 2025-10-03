@@ -1,6 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.service.dto;
 
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import java.io.Serializable;
 import java.time.LocalDate;
 import lombok.Data;
@@ -31,6 +32,6 @@ public class KpiB3DetailResultDTO implements Serializable {
 
     private Integer totalStandIn;
 
-    private Boolean outcome;
+    private OutcomeStatus outcome;
 
 }

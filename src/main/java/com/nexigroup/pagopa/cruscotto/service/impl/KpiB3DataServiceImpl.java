@@ -99,7 +99,8 @@ public class KpiB3DataServiceImpl implements KpiB3DataService {
 
             // 2. Save station details for ALL stations of the partner (with or without Stand-In events)
             // This is required according to the analysis document
-            saveKpiB3DetailResults(instance, instanceModule, kpiResult, analysisDate, standInData, instanceDTO.getPartnerFiscalCode());
+            saveKpiB3DetailResults(instance, instanceModule, kpiResult, analysisDate, standInData, 
+                                 instanceDTO.getPartnerFiscalCode(), instanceDTO);
 
             LOGGER.info("Successfully saved KPI B.3 results for instance {} with {} Stand-In records", 
                        instanceDTO.getInstanceIdentification(), 
@@ -141,7 +142,8 @@ public class KpiB3DataServiceImpl implements KpiB3DataService {
      */
     private void saveKpiB3DetailResults(Instance instance, InstanceModule instanceModule, 
                                        KpiB3Result kpiResult, LocalDate analysisDate, 
-                                       List<PagopaNumeroStandin> standInData, String partnerFiscalCode) {
+                                       List<PagopaNumeroStandin> standInData, String partnerFiscalCode,
+                                       InstanceDTO instanceDTO) {
         
         // Get ALL stations for this partner
         List<AnagStation> partnerStations = anagStationRepository.findByAnagPartnerFiscalCode(partnerFiscalCode);
@@ -186,11 +188,11 @@ public class KpiB3DataServiceImpl implements KpiB3DataService {
             detailResult.setKpiB3Result(kpiResult);
             detailResult.setAnalysisDate(analysisDate);
             detailResult.setEvaluationType(kpiResult.getEvaluationType());
-            // For now, use analysis date as both start and end (this should be calculated based on evaluation type)
-            detailResult.setEvaluationStartDate(analysisDate);
-            detailResult.setEvaluationEndDate(analysisDate);
+            // Use correct evaluation period dates from instanceDTO
+            detailResult.setEvaluationStartDate(instanceDTO.getAnalysisPeriodStartDate());
+            detailResult.setEvaluationEndDate(instanceDTO.getAnalysisPeriodEndDate());
             detailResult.setTotalStandIn(totalStandIn);
-            detailResult.setOutcome(totalStandIn == 0); // Boolean: true = OK (zero incidents), false = KO
+            detailResult.setOutcome(totalStandIn == 0 ? OutcomeStatus.OK : OutcomeStatus.KO);
             
             KpiB3DetailResult savedDetailResult = kpiB3DetailResultRepository.save(detailResult);
             

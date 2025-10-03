@@ -39,7 +39,7 @@
 	  <column name="CO_TOTAL_STANDIN" type="integer">
 		<constraints nullable="true"/>
 	  </column>
-	  <column name="FL_OUTCOME" type="boolean">
+	  <column name="TE_OUTCOME" type="varchar(2)">
 		<constraints nullable="true"/>
 	  </column>
 	  <column name="CO_KPI_B3_RESULT_ID" type="bigint">

@@ -2,6 +2,7 @@ package com.nexigroup.pagopa.cruscotto.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -76,8 +77,9 @@ public class KpiB3DetailResult implements Serializable {
     @Column(name = "CO_TOTAL_STANDIN")
     private Integer totalStandIn;
 
-    @Column(name = "FL_OUTCOME")
-    private Boolean outcome;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "TE_OUTCOME")
+    private OutcomeStatus outcome;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
