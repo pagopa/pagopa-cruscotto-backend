@@ -141,6 +141,8 @@ public final class AuthoritiesConstants {
     
     public static final String KPI_B9_ANALITIC_DATA_DETAIL = "GTW.KPI_B9_ANALITIC_DATA_DETAIL";
     
+    public static final String KPI_B3_ANALITIC_DATA_DETAIL = "GTW.KPI_B3_ANALITIC_DATA_DETAIL";
+    
     public static final String KPI_A1_DETAIL_RESULT_DETAIL = "GTW.KPI_A1_DETAIL_RESULT_DETAIL";
     
     public static final String KPI_A2_DETAIL_RESULT_DETAIL = "GTW.KPI_A2_DETAIL_RESULT_DETAIL";
@@ -149,6 +151,8 @@ public final class AuthoritiesConstants {
     
     public static final String KPI_B9_DETAIL_RESULT_DETAIL = "GTW.KPI_B9_DETAIL_RESULT_DETAIL";
     
+    public static final String KPI_B3_DETAIL_RESULT_DETAIL = "GTW.KPI_B3_DETAIL_RESULT_DETAIL";
+    
     public static final String KPI_A1_RESULT_DETAIL = "GTW.KPI_A1_RESULT_DETAIL";
     
     public static final String KPI_A2_RESULT_DETAIL = "GTW.KPI_A2_RESULT_DETAIL";
@@ -156,6 +160,8 @@ public final class AuthoritiesConstants {
     public static final String KPI_B2_RESULT_DETAIL = "GTW.KPI_B2_RESULT_DETAIL";
     
     public static final String KPI_B9_RESULT_DETAIL = "GTW.KPI_B9_RESULT_DETAIL";
+    
+    public static final String KPI_B3_RESULT_DETAIL = "GTW.KPI_B3_RESULT_DETAIL";
     
     public static final String KPI_CONFIGURATION_LIST = "GTW.KPI_CONFIGURATION_LIST";    
     
