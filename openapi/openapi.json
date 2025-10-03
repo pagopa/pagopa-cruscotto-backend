@@ -9976,6 +9976,7 @@
       "PagopaNumeroStandinDTO": {
         "required": [
           "dataDate",
+          "dataOraEvento",
           "intervalEnd",
           "intervalStart",
           "standInCount",
@@ -10010,6 +10011,10 @@
             "type": "string"
           },
           "dataDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataOraEvento": {
             "type": "string",
             "format": "date-time"
           },
