@@ -20,6 +20,7 @@ import com.nexigroup.pagopa.cruscotto.service.dto.InstanceModuleDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiConfigurationDTO;
 
 import java.util.Map;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -281,9 +282,9 @@ public class KpiB3Job extends QuartzJobBean {
                 .orElseThrow(() -> new NullPointerException("KPI B.3 InstanceModule not found"));
             
             // Save results in the three tables (Result, DetailResult, AnalyticData)
-            // Use the analysis date from the instance, not current date
+            // Use current date as analysis date (when the analysis is performed)
             kpiB3DataService.saveKpiB3Results(instanceDTO, instanceModuleDTO, kpiConfigurationDTO, 
-                                            instanceDTO.getAnalysisPeriodStartDate(), outcome, partnerStandInData);
+                                            LocalDate.now(), outcome, partnerStandInData);
             
             LOGGER.info("KPI B.3 'Zero Incident' calculation completed for instance: {} with outcome: {}", 
                        instanceDTO.getInstanceIdentification(), outcome);

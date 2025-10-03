@@ -120,9 +120,7 @@ public class KpiB3DetailResultServiceImpl implements KpiB3DetailResultService {
         kpiB3DetailResultRepository
             .findById(id)
             .ifPresent(kpiB3DetailResult -> {
-                // Convert OutcomeStatus to Boolean (true for OK, false for otherwise)
-                boolean outcome = outcomeStatus == OutcomeStatus.OK;
-                kpiB3DetailResult.setOutcome(outcome);
+                kpiB3DetailResult.setOutcome(outcomeStatus);
                 kpiB3DetailResultRepository.save(kpiB3DetailResult);
             });
     }
