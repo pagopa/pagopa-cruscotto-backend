@@ -4204,6 +4204,61 @@
         }
       }
     },
+    "/api/kpi-b3-pagopa-data/{analyticDataId}": {
+      "get": {
+        "tags": [
+          "kpi-b3-pagopa-data-resource"
+        ],
+        "operationId": "getKpiB3PagopaDataByAnalyticDataId",
+        "parameters": [
+          {
+            "name": "analyticDataId",
+            "in": "path",
+            "description": "ID of the KPI B.3 analytic data",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PagopaNumeroStandinDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/kpi-analytic-data/a1/module/{detailResultId}": {
       "get": {
         "tags": [
@@ -9915,6 +9970,77 @@
           "standInCount": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "PagopaNumeroStandinDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the PagoPA stand-in event"
+          },
+          "dataOraEvento": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date and time of the event"
+          },
+          "identificativoDominio": {
+            "type": "string",
+            "description": "Domain identifier for the creditor institution"
+          },
+          "identificativoStazioneIntermediarioPa": {
+            "type": "string",
+            "description": "Intermediary PA station identifier"
+          },
+          "canaleOrigine": {
+            "type": "string",
+            "description": "Original payment channel"
+          },
+          "parametriSpecificiInterfaccia": {
+            "type": "string",
+            "description": "Interface specific parameters"
+          },
+          "esito": {
+            "type": "string",
+            "description": "Transaction outcome"
+          },
+          "tipoVersamento": {
+            "type": "string",
+            "description": "Type of payment"
+          },
+          "tipoEvento": {
+            "type": "string",
+            "description": "Type of event"
+          },
+          "categoriaEvento": {
+            "type": "string",
+            "description": "Event category"
+          },
+          "sottoTipoEvento": {
+            "type": "string",
+            "description": "Event subtype"
+          },
+          "identificativoFruitore": {
+            "type": "string",
+            "description": "Fruitor identifier"
+          },
+          "identificativoErogatore": {
+            "type": "string",
+            "description": "Service provider identifier"
+          },
+          "identificativoUnivocoVersamento": {
+            "type": "string",
+            "description": "Unique payment identifier"
+          },
+          "codiceContestoPagamento": {
+            "type": "string",
+            "description": "Payment context code"
+          },
+          "insertedDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Record insertion timestamp"
           }
         }
       },

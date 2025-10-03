@@ -61,14 +61,11 @@ public class InitializeStandInDataJob extends QuartzJobBean {
                 return;
             }
 
-            if (shouldInitializeStandInData()) {
-                initializeStandInDataInBackground();
-                initializationCompleted = true;
-                LOGGER.info("Stand-In data initialization completed successfully");
-            } else {
-                LOGGER.info("Stand-In data already exists, no initialization needed");
-                initializationCompleted = true;
-            }
+            // Always run initialization but avoid duplicates in the save process
+            logExistingData();
+            initializeStandInDataInBackground();
+            initializationCompleted = true;
+            LOGGER.info("Stand-In data initialization completed successfully");
         } catch (Exception e) {
             LOGGER.error("Failed to initialize Stand-In data: {}", e.getMessage(), e);
             throw new RuntimeException("InitializeStandInDataJob failed", e);
@@ -76,9 +73,9 @@ public class InitializeStandInDataJob extends QuartzJobBean {
     }
 
     /**
-     * Checks if Stand-In data initialization is needed
+     * Logs information about existing Stand-In data
      */
-    private boolean shouldInitializeStandInData() {
+    private void logExistingData() {
         try {
             // Check if any Stand-In data exists in the last 6 months
             LocalDate sixMonthsAgo = LocalDate.now().minusMonths(INITIALIZATION_MONTHS);
@@ -92,11 +89,8 @@ public class InitializeStandInDataJob extends QuartzJobBean {
             LOGGER.debug("Found {} existing Stand-In records in the last {} months", 
                         existingData.size(), INITIALIZATION_MONTHS);
             
-            return existingData.isEmpty();
-            
         } catch (Exception e) {
-            LOGGER.warn("Error checking existing Stand-In data, proceeding with initialization: {}", e.getMessage());
-            return true;
+            LOGGER.warn("Error checking existing Stand-In data: {}", e.getMessage());
         }
     }
 
@@ -125,7 +119,7 @@ public class InitializeStandInDataJob extends QuartzJobBean {
 
             totalChunks++;
             
-            LOGGER.info("Loading chunk {}: {} to {}", totalChunks, currentChunkStart, currentChunkEnd);
+            LOGGER.debug("Loading chunk {}: {} to {}", totalChunks, currentChunkStart, currentChunkEnd);
             
             try {
                 boolean success = loadStandInDataChunk(currentChunkStart, currentChunkEnd);
@@ -148,7 +142,6 @@ public class InitializeStandInDataJob extends QuartzJobBean {
             
             // Delay between chunks to avoid overwhelming the system
             if (!currentChunkStart.isAfter(endDate)) {
-                LOGGER.debug("Waiting {} ms before next chunk", DELAY_BETWEEN_CHUNKS_MS);
                 Thread.sleep(DELAY_BETWEEN_CHUNKS_MS);
             }
         }
