@@ -15,6 +15,7 @@ import com.nexigroup.pagopa.cruscotto.repository.KpiB3DetailResultRepository;
 import com.nexigroup.pagopa.cruscotto.repository.KpiB3AnalyticDataRepository;
 import com.nexigroup.pagopa.cruscotto.repository.AnagStationRepository;
 import com.nexigroup.pagopa.cruscotto.service.KpiB3DataService;
+import com.nexigroup.pagopa.cruscotto.service.PagopaNumeroStandinDrilldownService;
 import com.nexigroup.pagopa.cruscotto.service.dto.InstanceDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.InstanceModuleDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiConfigurationDTO;
@@ -42,6 +43,7 @@ public class KpiB3DataServiceImpl implements KpiB3DataService {
     private final InstanceRepository instanceRepository;
     private final InstanceModuleRepository instanceModuleRepository;
     private final AnagStationRepository anagStationRepository;
+    private final PagopaNumeroStandinDrilldownService pagopaNumeroStandinDrilldownService;
 
     public KpiB3DataServiceImpl(
         KpiB3ResultRepository kpiB3ResultRepository,
@@ -49,7 +51,8 @@ public class KpiB3DataServiceImpl implements KpiB3DataService {
         KpiB3AnalyticDataRepository kpiB3AnalyticDataRepository,
         InstanceRepository instanceRepository,
         InstanceModuleRepository instanceModuleRepository,
-        AnagStationRepository anagStationRepository
+        AnagStationRepository anagStationRepository,
+        PagopaNumeroStandinDrilldownService pagopaNumeroStandinDrilldownService
     ) {
         this.kpiB3ResultRepository = kpiB3ResultRepository;
         this.kpiB3DetailResultRepository = kpiB3DetailResultRepository;
@@ -57,6 +60,7 @@ public class KpiB3DataServiceImpl implements KpiB3DataService {
         this.instanceRepository = instanceRepository;
         this.instanceModuleRepository = instanceModuleRepository;
         this.anagStationRepository = anagStationRepository;
+        this.pagopaNumeroStandinDrilldownService = pagopaNumeroStandinDrilldownService;
     }
 
     @Override
@@ -81,6 +85,7 @@ public class KpiB3DataServiceImpl implements KpiB3DataService {
             }
             
             // First delete previous results for this instanceModule
+            pagopaNumeroStandinDrilldownService.deleteAllByInstanceModuleId(instanceModuleDTO.getId());
             kpiB3ResultRepository.deleteAllByInstanceModuleId(instanceModuleDTO.getId());
             kpiB3DetailResultRepository.deleteAllByInstanceModuleId(instanceModuleDTO.getId());
             kpiB3AnalyticDataRepository.deleteAllByInstanceModuleId(instanceModuleDTO.getId());
@@ -222,9 +227,16 @@ public class KpiB3DataServiceImpl implements KpiB3DataService {
                     
                     KpiB3AnalyticData savedAnalyticData = kpiB3AnalyticDataRepository.save(analyticData);
                     LOGGER.debug("Saved analytic data with ID: {}", savedAnalyticData.getId());
+                    
+                    // Save drilldown snapshot for this analytic data record
+                    pagopaNumeroStandinDrilldownService.saveStandInSnapshot(
+                        instance, instanceModule, station, savedAnalyticData, 
+                        analysisDate, List.of(standIn)
+                    );
+                    LOGGER.debug("Saved drilldown snapshot for analytic data ID: {}", savedAnalyticData.getId());
                 }
                 
-                LOGGER.info("Successfully saved {} KPI B.3 analytic data records for station {}", 
+                LOGGER.info("Successfully saved {} KPI B.3 analytic data records and drilldown snapshots for station {}", 
                            stationStandInData.size(), station.getName());
             } else {
                 LOGGER.debug("No stand-in data found for station {}, skipping analytic data creation", 
