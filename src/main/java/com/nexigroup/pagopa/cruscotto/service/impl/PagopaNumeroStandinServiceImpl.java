@@ -66,7 +66,7 @@ public class PagopaNumeroStandinServiceImpl implements PagopaNumeroStandinServic
                 Optional<PagopaNumeroStandin> pagopaDataOpt = pagopaNumeroStandinRepository.findById(pagopaId);
 
                 if (pagopaDataOpt.isPresent()) {
-                    List<PagopaNumeroStandinDTO> result = List.of(convertToDTO(pagopaDataOpt.get()));
+                    List<PagopaNumeroStandinDTO> result = List.of(convertToDTO(pagopaDataOpt.get(), analyticData));
                     LOGGER.debug("Found {} PagopaNumeroStandin records for analytic data ID {}", result.size(), analyticDataId);
                     return result;
                 } else {
@@ -100,6 +100,28 @@ public class PagopaNumeroStandinServiceImpl implements PagopaNumeroStandinServic
         dto.setEventType(entity.getEventType());
         dto.setDataDate(entity.getDataDate());
         dto.setLoadTimestamp(entity.getLoadTimestamp());
+
+        return dto;
+    }
+
+    @Override
+    public PagopaNumeroStandinDTO convertToDTO(PagopaNumeroStandin entity, KpiB3AnalyticData analyticData) {
+        if (entity == null) {
+            return null;
+        }
+
+        // Start with the basic DTO conversion
+        PagopaNumeroStandinDTO dto = convertToDTO(entity);
+        
+        // Add partner information from analyticData if available
+        if (analyticData != null && analyticData.getAnagStation() != null && 
+            analyticData.getAnagStation().getAnagPartner() != null) {
+            
+            com.nexigroup.pagopa.cruscotto.domain.AnagPartner partner = analyticData.getAnagStation().getAnagPartner();
+            dto.setPartnerId(partner.getId());
+            dto.setPartnerName(partner.getName());
+            dto.setPartnerFiscalCode(partner.getFiscalCode());
+        }
 
         return dto;
     }

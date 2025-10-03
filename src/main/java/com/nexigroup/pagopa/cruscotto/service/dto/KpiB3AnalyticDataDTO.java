@@ -1,6 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.service.dto;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.Data;
 
@@ -27,5 +28,12 @@ public class KpiB3AnalyticDataDTO implements Serializable {
     private LocalDateTime eventTimestamp;
 
     private Integer standInCount;
+
+    // Additional fields required for API output
+    private LocalDate analysisDate;
+    
+    private String analysisPeriod;
+    
+    private String stationFiscalCode;
 
 }
