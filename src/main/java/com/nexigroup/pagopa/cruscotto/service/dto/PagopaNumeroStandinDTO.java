@@ -42,6 +42,14 @@ public class PagopaNumeroStandinDTO implements Serializable {
 
     private LocalDateTime loadTimestamp;
 
+    // Partner information fields
+    private Long partnerId;
+    
+    private String partnerName;
+    
+    @Size(max = 255)
+    private String partnerFiscalCode;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -72,6 +80,9 @@ public class PagopaNumeroStandinDTO implements Serializable {
             ", eventType='" + eventType + "'" +
             ", dataDate='" + dataDate + "'" +
             ", loadTimestamp='" + loadTimestamp + "'" +
+            ", partnerId=" + partnerId +
+            ", partnerName='" + partnerName + "'" +
+            ", partnerFiscalCode='" + partnerFiscalCode + "'" +
             "}";
     }
 }

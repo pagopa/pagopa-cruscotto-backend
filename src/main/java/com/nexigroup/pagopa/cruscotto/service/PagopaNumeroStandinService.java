@@ -26,4 +26,14 @@ public interface PagopaNumeroStandinService {
      * @return the converted DTO
      */
     PagopaNumeroStandinDTO convertToDTO(com.nexigroup.pagopa.cruscotto.domain.PagopaNumeroStandin entity);
+
+    /**
+     * Convert a PagopaNumeroStandin entity to DTO with partner information.
+     * 
+     * @param entity the entity to convert
+     * @param analyticData the KpiB3AnalyticData containing partner information via station
+     * @return the converted DTO with partner information
+     */
+    PagopaNumeroStandinDTO convertToDTO(com.nexigroup.pagopa.cruscotto.domain.PagopaNumeroStandin entity, 
+                                       com.nexigroup.pagopa.cruscotto.domain.KpiB3AnalyticData analyticData);
 }

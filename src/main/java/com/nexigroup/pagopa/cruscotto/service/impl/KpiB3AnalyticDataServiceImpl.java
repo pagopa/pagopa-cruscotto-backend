@@ -159,6 +159,25 @@ public class KpiB3AnalyticDataServiceImpl implements KpiB3AnalyticDataService {
         dto.setEventType(kpiB3AnalyticData.getEventType());
         dto.setEventTimestamp(kpiB3AnalyticData.getEventTimestamp());
         dto.setStandInCount(kpiB3AnalyticData.getStandInCount());
+        
+        // Additional fields required for API output
+        Instance instance = kpiB3AnalyticData.getInstance();
+        
+        // Use analysis date from KpiB3DetailResult (always populated during KPI calculation)
+        dto.setAnalysisDate(kpiB3AnalyticData.getKpiB3DetailResult().getAnalysisDate());
+        
+        // Format analysis period as "dd/MM/yyyy - dd/MM/yyyy"
+        if (instance.getAnalysisPeriodStartDate() != null && instance.getAnalysisPeriodEndDate() != null) {
+            java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            String periodStart = instance.getAnalysisPeriodStartDate().format(formatter);
+            String periodEnd = instance.getAnalysisPeriodEndDate().format(formatter);
+            dto.setAnalysisPeriod(periodStart + " - " + periodEnd);
+        }
+        
+        // Station fiscal code (via partner)
+        dto.setStationFiscalCode(kpiB3AnalyticData.getAnagStation().getAnagPartner() != null ? 
+            kpiB3AnalyticData.getAnagStation().getAnagPartner().getFiscalCode() : null);
+        
         return dto;
     }
 }
