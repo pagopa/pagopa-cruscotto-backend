@@ -69,12 +69,12 @@ public class FeignConfiguration {
         
         return Feign.builder()
                 .requestInterceptor(new ApiKeyInterceptor(environment))
-                .logger(new Slf4jLogger(PagoPaCacheClient.class))
-                .logLevel(Logger.Level.FULL)
+                .logger(new Slf4jLogger(PagoPaStandInClient.class))
+                .logLevel(Logger.Level.BASIC)
                 .contract(new SpringMvcContract())
                 .client(new feign.okhttp.OkHttpClient(buildOkHttpClient(applicationProperties)))
                 .encoder(new JacksonEncoder())
-                .decoder(new BackOfficeDecoder())
+                .decoder(new JacksonDecoder())
                 .target(PagoPaStandInClient.class, applicationProperties.getPagoPaClient().getStandIn().getUrl());
     }
 

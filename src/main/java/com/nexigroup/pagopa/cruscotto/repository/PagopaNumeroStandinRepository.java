@@ -59,4 +59,16 @@ public interface PagopaNumeroStandinRepository
      * Check if data exists for a specific date
      */
     boolean existsByDataDate(LocalDateTime dataDate);
+
+    /**
+     * Find existing record by unique business keys to prevent duplicates
+     */
+    @Query("SELECT p FROM PagopaNumeroStandin p WHERE p.stationCode = :stationCode " +
+           "AND p.intervalStart = :intervalStart AND p.dataDate = :dataDate " +
+           "AND p.eventType = :eventType")
+    List<PagopaNumeroStandin> findByBusinessKeys(
+        @Param("stationCode") String stationCode,
+        @Param("intervalStart") LocalDateTime intervalStart,
+        @Param("dataDate") LocalDateTime dataDate,
+        @Param("eventType") String eventType);
 }
