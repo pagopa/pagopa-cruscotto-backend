@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+  <changeSet id="20250925120001-1" author="system" context="ddl">
+	<createSequence sequenceName="SQ${project_name}_KPIB3ANALDATA" startValue="3000" cacheSize="20"/>
+  </changeSet>
+
+  <changeSet id="20250925120001-2" author="system" context="ddl">
+	<createTable tableName="KPI_B3_ANALYTIC_DATA">
+ 	  <column name="CO_ID" type="bigint">
+		<constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_KPIB3ANALDATA"/>
+	  </column>
+	  <column name="CO_INSTANCE_ID" type="bigint">
+		<constraints nullable="false"/>
+	  </column>
+	  <column name="CO_INSTANCE_MODULE_ID" type="bigint">
+		<constraints nullable="false"/>
+	  </column>
+	  <column name="CO_ANAG_STATION_ID" type="bigint">
+		<constraints nullable="false"/>
+	  </column>
+	  <column name="CO_KPI_B3_DETAIL_RESULT_ID" type="bigint">
+		<constraints nullable="true"/>
+	  </column>
+	  <column name="TE_EVENT_ID" type="varchar(255)">
+		<constraints nullable="true"/>
+	  </column>
+	  <column name="TE_EVENT_TYPE" type="varchar(255)">
+		<constraints nullable="true"/>
+	  </column>
+	  <column name="DT_EVENT_TIMESTAMP" type="timestamp">
+		<constraints nullable="true"/>
+	  </column>
+	  <column name="CO_STAND_IN_COUNT" type="integer">
+		<constraints nullable="true"/>
+	  </column>
+	</createTable>
+	<rollback>
+	  DROP TABLE ${database.defaultSchemaName}.KPI_B3_ANALYTIC_DATA CASCADE CONSTRAINTS;
+	</rollback>
+  </changeSet>
+
+  <changeSet id="20250925120001-3" author="system" context="ddl">
+	<createIndex indexName="IX${project_name}_KPIB3ANALDATA"
+				 tableName="KPI_B3_ANALYTIC_DATA">
+	  <column name="CO_INSTANCE_MODULE_ID"/>
+	</createIndex>
+
+	<createIndex indexName="IX${project_name}_KPIB3ANALDATA_01"
+				 tableName="KPI_B3_ANALYTIC_DATA">
+	  <column name="CO_KPI_B3_DETAIL_RESULT_ID"/>
+	</createIndex>
+
+	<createIndex indexName="IX${project_name}_KPIB3ANALDATA_02"
+				 tableName="KPI_B3_ANALYTIC_DATA">
+	  <column name="CO_ANAG_STATION_ID"/>
+	</createIndex>
+
+	<createIndex indexName="IX${project_name}_KPIB3ANALDATA_03"
+				 tableName="KPI_B3_ANALYTIC_DATA">
+	  <column name="DT_EVENT_TIMESTAMP"/>
+	</createIndex>
+	<rollback>
+	  <dropIndex indexName="IX${project_name}_KPIB3ANALDATA" tableName="KPI_B3_ANALYTIC_DATA"/>
+	  <dropIndex indexName="IX${project_name}_KPIB3ANALDATA_01" tableName="KPI_B3_ANALYTIC_DATA"/>
+	  <dropIndex indexName="IX${project_name}_KPIB3ANALDATA_02" tableName="KPI_B3_ANALYTIC_DATA"/>
+	  <dropIndex indexName="IX${project_name}_KPIB3ANALDATA_03" tableName="KPI_B3_ANALYTIC_DATA"/>
+	</rollback>
+  </changeSet>
+
+</databaseChangeLog>

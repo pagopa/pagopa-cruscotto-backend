@@ -29,7 +29,9 @@ import com.nexigroup.pagopa.cruscotto.web.rest.errors.JobErrorCode;
 import com.nexigroup.pagopa.cruscotto.web.rest.util.HeaderJobUtil;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
@@ -131,26 +133,65 @@ public class JobControllerResources {
 
     @GetMapping("start")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.JOB_MODIFICATION + "\")")
-    public ResponseEntity<Integer> startJobNow(@RequestParam("jobName") String jobName) {
-        log.debug("REST request to start job now: {}", jobName);
+    public ResponseEntity<Integer> startJobNow(
+        @RequestParam("jobName") String jobName,
+        @RequestParam(value = "targetDate", required = false) String targetDate,
+        @RequestParam(value = "fromDate", required = false) String fromDate,
+        @RequestParam(value = "toDate", required = false) String toDate) {
+        
+        log.debug("REST request to start job: {} with targetDate: {}, fromDate: {}, toDate: {}", 
+                 jobName, targetDate, fromDate, toDate);
 
         if (!jobService.checkJobWithName(jobName)) throw new BadRequestAlertException("Invalid jobName", ENTITY_NAME, "jobNameNotFound");
 
         Integer returnCode = null;
         if (!jobService.checkJobRunning(jobName)) {
-            boolean status = jobService.startJobNow(jobName);
+            boolean status;
+            
+            // Handle date parameters only for loadStandInDataJob
+            if ("loadStandInDataJob".equals(jobName)) {
+                Map<String, Object> jobData = new HashMap<>();
+                
+                // Priority: fromDate + toDate -> targetDate -> default
+                if (fromDate != null && !fromDate.trim().isEmpty() && 
+                    toDate != null && !toDate.trim().isEmpty()) {
+                    jobData.put("fromDate", fromDate.trim());
+                    jobData.put("toDate", toDate.trim());
+                    status = jobService.startJobNow(jobName, jobData);
+                    log.debug("Starting {} with date range: {} to {}", jobName, fromDate, toDate);
+                    
+                } else if (targetDate != null && !targetDate.trim().isEmpty()) {
+                    jobData.put("targetDate", targetDate.trim());
+                    status = jobService.startJobNow(jobName, jobData);
+                    log.debug("Starting {} with target date: {}", jobName, targetDate);
+                    
+                } else {
+                    // Start job without parameters (will use default behavior)
+                    status = jobService.startJobNow(jobName);
+                    log.debug("Starting {} with default parameters", jobName);
+                }
+                
+            } else {
+                // For other jobs, start without parameters
+                status = jobService.startJobNow(jobName);
+                if (targetDate != null || fromDate != null || toDate != null) {
+                    log.warn("Date parameters ignored for job: {} (only supported for loadStandInDataJob)", jobName);
+                }
+            }
 
             if (status) {
-                returnCode = JobErrorCode.SUCCESS; //true
+                returnCode = JobErrorCode.SUCCESS;
             } else {
-                returnCode = JobErrorCode.ERROR; //false
+                returnCode = JobErrorCode.ERROR;
             }
         } else {
-            returnCode = JobErrorCode.JOB_ALREADY_IN_RUNNING_STATE; //false
+            returnCode = JobErrorCode.JOB_ALREADY_IN_RUNNING_STATE;
         }
 
         return ResponseEntity.ok().headers(HeaderJobUtil.createJobStartAlert(applicationName, true, ENTITY_NAME, jobName)).body(returnCode);
     }
+
+
 
     @GetMapping("update")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.JOB_MODIFICATION + "\")")

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <!--
+        Added the entity PagopaNumeroStandin.
+    -->
+    <changeSet id="20250926120000-1" author="system">
+        <createSequence sequenceName="SQCRUSC8_PAGOPASTANDIN" startValue="1" incrementBy="1"/>
+    </changeSet>
+
+    <changeSet id="20250926120000-2" author="system">
+        <createTable tableName="PAGOPA_NUMERO_STANDIN">
+            <column name="CO_ID" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="TE_STATION_CODE" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="DT_INTERVAL_START" type="${datetimeType}">
+                <constraints nullable="false" />
+            </column>
+            <column name="DT_INTERVAL_END" type="${datetimeType}">
+                <constraints nullable="false" />
+            </column>
+            <column name="CO_STANDIN_COUNT" type="integer">
+                <constraints nullable="false" />
+            </column>
+            <column name="TE_EVENT_TYPE" type="varchar(50)" />
+            <column name="DT_DATA_DATE" type="${datetimeType}">
+                <constraints nullable="false" />
+            </column>
+            <column name="DT_LOAD_TIMESTAMP" type="${datetimeType}" />
+            <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
+        </createTable>
+        <dropDefaultValue tableName="PAGOPA_NUMERO_STANDIN" columnName="DT_INTERVAL_START" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="PAGOPA_NUMERO_STANDIN" columnName="DT_INTERVAL_END" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="PAGOPA_NUMERO_STANDIN" columnName="DT_DATA_DATE" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="PAGOPA_NUMERO_STANDIN" columnName="DT_LOAD_TIMESTAMP" columnDataType="${datetimeType}"/>
+    </changeSet>
+
+    <changeSet id="20250926120000-3" author="system">
+        <createIndex indexName="IDX_PAGOPA_STANDIN_STATION_DATE" tableName="PAGOPA_NUMERO_STANDIN">
+            <column name="TE_STATION_CODE"/>
+            <column name="DT_DATA_DATE"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="20250926120000-4" author="system">
+        <createIndex indexName="IDX_PAGOPA_STANDIN_DATE_RANGE" tableName="PAGOPA_NUMERO_STANDIN">
+            <column name="DT_DATA_DATE"/>
+            <column name="DT_INTERVAL_START"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
+
+</databaseChangeLog>
