@@ -31,4 +31,10 @@
     <!-- Add KPI B.3 authorizations -->
     <include file="1.1.4/dml/20251001174300_add_kpi_b3_authorizations.xml" relativeToChangelogFile="true"/>
 
+    <!-- Create KPI B.3 drilldown table for historical data snapshots -->
+    <include file="1.1.4/ddl/20250116120000_added_entity_PagopaNumeroStandinDrilldown.xml" relativeToChangelogFile="true"/>
+
+    <!-- Add constraints for KPI B.3 drilldown table -->
+    <include file="1.1.4/ddl/20250116120001_added_entity_constraints_PagopaNumeroStandinDrilldown.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>

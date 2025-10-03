@@ -9,11 +9,11 @@
     <!--
         Added the entity PagopaNumeroStandin.
     -->
-    <changeSet id="20250926120000-1" author="jhipster">
+    <changeSet id="20250926120000-1" author="system">
         <createSequence sequenceName="SQCRUSC8_PAGOPASTANDIN" startValue="1" incrementBy="1"/>
     </changeSet>
 
-    <changeSet id="20250926120000-2" author="jhipster">
+    <changeSet id="20250926120000-2" author="system">
         <createTable tableName="PAGOPA_NUMERO_STANDIN">
             <column name="CO_ID" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
@@ -43,14 +43,14 @@
         <dropDefaultValue tableName="PAGOPA_NUMERO_STANDIN" columnName="DT_LOAD_TIMESTAMP" columnDataType="${datetimeType}"/>
     </changeSet>
 
-    <changeSet id="20250926120000-3" author="jhipster">
+    <changeSet id="20250926120000-3" author="system">
         <createIndex indexName="IDX_PAGOPA_STANDIN_STATION_DATE" tableName="PAGOPA_NUMERO_STANDIN">
             <column name="TE_STATION_CODE"/>
             <column name="DT_DATA_DATE"/>
         </createIndex>
     </changeSet>
 
-    <changeSet id="20250926120000-4" author="jhipster">
+    <changeSet id="20250926120000-4" author="system">
         <createIndex indexName="IDX_PAGOPA_STANDIN_DATE_RANGE" tableName="PAGOPA_NUMERO_STANDIN">
             <column name="DT_DATA_DATE"/>
             <column name="DT_INTERVAL_START"/>

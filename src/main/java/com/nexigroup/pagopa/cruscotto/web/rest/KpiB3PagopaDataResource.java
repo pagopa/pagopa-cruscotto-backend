@@ -1,7 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.web.rest;
 
 import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
-import com.nexigroup.pagopa.cruscotto.service.PagopaNumeroStandinService;
+import com.nexigroup.pagopa.cruscotto.service.PagopaNumeroStandinDrilldownService;
 import com.nexigroup.pagopa.cruscotto.service.dto.PagopaNumeroStandinDTO;
 
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ import java.util.Optional;
 
 /**
  * REST controller for managing KPI B.3 PagoPA Raw Data Drilldown.
- * Provides endpoint to retrieve raw Stand-In data from pagopa_numero_standin table
+ * Provides endpoint to retrieve historical Stand-In data snapshots from pagopa_numero_standin_drilldown table
  * as the final drilldown level in KPI B.3 analysis.
  */
 @RestController
@@ -26,19 +26,19 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class KpiB3PagopaDataResource {
 
-    private final PagopaNumeroStandinService pagopaNumeroStandinService;
+    private final PagopaNumeroStandinDrilldownService pagopaNumeroStandinDrilldownService;
 
     /**
-     * GET  /kpi-b3-pagopa-data/{analyticDataId} : Get raw PagoPA Stand-In data for a given KPI B.3 analytic data ID.
-     * This represents the final drilldown level showing the original data from PagoPA API.
+     * GET  /kpi-b3-pagopa-data/{analyticDataId} : Get historical Stand-In data snapshots for a given KPI B.3 analytic data ID.
+     * This represents the final drilldown level showing the historical snapshot data preserved during analysis.
      *
      * @param analyticDataId the ID of the KpiB3AnalyticData record
-     * @return the list of raw PagoPA Stand-In records wrapped in ResponseEntity, or 404 Not Found if none exist
+     * @return the list of historical Stand-In snapshot records wrapped in ResponseEntity, or 404 Not Found if none exist
      */
     @GetMapping("kpi-b3-pagopa-data/{analyticDataId}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.KPI_B3_ANALITIC_DATA_DETAIL + "\")")
     public ResponseEntity<List<PagopaNumeroStandinDTO>> getByAnalyticDataId(@PathVariable Long analyticDataId) {
-        List<PagopaNumeroStandinDTO> pagopaData = pagopaNumeroStandinService.findByAnalyticDataId(analyticDataId);
+        List<PagopaNumeroStandinDTO> pagopaData = pagopaNumeroStandinDrilldownService.findByAnalyticDataId(analyticDataId);
         return ResponseUtil.wrapOrNotFound(
             Optional.ofNullable(pagopaData == null || pagopaData.isEmpty() ? null : pagopaData)
         );

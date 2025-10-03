@@ -40,6 +40,9 @@ public class PagopaNumeroStandinDTO implements Serializable {
     @NotNull
     private LocalDateTime dataDate;
 
+    @NotNull
+    private LocalDateTime dataOraEvento;
+
     private LocalDateTime loadTimestamp;
 
     // Partner information fields
@@ -79,6 +82,7 @@ public class PagopaNumeroStandinDTO implements Serializable {
             ", standInCount=" + standInCount +
             ", eventType='" + eventType + "'" +
             ", dataDate='" + dataDate + "'" +
+            ", dataOraEvento='" + dataOraEvento + "'" +
             ", loadTimestamp='" + loadTimestamp + "'" +
             ", partnerId=" + partnerId +
             ", partnerName='" + partnerName + "'" +
