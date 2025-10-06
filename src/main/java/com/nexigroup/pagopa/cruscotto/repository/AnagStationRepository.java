@@ -1,6 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.repository;
 
 import com.nexigroup.pagopa.cruscotto.domain.AnagStation;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -19,6 +20,9 @@ public interface AnagStationRepository
     extends JpaRepository<AnagStation, Long>, JpaSpecificationExecutor<AnagStation>, QueryByExampleExecutor<AnagStation> {
     
     Optional<AnagStation> findOneByName(String name);
+    
+    @Query("SELECT s FROM AnagStation s WHERE s.anagPartner.fiscalCode = :fiscalCode")
+    List<AnagStation> findByAnagPartnerFiscalCode(@Param("fiscalCode") String fiscalCode);
     
     @Modifying
     @Transactional

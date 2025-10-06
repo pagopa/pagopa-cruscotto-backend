@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <!--
+        Added the entity PagopaNumeroStandinDrilldown for KPI B.3 historical data snapshots.
+    -->
+    <changeSet id="20250116120000-1" author="system">
+        <createSequence sequenceName="SQCRUSC8_PAGOPASTANDINDRILLDOWN" startValue="1" incrementBy="1"/>
+    </changeSet>
+
+    <changeSet id="20250116120000-2" author="system">
+        <createTable tableName="PAGOPA_NUMERO_STANDIN_DRILLDOWN">
+            <column name="CO_ID" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="CO_INSTANCE_ID" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CO_INSTANCE_MODULE_ID" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CO_STATION_ID" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CO_KPI_B3_ANALYTIC_DATA_ID" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DT_ANALYSIS_DATE" type="date">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CO_ORIGINAL_STANDIN_ID" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <!-- Snapshot of original Stand-In data fields -->
+            <column name="DE_STATION_CODE" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DT_INTERVAL_START" type="${datetimeType}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DT_INTERVAL_END" type="${datetimeType}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CO_STAND_IN_COUNT" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DE_EVENT_TYPE" type="varchar(50)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="DT_DATA_DATE" type="${datetimeType}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DT_DATA_ORA_EVENTO" type="${datetimeType}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DT_LOAD_TIMESTAMP" type="${datetimeType}">
+                <constraints nullable="true"/>
+            </column>
+            <column name="TE_IDENTIFICATIVO_DOMINIO" type="varchar(35)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="TE_IDENTIFICATIVO_UNIVOCO_VERSAMENTO" type="varchar(35)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="TE_CODICE_CONTESTO_PAGAMENTO" type="varchar(35)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="TE_IDENTIFICATIVO_PRESTATORE_SERVIZI" type="varchar(35)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="TE_TIPO_VERSAMENTO" type="varchar(32)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="TE_COMPONENTE" type="varchar(35)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="TE_CATEGORIA_EVENTO" type="varchar(35)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="TE_TIPO_EVENTO" type="varchar(35)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="TE_SOTTO_TIPO_EVENTO" type="varchar(35)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="TE_IDENTIFICATIVO_FRUITORE" type="varchar(35)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="TE_IDENTIFICATIVO_EROGATORE" type="varchar(35)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="TE_IDENTIFICATIVO_STAZIONE_INTERMEDIARIO_PA" type="varchar(35)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="TE_CANALE_PAGAMENTO" type="varchar(35)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="TE_PARAMETRI_SPECIFICI_INTERFACCIA" type="varchar(512)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="TE_ESITO" type="varchar(35)">
+                <constraints nullable="true"/>
+            </column>
+            <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
+        </createTable>
+        <dropDefaultValue tableName="PAGOPA_NUMERO_STANDIN_DRILLDOWN" columnName="DT_INTERVAL_START" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="PAGOPA_NUMERO_STANDIN_DRILLDOWN" columnName="DT_INTERVAL_END" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="PAGOPA_NUMERO_STANDIN_DRILLDOWN" columnName="DT_DATA_DATE" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="PAGOPA_NUMERO_STANDIN_DRILLDOWN" columnName="DT_DATA_ORA_EVENTO" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="PAGOPA_NUMERO_STANDIN_DRILLDOWN" columnName="DT_LOAD_TIMESTAMP" columnDataType="${datetimeType}"/>
+    </changeSet>
+
+    <changeSet id="20250116120000-3" author="system">
+        <!-- Primary index for KPI B.3 analytic data lookups -->
+        <createIndex indexName="IDX_PAGOPA_STANDIN_DRILLDOWN_ANALYTIC" tableName="PAGOPA_NUMERO_STANDIN_DRILLDOWN">
+            <column name="CO_KPI_B3_ANALYTIC_DATA_ID"/>
+        </createIndex>
+        
+        <!-- Index for cleanup operations by instance module -->
+        <createIndex indexName="IDX_PAGOPA_STANDIN_DRILLDOWN_MODULE" tableName="PAGOPA_NUMERO_STANDIN_DRILLDOWN">
+            <column name="CO_INSTANCE_MODULE_ID"/>
+        </createIndex>
+        
+        <!-- Index for analysis date filtering -->
+        <createIndex indexName="IDX_PAGOPA_STANDIN_DRILLDOWN_DATE" tableName="PAGOPA_NUMERO_STANDIN_DRILLDOWN">
+            <column name="CO_INSTANCE_MODULE_ID"/>
+            <column name="DT_ANALYSIS_DATE"/>
+        </createIndex>
+        
+        <!-- Index for original Stand-In reference -->
+        <createIndex indexName="IDX_PAGOPA_STANDIN_DRILLDOWN_ORIGINAL" tableName="PAGOPA_NUMERO_STANDIN_DRILLDOWN">
+            <column name="CO_ORIGINAL_STANDIN_ID"/>
+        </createIndex>
+        
+        <!-- Index for station code filtering -->
+        <createIndex indexName="IDX_PAGOPA_STANDIN_DRILLDOWN_STATION" tableName="PAGOPA_NUMERO_STANDIN_DRILLDOWN">
+            <column name="DE_STATION_CODE"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

@@ -77,7 +77,7 @@ public class PagoPaPaymentReceiptServiceImpl implements PagoPaPaymentReceiptServ
         QPagoPaPaymentReceipt qPagoPaPaymentReceipt = QPagoPaPaymentReceipt.pagoPaPaymentReceipt;
 
         LocalDateTime startDateTime = day.atStartOfDay();
-        LocalDateTime endDateTime = day.atTime(23, 59, 59, 0);
+        LocalDateTime endDateTime = day.plusDays(1).atStartOfDay();
 
         LOGGER.info(startDateTime.toString());
         LOGGER.info(endDateTime.toString());
@@ -103,7 +103,7 @@ public class PagoPaPaymentReceiptServiceImpl implements PagoPaPaymentReceiptServ
                     .eq(fiscalCodePartner)
                     .and(qPagoPaPaymentReceipt.station.eq(station))
                     .and(qPagoPaPaymentReceipt.startDate.goe(startDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
-                    .and(qPagoPaPaymentReceipt.startDate.loe(endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
+                    .and(qPagoPaPaymentReceipt.startDate.lt(endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
             )
             .orderBy(new OrderSpecifier<>(Order.ASC, Expressions.stringPath("startDate")))
             .fetch();

@@ -15,10 +15,12 @@ import com.nexigroup.pagopa.cruscotto.service.KpiA1AnalyticDataService;
 import com.nexigroup.pagopa.cruscotto.service.KpiA2AnalyticDataService;
 import com.nexigroup.pagopa.cruscotto.service.KpiB2AnalyticDataService;
 import com.nexigroup.pagopa.cruscotto.service.KpiB9AnalyticDataService;
+import com.nexigroup.pagopa.cruscotto.service.KpiB3AnalyticDataService;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA1AnalyticDataDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA2AnalyticDataDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2AnalyticDataDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB9AnalyticDataDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiB3AnalyticDataDTO;
 
 import java.util.List;
 import java.util.Optional;
@@ -44,18 +46,22 @@ public class KpiAnalyticDataResource {
     private final KpiB2AnalyticDataService kpiB2AnalyticDataService;
 
     private final KpiB9AnalyticDataService kpiB9AnalyticDataService;
+
+    private final KpiB3AnalyticDataService kpiB3AnalyticDataService;
     
 
     public KpiAnalyticDataResource(
         KpiA1AnalyticDataService kpiA1AnalyticDataService,
         KpiB2AnalyticDataService kpiB2AnalyticDataService,
         KpiA2AnalyticDataService kpiA2AnalyticDataService,
-        KpiB9AnalyticDataService kpiB9AnalyticDataService
+        KpiB9AnalyticDataService kpiB9AnalyticDataService,
+        KpiB3AnalyticDataService kpiB3AnalyticDataService
     ) {
         this.kpiA1AnalyticDataService = kpiA1AnalyticDataService;
         this.kpiB2AnalyticDataService = kpiB2AnalyticDataService;
         this.kpiA2AnalyticDataService = kpiA2AnalyticDataService;
         this.kpiB9AnalyticDataService = kpiB9AnalyticDataService;
+        this.kpiB3AnalyticDataService = kpiB3AnalyticDataService;
     }
 
     /**
@@ -120,5 +126,21 @@ public class KpiAnalyticDataResource {
         log.debug("REST request to get kpi analytic data of instanceModule : {} of type b9", detailResultId);
         List<KpiB9AnalyticDataDTO> kpiB9AnalyticData = kpiB9AnalyticDataService.findByDetailResultId(detailResultId);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(kpiB9AnalyticData));
+    }
+
+    /**
+     * {@code GET  /kpi-analytic-data/b3/module/{detailResultId}} : Retrieves the KpiB3AnalyticDataDTOs
+     * associated with the specified "detailResultId" of instanceModule.
+     *
+     * @param detailResultId the identifier of the instanceModule for which the kpi analytic data of type B3 should be retrieved
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the body containing the list of KpiB3AnalyticDataDTOs,
+     *         or with status {@code 404 (Not Found)} if no data is found for the provided id.
+     */
+    @GetMapping("kpi-analytic-data/b3/module/{detailResultId}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.KPI_B3_ANALITIC_DATA_DETAIL + "\")")
+    public ResponseEntity<List<KpiB3AnalyticDataDTO>> getKpiB3AnalyticDataResults(@PathVariable Long detailResultId) {
+        log.debug("REST request to get kpi analytic data of instanceModule : {} of type b3", detailResultId);
+        List<KpiB3AnalyticDataDTO> kpiB3AnalyticData = kpiB3AnalyticDataService.findByDetailResultId(detailResultId);
+        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(kpiB3AnalyticData));
     }
 }

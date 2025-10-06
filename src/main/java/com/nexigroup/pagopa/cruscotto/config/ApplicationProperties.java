@@ -1,9 +1,8 @@
 package com.nexigroup.pagopa.cruscotto.config;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * Properties specific to PagoPa Cruscotto Backend.
@@ -67,6 +66,10 @@ public class ApplicationProperties {
         private KpiB2Job kpiB2Job = new KpiB2Job();
 
         private KpiB9Job kpiB9Job = new KpiB9Job();
+
+        private KpiB3Job kpiB3Job = new KpiB3Job();
+
+        private LoadStandInDataJob loadStandInDataJob = new LoadStandInDataJob();
 
         private ClearLogJob clearLogJob = new ClearLogJob();
     }
@@ -144,7 +147,20 @@ public class ApplicationProperties {
 
     @Getter
     @Setter
+    public static class KpiB3Job {
+
+        private boolean enabled = true;
+
+        private String cron;
+
+        private int limit;
+    }
+
+    @Getter
+    @Setter
     public static class ClearLogJob {
+
+        private boolean enabled;
 
         private String cron;
 
@@ -174,6 +190,8 @@ public class ApplicationProperties {
 
         private Api cache;
 
+        private Api standIn;
+
         @Setter
         @Getter
         public static class Api {
@@ -186,6 +204,15 @@ public class ApplicationProperties {
         }
     }
     
+    @Setter
+    @Getter
+    public static class LoadStandInDataJob {
+
+        private boolean enabled;
+
+        private String cronExpression = "0 0 0 * * ?"; // Every day at midnight
+    }
+
     @Setter
     @Getter
     public static class AuthGroup {
