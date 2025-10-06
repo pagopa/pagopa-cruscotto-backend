@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                      http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+  <!-- Creazione sequenza -->
+  <changeSet id="20251006155800-1" author="system" context="ddl">
+    <createSequence sequenceName="SQ${project_name}_PAGOSPONT" startValue="1" cacheSize="20"/>
+  </changeSet>
+
+  <!-- Creazione tabella PAGOPA_SPONTANEI -->
+  <changeSet id="20251006155800-2" author="system" context="ddl">
+    <createTable tableName="PAGOPA_SPONTANEI">
+      <column name="ID" type="bigint">
+        <constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_PAGOSPONT"/>
+      </column>
+      <column name="TE_PARTNER" type="char(35)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TE_STATION" type="char(35)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="FL_PAGAMENTI_SPONTANEI" type="boolean">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <rollback>
+      DROP TABLE ${database.defaultSchemaName}.PAGOPA_SPONTANEI CASCADE CONSTRAINTS;
+    </rollback>
+  </changeSet>
+
+  <!-- Indice opzionale sulla colonna TE_PARTNER -->
+  <changeSet id="20251006155800-3" author="system" context="ddl">
+    <createIndex indexName="IX${project_name}_PAGOSPONT" tableName="PAGOPA_SPONTANEI">
+      <column name="TE_PARTNER"/>
+      <column name="TE_STATION"/>
+    </createIndex>
+  </changeSet>
+
+</databaseChangeLog>
