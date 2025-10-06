@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Service Implementation for managing {@link PagopaNumeroStandin}.
@@ -45,14 +44,11 @@ public class PagopaNumeroStandinServiceImpl implements PagopaNumeroStandinServic
 
         try {
             // Find the analytic data record
-            Optional<KpiB3AnalyticData> analyticDataOpt = kpiB3AnalyticDataRepository.findById(analyticDataId);
-            
-            if (analyticDataOpt.isEmpty()) {
-                LOGGER.warn("KpiB3AnalyticData with ID {} not found", analyticDataId);
-                return new ArrayList<>();
-            }
-
-            KpiB3AnalyticData analyticData = analyticDataOpt.get();
+            KpiB3AnalyticData analyticData = kpiB3AnalyticDataRepository.findById(analyticDataId)
+                .orElseThrow(() -> {
+                    LOGGER.warn("KpiB3AnalyticData with ID {} not found", analyticDataId);
+                    return new RuntimeException("KpiB3AnalyticData not found with ID: " + analyticDataId);
+                });
             String eventId = analyticData.getEventId();
 
             if (eventId == null) {
@@ -63,16 +59,15 @@ public class PagopaNumeroStandinServiceImpl implements PagopaNumeroStandinServic
             // Convert eventId back to Long and find the corresponding PagopaNumeroStandin record
             try {
                 Long pagopaId = Long.valueOf(eventId);
-                Optional<PagopaNumeroStandin> pagopaDataOpt = pagopaNumeroStandinRepository.findById(pagopaId);
+                PagopaNumeroStandin pagopaData = pagopaNumeroStandinRepository.findById(pagopaId)
+                    .orElseThrow(() -> {
+                        LOGGER.warn("PagopaNumeroStandin with ID {} not found (referenced by KpiB3AnalyticData {})", pagopaId, analyticDataId);
+                        return new RuntimeException("PagopaNumeroStandin not found with ID: " + pagopaId);
+                    });
 
-                if (pagopaDataOpt.isPresent()) {
-                    List<PagopaNumeroStandinDTO> result = List.of(convertToDTO(pagopaDataOpt.get(), analyticData));
-                    LOGGER.debug("Found {} PagopaNumeroStandin records for analytic data ID {}", result.size(), analyticDataId);
-                    return result;
-                } else {
-                    LOGGER.warn("PagopaNumeroStandin with ID {} not found (referenced by KpiB3AnalyticData {})", pagopaId, analyticDataId);
-                    return new ArrayList<>();
-                }
+                List<PagopaNumeroStandinDTO> result = List.of(convertToDTO(pagopaData, analyticData));
+                LOGGER.debug("Found {} PagopaNumeroStandin records for analytic data ID {}", result.size(), analyticDataId);
+                return result;
 
             } catch (NumberFormatException e) {
                 LOGGER.error("Invalid eventId format '{}' in KpiB3AnalyticData {}: {}", eventId, analyticDataId, e.getMessage());
