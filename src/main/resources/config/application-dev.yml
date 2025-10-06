@@ -132,6 +132,10 @@ application:
       url: https://api.dev.platform.pagopa.it/api-config-cache/p/v1
       api-key-name: ocp-apim-subscription-key
       api-key-value: 52f2f22cf8f94544baf9bfd2760f3dbd
+    stand-in:
+      url: https://api.uat.platform.pagopa.it/technical-support/stand-in/api/v1
+      api-key-name: ocp-apim-subscription-key
+      api-key-value: b514df56c9c943bba6cbcf778d698dce #71bce556ab0d4017828fabfe262b8178
   auth-group:
     super-admin: NEXI
   job:
@@ -160,13 +164,20 @@ application:
       enabled: true
       cron: 0 0/2 08-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
       limit: 20
+    kpi-b3-job:
+      enabled: true
+      cron: 0 0/2 08-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
+      limit: 20
+    load-stand-in-data-job:
+      enabled: true
+      cron-expression: 0 0 0 * * ? # Every day at midnight
     clear-log-job:
       cron: 0 0/20 05-6 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
       days: 7
 
   liquibase:
     async-start: false
-    dbVersion: 1.1.3
+    dbVersion: 1.1.4
 
 decorator:
   datasource:

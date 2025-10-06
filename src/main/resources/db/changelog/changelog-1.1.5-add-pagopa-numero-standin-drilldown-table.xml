@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <!--
+        KPI B.3 Drilldown Architecture: Historical Stand-In Data Snapshots
+        
+        Creates the PAGOPA_NUMERO_STANDIN_DRILLDOWN table to store historical snapshots
+        of Stand-In data at the time of KPI B.3 analysis. This ensures that drilldown
+        data remains consistent with the analysis results even if the original data changes.
+        
+        Follows the same pattern as KPI B.9 for historical data preservation.
+    -->
+    <changeSet id="1.1.5-001-create-pagopa-numero-standin-drilldown-table" author="system">
+        <comment>Create PAGOPA_NUMERO_STANDIN_DRILLDOWN table for KPI B.3 drilldown historical snapshots</comment>
+        
+        <createTable tableName="PAGOPA_NUMERO_STANDIN_DRILLDOWN">
+            <!-- Primary Key -->
+            <column name="CO_ID" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_PAGOPA_NUMERO_STANDIN_DRILLDOWN"/>
+            </column>
+            
+            <!-- Analysis metadata -->
+            <column name="DT_ANALYSIS_DATE" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            
+            <!-- Foreign key references -->
+            <column name="CO_INSTANCE_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            
+            <column name="CO_INSTANCE_MODULE_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            
+            <column name="CO_STATION_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            
+            <column name="CO_KPI_B3_ANALYTIC_DATA_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            
+            <!-- Original Stand-In data fields (snapshot at analysis time) -->
+            <column name="DE_STATION_CODE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            
+            <column name="DT_INTERVAL_START" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            
+            <column name="DT_INTERVAL_END" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            
+            <column name="CO_STAND_IN_COUNT" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            
+            <column name="DE_EVENT_TYPE" type="VARCHAR(50)"/>
+            
+            <column name="DT_DATA_DATE" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            
+            <column name="DT_DATA_ORA_EVENTO" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            
+            <column name="DT_LOAD_TIMESTAMP" type="TIMESTAMP"/>
+            
+            <!-- Original Stand-In ID for traceability -->
+            <column name="CO_ORIGINAL_STANDIN_ID" type="BIGINT"/>
+        </createTable>
+        
+        <!-- Create sequence for primary key -->
+        <createSequence sequenceName="SQCRUSC8_PAGOPASTANDINDRILLDOWN" startValue="1" incrementBy="1"/>
+        
+        <!-- Add foreign key constraints -->
+        <addForeignKeyConstraint
+            constraintName="FK_PAGOPA_STANDIN_DRILL_INSTANCE"
+            baseTableName="PAGOPA_NUMERO_STANDIN_DRILLDOWN"
+            baseColumnNames="CO_INSTANCE_ID"
+            referencedTableName="INSTANCE"
+            referencedColumnNames="CO_ID"/>
+        
+        <addForeignKeyConstraint
+            constraintName="FK_PAGOPA_STANDIN_DRILL_INSTANCE_MODULE"
+            baseTableName="PAGOPA_NUMERO_STANDIN_DRILLDOWN"
+            baseColumnNames="CO_INSTANCE_MODULE_ID"
+            referencedTableName="INSTANCE_MODULE"
+            referencedColumnNames="CO_ID"/>
+        
+        <addForeignKeyConstraint
+            constraintName="FK_PAGOPA_STANDIN_DRILL_STATION"
+            baseTableName="PAGOPA_NUMERO_STANDIN_DRILLDOWN"
+            baseColumnNames="CO_STATION_ID"
+            referencedTableName="ANAG_STATION"
+            referencedColumnNames="CO_ID"/>
+        
+        <addForeignKeyConstraint
+            constraintName="FK_PAGOPA_STANDIN_DRILL_KPI_B3_ANALYTIC"
+            baseTableName="PAGOPA_NUMERO_STANDIN_DRILLDOWN"
+            baseColumnNames="CO_KPI_B3_ANALYTIC_DATA_ID"
+            referencedTableName="KPI_B3_ANALYTIC_DATA"
+            referencedColumnNames="CO_ID"/>
+        
+        <!-- Add performance indexes -->
+        <createIndex indexName="IDX_PAGOPA_STANDIN_DRILL_KPI_B3_ANALYTIC" tableName="PAGOPA_NUMERO_STANDIN_DRILLDOWN">
+            <column name="CO_KPI_B3_ANALYTIC_DATA_ID"/>
+        </createIndex>
+        
+        <createIndex indexName="IDX_PAGOPA_STANDIN_DRILL_INSTANCE_MODULE" tableName="PAGOPA_NUMERO_STANDIN_DRILLDOWN">
+            <column name="CO_INSTANCE_MODULE_ID"/>
+        </createIndex>
+        
+        <createIndex indexName="IDX_PAGOPA_STANDIN_DRILL_STATION_ANALYSIS" tableName="PAGOPA_NUMERO_STANDIN_DRILLDOWN">
+            <column name="CO_INSTANCE_ID"/>
+            <column name="CO_STATION_ID"/>
+            <column name="DT_ANALYSIS_DATE"/>
+        </createIndex>
+        
+        <createIndex indexName="IDX_PAGOPA_STANDIN_DRILL_DATA_ORA_EVENTO" tableName="PAGOPA_NUMERO_STANDIN_DRILLDOWN">
+            <column name="DT_DATA_ORA_EVENTO"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

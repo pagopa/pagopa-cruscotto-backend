@@ -7,6 +7,7 @@ import com.nexigroup.pagopa.cruscotto.service.filter.JobExecutionFilter;
 import com.nexigroup.pagopa.cruscotto.service.filter.TaxonomyFilter;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -18,6 +19,8 @@ public interface JobService {
     boolean resumeJob(String jobName);
 
     boolean startJobNow(String jobName);
+
+    boolean startJobNow(String jobName, Map<String, Object> jobData);
 
     boolean checkJobRunning(String jobName);
 

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+  <changeSet id="20250923150000-1" author="system" context="dml">
+	<validCheckSum>ANY</validCheckSum>
+	<comment>Update module B.3 configuration for automatic KPI calculation with PagoPA Stand-In Events API</comment>
+	<sql splitStatements="true" stripComments="true">
+
+		UPDATE ${database.defaultSchemaName}.MODULE 
+		SET 
+			TE_ANALYSIS_TYPE = 'AUTOMATICA',
+			FL_ALLOW_MANUAL_OUTCOME = false,
+			TE_STATUS = 'ATTIVO',
+			FL_CONFIG_EXCLUDE_PLANNED_SHUTDOWN = true,
+			FL_CONFIG_EXCLUDE_UNPLANNED_SHUTDOWN = true,
+			FL_CONFIG_ELIGIBILITY_THRESHOLD = true,
+			fl_config_tolerance = true,
+			FL_CONFIG_AVERAGE_TIME_LIMIT = false,
+			FL_CONFIG_EVALUATION_TYPE = true,
+			TE_LAST_MODIFIED_BY = 'system',
+			DT_LAST_MODIFIED_DATE = CURRENT_TIMESTAMP
+		WHERE TE_CODE = 'B.3';
+
+	</sql>
+	<rollback>
+
+		UPDATE ${database.defaultSchemaName}.MODULE 
+		SET 
+			TE_ANALYSIS_TYPE = 'MANUALE',
+			FL_ALLOW_MANUAL_OUTCOME = true,
+			TE_STATUS = 'NON_ATTIVO',
+			FL_CONFIG_EXCLUDE_PLANNED_SHUTDOWN = false,
+			FL_CONFIG_EXCLUDE_UNPLANNED_SHUTDOWN = false,
+			FL_CONFIG_ELIGIBILITY_THRESHOLD = false,
+			fl_config_tolerance = false,
+			FL_CONFIG_AVERAGE_TIME_LIMIT = false,
+			FL_CONFIG_EVALUATION_TYPE = false,
+			TE_LAST_MODIFIED_BY = 'system',
+			DT_LAST_MODIFIED_DATE = CURRENT_TIMESTAMP
+		WHERE TE_CODE = 'B.3';
+
+	</rollback>
+  </changeSet>
+
+  <changeSet id="20250923150000-2" author="system" context="dml">
+	<validCheckSum>ANY</validCheckSum>
+	<comment>Create KPI configuration for B.3 module with default settings</comment>
+	<sql splitStatements="true" stripComments="true">
+
+		INSERT INTO ${database.defaultSchemaName}.KPI_CONFIGURATION (
+			CO_ID, 
+			CO_MODULE_ID, 
+			FL_EXCLUDE_PLANNED_SHUTDOWN, 
+			FL_EXCLUDE_UNPLANNED_SHUTDOWN, 
+			CO_ELIGIBILITY_THRESHOLD, 
+			CO_TOLERANCE, 
+			CO_AVERAGE_TIME_LIMIT,
+			TE_EVALUATION_TYPE
+		)
+		SELECT 
+			NEXTVAL('SQ${project_name}_KPICONF'),
+			m.CO_ID,
+			false,
+			false,
+			0.0,
+			0.0,
+			null,
+			'TOTALE'
+		FROM ${database.defaultSchemaName}.MODULE m 
+		WHERE m.TE_CODE = 'B.3';
+
+	</sql>
+	<rollback>
+
+		DELETE FROM ${database.defaultSchemaName}.KPI_CONFIGURATION kc 
+		WHERE kc.CO_MODULE_ID = (SELECT m.CO_ID FROM ${database.defaultSchemaName}.MODULE m WHERE m.TE_CODE = 'B.3');
+
+	</rollback>
+  </changeSet>
+
+</databaseChangeLog>

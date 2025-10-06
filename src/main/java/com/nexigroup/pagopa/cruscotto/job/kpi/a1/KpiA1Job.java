@@ -253,12 +253,6 @@ public class KpiA1Job extends QuartzJobBean {
                                             for (PagoPaRecordedTimeoutDTO pagoPaRecordedTimeoutDTO : pagoPaRecordedTimeoutDTOS) {
                                                 LOGGER.debug("PagoPaRecordedTimeoutDTO: {}", pagoPaRecordedTimeoutDTO);
 
-                                                sumTotReqDaily = sumTotReqDaily + pagoPaRecordedTimeoutDTO.getTotReq();
-                                                sumOkReqDaily = sumOkReqDaily + pagoPaRecordedTimeoutDTO.getReqOk();
-                                                sumRealTimeoutReqDaily = sumRealTimeoutReqDaily + pagoPaRecordedTimeoutDTO.getReqTimeout();
-
-                                                LOGGER.debug("sumTotReqDaily: {}", sumTotReqDaily);
-
                                                 boolean exclude = maintenance
                                                     .stream()
                                                     .map(anagPlannedShutdownDTO -> {
@@ -276,11 +270,17 @@ public class KpiA1Job extends QuartzJobBean {
                                                         return excludePlanned;
                                                     })
                                                     .anyMatch(Boolean::booleanValue);
+                                                
                                                 if (!exclude) {
                                                     pagoPaRecordedTimeoutMap.computeIfAbsent(date, k -> new ArrayList<>()).add(pagoPaRecordedTimeoutDTO);
+                                                    sumTotReqDaily = sumTotReqDaily + pagoPaRecordedTimeoutDTO.getTotReq();
+                                                    sumOkReqDaily = sumOkReqDaily + pagoPaRecordedTimeoutDTO.getReqOk();
+                                                    sumRealTimeoutReqDaily = sumRealTimeoutReqDaily + pagoPaRecordedTimeoutDTO.getReqTimeout();
                                                     sumValidTimeouReqtDaily =
                                                         sumValidTimeouReqtDaily + pagoPaRecordedTimeoutDTO.getReqTimeout();
                                                 }
+                                                
+                                                LOGGER.debug("sumTotReqDaily: {}", sumTotReqDaily);
                                             }
 
                                             totReqMonth.set(totReqMonth.get() + sumTotReqDaily);
