@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                      http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+  <!-- Sequenza per ID -->
+  <changeSet id="20251006121500-1" author="system" context="ddl">
+    <createSequence sequenceName="SQ${project_name}_PAGOAPILOG" startValue="1" cacheSize="20"/>
+  </changeSet>
+
+  <!-- Creazione tabella PAGOPA_APILOG -->
+  <changeSet id="20251006121500-2" author="system" context="ddl">
+    <createTable tableName="PAGOPA_APILOG">
+      <column name="CO_ID" type="bigint">
+        <constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_PAGOAPILOG"/>
+      </column>
+      <column name="TE_PARTNER" type="char(35)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DT_DATE" type="date">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TE_STATION" type="char(35)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TE_ENTE" type="char(35)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TE_API" type="char(35)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_TOT_REQ" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_REQ_OK" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_REQ_KO" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <rollback>
+      DROP TABLE ${database.defaultSchemaName}.PAGOPA_APILOG CASCADE CONSTRAINTS;
+    </rollback>
+  </changeSet>
+
+  <!-- Indice su TE_PARTNER e API per ottimizzare le query -->
+  <changeSet id="20251006121500-3" author="system" context="ddl">
+    <createIndex indexName="IX${project_name}_PAGOAPILOG" tableName="PAGOPA_APILOG">
+      <column name="TE_PARTNER"/>
+      <column name="TE_API"/>
+      <column name="TE_STATION"/>
+      <column name="TE_ENTE"/>
+    </createIndex>
+  </changeSet>
+
+</databaseChangeLog>
