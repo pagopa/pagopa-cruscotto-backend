@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+  <changeSet id="20251006120004-1" author="system" context="ddl">
+	<addForeignKeyConstraint baseColumnNames="CO_INSTANCE_ID"
+							 baseTableName="KPI_B4_ANALYTIC_DATA"
+							 constraintName="FK${project_name}_KPIB4ANALDATA_INST"
+							 referencedColumnNames="CO_ID"
+							 referencedTableName="INSTANCE"/>
+  </changeSet>
+
+  <changeSet id="20251006120004-2" author="system" context="ddl">
+	<addForeignKeyConstraint baseColumnNames="CO_INSTANCE_MODULE_ID"
+							 baseTableName="KPI_B4_ANALYTIC_DATA"
+							 constraintName="FK${project_name}_KPIB4ANALDATA_INSTMOD"
+							 referencedColumnNames="CO_ID"
+							 referencedTableName="INSTANCE_MODULE"/>
+  </changeSet>
+
+  <changeSet id="20251006120004-3" author="system" context="ddl">
+	<addForeignKeyConstraint baseColumnNames="CO_ANAG_STATION_ID"
+							 baseTableName="KPI_B4_ANALYTIC_DATA"
+							 constraintName="FK${project_name}_KPIB4ANALDATA_STAT"
+							 referencedColumnNames="CO_ID"
+							 referencedTableName="ANAG_STATION"/>
+  </changeSet>
+
+  <changeSet id="20251006120004-4" author="system" context="ddl">
+	<addForeignKeyConstraint baseColumnNames="CO_KPI_B4_DETAIL_RESULT_ID"
+							 baseTableName="KPI_B4_ANALYTIC_DATA"
+							 constraintName="FK${project_name}_KPIB4ANALDATA_DETA"
+							 referencedColumnNames="CO_ID"
+							 referencedTableName="KPI_B4_DETAIL_RESULT"/>
+  </changeSet>
+
+</databaseChangeLog>
