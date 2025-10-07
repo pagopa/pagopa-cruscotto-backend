@@ -2698,29 +2698,106 @@
         }
       }
     },
-    "/api/pago-pa/taxonomy-aggregate-position": {
+    "/api/modules/{id}": {
       "get": {
         "tags": [
-          "pago-pa-taxonomy-aggregate-position-resource"
+          "anag-module-resource"
         ],
-        "operationId": "getAllPagoPaTaxonomyAggregatePosition",
+        "operationId": "getModule",
         "parameters": [
           {
-            "name": "cfPartner",
-            "in": "query",
-            "required": false,
+            "name": "id",
+            "in": "path",
+            "required": true,
             "schema": {
-              "type": "string"
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModuleDTO"
+                }
+              }
             }
           },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "anag-module-resource"
+        ],
+        "operationId": "deleteModule",
+        "parameters": [
           {
-            "name": "station",
-            "in": "query",
-            "required": false,
+            "name": "id",
+            "in": "path",
+            "required": true,
             "schema": {
-              "type": "string"
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
             }
           },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/modules/no-configuration": {
+      "get": {
+        "tags": [
+          "anag-module-resource"
+        ],
+        "operationId": "getAllModulesWithoutConfiguration",
+        "parameters": [
           {
             "name": "page",
             "in": "query",
@@ -2764,7 +2841,1835 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/PagoPaTaxonomyAggregatePositionDTO"
+                    "$ref": "#/components/schemas/ModuleDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/language/{language}": {
+      "get": {
+        "tags": [
+          "account-resource"
+        ],
+        "operationId": "setLanguageCookie",
+        "parameters": [
+          {
+            "name": "language",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-results/a1/module/{moduleId}": {
+      "get": {
+        "tags": [
+          "kpi-result-resource"
+        ],
+        "operationId": "getKpiA1Results",
+        "parameters": [
+          {
+            "name": "moduleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiA1ResultDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-results/a2/module/{moduleId}": {
+      "get": {
+        "tags": [
+          "kpi-result-resource"
+        ],
+        "operationId": "getKpiA2Results",
+        "parameters": [
+          {
+            "name": "moduleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiA2ResultDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-results/b1/module/{moduleId}": {
+      "get": {
+        "tags": [
+          "kpi-result-resource"
+        ],
+        "operationId": "getKpiB1Results",
+        "parameters": [
+          {
+            "name": "moduleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiB1ResultDTO"
+                  }
+                }
+              }
+            }
+          },
+           "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-results/b2/module/{moduleId}": {
+      "get": {
+        "tags": [
+          "kpi-result-resource"
+        ],
+        "operationId": "getKpiB2Results",
+        "parameters": [
+          {
+            "name": "moduleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiB2ResultDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-results/b3/module/{moduleId}": {
+      "get": {
+        "tags": [
+          "kpi-result-resource"
+        ],
+        "operationId": "getKpiB3Results",
+        "parameters": [
+          {
+            "name": "moduleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiB3ResultDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-results/b4/module/{moduleId}": {
+      "get": {
+        "tags": [
+          "kpi-result-resource"
+        ],
+        "operationId": "getKpiB4Results",
+        "parameters": [
+          {
+            "name": "moduleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiB4ResultDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-results/b5/module/{moduleId}": {
+      "get": {
+        "tags": [
+          "kpi-result-resource"
+        ],
+        "operationId": "getKpiB5Results",
+        "parameters": [
+          {
+            "name": "moduleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiB5ResultDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-results/b6/module/{moduleId}": {
+      "get": {
+        "tags": [
+          "kpi-result-resource"
+        ],
+        "operationId": "getKpiB6Results",
+        "parameters": [
+          {
+            "name": "moduleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiB6ResultDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-results/b8/module/{moduleId}": {
+      "get": {
+        "tags": [
+          "kpi-result-resource"
+        ],
+        "operationId": "getKpiB8Results",
+        "parameters": [
+          {
+            "name": "moduleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiB8ResultDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-results/b9/module/{moduleId}": {
+      "get": {
+        "tags": [
+          "kpi-result-resource"
+        ],
+        "operationId": "getKpiB9Results",
+        "parameters": [
+          {
+            "name": "moduleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiB9ResultDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-detail-results/a1/module/{resultId}": {
+      "get": {
+        "tags": [
+          "kpi-detail-result-resource"
+        ],
+        "operationId": "getKpiA1DetailResults",
+        "parameters": [
+          {
+            "name": "resultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiA1DetailResultDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-detail-results/a2/module/{resultId}": {
+      "get": {
+        "tags": [
+          "kpi-detail-result-resource"
+        ],
+        "operationId": "getKpiA2DetailResults",
+        "parameters": [
+          {
+            "name": "resultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiA2DetailResultDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-detail-results/b1/module/{resultId}": {
+      "get": {
+        "tags": [
+          "kpi-detail-result-resource"
+        ],
+        "operationId": "getKpiB1DetailResults",
+        "parameters": [
+          {
+            "name": "resultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiB1DetailResultDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-detail-results/b2/module/{resultId}": {
+      "get": {
+        "tags": [
+          "kpi-detail-result-resource"
+        ],
+        "operationId": "getKpiB2DetailResults",
+        "parameters": [
+          {
+            "name": "resultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiB2DetailResultDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-detail-results/b3/module/{resultId}": {
+      "get": {
+        "tags": [
+          "kpi-detail-result-resource"
+        ],
+        "operationId": "getKpiB3DetailResults",
+        "parameters": [
+          {
+            "name": "resultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiB3DetailResultDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-detail-results/b4/module/{resultId}": {
+      "get": {
+        "tags": [
+          "kpi-detail-result-resource"
+        ],
+        "operationId": "getKpiB4DetailResults",
+        "parameters": [
+          {
+            "name": "resultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiB4DetailResultDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-detail-results/b5/module/{resultId}": {
+      "get": {
+        "tags": [
+          "kpi-detail-result-resource"
+        ],
+        "operationId": "getKpiB5DetailResults",
+        "parameters": [
+          {
+            "name": "resultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiB5DetailResultDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-detail-results/b6/module/{resultId}": {
+      "get": {
+        "tags": [
+          "kpi-detail-result-resource"
+        ],
+        "operationId": "getKpiB6DetailResults",
+        "parameters": [
+          {
+            "name": "resultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiB6DetailResultDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-detail-results/b8/module/{resultId}": {
+      "get": {
+        "tags": [
+          "kpi-detail-result-resource"
+        ],
+        "operationId": "getKpiB8DetailResults",
+        "parameters": [
+          {
+            "name": "resultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiB8DetailResultDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-detail-results/b9/module/{resultId}": {
+      "get": {
+        "tags": [
+          "kpi-detail-result-resource"
+        ],
+        "operationId": "getKpiB9DetailResults",
+        "parameters": [
+          {
+            "name": "resultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiB9DetailResultDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-analytic-data/a1/module/{detailResultId}": {
+      "get": {
+        "tags": [
+          "kpi-analytic-data-resource"
+        ],
+        "operationId": "getKpiA1AnalyticDataResults",
+        "parameters": [
+          {
+            "name": "detailResultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiA1AnalyticDataDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-analytic-data/a2/module/{detailResultId}": {
+      "get": {
+        "tags": [
+          "kpi-analytic-data-resource"
+        ],
+        "operationId": "getKpiA2AnalyticDataResults",
+        "parameters": [
+          {
+            "name": "detailResultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiA2AnalyticDataDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-analytic-data/b1/module/{detailResultId}": {
+      "get": {
+        "tags": [
+          "kpi-analytic-data-resource"
+        ],
+        "operationId": "getKpiB1AnalyticDataResults",
+        "parameters": [
+           {
+            "name": "detailResultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiB1AnalyticDataDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-analytic-data/b2/module/{detailResultId}": {
+      "get": {
+        "tags": [
+          "kpi-analytic-data-resource"
+        ],
+        "operationId": "getKpiB2AnalyticDataResults",
+        "parameters": [
+          {
+            "name": "detailResultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiB2AnalyticDataDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-analytic-data/b3/module/{detailResultId}": {
+      "get": {
+        "tags": [
+          "kpi-analytic-data-resource"
+        ],
+        "operationId": "getKpiB3AnalyticDataResults",
+        "parameters": [
+          {
+            "name": "detailResultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiB3AnalyticDataDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-analytic-data/b4/module/{detailResultId}": {
+      "get": {
+        "tags": [
+          "kpi-analytic-data-resource"
+        ],
+        "operationId": "getKpiB4AnalyticDataResults",
+        "parameters": [
+          {
+            "name": "detailResultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiB4AnalyticDataDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-analytic-data/b5/module/{detailResultId}": {
+      "get": {
+        "tags": [
+          "kpi-analytic-data-resource"
+        ],
+        "operationId": "getKpiB5AnalyticDataResults",
+        "parameters": [
+          {
+            "name": "detailResultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiB5AnalyticDataDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-analytic-data/b6/module/{detailResultId}": {
+      "get": {
+        "tags": [
+          "kpi-analytic-data-resource"
+        ],
+        "operationId": "getKpiB6AnalyticDataResults",
+        "parameters": [
+          {
+            "name": "detailResultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiB6AnalyticDataDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-analytic-data/b8/module/{detailResultId}": {
+      "get": {
+        "tags": [
+          "kpi-analytic-data-resource"
+        ],
+        "operationId": "getKpiB8AnalyticDataResults",
+        "parameters": [
+          {
+            "name": "detailResultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiB8AnalyticDataDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-analytic-data/b9/module/{detailResultId}": {
+      "get": {
+        "tags": [
+          "kpi-analytic-data-resource"
+        ],
+        "operationId": "getKpiB9AnalyticDataResults",
+        "parameters": [
+          {
+            "name": "detailResultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiB9AnalyticDataDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-a1-analytic-drilldown/{analyticDataId}": {
+      "get": {
+        "tags": [
+          "kpi-a1-analytic-drilldown-resource"
+        ],
+        "operationId": "getA1DrillDownByAnalyticDataId",
+        "parameters": [
+          {
+            "name": "analyticDataId",
+            "in": "path",
+            "description": "ID of the analytic data",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiA1AnalyticDrillDownDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-a2-analytic-incorrect-taxonomy-data/{analyticDataId}": {
+      "get": {
+        "tags": [
+          "kpi-a2-analytic-incorrect-taxonomy-data-resource"
+        ],
+        "operationId": "getIncorrectTaxonomyByAnalyticDataId",
+        "parameters": [
+          {
+            "name": "analyticDataId",
+            "in": "path",
+            "description": "ID of the analytic data",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiA2AnalyticIncorrectTaxonomyDataDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-b1-pagopa-data/{analyticDataId}": {
+     "get": {
+        "tags": [
+          "kpi-b1-pagopa-data-resource"
+        ],
+        "operationId": "getByAnalyticDataId",
+        "parameters": [
+          { 
+            "name": "analyticDataId",
+            "in": "path",
+            "description": "ID of the KPI B.1 analytic data",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PagopaNumeroTransazioniDTO"
                   }
                 }
               }
@@ -2848,17 +4753,17 @@
         }
       }
     },
-    "/api/kpi-a2-analytic-incorrect-taxonomy-data/{analyticDataId}": {
+    "/api/kpi-b3-pagopa-data/{analyticDataId}": {
       "get": {
         "tags": [
-          "kpi-a2-analytic-incorrect-taxonomy-data-resource"
+          "kpi-b-3-pagopa-data-resource"
         ],
-        "operationId": "getIncorrectTaxonomyByAnalyticDataId",
+        "operationId": "getByAnalyticDataId",
         "parameters": [
           {
             "name": "analyticDataId",
             "in": "path",
-            "description": "ID of the analytic data",
+            "description": "ID of the KPI B.3 analytic data",
             "required": true,
             "schema": {
               "type": "integer",
@@ -2874,7 +4779,172 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/KpiA2AnalyticIncorrectTaxonomyDataDTO"
+                    "$ref": "#/components/schemas/PagopaNumeroStandinDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-b4-pagopa-data/{analyticDataId}": {
+      "get": {
+        "tags": [
+          "kpi-b4-pagopa-data-resource"
+        ],
+        "operationId": "getByAnalyticDataId",
+        "parameters": [
+          {
+            "name": "analyticDataId",
+            "in": "path",
+            "description": "ID of the KPI B.4 analytic data",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PagopaAPILogDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-b5-pagopa-data/{analyticDataId}": {
+      "get": {
+        "tags": [
+          "kpi-b5-pagopa-data-resource"
+        ],
+        "operationId": "getByAnalyticDataId",
+        "parameters": [
+          {
+            "name": "analyticDataId",
+            "in": "path",
+            "description": "ID of the KPI B.5 analytic data",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PagopaSpontaneiDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-b8-pagopa-data/{analyticDataId}": {
+      "get": {
+        "tags": [
+          "kpi-b8-pagopa-data-resource"
+        ],
+        "operationId": "getByAnalyticDataId",
+        "parameters": [
+          {
+            "name": "analyticDataId",
+            "in": "path",
+            "description": "ID of the KPI B.8 analytic data",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PagopaAPILogDTO"
                   }
                 }
               }
@@ -3110,106 +5180,29 @@
         }
       }
     },
-    "/api/modules/{id}": {
+    "/api/pago-pa/taxonomy-aggregate-position": {
       "get": {
         "tags": [
-          "anag-module-resource"
+          "pago-pa-taxonomy-aggregate-position-resource"
         ],
-        "operationId": "getModule",
+        "operationId": "getAllPagoPaTaxonomyAggregatePosition",
         "parameters": [
           {
-            "name": "id",
-            "in": "path",
-            "required": true,
+            "name": "cfPartner",
+            "in": "query",
+            "required": false,
             "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ModuleDTO"
-                }
-              }
+              "type": "string"
             }
           },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "anag-module-resource"
-        ],
-        "operationId": "deleteModule",
-        "parameters": [
           {
-            "name": "id",
-            "in": "path",
-            "required": true,
+            "name": "station",
+            "in": "query",
+            "required": false,
             "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
+              "type": "string"
             }
           },
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/modules/no-configuration": {
-      "get": {
-        "tags": [
-          "anag-module-resource"
-        ],
-        "operationId": "getAllModulesWithoutConfiguration",
-        "parameters": [
           {
             "name": "page",
             "in": "query",
@@ -3253,642 +5246,8 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/ModuleDTO"
+                    "$ref": "#/components/schemas/PagoPaTaxonomyAggregatePositionDTO"
                   }
-                }
-              }
-            }
-          },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/language/{language}": {
-      "get": {
-        "tags": [
-          "account-resource"
-        ],
-        "operationId": "setLanguageCookie",
-        "parameters": [
-          {
-            "name": "language",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/kpi-results/b9/module/{moduleId}": {
-      "get": {
-        "tags": [
-          "kpi-result-resource"
-        ],
-        "operationId": "getKpiB9Results",
-        "parameters": [
-          {
-            "name": "moduleId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiB9ResultDTO"
-                  }
-                }
-              }
-            }
-          },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/kpi-results/b2/module/{moduleId}": {
-      "get": {
-        "tags": [
-          "kpi-result-resource"
-        ],
-        "operationId": "getKpiB2Results",
-        "parameters": [
-          {
-            "name": "moduleId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiB2ResultDTO"
-                  }
-                }
-              }
-            }
-          },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/kpi-results/a2/module/{moduleId}": {
-      "get": {
-        "tags": [
-          "kpi-result-resource"
-        ],
-        "operationId": "getKpiA2Results",
-        "parameters": [
-          {
-            "name": "moduleId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiA2ResultDTO"
-                  }
-                }
-              }
-            }
-          },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/kpi-results/b3/module/{moduleId}": {
-      "get": {
-        "tags": [
-          "kpi-result-resource"
-        ],
-        "operationId": "getKpiB3Results",
-        "parameters": [
-          {
-            "name": "moduleId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiB3ResultDTO"
-                  }
-                }
-              }
-            }
-          },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/kpi-results/a1/module/{moduleId}": {
-      "get": {
-        "tags": [
-          "kpi-result-resource"
-        ],
-        "operationId": "getKpiA1Results",
-        "parameters": [
-          {
-            "name": "moduleId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiA1ResultDTO"
-                  }
-                }
-              }
-            }
-          },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/kpi-detail-results/b9/module/{resultId}": {
-      "get": {
-        "tags": [
-          "kpi-detail-result-resource"
-        ],
-        "operationId": "getKpiB9DetailResults",
-        "parameters": [
-          {
-            "name": "resultId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiB9DetailResultDTO"
-                  }
-                }
-              }
-            }
-          },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/kpi-detail-results/b2/module/{resultId}": {
-      "get": {
-        "tags": [
-          "kpi-detail-result-resource"
-        ],
-        "operationId": "getKpiB2DetailResults",
-        "parameters": [
-          {
-            "name": "resultId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiB2DetailResultDTO"
-                  }
-                }
-              }
-            }
-          },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/kpi-detail-results/a2/module/{resultId}": {
-      "get": {
-        "tags": [
-          "kpi-detail-result-resource"
-        ],
-        "operationId": "getKpiA2DetailResults",
-        "parameters": [
-          {
-            "name": "resultId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiA2DetailResultDTO"
-                  }
-                }
-              }
-            }
-          },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/kpi-detail-results/b3/module/{resultId}": {
-      "get": {
-        "tags": [
-          "kpi-detail-result-resource"
-        ],
-        "operationId": "getKpiB3DetailResults",
-        "parameters": [
-          {
-            "name": "resultId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiB3DetailResultDTO"
-                  }
-                }
-              }
-            }
-          },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/kpi-detail-results/a1/module/{resultId}": {
-      "get": {
-        "tags": [
-          "kpi-detail-result-resource"
-        ],
-        "operationId": "getKpiA1DetailResults",
-        "parameters": [
-          {
-            "name": "resultId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiA1DetailResultDTO"
-                  }
-                }
-              }
-            }
-          },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/kpi-configurations/{moduleCode}": {
-      "get": {
-        "tags": [
-          "kpi-configuration-resources"
-        ],
-        "operationId": "getKpiConfiguration",
-        "parameters": [
-          {
-            "name": "moduleCode",
-            "in": "path",
-            "description": "Codice del modulo",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/KpiConfigurationDTO"
                 }
               }
             }
@@ -3981,386 +5340,6 @@
                   "items": {
                     "$ref": "#/components/schemas/PagoPaPaymentReceiptDrilldownDTO"
                   }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/kpi-analytic-data/b9/module/{detailResultId}": {
-      "get": {
-        "tags": [
-          "kpi-analytic-data-resource"
-        ],
-        "operationId": "getKpiB9AnalyticDataResults",
-        "parameters": [
-          {
-            "name": "detailResultId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiB9AnalyticDataDTO"
-                  }
-                }
-              }
-            }
-          },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/kpi-analytic-data/b2/module/{detailResultId}": {
-      "get": {
-        "tags": [
-          "kpi-analytic-data-resource"
-        ],
-        "operationId": "getKpiB2AnalyticDataResults",
-        "parameters": [
-          {
-            "name": "detailResultId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiB2AnalyticDataDTO"
-                  }
-                }
-              }
-            }
-          },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/kpi-analytic-data/a2/module/{detailResultId}": {
-      "get": {
-        "tags": [
-          "kpi-analytic-data-resource"
-        ],
-        "operationId": "getKpiA2AnalyticDataResults",
-        "parameters": [
-          {
-            "name": "detailResultId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiA2AnalyticDataDTO"
-                  }
-                }
-              }
-            }
-          },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/kpi-analytic-data/b3/module/{detailResultId}": {
-      "get": {
-        "tags": [
-          "kpi-analytic-data-resource"
-        ],
-        "operationId": "getKpiB3AnalyticDataResults",
-        "parameters": [
-          {
-            "name": "detailResultId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiB3AnalyticDataDTO"
-                  }
-                }
-              }
-            }
-          },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/kpi-b3-pagopa-data/{analyticDataId}": {
-      "get": {
-        "tags": [
-          "kpi-b-3-pagopa-data-resource"
-        ],
-        "operationId": "getByAnalyticDataId",
-        "parameters": [
-          {
-            "name": "analyticDataId",
-            "in": "path",
-            "description": "ID of the KPI B.3 analytic data",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/PagopaNumeroStandinDTO"
-                  }
-                }
-              }
-            }
-          },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/kpi-analytic-data/a1/module/{detailResultId}": {
-      "get": {
-        "tags": [
-          "kpi-analytic-data-resource"
-        ],
-        "operationId": "getKpiA1AnalyticDataResults",
-        "parameters": [
-          {
-            "name": "detailResultId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiA1AnalyticDataDTO"
-                  }
-                }
-              }
-            }
-          },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/kpi-a1-analytic-drilldown/{analyticDataId}": {
-      "get": {
-        "tags": [
-          "kpi-a1-analytic-drilldown-resource"
-        ],
-        "operationId": "getA1DrillDownByAnalyticDataId",
-        "parameters": [
-          {
-            "name": "analyticDataId",
-            "in": "path",
-            "description": "ID of the analytic data",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiA1AnalyticDrillDownDTO"
-                  }
-                }
-              }
-            }
-          },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -6468,6 +7447,57 @@
         }
       }
     },
+    "/api/kpi-configurations/{moduleCode}": {
+      "get": {
+        "tags": [
+          "kpi-configuration-resources"
+        ],
+        "operationId": "getKpiConfiguration",
+        "parameters": [
+          {
+            "name": "moduleCode",
+            "in": "path",
+            "description": "Codice del modulo",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/KpiConfigurationDTO"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/management/loggers/{name}": {
       "get": {
         "tags": [
@@ -7512,223 +8542,6 @@
               "application/json": {
                 "schema": {
                   "type": "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/kpi-results/b1/module/{moduleId}": {
-      "get": {
-        "tags": [
-          "kpi-result-resource"
-        ],
-        "operationId": "getKpiB1Results",
-        "parameters": [
-          {
-            "name": "moduleId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiB1ResultDTO"
-                  }
-                }
-              }
-            }
-          },
-           "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/kpi-detail-results/b1/module/{resultId}": {
-      "get": {
-        "tags": [
-          "kpi-detail-result-resource"
-        ],
-        "operationId": "getKpiB1DetailResults",
-        "parameters": [
-          {
-            "name": "resultId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiB1DetailResultDTO"
-                  }
-                }
-              }
-            }
-          },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/kpi-analytic-data/b1/module/{detailResultId}": {
-      "get": {
-        "tags": [
-          "kpi-analytic-data-resource"
-        ],
-        "operationId": "getKpiB1AnalyticDataResults",
-        "parameters": [
-           {
-            "name": "detailResultId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KpiB1AnalyticDataDTO"
-                  }
-                }
-              }
-            }
-          },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/kpi-b1-pagopa-data/{analyticDataId}": {
-     "get": {
-        "tags": [
-          "kpi-b1-pagopa-data-resource"
-        ],
-        "operationId": "getByAnalyticDataId",
-        "parameters": [
-          { 
-            "name": "analyticDataId",
-            "in": "path",
-            "description": "ID of the KPI B.1 analytic data",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/PagopaNumeroTransazioniDTO"
-                  }
-                }
-              }
-            }
-          },
-          "4XX": {
-            "description": "Client error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
-                }
-              }
-            }
-          },
-          "5XX": {
-            "description": "Server error codes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithCause"
                 }
               }
             }
@@ -9074,177 +9887,7 @@
           }
         }
       },
-      "PagoPaTaxonomyAggregatePositionDTO": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "cfPartner": {
-            "type": "string"
-          },
-          "station": {
-            "type": "string"
-          },
-          "transferCategory": {
-            "type": "string"
-          },
-          "startDate": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "endDate": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "total": {
-            "type": "integer",
-            "format": "int64"
-          }
-        }
-      },
-      "KpiB2AnalyticDrillDownDTO": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "kpiB2AnalyticDataId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "fromHour": {
-            "type": "string",
-            "description": "Start hour in HH:mm format"
-          },
-          "toHour": {
-            "type": "string",
-            "description": "End hour in HH:mm format"
-          },
-          "totalRequests": {
-            "type": "integer",
-            "description": "Total number of requests"
-          },
-          "okRequests": {
-            "type": "integer",
-            "description": "Number of OK requests"
-          },
-          "averageTimeMs": {
-            "type": "number",
-            "format": "double",
-            "description": "Average time in milliseconds"
-          }
-        },
-        "required": [
-          "id",
-          "kpiB2AnalyticDataId",
-          "fromHour",
-          "toHour",
-          "totalRequests",
-          "okRequests",
-          "averageTimeMs"
-        ]
-      },
-      "KpiA2AnalyticIncorrectTaxonomyDataDTO": {
-        "type": "object",
-        "properties": {
-          "fromHour": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "endHour": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "transferCategory": {
-            "type": "string"
-          },
-          "total": {
-            "type": "integer",
-            "format": "int64"
-          }
-        }
-      },
-      "PagoPaRecordedTimeoutDTO": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "cfPartner": {
-            "type": "string"
-          },
-          "station": {
-            "type": "string"
-          },
-          "method": {
-            "type": "string"
-          },
-          "startDate": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "endDate": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "totReq": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "reqOk": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "reqTimeout": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "avgTime": {
-            "type": "number",
-            "format": "double"
-          }
-        }
-      },
-      "PagoPaPaymentReceiptDTO": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "cfPartner": {
-            "type": "string"
-          },
-          "station": {
-            "type": "string"
-          },
-          "startDate": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "endDate": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "totRes": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "resOk": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "resKo": {
-            "type": "integer",
-            "format": "int64"
-          }
-        }
-      },
-      "KpiB9ResultDTO": {
+      "KpiA1ResultDTO": {
         "required": [
           "analysisDate",
           "eligibilityThreshold",
@@ -9285,6 +9928,100 @@
             "format": "double"
           },
           "tolerance": {
+            "type": "number",
+            "format": "double"
+          },
+          "evaluationType": {
+            "type": "string",
+            "enum": [
+              "MESE",
+              "TOTALE"
+            ]
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "OK",
+              "KO",
+              "RUNNING",
+              "STANDBY"
+            ]
+          }
+        }
+      },
+      "KpiA2ResultDTO": {
+        "required": [
+          "analysisDate",
+          "instanceId",
+          "instanceModuleId",
+          "outcome",
+          "tolerance"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceModuleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "analysisDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "tolerance": {
+            "type": "number",
+            "format": "double"
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "OK",
+              "KO",
+              "RUNNING",
+              "STANDBY"
+            ]
+          }
+        }
+      },
+      "KpiB1ResultDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceModuleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "analysisDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "institutionCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "transactionCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "institutionTolerance": {
+            "type": "number",
+            "format": "double"
+          },
+          "transactionTolerance": {
             "type": "number",
             "format": "double"
           },
@@ -9373,14 +10110,139 @@
           }
         }
       },
-      "KpiA2ResultDTO": {
-        "required": [
-          "analysisDate",
-          "instanceId",
-          "instanceModuleId",
-          "outcome",
-          "tolerance"
-        ],
+      "KpiB3ResultDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceModuleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "analysisDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "excludePlannedShutdown": {
+            "type": "boolean"
+          },
+          "excludeUnplannedShutdown": {
+            "type": "boolean"
+          },
+          "eligibilityThreshold": {
+            "type": "number",
+            "format": "double"
+          },
+          "tolerance": {
+            "type": "number",
+            "format": "double"
+          },
+          "evaluationType": {
+            "type": "string",
+            "enum": [
+              "MESE",
+              "TOTALE"
+            ]
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "OK",
+              "KO",
+              "RUNNING",
+              "STANDBY"
+            ]
+          }
+        }
+      },
+      "KpiB4ResultDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceModuleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "analysisDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "eligibilityThreshold": {
+            "type": "number",
+            "format": "double"
+          },
+          "tolerance": {
+            "type": "number",
+            "format": "double"
+          },
+          "evaluationType": {
+            "type": "string",
+            "enum": [
+              "MESE",
+              "TOTALE"
+            ]
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "OK",
+              "KO",
+              "RUNNING",
+              "STANDBY"
+            ]
+          }
+        }
+      },
+      "KpiB5ResultDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceModuleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "analysisDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "eligibilityThreshold": {
+            "type": "number",
+            "format": "double"
+          },
+          "tolerance": {
+            "type": "number",
+            "format": "double"
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "OK",
+              "KO"
+            ]
+          }
+        }
+      },
+      "KpiB6ResultDTO": {
         "type": "object",
         "properties": {
           "id": {
@@ -9407,14 +10269,55 @@
             "type": "string",
             "enum": [
               "OK",
-              "KO",
-              "RUNNING",
-              "STANDBY"
+              "KO"
             ]
           }
         }
       },
-      "KpiA1ResultDTO": {
+      "KpiB8ResultDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceModuleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "analysisDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "eligibilityThreshold": {
+            "type": "number",
+            "format": "double"
+          },
+          "tolerance": {
+            "type": "number",
+            "format": "double"
+          },
+          "evaluationType": {
+            "type": "string",
+            "enum": [
+              "MESE",
+              "TOTALE"
+            ]
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "OK",
+              "KO"
+            ]
+          }
+        }
+      },
+      "KpiB9ResultDTO": {
         "required": [
           "analysisDate",
           "eligibilityThreshold",
@@ -9476,111 +10379,7 @@
           }
         }
       },
-      "KpiB1ResultDTO": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "instanceId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "instanceModuleId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "analysisDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "institutionCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "transactionCount": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "institutionTolerance": {
-            "type": "number",
-            "format": "double"
-          },
-          "transactionTolerance": {
-            "type": "number",
-            "format": "double"
-          },
-          "evaluationType": {
-            "type": "string",
-            "enum": [
-              "MESE",
-              "TOTALE"
-            ]
-          },
-          "outcome": {
-            "type": "string",
-            "enum": [
-              "OK",
-              "KO",
-              "RUNNING",
-              "STANDBY"
-            ]
-          }
-        }
-      },
-      "KpiB3ResultDTO": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "instanceId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "instanceModuleId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "analysisDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "excludePlannedShutdown": {
-            "type": "boolean"
-          },
-          "excludeUnplannedShutdown": {
-            "type": "boolean"
-          },
-          "eligibilityThreshold": {
-            "type": "number",
-            "format": "double"
-          },
-          "tolerance": {
-            "type": "number",
-            "format": "double"
-          },
-          "evaluationType": {
-            "type": "string",
-            "enum": [
-              "MESE",
-              "TOTALE"
-            ]
-          },
-          "outcome": {
-            "type": "string",
-            "enum": [
-              "OK",
-              "KO",
-              "RUNNING",
-              "STANDBY"
-            ]
-          }
-        }
-      },
-      "KpiB9DetailResultDTO": {
+      "KpiA1DetailResultDTO": {
         "required": [
           "analysisDate",
           "evaluationEndDate",
@@ -9588,11 +10387,12 @@
           "evaluationType",
           "instanceId",
           "instanceModuleId",
+          "method",
           "outcome",
-          "resKo",
-          "resKoPercentage",
+          "reqTimeout",
           "stationId",
-          "totRes"
+          "timeoutPercentage",
+          "totReq"
         ],
         "type": "object",
         "properties": {
@@ -9616,6 +10416,12 @@
             "type": "integer",
             "format": "int64"
           },
+          "stationName": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string"
+          },
           "evaluationType": {
             "type": "string",
             "enum": [
@@ -9631,15 +10437,15 @@
             "type": "string",
             "format": "date"
           },
-          "totRes": {
+          "totReq": {
             "type": "integer",
             "format": "int64"
           },
-          "resKo": {
+          "reqTimeout": {
             "type": "integer",
             "format": "int64"
           },
-          "resKoPercentage": {
+          "timeoutPercentage": {
             "type": "number",
             "format": "double"
           },
@@ -9652,12 +10458,74 @@
               "STANDBY"
             ]
           },
-          "kpiB9ResultId": {
+          "kpiA1ResultId": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "KpiA2DetailResultDTO": {
+        "required": [
+          "analysisDate",
+          "errorPercentage",
+          "evaluationEndDate",
+          "evaluationStartDate",
+          "instanceId",
+          "instanceModuleId",
+          "outcome",
+          "totIncorrectPayments",
+          "totPayments"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
             "type": "integer",
             "format": "int64"
           },
-          "stationName": {
-            "type": "string"
+          "instanceId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceModuleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "analysisDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "evaluationStartDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "evaluationEndDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "totPayments": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totIncorrectPayments": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "errorPercentage": {
+            "type": "number",
+            "format": "double"
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "OK",
+              "KO",
+              "RUNNING",
+              "STANDBY"
+            ]
+          },
+          "kpiA2ResultId": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },
@@ -9828,156 +10696,6 @@
           }
         }
       },
-      "KpiA2DetailResultDTO": {
-        "required": [
-          "analysisDate",
-          "errorPercentage",
-          "evaluationEndDate",
-          "evaluationStartDate",
-          "instanceId",
-          "instanceModuleId",
-          "outcome",
-          "totIncorrectPayments",
-          "totPayments"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "instanceId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "instanceModuleId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "analysisDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "evaluationStartDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "evaluationEndDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "totPayments": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "totIncorrectPayments": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "errorPercentage": {
-            "type": "number",
-            "format": "double"
-          },
-          "outcome": {
-            "type": "string",
-            "enum": [
-              "OK",
-              "KO",
-              "RUNNING",
-              "STANDBY"
-            ]
-          },
-          "kpiA2ResultId": {
-            "type": "integer",
-            "format": "int64"
-          }
-        }
-      },
-      "KpiA1DetailResultDTO": {
-        "required": [
-          "analysisDate",
-          "evaluationEndDate",
-          "evaluationStartDate",
-          "evaluationType",
-          "instanceId",
-          "instanceModuleId",
-          "method",
-          "outcome",
-          "reqTimeout",
-          "stationId",
-          "timeoutPercentage",
-          "totReq"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "instanceId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "instanceModuleId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "analysisDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "stationId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "stationName": {
-            "type": "string"
-          },
-          "method": {
-            "type": "string"
-          },
-          "evaluationType": {
-            "type": "string",
-            "enum": [
-              "MESE",
-              "TOTALE"
-            ]
-          },
-          "evaluationStartDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "evaluationEndDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "totReq": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "reqTimeout": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "timeoutPercentage": {
-            "type": "number",
-            "format": "double"
-          },
-          "outcome": {
-            "type": "string",
-            "enum": [
-              "OK",
-              "KO",
-              "RUNNING",
-              "STANDBY"
-            ]
-          },
-          "kpiA1ResultId": {
-            "type": "integer",
-            "format": "int64"
-          }
-        }
-      },
       "KpiB3DetailResultDTO": {
         "type": "object",
         "properties": {
@@ -10029,7 +10747,7 @@
           }
         }
       },
-      "PagoPaPaymentReceiptDrilldownDTO": {
+      "KpiB4DetailResultDTO": {
         "type": "object",
         "properties": {
           "id": {
@@ -10044,59 +10762,232 @@
             "type": "integer",
             "format": "int64"
           },
-          "stationId": {
+          "anagStationId": {
             "type": "integer",
             "format": "int64"
           },
-          "stationName": {
-            "type": "string"
+          "kpiB4ResultId": {
+            "type": "integer",
+            "format": "int64"
           },
           "analysisDate": {
             "type": "string",
             "format": "date"
           },
-          "evaluationDate": {
+          "evaluationType": {
+            "type": "string",
+            "enum": [
+              "MESE",
+              "TOTALE"
+            ]
+          },
+          "evaluationStartDate": {
             "type": "string",
             "format": "date"
           },
-          "startTime": {
+          "evaluationEndDate": {
             "type": "string",
-            "format": "date-time"
+            "format": "date"
           },
-          "endTime": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "timeSlot": {
-            "type": "string"
-          },
-          "totRes": {
+          "totalGPD": {
             "type": "integer",
-            "format": "int64"
+            "format": "int32"
           },
-          "resOk": {
+          "totalCP": {
             "type": "integer",
-            "format": "int64"
+            "format": "int32"
           },
-          "resKo": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "resKoPercentage": {
+          "percentageCP":{
             "type": "number",
             "format": "double"
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "OK",
+              "KO",
+              "RUNNING",
+              "STANDBY"
+            ]
           }
         }
       },
-      "KpiB9AnalyticDataDTO": {
+      "KpiB5DetailResultDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceModuleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "anagStationId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "kpiB5ResultId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "analysisDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "stationsPresent": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "stationsWithoutSpontaneous": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "percentageNoSpontaneous":{
+            "type": "number",
+            "format": "double"
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "OK",
+              "KO"
+            ]
+          }
+        }
+      },
+      "KpiB6DetailResultDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceModuleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "anagStationId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "kpiB6ResultId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "analysisDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "totalStations": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "stationsWithPaymentOptions": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "difference": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "percentageDifference":{
+            "type": "number",
+            "format": "double"
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "OK",
+              "KO"
+            ]
+          }
+        }
+      },
+      "KpiB8DetailResultDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceModuleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "anagStationId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "kpiB8ResultId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "analysisDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "evaluationType": {
+            "type": "string",
+            "enum": [
+              "MESE",
+              "TOTALE"
+            ]
+          },
+          "evaluationStartDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "evaluationEndDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "totalRequests": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "koRequests":{
+            "type": "integer",
+            "format": "int32"
+          },
+          "percentageKoRequests":{
+            "type": "number",
+            "format": "double"
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "OK",
+              "KO",
+              "RUNNING",
+              "STANDBY"
+            ]
+          }
+        }
+      },
+      "KpiB9DetailResultDTO": {
         "required": [
           "analysisDate",
-          "evaluationDate",
+          "evaluationEndDate",
+          "evaluationStartDate",
+          "evaluationType",
           "instanceId",
           "instanceModuleId",
-          "resKoReal",
-          "resKoValid",
-          "resOk",
+          "outcome",
+          "resKo",
+          "resKoPercentage",
           "stationId",
           "totRes"
         ],
@@ -10122,7 +11013,18 @@
             "type": "integer",
             "format": "int64"
           },
-          "evaluationDate": {
+          "evaluationType": {
+            "type": "string",
+            "enum": [
+              "MESE",
+              "TOTALE"
+            ]
+          },
+          "evaluationStartDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "evaluationEndDate": {
             "type": "string",
             "format": "date"
           },
@@ -10130,24 +11032,141 @@
             "type": "integer",
             "format": "int64"
           },
-          "resOk": {
+          "resKo": {
             "type": "integer",
             "format": "int64"
           },
-          "resKoReal": {
-            "type": "integer",
-            "format": "int64"
+          "resKoPercentage": {
+            "type": "number",
+            "format": "double"
           },
-          "resKoValid": {
-            "type": "integer",
-            "format": "int64"
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "OK",
+              "KO",
+              "RUNNING",
+              "STANDBY"
+            ]
           },
-          "kpiB9DetailResultId": {
+          "kpiB9ResultId": {
             "type": "integer",
             "format": "int64"
           },
           "stationName": {
             "type": "string"
+          }
+        }
+      },
+      "KpiA1AnalyticDataDTO": {
+        "required": [
+          "analysisDate",
+          "evaluationDate",
+          "instanceId",
+          "instanceModuleId",
+          "method",
+          "reqOk",
+          "reqTimeoutReal",
+          "reqTimeoutValid",
+          "stationId",
+          "totReq"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceModuleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "analysisDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "stationId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "stationName": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string"
+          },
+          "evaluationDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "totReq": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "reqOk": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "reqTimeoutReal": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "reqTimeoutValid": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "kpiA1DetailResultId": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "KpiA2AnalyticDataDTO": {
+        "required": [
+          "analysisDate",
+          "evaluationDate",
+          "instanceId",
+          "instanceModuleId",
+          "totIncorrectPayments",
+          "totPayments"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceModuleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "analysisDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "evaluationDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "totPayments": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totIncorrectPayments": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "kpiA2DetailResultId": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },
@@ -10267,118 +11286,6 @@
           }
         }
       },
-      "KpiA2AnalyticDataDTO": {
-        "required": [
-          "analysisDate",
-          "evaluationDate",
-          "instanceId",
-          "instanceModuleId",
-          "totIncorrectPayments",
-          "totPayments"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "instanceId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "instanceModuleId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "analysisDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "evaluationDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "totPayments": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "totIncorrectPayments": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "kpiA2DetailResultId": {
-            "type": "integer",
-            "format": "int64"
-          }
-        }
-      },
-      "KpiA1AnalyticDataDTO": {
-        "required": [
-          "analysisDate",
-          "evaluationDate",
-          "instanceId",
-          "instanceModuleId",
-          "method",
-          "reqOk",
-          "reqTimeoutReal",
-          "reqTimeoutValid",
-          "stationId",
-          "totReq"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "instanceId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "instanceModuleId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "analysisDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "stationId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "stationName": {
-            "type": "string"
-          },
-          "method": {
-            "type": "string"
-          },
-          "evaluationDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "totReq": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "reqOk": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "reqTimeoutReal": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "reqTimeoutValid": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "kpiA1DetailResultId": {
-            "type": "integer",
-            "format": "int64"
-          }
-        }
-      },
       "KpiB3AnalyticDataDTO": {
         "type": "object",
         "properties": {
@@ -10418,13 +11325,208 @@
           }
         }
       },
-      "PagopaNumeroTransazioniDTO": {
-         "required": [
-          "partnerFiscalCode",
-          "dataDate",
-          "stationCode",
-          "fiscalCode",
-          "transactionCount"
+      "KpiB4AnalyticDataDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceModuleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "anagStationId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "kpiB4DetailResultId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "eventType": {
+            "type": "string"
+          },
+          "analysisDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "dataDate":{
+            "type": "string",
+            "format": "date"
+          },
+          "totalGPD": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCP": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "KpiB5AnalyticDataDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceModuleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "anagStationId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "kpiB5DetailResultId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "eventType": {
+            "type": "string"
+          },
+          "analysisDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "dataDate":{
+            "type": "string",
+            "format": "date"
+          },
+          "stationsPresent": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "stationsWithoutSpontaneous": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "percentageNoSpontaneous":{
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "KpiB6AnalyticDataDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceModuleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "anagStationId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "kpiB6DetailResultId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "eventType": {
+            "type": "string"
+          },
+          "analysisDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "stationCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "paymentOption": {
+            "type": "string",
+            "enum": [
+              "SI",
+              "NO"
+            ]
+          }
+        }
+      },
+      "KpiB8AnalyticDataDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceModuleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "anagStationId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "kpiB8DetailResultId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "eventType": {
+            "type": "string"
+          },
+          "analysisDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "dataDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "totalRequests": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "koRequests": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "KpiB9AnalyticDataDTO": {
+        "required": [
+          "analysisDate",
+          "evaluationDate",
+          "instanceId",
+          "instanceModuleId",
+          "resKoReal",
+          "resKoValid",
+          "resOk",
+          "stationId",
+          "totRes"
         ],
         "type": "object",
         "properties": {
@@ -10432,41 +11534,156 @@
             "type": "integer",
             "format": "int64"
           },
-          "dataDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "loadTimestamp": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "partnerId": {
+          "instanceId": {
             "type": "integer",
             "format": "int64"
           },
-          "partnerName": {
-            "type": "string"
-          },
-          "fiscalCode": {
-            "maxLength": 255,
-            "minLength": 0,
-            "type": "string"
-          },
-          "partnerFiscalCode": {
-            "maxLength": 255,
-            "minLength": 0,
-            "type": "string"
-          },
-          "transactionCount": {
+          "instanceModuleId": {
             "type": "integer",
-            "format": "int32"
+            "format": "int64"
           },
-          "stationCode": {
-            "maxLength": 255,
-            "minLength": 0,
+          "analysisDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "stationId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "evaluationDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "totRes": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "resOk": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "resKoReal": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "resKoValid": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "kpiB9DetailResultId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "stationName": {
             "type": "string"
           }
         }
+      },
+      "KpiA1AnalyticDrillDownDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "kpiA1AnalyticDataId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "fromHour": {
+            "type": "string",
+            "description": "Start hour in HH:mm format"
+          },
+          "toHour": {
+            "type": "string",
+            "description": "End hour in HH:mm format"
+          },
+          "totalRequests": {
+            "type": "integer",
+            "description": "Total number of requests"
+          },
+          "okRequests": {
+            "type": "integer",
+            "description": "Number of OK requests"
+          },
+          "averageTimeMs": {
+            "type": "number",
+            "format": "double",
+            "description": "Average time in milliseconds"
+          }
+        },
+        "required": [
+          "id",
+          "kpiA1AnalyticDataId",
+          "fromHour",
+          "toHour",
+          "totalRequests",
+          "okRequests",
+          "averageTimeMs"
+        ]
+      },
+      "KpiA2AnalyticIncorrectTaxonomyDataDTO": {
+        "type": "object",
+        "properties": {
+          "fromHour": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endHour": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "transferCategory": {
+            "type": "string"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "KpiB2AnalyticDrillDownDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "kpiB2AnalyticDataId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "fromHour": {
+            "type": "string",
+            "description": "Start hour in HH:mm format"
+          },
+          "toHour": {
+            "type": "string",
+            "description": "End hour in HH:mm format"
+          },
+          "totalRequests": {
+            "type": "integer",
+            "description": "Total number of requests"
+          },
+          "okRequests": {
+            "type": "integer",
+            "description": "Number of OK requests"
+          },
+          "averageTimeMs": {
+            "type": "number",
+            "format": "double",
+            "description": "Average time in milliseconds"
+          }
+        },
+        "required": [
+          "id",
+          "kpiB2AnalyticDataId",
+          "fromHour",
+          "toHour",
+          "totalRequests",
+          "okRequests",
+          "averageTimeMs"
+        ]
       },
       "PagopaNumeroStandinDTO": {
         "required": [
@@ -10531,48 +11748,335 @@
           }
         }
       },
-      "KpiA1AnalyticDrillDownDTO": {
+      "PagopaNumeroTransazioniDTO": {
+         "required": [
+          "partnerFiscalCode",
+          "dataDate",
+          "stationCode",
+          "fiscalCode",
+          "transactionCount"
+        ],
         "type": "object",
         "properties": {
           "id": {
             "type": "integer",
             "format": "int64"
           },
-          "kpiA1AnalyticDataId": {
+          "dataDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "loadTimestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "partnerId": {
             "type": "integer",
             "format": "int64"
           },
-          "fromHour": {
-            "type": "string",
-            "description": "Start hour in HH:mm format"
+          "partnerName": {
+            "type": "string"
           },
-          "toHour": {
+          "fiscalCode": {
+            "maxLength": 255,
+            "minLength": 0,
+            "type": "string"
+          },
+          "partnerFiscalCode": {
+            "maxLength": 255,
+            "minLength": 0,
+            "type": "string"
+          },
+          "transactionCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "stationCode": {
+            "maxLength": 255,
+            "minLength": 0,
+            "type": "string"
+          }
+        }
+      },
+      "PagopaAPILogDTO": {
+        "required": [
+          "partnerFiscalCode",
+          "dataDate",
+          "stationCode",
+          "fiscalCode",
+          "api",
+          "totalRequests",
+          "okRequests",
+          "koRequests"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "kpiB4AnalyticDataId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "partnerId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "partnerName": {
+            "type": "string"
+          },
+          "partnerFiscalCode": {
             "type": "string",
-            "description": "End hour in HH:mm format"
+            "maxLength": 255,
+            "minLength": 0
+          },
+          "dataDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "stationCode": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          },
+          "fiscalCode": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          },
+          "api": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
           },
           "totalRequests": {
             "type": "integer",
-            "description": "Total number of requests"
+            "format": "int32"
           },
           "okRequests": {
             "type": "integer",
-            "description": "Number of OK requests"
+            "format": "int32"
           },
-          "averageTimeMs": {
-            "type": "number",
-            "format": "double",
-            "description": "Average time in milliseconds"
+          "koRequests": {
+            "type": "integer",
+            "format": "int32"
           }
-        },
-        "required": [
-          "id",
-          "kpiA1AnalyticDataId",
-          "fromHour",
-          "toHour",
-          "totalRequests",
-          "okRequests",
-          "averageTimeMs"
-        ]
+        }
+      },
+      "PagopaSpontaneiDTO": {
+         "required": [
+          "partnerFiscalCode",
+          "stationCode",
+          "fiscalCode",
+          "spontaneousPayments"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "kpiB5AnalyticDataId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "partnerId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "partnerName": {
+            "type": "string"
+          },
+          "partnerFiscalCode": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          },
+          "stationCode": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          },
+          "fiscalCode": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          },
+          "spontaneousPayments":{
+            "type": "string",
+            "enum": [
+              "ATTIVI",
+              "NON ATTIVI"
+            ]
+          }
+        }
+      },
+      "PagoPaPaymentReceiptDrilldownDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceModuleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "stationId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "stationName": {
+            "type": "string"
+          },
+          "analysisDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "evaluationDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "startTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "timeSlot": {
+            "type": "string"
+          },
+          "totRes": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "resOk": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "resKo": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "resKoPercentage": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "PagoPaTaxonomyAggregatePositionDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "cfPartner": {
+            "type": "string"
+          },
+          "station": {
+            "type": "string"
+          },
+          "transferCategory": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "PagoPaRecordedTimeoutDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "cfPartner": {
+            "type": "string"
+          },
+          "station": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "totReq": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "reqOk": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "reqTimeout": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "avgTime": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "PagoPaPaymentReceiptDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "cfPartner": {
+            "type": "string"
+          },
+          "station": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "totRes": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "resOk": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "resKo": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
       },
       "JobsDTO": {
         "type": "object",
