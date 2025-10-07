@@ -7518,6 +7518,223 @@
           }
         }
       }
+    },
+    "/api/kpi-results/b1/module/{moduleId}": {
+      "get": {
+        "tags": [
+          "kpi-result-resource"
+        ],
+        "operationId": "getKpiB1Results",
+        "parameters": [
+          {
+            "name": "moduleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiB1ResultDTO"
+                  }
+                }
+              }
+            }
+          },
+           "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-detail-results/b1/module/{resultId}": {
+      "get": {
+        "tags": [
+          "kpi-detail-result-resource"
+        ],
+        "operationId": "getKpiB1DetailResults",
+        "parameters": [
+          {
+            "name": "resultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiB1DetailResultDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-analytic-data/b1/module/{detailResultId}": {
+      "get": {
+        "tags": [
+          "kpi-analytic-data-resource"
+        ],
+        "operationId": "getKpiB1AnalyticDataResults",
+        "parameters": [
+           {
+            "name": "detailResultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiB1AnalyticDataDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-b1-pagopa-data/{analyticDataId}": {
+     "get": {
+        "tags": [
+          "kpi-b1-pagopa-data-resource"
+        ],
+        "operationId": "getByAnalyticDataId",
+        "parameters": [
+          { 
+            "name": "analyticDataId",
+            "in": "path",
+            "description": "ID of the KPI B.1 analytic data",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PagopaNumeroTransazioniDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -7806,6 +8023,22 @@
             "type": "number",
             "format": "double"
           },
+          "institutionTolerance": {
+            "type": "number",
+            "format": "double"
+          },
+          "transactionTolerance": {
+            "type": "number",
+            "format": "double"
+          },
+          "institutionCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "transactionCount": {
+            "type": "integer",
+            "format": "int32"
+          },
           "averageTimeLimit": {
             "type": "number",
             "format": "double"
@@ -7846,6 +8079,14 @@
             "type": "number",
             "format": "double"
           },
+          "institutionTolerance": {
+            "type": "number",
+            "format": "double"
+          },
+          "transactionTolerance": {
+            "type": "number",
+            "format": "double"
+          },
           "tolerance": {
             "type": "number",
             "format": "double"
@@ -7861,6 +8102,14 @@
               "TOTALE"
             ]
           },
+          "institutionCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "transactionCount": {
+            "type": "integer",
+            "format": "int32"
+          },
           "configExcludePlannedShutdown": {
             "type": "boolean"
           },
@@ -7870,7 +8119,19 @@
           "configEligibilityThreshold": {
             "type": "boolean"
           },
+          "configInstitutionCount": {
+            "type": "boolean"
+          },
+          "configTransactionCount": {
+            "type": "boolean"
+          },
           "configTolerance": {
+            "type": "boolean"
+          },
+          "configInstitutionTolerance": {
+            "type": "boolean"
+          },
+          "configTransactionTolerance": {
             "type": "boolean"
           },
           "configAverageTimeLimit": {
@@ -9215,6 +9476,59 @@
           }
         }
       },
+      "KpiB1ResultDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceModuleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "analysisDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "institutionCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "transactionCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "institutionTolerance": {
+            "type": "number",
+            "format": "double"
+          },
+          "transactionTolerance": {
+            "type": "number",
+            "format": "double"
+          },
+          "evaluationType": {
+            "type": "string",
+            "enum": [
+              "MESE",
+              "TOTALE"
+            ]
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "OK",
+              "KO",
+              "RUNNING",
+              "STANDBY"
+            ]
+          }
+        }
+      },
       "KpiB3ResultDTO": {
         "type": "object",
         "properties": {
@@ -9344,6 +9658,88 @@
           },
           "stationName": {
             "type": "string"
+          }
+        }
+      },
+      "KpiB1DetailResultDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceModuleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "kpiB1ResultId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "analysisDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "evaluationType": {
+            "type": "string",
+            "enum": [
+              "MESE",
+              "TOTALE"
+            ]
+          },
+          "evaluationStartDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "evaluationEndDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "totalInstitutions": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "institutionDifference": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "institutionDifferencePercentageEC":{
+            "type": "number",
+            "format": "double"
+          },
+          "institutionOutcome": {
+            "type": "string",
+            "enum": [
+              "OK",
+              "KO",
+              "RUNNING",
+              "STANDBY"
+            ]
+          },
+          "totalTransactions": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "transactionDifference": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "transactionDifferencePercentage":{
+            "type": "number",
+            "format": "double"
+          },
+          "transactionOutcome": {
+            "type": "string",
+            "enum": [
+              "OK",
+              "KO",
+              "RUNNING",
+              "STANDBY"
+            ]
           }
         }
       },
@@ -9755,6 +10151,55 @@
           }
         }
       },
+      "KpiB1AnalyticDataDTO": {
+        "required": [
+          "instanceId",
+          "analysisDate",
+          "evaluationDate",
+          "instanceModuleId",
+          "institutionCount",
+          "transactionCount"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceModuleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "analysisDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "dataDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "stationId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "institutionCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "transactionCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "kpiB1DetailResultId": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "KpiB2AnalyticDataDTO": {
         "required": [
           "analysisDate",
@@ -9970,6 +10415,56 @@
           "standInCount": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "PagopaNumeroTransazioniDTO": {
+         "required": [
+          "partnerFiscalCode",
+          "dataDate",
+          "stationCode",
+          "fiscalCode",
+          "transactionCount"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "dataDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "loadTimestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "partnerId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "partnerName": {
+            "type": "string"
+          },
+          "fiscalCode": {
+            "maxLength": 255,
+            "minLength": 0,
+            "type": "string"
+          },
+          "partnerFiscalCode": {
+            "maxLength": 255,
+            "minLength": 0,
+            "type": "string"
+          },
+          "transactionCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "stationCode": {
+            "maxLength": 255,
+            "minLength": 0,
+            "type": "string"
           }
         }
       },
