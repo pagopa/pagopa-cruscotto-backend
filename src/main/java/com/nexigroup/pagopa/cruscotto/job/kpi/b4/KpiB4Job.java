@@ -125,24 +125,22 @@ public class KpiB4Job extends QuartzJobBean {
         LOGGER.info("Processing instance module {} for KPI B.4", instanceModuleDTO.getId());
 
         try {
-            // Calcola la data di analisi basata sulla configurazione
-            LocalDate analysisDate = calculateAnalysisDate(instanceModuleDTO);
+            // Calcola la data di analisi basata sulla configurazione  
+            LocalDate analysisDate = calculateAnalysisDate(instanceDTO, instanceModuleDTO);
             
-            LOGGER.info("Calculating KPI B.4 for instance {} on date {}", 
-                       instanceDTO.getId(), analysisDate.format(DateTimeFormatter.ISO_LOCAL_DATE));
+            LOGGER.info("Calculating KPI B.4 for instance {} on date {} (period: {} to {})", 
+                       instanceDTO.getId(), analysisDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                       instanceDTO.getAnalysisPeriodStartDate(), instanceDTO.getAnalysisPeriodEndDate());
 
-            // TODO: Implementare qui la logica di calcolo del KPI B.4
-            // Per ora impostiamo sempre OK come outcome
-            OutcomeStatus outcome = OutcomeStatus.OK;
+            // Implementazione logica KPI B.4 basata sull'analisi
+            OutcomeStatus outcome = calculateKpiB4Outcome(instanceDTO, kpiConfigurationDTO);
 
-            // Salva i risultati
-            kpiB4DataService.saveKpiB4Results(
-                instanceDTO, 
-                instanceModuleDTO, 
-                kpiConfigurationDTO, 
-                analysisDate, 
-                outcome
-            );
+            LOGGER.info("KPI B.4 outcome for instance {}: {} (Partner: {})", 
+                       instanceDTO.getId(), outcome, instanceDTO.getPartnerFiscalCode());
+
+            // Salva i risultati tramite il service esistente
+            kpiB4DataService.saveKpiB4Results(instanceDTO, instanceModuleDTO, 
+                                            kpiConfigurationDTO, analysisDate, outcome);
 
             LOGGER.info("KPI B.4 calculation completed for instance module {}", instanceModuleDTO.getId());
 
@@ -150,16 +148,11 @@ public class KpiB4Job extends QuartzJobBean {
             LOGGER.error("Error processing instance module {} for KPI B.4: {}", 
                         instanceModuleDTO.getId(), e.getMessage(), e);
             
-            // In caso di errore, salva comunque il risultato con outcome ERROR
+            // In caso di errore, salva il risultato con outcome KO
             try {
-                LocalDate analysisDate = calculateAnalysisDate(instanceModuleDTO);
-                kpiB4DataService.saveKpiB4Results(
-                    instanceDTO, 
-                    instanceModuleDTO, 
-                    kpiConfigurationDTO, 
-                    analysisDate, 
-                    OutcomeStatus.KO
-                );
+                LocalDate analysisDate = calculateAnalysisDate(instanceDTO, instanceModuleDTO);
+                kpiB4DataService.saveKpiB4Results(instanceDTO, instanceModuleDTO, 
+                                                kpiConfigurationDTO, analysisDate, OutcomeStatus.KO);
             } catch (Exception saveException) {
                 LOGGER.error("Error saving error outcome for instance module {}: {}", 
                            instanceModuleDTO.getId(), saveException.getMessage(), saveException);
@@ -167,12 +160,116 @@ public class KpiB4Job extends QuartzJobBean {
         }
     }
 
-    private LocalDate calculateAnalysisDate(InstanceModuleDTO instanceModuleDTO) {
-        // TODO: Implementare la logica per calcolare la data di analisi
-        // basata sulla configurazione del modulo
-        // Per ora restituiamo la data odierna
-        return LocalDate.now();
+    private LocalDate calculateAnalysisDate(InstanceDTO instanceDTO, InstanceModuleDTO instanceModuleDTO) {
+        // La data di analisi è la data prevista dall'istanza o la data odierna
+        LocalDate analysisDate = instanceDTO.getPredictedDateAnalysis();
+        if (analysisDate == null) {
+            analysisDate = LocalDate.now();
+        }
+        
+        LOGGER.debug("Analysis date calculated for instance {}: {}", instanceDTO.getId(), analysisDate);
+        return analysisDate;
     }
+
+    /**
+     * Calcola l'outcome del KPI B.4 basato sulla logica dell'analisi.
+     * Verifica la percentuale di request "paCreate" rispetto a "GPD"/"ACA".
+     */
+    private OutcomeStatus calculateKpiB4Outcome(InstanceDTO instanceDTO, KpiConfigurationDTO kpiConfigurationDTO) {
+        LOGGER.info("Calculating KPI B.4 outcome for instance {} partner {}", 
+                   instanceDTO.getId(), instanceDTO.getPartnerFiscalCode());
+
+        try {
+            LocalDate periodStart = instanceDTO.getAnalysisPeriodStartDate();
+            LocalDate periodEnd = instanceDTO.getAnalysisPeriodEndDate();
+            String partnerFiscalCode = instanceDTO.getPartnerFiscalCode();
+
+            LOGGER.info("Analysis period: {} to {} for partner: {}", periodStart, periodEnd, partnerFiscalCode);
+
+            // Query per contare le request dalla tabella pagopa_apilog
+            Long totalGpdAcaRequests = countApiRequests(partnerFiscalCode, periodStart, periodEnd, "GPD", "ACA");
+            Long totalPaCreateRequests = countApiRequests(partnerFiscalCode, periodStart, periodEnd, "paCreate");
+
+            LOGGER.info("API requests for partner {}: GPD/ACA={}, paCreate={}", 
+                       partnerFiscalCode, totalGpdAcaRequests, totalPaCreateRequests);
+
+            // Calcola la percentuale di paCreate rispetto al totale
+            double paCreatePercentage = 0.0;
+            if (totalGpdAcaRequests > 0) {
+                paCreatePercentage = (totalPaCreateRequests.doubleValue() / totalGpdAcaRequests.doubleValue()) * 100.0;
+            }
+
+            // Recupera soglia e tolleranza dalla configurazione
+            Double thresholdPercentage = kpiConfigurationDTO.getEligibilityThreshold(); // Soglia (default 0%)
+            Double tolerancePercentage = kpiConfigurationDTO.getTolerance(); // Tolleranza (default 1%)
+
+            if (thresholdPercentage == null) thresholdPercentage = 0.0; // Default: 0% paCreate consentito
+            if (tolerancePercentage == null) tolerancePercentage = 1.0; // Default: 1% tolleranza
+
+            double maxAllowedPercentage = thresholdPercentage + tolerancePercentage;
+
+            LOGGER.info("KPI B.4 calculation: paCreate {}%, threshold {}%, tolerance {}%, max allowed {}%", 
+                       paCreatePercentage, thresholdPercentage, tolerancePercentage, maxAllowedPercentage);
+
+            // Se la percentuale di paCreate supera la soglia + tolleranza, il KPI è KO
+            if (paCreatePercentage > maxAllowedPercentage) {
+                LOGGER.warn("KPI B.4 NON-COMPLIANT for partner {}: paCreate {}% exceeds max allowed {}%", 
+                           partnerFiscalCode, paCreatePercentage, maxAllowedPercentage);
+                return OutcomeStatus.KO;
+            } else {
+                LOGGER.info("KPI B.4 COMPLIANT for partner {}: paCreate {}% within allowed {}%", 
+                           partnerFiscalCode, paCreatePercentage, maxAllowedPercentage);
+                return OutcomeStatus.OK;
+            }
+
+        } catch (Exception e) {
+            LOGGER.error("Error calculating KPI B.4 outcome for instance {}: {}", 
+                        instanceDTO.getId(), e.getMessage(), e);
+            return OutcomeStatus.KO;
+        }
+    }
+
+    /**
+     * Conta le request API dalla tabella pagopa_apilog per il periodo specificato.
+     */
+    private Long countApiRequests(String partnerFiscalCode, LocalDate startDate, LocalDate endDate, String... apiTypes) {
+        StringBuilder queryBuilder = new StringBuilder();
+        queryBuilder.append("SELECT COALESCE(SUM(p.totReq), 0) FROM PagopaApiLog p ");
+        queryBuilder.append("WHERE p.cfPartner = :partnerFiscalCode ");
+        queryBuilder.append("AND p.date BETWEEN :startDate AND :endDate ");
+        
+        if (apiTypes.length == 1) {
+            queryBuilder.append("AND p.api = :apiType");
+        } else {
+            queryBuilder.append("AND p.api IN (");
+            for (int i = 0; i < apiTypes.length; i++) {
+                if (i > 0) queryBuilder.append(", ");
+                queryBuilder.append(":apiType").append(i);
+            }
+            queryBuilder.append(")");
+        }
+
+        var query = entityManager.createQuery(queryBuilder.toString(), Long.class);
+        query.setParameter("partnerFiscalCode", partnerFiscalCode);
+        query.setParameter("startDate", startDate);
+        query.setParameter("endDate", endDate);
+        
+        if (apiTypes.length == 1) {
+            query.setParameter("apiType", apiTypes[0]);
+        } else {
+            for (int i = 0; i < apiTypes.length; i++) {
+                query.setParameter("apiType" + i, apiTypes[i]);
+            }
+        }
+
+        Long result = query.getSingleResult();
+        LOGGER.debug("API count for partner {} ({} to {}), types {}: {}", 
+                    partnerFiscalCode, startDate, endDate, String.join(",", apiTypes), result);
+        
+        return result != null ? result : 0L;
+    }
+
+
 
     /**
      * Schedules a job for a single instance calculation.

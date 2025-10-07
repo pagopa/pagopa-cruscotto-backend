@@ -1,11 +1,16 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
+import com.nexigroup.pagopa.cruscotto.domain.Instance;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
+import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
 import com.nexigroup.pagopa.cruscotto.service.KpiB4DataService;
+import com.nexigroup.pagopa.cruscotto.service.KpiB4Service;
 import com.nexigroup.pagopa.cruscotto.service.dto.InstanceDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.InstanceModuleDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiB4ResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiConfigurationDTO;
 import java.time.LocalDate;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -16,13 +21,13 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class KpiB4DataServiceImpl implements KpiB4DataService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KpiB4DataServiceImpl.class);
-
-    public KpiB4DataServiceImpl() {
-        // Constructor
-    }
+    
+    private final KpiB4Service kpiB4Service;
+    private final InstanceRepository instanceRepository;
 
     /**
      * Save KPI B.4 results in the three tables (Result, DetailResult, AnalyticData)
@@ -39,13 +44,23 @@ public class KpiB4DataServiceImpl implements KpiB4DataService {
                                 KpiConfigurationDTO kpiConfigurationDTO, LocalDate analysisDate, 
                                 OutcomeStatus outcome) {
         
-        LOGGER.info("Saving KPI B.4 results for instance: {}, module: {}, date: {}", 
+        LOGGER.info("Starting KPI B.4 calculation and save for instance: {}, module: {}, date: {}", 
                    instanceDTO.getId(), instanceModuleDTO.getId(), analysisDate);
 
-        // TODO: Implementare la logica di salvataggio dei risultati KPI B.4
-        // Questa sarà implementata in un secondo momento quando avremo definito
-        // la logica di calcolo del KPIB4
-        
-        LOGGER.info("KPI B.4 results saved successfully for instance: {}", instanceDTO.getId());
+        try {
+            // Recupero l'entità Instance completa per il calcolo
+            Instance instance = instanceRepository.findById(instanceDTO.getId())
+                .orElseThrow(() -> new RuntimeException("Instance not found: " + instanceDTO.getId()));
+
+            // Eseguo il calcolo completo del KPI B.4 che salva automaticamente i risultati
+            KpiB4ResultDTO result = kpiB4Service.executeKpiB4Calculation(instance);
+            
+            LOGGER.info("KPI B.4 calculation completed successfully for instance: {}. Outcome: {}", 
+                       instanceDTO.getId(), result.getOutcome());
+                       
+        } catch (Exception e) {
+            LOGGER.error("Error calculating KPI B.4 for instance: {} - {}", instanceDTO.getId(), e.getMessage());
+            throw new RuntimeException("KPI B.4 calculation failed: " + e.getMessage(), e);
+        }
     }
 }
