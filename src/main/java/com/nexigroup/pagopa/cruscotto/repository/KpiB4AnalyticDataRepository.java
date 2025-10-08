@@ -23,7 +23,7 @@ public interface KpiB4AnalyticDataRepository extends JpaRepository<KpiB4Analytic
      * @param instanceId the instance ID
      * @return the list of KpiB4AnalyticData
      */
-    List<KpiB4AnalyticData> findByInstanceIdOrderByDataDateDesc(String instanceId);
+    List<KpiB4AnalyticData> findByInstanceIdOrderByEvaluationDateDesc(Long instanceId);
 
     /**
      * Find KpiB4AnalyticData by instance ID and analysis date.
@@ -32,7 +32,7 @@ public interface KpiB4AnalyticDataRepository extends JpaRepository<KpiB4Analytic
      * @param analysisDate the analysis date
      * @return the list of KpiB4AnalyticData
      */
-    List<KpiB4AnalyticData> findByInstanceIdAndAnalysisDate(String instanceId, LocalDateTime analysisDate);
+    List<KpiB4AnalyticData> findByInstanceIdAndAnalysisDate(Long instanceId, LocalDate analysisDate);
 
     /**
      * Find KpiB4AnalyticData by instance ID and analysis date with pagination.
@@ -42,9 +42,9 @@ public interface KpiB4AnalyticDataRepository extends JpaRepository<KpiB4Analytic
      * @param pageable the pagination information
      * @return the page of KpiB4AnalyticData
      */
-    Page<KpiB4AnalyticData> findByInstanceIdAndAnalysisDateOrderByDataDateDesc(
-        String instanceId, 
-        LocalDateTime analysisDate, 
+    Page<KpiB4AnalyticData> findByInstanceIdAndAnalysisDateOrderByEvaluationDateDesc(
+        Long instanceId, 
+        LocalDate analysisDate, 
         Pageable pageable
     );
 
@@ -53,13 +53,13 @@ public interface KpiB4AnalyticDataRepository extends JpaRepository<KpiB4Analytic
      *
      * @param instanceId the instance ID
      * @param analysisDate the analysis date
-     * @param dataDate the specific date
+     * @param evaluationDate the specific date
      * @return the KpiB4AnalyticData
      */
-    KpiB4AnalyticData findByInstanceIdAndAnalysisDateAndDataDate(
-        String instanceId, 
-        LocalDateTime analysisDate, 
-        LocalDate dataDate
+    KpiB4AnalyticData findByInstanceIdAndAnalysisDateAndEvaluationDate(
+        Long instanceId, 
+        LocalDate analysisDate, 
+        LocalDate evaluationDate
     );
 
     /**
@@ -71,10 +71,10 @@ public interface KpiB4AnalyticDataRepository extends JpaRepository<KpiB4Analytic
      * @param toDate the end date
      * @return the list of KpiB4AnalyticData
      */
-    @Query("SELECT k FROM KpiB4AnalyticData k WHERE k.instanceId = :instanceId AND k.analysisDate = :analysisDate AND k.dataDate BETWEEN :fromDate AND :toDate ORDER BY k.dataDate ASC")
+    @Query("SELECT k FROM KpiB4AnalyticData k WHERE k.instanceId = :instanceId AND k.analysisDate = :analysisDate AND k.evaluationDate BETWEEN :fromDate AND :toDate ORDER BY k.evaluationDate ASC")
     List<KpiB4AnalyticData> findByInstanceIdAndAnalysisDateAndDataDateBetween(
-        @Param("instanceId") String instanceId,
-        @Param("analysisDate") LocalDateTime analysisDate,
+        @Param("instanceId") Long instanceId,
+        @Param("analysisDate") LocalDate analysisDate,
         @Param("fromDate") LocalDate fromDate,
         @Param("toDate") LocalDate toDate
     );
@@ -84,14 +84,14 @@ public interface KpiB4AnalyticDataRepository extends JpaRepository<KpiB4Analytic
      *
      * @param instanceId the instance ID
      * @param analysisDate the analysis date
-     * @param dataDate the specific date
+     * @param evaluationDate the specific date
      * @return the list of KpiB4AnalyticData for drill-down
      */
-    @Query("SELECT k FROM KpiB4AnalyticData k WHERE k.instanceId = :instanceId AND k.analysisDate = :analysisDate AND k.dataDate = :dataDate ORDER BY k.dataDate ASC")
+    @Query("SELECT k FROM KpiB4AnalyticData k WHERE k.instanceId = :instanceId AND k.analysisDate = :analysisDate AND k.evaluationDate = :evaluationDate ORDER BY k.evaluationDate ASC")
     List<KpiB4AnalyticData> findDrillDownDataByInstanceIdAndAnalysisDateAndDate(
-        @Param("instanceId") String instanceId,
-        @Param("analysisDate") LocalDateTime analysisDate,
-        @Param("dataDate") LocalDate dataDate
+        @Param("instanceId") Long instanceId,
+        @Param("analysisDate") LocalDate analysisDate,
+        @Param("evaluationDate") LocalDate evaluationDate
     );
 
     /**
@@ -104,15 +104,15 @@ public interface KpiB4AnalyticDataRepository extends JpaRepository<KpiB4Analytic
      * @return the summary data
      */
     @Query("SELECT " +
-           "SUM(k.numRequestGpd) as totalGpdRequests, " +
-           "SUM(k.numRequestCp) as totalCpRequests " +
+           "SUM(CASE WHEN k.apiType IN ('GPD', 'ACA') THEN k.requestCount ELSE 0 END) as totalGpdRequests, " +
+           "SUM(CASE WHEN k.apiType = 'paCreate' THEN k.requestCount ELSE 0 END) as totalCpRequests " +
            "FROM KpiB4AnalyticData k " +
            "WHERE k.instanceId = :instanceId " +
            "AND k.analysisDate = :analysisDate " +
-           "AND k.dataDate BETWEEN :fromDate AND :toDate")
+           "AND k.evaluationDate BETWEEN :fromDate AND :toDate")
     Object[] calculateSummaryStatistics(
-        @Param("instanceId") String instanceId,
-        @Param("analysisDate") LocalDateTime analysisDate,
+        @Param("instanceId") Long instanceId,
+        @Param("analysisDate") LocalDate analysisDate,
         @Param("fromDate") LocalDate fromDate,
         @Param("toDate") LocalDate toDate
     );
@@ -122,7 +122,7 @@ public interface KpiB4AnalyticDataRepository extends JpaRepository<KpiB4Analytic
      *
      * @param instanceId the instance ID
      */
-    void deleteByInstanceId(String instanceId);
+    void deleteByInstanceId(Long instanceId);
 
     /**
      * Find dates with paCreate usage for highlighting in UI.
@@ -133,10 +133,10 @@ public interface KpiB4AnalyticDataRepository extends JpaRepository<KpiB4Analytic
      * @param toDate the end date
      * @return the list of dates with paCreate usage
      */
-    @Query("SELECT DISTINCT k.dataDate FROM KpiB4AnalyticData k WHERE k.instanceId = :instanceId AND k.analysisDate = :analysisDate AND k.dataDate BETWEEN :fromDate AND :toDate AND k.numRequestCp > 0 ORDER BY k.dataDate ASC")
+    @Query("SELECT DISTINCT k.evaluationDate FROM KpiB4AnalyticData k WHERE k.instanceId = :instanceId AND k.analysisDate = :analysisDate AND k.evaluationDate BETWEEN :fromDate AND :toDate AND k.apiType = 'paCreate' AND k.requestCount > 0 ORDER BY k.evaluationDate ASC")
     List<LocalDate> findDatesWithPaCreateUsage(
-        @Param("instanceId") String instanceId,
-        @Param("analysisDate") LocalDateTime analysisDate,
+        @Param("instanceId") Long instanceId,
+        @Param("analysisDate") LocalDate analysisDate,
         @Param("fromDate") LocalDate fromDate,
         @Param("toDate") LocalDate toDate
     );

@@ -4,9 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Cache;
@@ -17,8 +16,8 @@ import org.hibernate.annotations.DynamicUpdate;
 /**
  * A KpiB4AnalyticData.
  * 
- * Represents individual Stand-In event data for KPI B.4 "Zero Incident" calculation.
- * This entity stores detailed event information for drill-down analysis and debugging.
+ * Represents daily API usage data for KPI B.4 "API Integration" calculation.
+ * This entity stores GPD/ACA vs paCreate request counts per day for analysis.
  */
 
 @Entity
@@ -38,42 +37,28 @@ public class KpiB4AnalyticData implements Serializable {
     @GeneratedValue(generator = "SQCRUSC8_KPIB4ANALDATA", strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @JsonIgnore
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CO_INSTANCE_ID", nullable = false)
-    private Instance instance;
+    @Column(name = "TE_INSTANCE_ID", nullable = false)
+    private Long instanceId;
 
-    @JsonIgnore
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CO_INSTANCE_MODULE_ID", nullable = false)
-    private InstanceModule instanceModule;
+    @Column(name = "DT_ANALYSIS_DATE", nullable = false)
+    private LocalDate analysisDate;
 
-    @JsonIgnore
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CO_ANAG_STATION_ID", nullable = false)
-    private AnagStation anagStation;
+    @Column(name = "DT_EVALUATION_DATE", nullable = false)
+    private LocalDate evaluationDate;
+
+    @Column(name = "TE_API_TYPE", length = 50)
+    private String apiType;
+
+    @Column(name = "CO_REQUEST_COUNT")
+    private Long requestCount;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CO_KPI_B4_DETAIL_RESULT_ID")
     private KpiB4DetailResult kpiB4DetailResult;
-
-    @Size(max = 255)
-    @Column(name = "TE_EVENT_ID", length = 255)
-    private String eventId;
-
-    @Size(max = 255)
-    @Column(name = "TE_EVENT_TYPE", length = 255)
-    private String eventType;
-
-    @Column(name = "DT_EVENT_TIMESTAMP")
-    private LocalDateTime eventTimestamp;
-
-    @Column(name = "CO_STAND_IN_COUNT")
-    private Integer standInCount;
 
     // JHipster needle - entity add field
 
@@ -98,10 +83,12 @@ public class KpiB4AnalyticData implements Serializable {
     public String toString() {
         return "KpiB4AnalyticData{" +
             "id=" + id +
-            ", eventId='" + eventId + "'" +
-            ", eventType='" + eventType + "'" +
-            ", eventTimestamp='" + eventTimestamp + "'" +
-            ", standInCount=" + standInCount +
+            ", instanceId=" + instanceId +
+            ", instanceModuleId=" + instanceModuleId +
+            ", analysisDate='" + analysisDate + "'" +
+            ", evaluationDate='" + evaluationDate + "'" +
+            ", apiType='" + apiType + "'" +
+            ", requestCount=" + requestCount +
             "}";
     }
 }
