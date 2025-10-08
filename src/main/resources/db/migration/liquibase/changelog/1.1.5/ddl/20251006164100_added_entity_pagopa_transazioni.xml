@@ -6,30 +6,25 @@
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
                       http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-  <!-- Sequenza per ID -->
+  <!-- Creazione tabella PAGOPA_TRANSAZIONI con ID auto-increment -->
   <changeSet id="20251006164100-1" author="system" context="ddl">
-    <createSequence sequenceName="SQ${project_name}_PAGOTRANS" startValue="1" cacheSize="20"/>
-  </changeSet>
-
-  <!-- Creazione tabella PAGOPA_TRANSAZIONI -->
-  <changeSet id="20251006164100-2" author="system" context="ddl">
     <createTable tableName="PAGOPA_TRANSAZIONI">
-      <column name="CO_ID" type="bigint">
+      <column name="ID" type="bigint" autoIncrement="true">
         <constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_PAGOTRANS"/>
       </column>
-      <column name="TE_PARTNER" type="char(35)">
+      <column name="PARTNER" type="char(35)">
         <constraints nullable="false"/>
       </column>
-      <column name="TE_ENTE" type="char(35)">
+      <column name="ENTE" type="char(35)">
         <constraints nullable="false"/>
       </column>
-      <column name="DT_DATA" type="date">
+      <column name="DATA" type="date">
         <constraints nullable="false"/>
       </column>
-      <column name="TE_STAZIONE" type="char(35)">
+      <column name="STAZIONE" type="char(35)">
         <constraints nullable="false"/>
       </column>
-      <column name="CO_TOTALE_TRANSAZIONI" type="int">
+      <column name="TOTALE_TRANSAZIONI" type="int">
         <constraints nullable="false"/>
       </column>
     </createTable>
@@ -39,12 +34,12 @@
     </rollback>
   </changeSet>
 
-  <!-- Indice su ENTE e STAZIONE per ricerche -->
-  <changeSet id="20251006164100-3" author="system" context="ddl">
+  <!-- Indice su PARTNER, ENTE, STAZIONE -->
+  <changeSet id="20251006164100-2" author="system" context="ddl">
     <createIndex indexName="IX${project_name}_PAGOTRANS" tableName="PAGOPA_TRANSAZIONI">
-      <column name="TE_PARTNER"/>
-      <column name="TE_ENTE"/>
-      <column name="TE_STAZIONE"/>
+      <column name="PARTNER"/>
+      <column name="ENTE"/>
+      <column name="STAZIONE"/>
     </createIndex>
   </changeSet>
 
