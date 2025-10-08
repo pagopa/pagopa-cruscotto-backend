@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                      http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+  <!-- Creazione della tabella PAGOPA_IO con IDENTITY -->
+  <changeSet id="20251006150500-1" author="system" context="ddl">
+    <createTable tableName="PAGOPA_IO">
+      <column name="ID" type="bigint" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_PAGOPAIO"/>
+      </column>
+      <column name="PARTNER" type="char(35)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="ENTE" type="char(35)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DATA" type="date">
+        <constraints nullable="false"/>
+      </column>
+      <column name="NUMERO_POSIZIONI" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="NUMERO_MESSAGGI" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <rollback>
+      DROP TABLE ${database.defaultSchemaName}.PAGOPA_IO CASCADE CONSTRAINTS;
+    </rollback>
+  </changeSet>
+
+  <!-- Indice su PARTNER, ENTE, DATA -->
+  <changeSet id="20251006150500-2" author="system" context="ddl">
+    <createIndex indexName="IX${project_name}_PAGOPAIO" tableName="PAGOPA_IO">
+      <column name="PARTNER"/>
+      <column name="ENTE"/>
+      <column name="DATA"/>
+    </createIndex>
+  </changeSet>
+
+</databaseChangeLog>
