@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                      http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+  <!-- Creazione tabella PAGOPA_TRANSAZIONI con ID auto-increment -->
+  <changeSet id="20251006164100-1" author="system" context="ddl">
+    <createTable tableName="PAGOPA_TRANSAZIONI">
+      <column name="ID" type="bigint" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_PAGOTRANS"/>
+      </column>
+      <column name="PARTNER" type="char(35)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="ENTE" type="char(35)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DATA" type="date">
+        <constraints nullable="false"/>
+      </column>
+      <column name="STAZIONE" type="char(35)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TOTALE_TRANSAZIONI" type="int">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <rollback>
+      DROP TABLE ${database.defaultSchemaName}.PAGOPA_TRANSAZIONI CASCADE CONSTRAINTS;
+    </rollback>
+  </changeSet>
+
+  <!-- Indice su PARTNER, ENTE, STAZIONE -->
+  <changeSet id="20251006164100-2" author="system" context="ddl">
+    <createIndex indexName="IX${project_name}_PAGOTRANS" tableName="PAGOPA_TRANSAZIONI">
+      <column name="PARTNER"/>
+      <column name="ENTE"/>
+      <column name="STAZIONE"/>
+    </createIndex>
+  </changeSet>
+
+</databaseChangeLog>
