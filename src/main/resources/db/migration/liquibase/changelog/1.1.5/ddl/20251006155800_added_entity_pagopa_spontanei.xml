@@ -6,24 +6,19 @@
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
                       http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-  <!-- Creazione sequenza -->
+  <!-- Creazione tabella PAGOPA_SPONTANEI con IDENTITY -->
   <changeSet id="20251006155800-1" author="system" context="ddl">
-    <createSequence sequenceName="SQ${project_name}_PAGOSPONT" startValue="1" cacheSize="20"/>
-  </changeSet>
-
-  <!-- Creazione tabella PAGOPA_SPONTANEI -->
-  <changeSet id="20251006155800-2" author="system" context="ddl">
     <createTable tableName="PAGOPA_SPONTANEI">
-      <column name="ID" type="bigint">
+      <column name="ID" type="bigint" autoIncrement="true">
         <constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_PAGOSPONT"/>
       </column>
-      <column name="TE_PARTNER" type="char(35)">
+      <column name="PARTNER" type="char(35)">
         <constraints nullable="false"/>
       </column>
-      <column name="TE_STATION" type="char(35)">
+      <column name="STATION" type="char(35)">
         <constraints nullable="false"/>
       </column>
-      <column name="FL_PAGAMENTI_SPONTANEI" type="boolean">
+      <column name="PAGAMENTI_SPONTANEI" type="boolean">
         <constraints nullable="false"/>
       </column>
     </createTable>
@@ -33,11 +28,11 @@
     </rollback>
   </changeSet>
 
-  <!-- Indice opzionale sulla colonna TE_PARTNER -->
-  <changeSet id="20251006155800-3" author="system" context="ddl">
+  <!-- Indice su PARTNER e STATION -->
+  <changeSet id="20251006155800-2" author="system" context="ddl">
     <createIndex indexName="IX${project_name}_PAGOSPONT" tableName="PAGOPA_SPONTANEI">
-      <column name="TE_PARTNER"/>
-      <column name="TE_STATION"/>
+      <column name="PARTNER"/>
+      <column name="STATION"/>
     </createIndex>
   </changeSet>
 

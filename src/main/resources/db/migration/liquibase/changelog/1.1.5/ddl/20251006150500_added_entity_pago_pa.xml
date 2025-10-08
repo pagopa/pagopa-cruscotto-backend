@@ -6,30 +6,25 @@
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
                       http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-  <!-- ChangeSet per la creazione della sequenza -->
+  <!-- Creazione della tabella PAGOPA_IO con IDENTITY -->
   <changeSet id="20251006150500-1" author="system" context="ddl">
-    <createSequence sequenceName="SQ${project_name}_PAGOPAIO" startValue="1" cacheSize="20"/>
-  </changeSet>
-
-  <!-- ChangeSet per la creazione della tabella PAGOPA_IO -->
-  <changeSet id="20251006150500-2" author="system" context="ddl">
     <createTable tableName="PAGOPA_IO">
-      <column name="CO_ID" type="bigint">
+      <column name="ID" type="bigint" autoIncrement="true">
         <constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_PAGOPAIO"/>
       </column>
-      <column name="TE_PARTNER" type="char(35)">
+      <column name="PARTNER" type="char(35)">
         <constraints nullable="false"/>
       </column>
-      <column name="TE_ENTE" type="char(35)">
+      <column name="ENTE" type="char(35)">
         <constraints nullable="false"/>
       </column>
-      <column name="DT_DATA" type="date">
+      <column name="DATA" type="date">
         <constraints nullable="false"/>
       </column>
-      <column name="CO_NUMERO_POSIZIONI" type="bigint">
+      <column name="NUMERO_POSIZIONI" type="bigint">
         <constraints nullable="false"/>
       </column>
-      <column name="CO_NUMERO_MESSAGGI" type="bigint">
+      <column name="NUMERO_MESSAGGI" type="bigint">
         <constraints nullable="false"/>
       </column>
     </createTable>
@@ -39,12 +34,12 @@
     </rollback>
   </changeSet>
 
-  <!-- ChangeSet per un eventuale indice su ENTE -->
-  <changeSet id="20251006150500-3" author="system" context="ddl">
+  <!-- Indice su PARTNER, ENTE, DATA -->
+  <changeSet id="20251006150500-2" author="system" context="ddl">
     <createIndex indexName="IX${project_name}_PAGOPAIO" tableName="PAGOPA_IO">
-      <column name="TE_PARTNER"/>
-      <column name="TE_ENTE"/>
-      <column name="DT_DATA"/>
+      <column name="PARTNER"/>
+      <column name="ENTE"/>
+      <column name="DATA"/>
     </createIndex>
   </changeSet>
 
