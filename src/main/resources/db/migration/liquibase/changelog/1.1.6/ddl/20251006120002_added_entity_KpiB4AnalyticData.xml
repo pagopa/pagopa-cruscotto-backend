@@ -15,29 +15,23 @@
  	  <column name="CO_ID" type="bigint">
 		<constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_KPIB4ANALDATA"/>
 	  </column>
-	  <column name="CO_INSTANCE_ID" type="bigint">
-		<constraints nullable="false"/>
-	  </column>
-	  <column name="CO_INSTANCE_MODULE_ID" type="bigint">
-		<constraints nullable="false"/>
-	  </column>
-	  <column name="CO_ANAG_STATION_ID" type="bigint">
+	  <column name="TE_INSTANCE_ID" type="bigint">
 		<constraints nullable="false"/>
 	  </column>
 	  <column name="CO_KPI_B4_DETAIL_RESULT_ID" type="bigint">
 		<constraints nullable="true"/>
 	  </column>
-	  <column name="TE_EVENT_ID" type="varchar(255)">
-		<constraints nullable="true"/>
+	  <column name="DT_ANALYSIS_DATE" type="date">
+		<constraints nullable="false"/>
 	  </column>
-	  <column name="TE_EVENT_TYPE" type="varchar(255)">
-		<constraints nullable="true"/>
+	  <column name="DT_EVALUATION_DATE" type="date">
+		<constraints nullable="false"/>
 	  </column>
-	  <column name="DT_EVENT_TIMESTAMP" type="timestamp">
-		<constraints nullable="true"/>
+	  <column name="TE_API_TYPE" type="varchar(100)">
+		<constraints nullable="false"/>
 	  </column>
-	  <column name="CO_STAND_IN_COUNT" type="integer">
-		<constraints nullable="true"/>
+	  <column name="CO_REQUEST_COUNT" type="bigint">
+		<constraints nullable="false"/>
 	  </column>
 	</createTable>
 	<rollback>
@@ -48,14 +42,14 @@
   <changeSet id="20251006120002-3" author="system" context="ddl">
 	<createIndex indexName="IX${project_name}_KPIB4ANALDATA_INST"
 				 tableName="KPI_B4_ANALYTIC_DATA">
-	  <column name="CO_INSTANCE_MODULE_ID"/>
+	  <column name="TE_INSTANCE_ID"/>
 	</createIndex>
   </changeSet>
 
   <changeSet id="20251006120002-4" author="system" context="ddl">
-	<createIndex indexName="IX${project_name}_KPIB4ANALDATA_STAT"
+	<createIndex indexName="IX${project_name}_KPIB4ANALDATA_DATE"
 				 tableName="KPI_B4_ANALYTIC_DATA">
-	  <column name="CO_ANAG_STATION_ID"/>
+	  <column name="DT_ANALYSIS_DATE"/>
 	</createIndex>
   </changeSet>
 
@@ -63,6 +57,13 @@
 	<createIndex indexName="IX${project_name}_KPIB4ANALDATA_DETA"
 				 tableName="KPI_B4_ANALYTIC_DATA">
 	  <column name="CO_KPI_B4_DETAIL_RESULT_ID"/>
+	</createIndex>
+  </changeSet>
+
+  <changeSet id="20251006120002-6" author="system" context="ddl">
+	<createIndex indexName="IX${project_name}_KPIB4ANALDATA_API"
+				 tableName="KPI_B4_ANALYTIC_DATA">
+	  <column name="TE_API_TYPE"/>
 	</createIndex>
   </changeSet>
 

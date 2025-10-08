@@ -2,6 +2,8 @@ package com.nexigroup.pagopa.cruscotto.service.impl;
 
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
+import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
+import com.nexigroup.pagopa.cruscotto.service.KpiB4Service;
 import com.nexigroup.pagopa.cruscotto.service.dto.InstanceDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.InstanceModuleDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiConfigurationDTO;
@@ -9,6 +11,7 @@ import com.nexigroup.pagopa.cruscotto.service.dto.KpiConfigurationDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
@@ -18,11 +21,17 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 @ExtendWith(MockitoExtension.class)
 class KpiB4DataServiceImplTest {
 
+    @Mock
+    private KpiB4Service kpiB4Service;
+    
+    @Mock
+    private InstanceRepository instanceRepository;
+
     private KpiB4DataServiceImpl kpiB4DataService;
 
     @BeforeEach
     void setUp() {
-        kpiB4DataService = new KpiB4DataServiceImpl();
+        kpiB4DataService = new KpiB4DataServiceImpl(kpiB4Service, instanceRepository);
     }
 
     @Test
