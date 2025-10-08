@@ -67,7 +67,13 @@ class KpiB3JobTest {
     private com.nexigroup.pagopa.cruscotto.repository.AnagStationRepository anagStationRepository;
 
     @Mock
-    private com.nexigroup.pagopa.cruscotto.job.client.PagoPaStandInClient pagoPaStandInClient;
+    private com.nexigroup.pagopa.cruscotto.repository.PagopaNumeroStandinRepository pagopaNumeroStandinRepository;
+
+    @Mock
+    private com.nexigroup.pagopa.cruscotto.repository.AnagPlannedShutdownRepository anagPlannedShutdownRepository;
+
+    @Mock
+    private com.nexigroup.pagopa.cruscotto.service.KpiB3DataService kpiB3DataService;
 
     @Mock
     private JobExecutionContext jobExecutionContext;
@@ -140,17 +146,7 @@ class KpiB3JobTest {
         kpiConfig.setExcludeUnplannedShutdown(false);
         kpiConfig.setEvaluationType(com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType.TOTALE);
 
-        // Mock per le entità domain necessarie per il salvataggio
-        com.nexigroup.pagopa.cruscotto.domain.Instance domainInstance = new com.nexigroup.pagopa.cruscotto.domain.Instance();
-        domainInstance.setId(1L);
-        
-        com.nexigroup.pagopa.cruscotto.domain.InstanceModule domainInstanceModule = new com.nexigroup.pagopa.cruscotto.domain.InstanceModule();
-        domainInstanceModule.setId(10L);
 
-        // Mock per l'API response (nessun evento = OK)
-        com.nexigroup.pagopa.cruscotto.job.standin.StandInEventsResponse emptyResponse = 
-            new com.nexigroup.pagopa.cruscotto.job.standin.StandInEventsResponse();
-        emptyResponse.setEvents(Collections.emptyList());
 
         when(instanceService.findInstanceToCalculate(ModuleCode.B3, 10))
             .thenReturn(Arrays.asList(instance));
@@ -158,14 +154,14 @@ class KpiB3JobTest {
             .thenReturn(Optional.of(kpiConfig));
         when(instanceModuleService.findOne(instance.getId(), kpiConfig.getModuleId()))
             .thenReturn(Optional.of(instanceModule));
-        when(pagoPaStandInClient.getStandInEvents(anyString(), anyString(), anyString()))
-            .thenReturn(emptyResponse);
-        when(instanceRepository.findById(instance.getId()))
-            .thenReturn(Optional.of(domainInstance));
-        when(instanceModuleRepository.findById(instanceModule.getId()))
-            .thenReturn(Optional.of(domainInstanceModule));
-        when(kpiB3ResultRepository.save(any()))
-            .thenReturn(new com.nexigroup.pagopa.cruscotto.domain.KpiB3Result());
+        
+        // Mock database repository to return empty list (no stand-in events = OK)
+        when(pagopaNumeroStandinRepository.findByDateRange(any(), any()))
+            .thenReturn(Collections.emptyList());
+        when(anagStationRepository.findByAnagPartnerFiscalCode(anyString()))
+            .thenReturn(Collections.emptyList());
+            
+
 
         // When
         kpiB3Job.executeInternal(jobExecutionContext);
@@ -173,10 +169,11 @@ class KpiB3JobTest {
         // Then
         verify(instanceService).findInstanceToCalculate(ModuleCode.B3, 10);
         verify(kpiConfigurationService).findKpiConfigurationByCode(ModuleCode.B3.code);
-        verify(instanceModuleService, times(2)).findOne(instance.getId(), kpiConfig.getModuleId());
-        verify(pagoPaStandInClient).getStandInEvents(anyString(), anyString(), anyString());
-        verify(kpiB3ResultRepository).deleteAllByInstanceModuleId(instanceModule.getId());
-        verify(kpiB3ResultRepository).save(any());
+        verify(instanceService).updateInstanceStatusInProgress(instance.getId());
+        verify(instanceModuleService, times(3)).findOne(instance.getId(), kpiConfig.getModuleId());
+        verify(pagopaNumeroStandinRepository).findByDateRange(any(), any());
+        verify(anagStationRepository).findByAnagPartnerFiscalCode(anyString());
+        verify(kpiB3DataService).saveKpiB3Results(eq(instance), eq(instanceModule), eq(kpiConfig), any(), eq(OutcomeStatus.OK), any());
         verify(instanceModuleService).updateAutomaticOutcome(
             eq(instanceModule.getId()),
             eq(OutcomeStatus.OK)

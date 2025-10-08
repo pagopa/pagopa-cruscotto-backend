@@ -6,6 +6,7 @@ import com.nexigroup.pagopa.cruscotto.domain.PagopaNumeroStandin;
 
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
+import com.nexigroup.pagopa.cruscotto.job.config.JobConstant;
 
 import com.nexigroup.pagopa.cruscotto.repository.AnagStationRepository;
 import com.nexigroup.pagopa.cruscotto.repository.AnagPlannedShutdownRepository;
@@ -34,6 +35,7 @@ import org.springframework.lang.NonNull;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
+import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SimpleScheduleBuilder;
 import org.quartz.Trigger;
@@ -172,16 +174,28 @@ public class KpiB3Job extends QuartzJobBean {
                             instanceDTO.getAnalysisPeriodEndDate()
                         );
 
-                        // Calculate KPI B.3 "Zero Incident" using database-based Stand-In data
-                        OutcomeStatus calculatedOutcome = processKpiB3Calculation(instanceDTO, kpiConfigurationDTO, eligibilityThreshold, tolerance);
+                        // Update instance status to IN_ESECUZIONE (like other KPI jobs)
+                        instanceService.updateInstanceStatusInProgress(instanceDTO.getId());
 
-                        // Find the instance module to update the status
+                        // Find the instance module first
                         InstanceModuleDTO instanceModuleDTO = instanceModuleService
                             .findOne(instanceDTO.getId(), kpiConfigurationDTO.getModuleId())
                             .orElseThrow(() -> new NullPointerException("KPI B.3 InstanceModule not found"));
 
+                        // Calculate KPI B.3 "Zero Incident" using database-based Stand-In data
+                        OutcomeStatus calculatedOutcome = processKpiB3Calculation(instanceDTO, kpiConfigurationDTO, eligibilityThreshold, tolerance);
+
                         // Update the instance status with the calculated outcome
                         instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(), calculatedOutcome);
+
+                        // Trigger next job in the workflow (like other KPI jobs)
+                        JobDetail job = scheduler.getJobDetail(JobKey.jobKey(JobConstant.CALCULATE_STATE_INSTANCE_JOB, "DEFAULT"));
+                        Trigger trigger = TriggerBuilder.newTrigger()
+                            .usingJobData("instanceId", instanceDTO.getId())
+                            .withSchedule(SimpleScheduleBuilder.simpleSchedule().withMisfireHandlingInstructionFireNow().withRepeatCount(0))
+                            .forJob(job)
+                            .build();
+                        scheduler.scheduleJob(trigger);
 
                         LOGGER.info(
                             "End elaboration instance {} for partner {} - {}",
@@ -276,13 +290,13 @@ public class KpiB3Job extends QuartzJobBean {
             LOGGER.info("KPI B.3 calculation result for instance {}: {} stand-in incidents found, outcome: {}", 
                        instanceDTO.getInstanceIdentification(), totalStandIn, outcome);
             
-            // Retrieve InstanceModuleDTO and save results
+            // Save results in the three tables (Result, DetailResult, AnalyticData)
+            // Use current date as analysis date (when the analysis is performed)
+            // Note: instanceModuleDTO is passed from the caller to avoid duplicate queries
             InstanceModuleDTO instanceModuleDTO = instanceModuleService
                 .findOne(instanceDTO.getId(), kpiConfigurationDTO.getModuleId())
                 .orElseThrow(() -> new NullPointerException("KPI B.3 InstanceModule not found"));
             
-            // Save results in the three tables (Result, DetailResult, AnalyticData)
-            // Use current date as analysis date (when the analysis is performed)
             kpiB3DataService.saveKpiB3Results(instanceDTO, instanceModuleDTO, kpiConfigurationDTO, 
                                             LocalDate.now(), outcome, partnerStandInData);
             
