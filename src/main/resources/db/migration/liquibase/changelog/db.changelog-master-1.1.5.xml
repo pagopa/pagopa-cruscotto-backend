@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+  <!-- Include previous version -->
+  <include file="db.changelog-master-1.1.4.xml" relativeToChangelogFile="true"/>
+
+  <!-- Create KPI B.3 result table -->
+  <include file="1.1.5/ddl/20251006150500_added_entity_pago_pa.xml" relativeToChangelogFile="true"/>
+
+  <!-- Create KPI B.3 detail result table -->
+  <include file="1.1.5/ddl/20251006155800_added_entity_pagopa_spontanei.xml" relativeToChangelogFile="true"/>
+
+  <!-- Create KPI B.3 analytic data table -->
+  <include file="1.1.5/ddl/20251006160800_added_entity_pagopa_apilog.xml" relativeToChangelogFile="true"/>
+
+  <!-- Add constraints for KPI B.3 detail result table -->
+  <include file="1.1.5/ddl/20251006163100_added_entity_pagopa_SEND.xml" relativeToChangelogFile="true"/>
+
+  <!-- Add constraints for KPI B.3 analytic data table -->
+  <include file="1.1.5/ddl/20251006164100_added_entity_pagopa_transazioni.xml" relativeToChangelogFile="true"/>
+
+
+</databaseChangeLog>
