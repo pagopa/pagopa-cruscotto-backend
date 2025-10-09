@@ -16,5 +16,5 @@ public interface KpiB3DetailResultService {
 
     void updateKpiB3DetailResultOutcome(long id, OutcomeStatus outcomeStatus);
 
-    List<KpiB3DetailResultDTO> findByResultId(long resultId);
+    List<KpiB3DetailResultDTO> findByResultId(long instanceModuleId);
 }
