@@ -1,138 +1,57 @@
 package com.nexigroup.pagopa.cruscotto.job.kpi.b3;
 
 import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
-import com.nexigroup.pagopa.cruscotto.domain.AnagStation;
-import com.nexigroup.pagopa.cruscotto.domain.PagopaNumeroStandin;
-
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
-
-import com.nexigroup.pagopa.cruscotto.repository.AnagStationRepository;
-import com.nexigroup.pagopa.cruscotto.repository.AnagPlannedShutdownRepository;
+import com.nexigroup.pagopa.cruscotto.domain.PagopaNumeroStandin;
 import com.nexigroup.pagopa.cruscotto.repository.PagopaNumeroStandinRepository;
-
 import com.nexigroup.pagopa.cruscotto.service.InstanceService;
 import com.nexigroup.pagopa.cruscotto.service.InstanceModuleService;
 import com.nexigroup.pagopa.cruscotto.service.KpiConfigurationService;
+import com.nexigroup.pagopa.cruscotto.service.AnagPlannedShutdownService;
 import com.nexigroup.pagopa.cruscotto.service.KpiB3DataService;
 import com.nexigroup.pagopa.cruscotto.service.dto.InstanceDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.InstanceModuleDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiConfigurationDTO;
-
-import java.util.Map;
+import com.nexigroup.pagopa.cruscotto.service.dto.AnagPlannedShutdownDTO;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.TypePlanned;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Collections;
+import java.time.ZoneId;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicReference;
+import lombok.AllArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.quartz.DisallowConcurrentExecution;
-import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
-import org.quartz.Scheduler;
-import org.quartz.SimpleScheduleBuilder;
+import org.quartz.JobDetail;
+import org.quartz.JobBuilder;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
+import org.quartz.SimpleScheduleBuilder;
+import org.quartz.Scheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
 
 @Component
+@AllArgsConstructor
 @DisallowConcurrentExecution
 public class KpiB3Job extends QuartzJobBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KpiB3Job.class);
 
     private final InstanceService instanceService;
-
     private final InstanceModuleService instanceModuleService;
-
     private final ApplicationProperties applicationProperties;
-
     private final KpiConfigurationService kpiConfigurationService;
-
-    private final KpiB3DataService kpiB3DataService;
-
+    private final AnagPlannedShutdownService anagPlannedShutdownService;
     private final PagopaNumeroStandinRepository pagopaNumeroStandinRepository;
-    
-    private final AnagStationRepository anagStationRepository;
-    
-    private final AnagPlannedShutdownRepository anagPlannedShutdownRepository;
-
+    private final KpiB3DataService kpiB3DataService;
     private final Scheduler scheduler;
 
-    @PersistenceContext
-    private EntityManager entityManager;
-    
-    /**
-     * DEBUG METHOD: Check Stand-In data availability
-     * This method helps debugging the issue with missing analytic data
-     */
-    public void debugStandInData() {
-        LOGGER.info("=== DEBUG: Checking Stand-In data availability ===");
-        
-        try {
-            // Check total records in database
-            LocalDateTime startDate = LocalDateTime.of(2025, 9, 1, 0, 0, 0);
-            LocalDateTime endDate = LocalDateTime.of(2025, 9, 30, 23, 59, 59);
-            
-            List<PagopaNumeroStandin> allData = pagopaNumeroStandinRepository.findByDateRange(startDate, endDate);
-            LOGGER.info("Total Stand-In records in September 2025: {}", allData.size());
-            
-            if (!allData.isEmpty()) {
-                LOGGER.info("Sample record: Station={}, EventType={}, Count={}, DataDate={}, Interval={} to {}", 
-                           allData.get(0).getStationCode(),
-                           allData.get(0).getEventType(),
-                           allData.get(0).getStandInCount(),
-                           allData.get(0).getDataDate(),
-                           allData.get(0).getIntervalStart(),
-                           allData.get(0).getIntervalEnd());
-                           
-                // Group by station
-                Map<String, List<PagopaNumeroStandin>> byStation = allData.stream()
-                    .collect(Collectors.groupingBy(PagopaNumeroStandin::getStationCode));
-                
-                LOGGER.info("Stations with Stand-In data: {}", byStation.keySet());
-                byStation.forEach((station, records) -> 
-                    LOGGER.info("Station {}: {} records", station, records.size()));
-            }
-            
-        } catch (Exception e) {
-            LOGGER.error("Error in debug method: {}", e.getMessage(), e);
-        }
-        
-        LOGGER.info("=== END DEBUG ===");
-    }
-
-    public KpiB3Job(
-        InstanceService instanceService,
-        InstanceModuleService instanceModuleService,
-        ApplicationProperties applicationProperties,
-        KpiConfigurationService kpiConfigurationService,
-        KpiB3DataService kpiB3DataService,
-        PagopaNumeroStandinRepository pagopaNumeroStandinRepository,
-        AnagStationRepository anagStationRepository,
-        AnagPlannedShutdownRepository anagPlannedShutdownRepository,
-        Scheduler scheduler) {
-        this.instanceService = instanceService;
-        this.instanceModuleService = instanceModuleService;
-        this.applicationProperties = applicationProperties;
-        this.kpiConfigurationService = kpiConfigurationService;
-        this.kpiB3DataService = kpiB3DataService;
-        this.pagopaNumeroStandinRepository = pagopaNumeroStandinRepository;
-        this.anagStationRepository = anagStationRepository;
-        this.anagPlannedShutdownRepository = anagPlannedShutdownRepository;
-        this.scheduler = scheduler;
-    }
-
     @Override
-    @Transactional
     protected void executeInternal(@NonNull JobExecutionContext context) {
         LOGGER.info("Start calculate kpi B.3");
 
@@ -154,16 +73,11 @@ public class KpiB3Job extends QuartzJobBean {
                     .findKpiConfigurationByCode(ModuleCode.B3.code)
                     .orElseThrow(() -> new NullPointerException("KPI B.3 Configuration not found"));
 
-                LOGGER.debug("Kpi configuration {}", kpiConfigurationDTO);
-
-                Double eligibilityThreshold = kpiConfigurationDTO.getEligibilityThreshold() != null
-                    ? kpiConfigurationDTO.getEligibilityThreshold()
-                    : 0.0;
-                Double tolerance = kpiConfigurationDTO.getTolerance() != null ? kpiConfigurationDTO.getTolerance() : 0.0;
+                LOGGER.info("Kpi configuration {}", kpiConfigurationDTO);
 
                 instanceDTOS.forEach(instanceDTO -> {
                     try {
-                        LOGGER.debug(
+                        LOGGER.info(
                             "Start elaboration instance {} for partner {} - {} with period {} - {}",
                             instanceDTO.getInstanceIdentification(),
                             instanceDTO.getPartnerFiscalCode(),
@@ -172,288 +86,249 @@ public class KpiB3Job extends QuartzJobBean {
                             instanceDTO.getAnalysisPeriodEndDate()
                         );
 
-                        // Calculate KPI B.3 "Zero Incident" using database-based Stand-In data
-                        OutcomeStatus calculatedOutcome = processKpiB3Calculation(instanceDTO, kpiConfigurationDTO, eligibilityThreshold, tolerance);
+                        // Update instance status from "planned" to "in progress"
+                        instanceService.updateInstanceStatusInProgress(instanceDTO.getId());
 
-                        // Find the instance module to update the status
                         InstanceModuleDTO instanceModuleDTO = instanceModuleService
                             .findOne(instanceDTO.getId(), kpiConfigurationDTO.getModuleId())
                             .orElseThrow(() -> new NullPointerException("KPI B.3 InstanceModule not found"));
 
-                        // Update the instance status with the calculated outcome
-                        instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(), calculatedOutcome);
+                        LOGGER.info("Deletion phase for any previous processing in error (handled by KpiB3DataService)");
 
-                        LOGGER.info(
-                            "End elaboration instance {} for partner {} - {}",
-                            instanceDTO.getInstanceIdentification(),
-                            instanceDTO.getPartnerFiscalCode(),
-                            instanceDTO.getPartnerName()
+                        // Calculate analysis date
+                        LocalDate analysisDate = LocalDate.now();
+
+                        // Get configuration for shutdown exclusions
+                        Double eligibilityThreshold = kpiConfigurationDTO.getEligibilityThreshold() != null
+                            ? kpiConfigurationDTO.getEligibilityThreshold()
+                            : 0.0;
+                        
+                        Boolean excludePlannedShutdown = kpiConfigurationDTO.getExcludePlannedShutdown() != null
+                            ? kpiConfigurationDTO.getExcludePlannedShutdown()
+                            : false;
+                            
+                        Boolean excludeUnplannedShutdown = kpiConfigurationDTO.getExcludeUnplannedShutdown() != null
+                            ? kpiConfigurationDTO.getExcludeUnplannedShutdown()
+                            : false;
+
+                        LOGGER.info("Configuration - Eligibility threshold: {}, Exclude planned shutdown: {}, Exclude unplanned shutdown: {}", 
+                                   eligibilityThreshold, excludePlannedShutdown, excludeUnplannedShutdown);
+
+                        // 1. Retrieve Stand-In data from pagopa_numero_standin table
+                        LocalDateTime startDateTime = instanceDTO.getAnalysisPeriodStartDate().atStartOfDay();
+                        LocalDateTime endDateTime = instanceDTO.getAnalysisPeriodEndDate().atTime(23, 59, 59);
+
+                        LOGGER.info("Querying Stand-In data from {} to {}", startDateTime, endDateTime);
+                        
+                        List<PagopaNumeroStandin> standInData = pagopaNumeroStandinRepository.findByDateRange(
+                            startDateTime, endDateTime
                         );
 
-                    } catch (Exception e) {
-                        LOGGER.error("Error processing instance {} for KPI B.3: {}", instanceDTO.getInstanceIdentification(), e.getMessage(), e);
-                        
-                        // Find the instance module to update status in case of error
-                        try {
-                            InstanceModuleDTO instanceModuleDTO = instanceModuleService
-                                .findOne(instanceDTO.getId(), kpiConfigurationDTO.getModuleId())
-                                .orElseThrow(() -> new NullPointerException("KPI B.3 InstanceModule not found"));
+                        LOGGER.info("Found {} Stand-In records for the analysis period", standInData.size());
 
-                            // Update the instance status to KO
-                            instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(), OutcomeStatus.KO);
-                        } catch (Exception updateException) {
-                            LOGGER.error("Error updating outcome status for instance {}: {}", instanceDTO.getInstanceIdentification(), updateException.getMessage());
-                        }
+                        // 2. Filter data excluding shutdowns if configured
+                        List<PagopaNumeroStandin> filteredStandInData = filterShutdownPeriods(
+                            standInData, 
+                            instanceDTO, 
+                            excludePlannedShutdown, 
+                            excludeUnplannedShutdown
+                        );
+
+                        LOGGER.info("After filtering shutdowns: {} Stand-In records remain", filteredStandInData.size());
+
+                        // 3. Calculate final outcome based on Stand-In data
+                        AtomicReference<OutcomeStatus> kpiB3ResultFinalOutcome = new AtomicReference<>(OutcomeStatus.OK);
+                        
+                        OutcomeStatus outcome = calculateKpiB3Outcome(
+                            filteredStandInData, 
+                            eligibilityThreshold,
+                            instanceDTO
+                        );
+
+                        kpiB3ResultFinalOutcome.set(outcome);
+
+                        LOGGER.info("Calculated KPI B.3 outcome: {}", outcome);
+
+                        // 4. Salva risultati nelle tabelle KPI B.3 usando il data service
+                        kpiB3DataService.saveKpiB3Results(
+                            instanceDTO,
+                            instanceModuleDTO,
+                            kpiConfigurationDTO,
+                            analysisDate,
+                            outcome,
+                            filteredStandInData
+                        );
+
+                        LOGGER.info("KPI B.3 results saved successfully");
+
+                        // 5. Update automatic outcome of instance module
+                        instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(), kpiB3ResultFinalOutcome.get());
+
+                        LOGGER.info("Instance module {} updated with outcome: {}", instanceModuleDTO.getId(), kpiB3ResultFinalOutcome.get());
+
+                    } catch (Exception e) {
+                        LOGGER.error(
+                            "Exception during calculate kpi B.3 for instance {} - {}",
+                            instanceDTO.getInstanceIdentification(),
+                            instanceDTO.getPartnerName(),
+                            e
+                        );
                     }
                 });
             }
-        } catch (Exception e) {
-            LOGGER.error("Error in KPI B.3 job execution: {}", e.getMessage(), e);
+        } catch (Exception exception) {
+            LOGGER.error("Problem during calculate kpi B.3", exception);
         }
 
-        LOGGER.info("End calculate kpi B.3");
+        LOGGER.info("End");
     }
 
     /**
-     * Processes KPI B.3 "Zero Incident" calculation for a specific instance
-     * 
-     * @param instanceDTO the instance to process
-     * @param kpiConfigurationDTO the KPI configuration
-     * @param eligibilityThreshold the eligibility threshold
-     * @param tolerance the tolerance
-     * @return the KPI calculation outcome (OK if zero incidents, KO otherwise)
+     * Filters Stand-In data excluding shutdown periods if configured
      */
-    private OutcomeStatus processKpiB3Calculation(InstanceDTO instanceDTO, KpiConfigurationDTO kpiConfigurationDTO, 
-                                                 Double eligibilityThreshold, Double tolerance) {
-        
-        LOGGER.debug("Processing KPI B.3 'Zero Incident' calculation for instance: {}", instanceDTO.getInstanceIdentification());
-        
+    private List<PagopaNumeroStandin> filterShutdownPeriods(
+            List<PagopaNumeroStandin> standInData,
+            InstanceDTO instanceDTO,
+            Boolean excludePlannedShutdown,
+            Boolean excludeUnplannedShutdown) {
+
+        // If no filters to apply, return original data
+        if (!excludePlannedShutdown && !excludeUnplannedShutdown) {
+            LOGGER.info("No shutdown exclusions configured, using all Stand-In data");
+            return standInData;
+        }
+
         try {
-            // Convert analysis period to LocalDateTime for database queries
-            LocalDateTime analysisStart = instanceDTO.getAnalysisPeriodStartDate().atStartOfDay();
-            LocalDateTime analysisEnd = instanceDTO.getAnalysisPeriodEndDate().atTime(23, 59, 59);
-            
-            // Query Stand-In data from pagopa_numero_standin table
-            LOGGER.debug("Querying Stand-In data for partner {} from {} to {}", 
-                       instanceDTO.getPartnerFiscalCode(), analysisStart, analysisEnd);
-            
-            List<PagopaNumeroStandin> standInData = pagopaNumeroStandinRepository.findByDateRange(
-                analysisStart,
-                analysisEnd
+            // Retrieve planned shutdowns for the analysis period
+            List<AnagPlannedShutdownDTO> plannedShutdowns = anagPlannedShutdownService.findAllByTypePlannedIntoPeriod(
+                instanceDTO.getPartnerId(),
+                TypePlanned.NON_PROGRAMMATO,
+                instanceDTO.getAnalysisPeriodStartDate(),
+                instanceDTO.getAnalysisPeriodEndDate()
             );
-            
-            LOGGER.info("Retrieved {} total Stand-In records from database for period {} to {}", 
-                       standInData != null ? standInData.size() : 0, analysisStart, analysisEnd);
-            
-            // Calculate KPI B.3: Zero Incident based on aggregated Stand-In data
-            // Filter data by partner's stations and exclude planned shutdowns if configured
-            List<PagopaNumeroStandin> partnerStandInData = filterStandInDataByPartner(
-                standInData, instanceDTO.getPartnerFiscalCode(), analysisStart, analysisEnd, kpiConfigurationDTO);
-            
-            // Calculate total stand-in incidents count
-            int totalStandIn = partnerStandInData.stream()
+
+            LOGGER.info("Found {} planned shutdowns for partner {}", plannedShutdowns.size(), instanceDTO.getPartnerFiscalCode());
+
+            // Filter Stand-In events excluding those in shutdown periods
+            return standInData.stream()
+                .filter(standIn -> !isInShutdownPeriod(standIn, plannedShutdowns, excludePlannedShutdown, excludeUnplannedShutdown))
+                .toList();
+
+        } catch (Exception e) {
+            LOGGER.error("Error filtering shutdown periods, using original Stand-In data", e);
+            return standInData;
+        }
+    }
+
+    /**
+     * Checks if a Stand-In event occurred during a shutdown period
+     */
+    private boolean isInShutdownPeriod(
+            PagopaNumeroStandin standIn,
+            List<AnagPlannedShutdownDTO> plannedShutdowns,
+            Boolean excludePlanned,
+            Boolean excludeUnplanned) {
+
+        LocalDateTime standInDateTime = standIn.getIntervalStart();
+
+        for (AnagPlannedShutdownDTO shutdown : plannedShutdowns) {
+            LocalDateTime shutdownStart = LocalDateTime.ofInstant(shutdown.getShutdownStartDate(), ZoneId.systemDefault());
+            LocalDateTime shutdownEnd = LocalDateTime.ofInstant(shutdown.getShutdownEndDate(), ZoneId.systemDefault());
+
+            // Check if the Stand-In event is in the shutdown period
+            if (isDateTimeInRange(standInDateTime, shutdownStart, shutdownEnd)) {
+                
+                // Check shutdown type and exclusion configuration
+                if (excludePlanned && shutdown.getTypePlanned() == TypePlanned.PROGRAMMATO) {
+                    LOGGER.debug("Excluding Stand-In event {} during planned shutdown", standIn.getId());
+                    return true;
+                }
+                
+                if (excludeUnplanned && shutdown.getTypePlanned() == TypePlanned.NON_PROGRAMMATO) {
+                    LOGGER.debug("Excluding Stand-In event {} during unplanned shutdown", standIn.getId());
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Checks if a date-time is within a range (inclusive)
+     */
+    private boolean isDateTimeInRange(LocalDateTime dateTimeToCheck, LocalDateTime startDateTime, LocalDateTime endDateTime) {
+        return (dateTimeToCheck.isEqual(startDateTime) || dateTimeToCheck.isAfter(startDateTime)) &&
+               (dateTimeToCheck.isEqual(endDateTime) || dateTimeToCheck.isBefore(endDateTime));
+    }
+
+    /**
+     * Calculates KPI B.3 outcome based on Stand-In data and configured threshold
+     */
+    private OutcomeStatus calculateKpiB3Outcome(
+            List<PagopaNumeroStandin> filteredStandInData,
+            Double eligibilityThreshold,
+            InstanceDTO instanceDTO) {
+
+        try {
+            // If no Stand-In events, outcome is OK (Zero Incident achieved)
+            if (filteredStandInData == null || filteredStandInData.isEmpty()) {
+                LOGGER.info("No Stand-In events found - Zero Incident achieved, outcome OK");
+                return OutcomeStatus.OK;
+            }
+
+            // Calculate total Stand-In events for all partner stations
+            int totalStandInEvents = filteredStandInData.stream()
                 .mapToInt(PagopaNumeroStandin::getStandInCount)
                 .sum();
-            
-            boolean hasIncidents = totalStandIn > 0;
-            
-            LOGGER.info("Found {} stand-in events for partner {} in period {} - {}", 
-                       totalStandIn, instanceDTO.getPartnerFiscalCode(), analysisStart, analysisEnd);
-            
-            // Log details for debugging
-            if (hasIncidents && LOGGER.isDebugEnabled()) {
-                partnerStandInData.forEach(data -> 
-                    LOGGER.debug("Stand-in data: stationCode={}, interval={} to {}, count={}, eventType={}", 
-                               data.getStationCode(), data.getIntervalStart(), data.getIntervalEnd(), 
-                               data.getStandInCount(), data.getEventType())
-                );
+
+            LOGGER.info("Total Stand-In events for partner {} in period {} to {}: {}", 
+                       instanceDTO.getPartnerFiscalCode(),
+                       instanceDTO.getAnalysisPeriodStartDate(),
+                       instanceDTO.getAnalysisPeriodEndDate(),
+                       totalStandInEvents);
+
+            // Compare with configured threshold
+            // KPI B.3 "Zero Incident": if Stand-In events exceed threshold → KO
+            if (totalStandInEvents > eligibilityThreshold) {
+                LOGGER.info("Stand-In events {} exceed threshold {} - outcome KO", totalStandInEvents, eligibilityThreshold);
+                return OutcomeStatus.KO;
+            } else {
+                LOGGER.info("Stand-In events {} within threshold {} - outcome OK", totalStandInEvents, eligibilityThreshold);
+                return OutcomeStatus.OK;
             }
-            
-            // Determine KPI B.3 outcome
-            // KPI B.3 "Zero Incident": OK if no stand-in events, KO otherwise
-            OutcomeStatus outcome = hasIncidents ? OutcomeStatus.KO : OutcomeStatus.OK;
-            
-            LOGGER.info("KPI B.3 calculation result for instance {}: {} stand-in incidents found, outcome: {}", 
-                       instanceDTO.getInstanceIdentification(), totalStandIn, outcome);
-            
-            // Retrieve InstanceModuleDTO and save results
-            InstanceModuleDTO instanceModuleDTO = instanceModuleService
-                .findOne(instanceDTO.getId(), kpiConfigurationDTO.getModuleId())
-                .orElseThrow(() -> new NullPointerException("KPI B.3 InstanceModule not found"));
-            
-            // Save results in the three tables (Result, DetailResult, AnalyticData)
-            // Use current date as analysis date (when the analysis is performed)
-            kpiB3DataService.saveKpiB3Results(instanceDTO, instanceModuleDTO, kpiConfigurationDTO, 
-                                            LocalDate.now(), outcome, partnerStandInData);
-            
-            LOGGER.info("KPI B.3 'Zero Incident' calculation completed for instance: {} with outcome: {}", 
-                       instanceDTO.getInstanceIdentification(), outcome);
-            
-            return outcome;
-            
+
         } catch (Exception e) {
-            LOGGER.error("Error in KPI B.3 calculation for instance {}: {}", 
-                        instanceDTO.getInstanceIdentification(), e.getMessage(), e);
-            throw e;
+            LOGGER.error("Error calculating KPI B.3 outcome", e);
+            return OutcomeStatus.KO;
         }
     }
 
     /**
-     * Schedules a single job for a specific instance
-     */
-    public void scheduleJobForSingleInstance(String instanceIdentification) {
-        try {
-            LOGGER.info("Scheduling single KPI B.3 job for instance: {}", instanceIdentification);
-            
-            JobDetail jobDetail = org.quartz.JobBuilder.newJob(KpiB3Job.class)
-                .withIdentity("kpiB3Job_" + instanceIdentification, "SINGLE_INSTANCE")
-                .build();
-
-            Trigger trigger = TriggerBuilder.newTrigger()
-                .withIdentity("kpiB3JobTrigger_" + instanceIdentification, "SINGLE_INSTANCE")
-                .withSchedule(SimpleScheduleBuilder.simpleSchedule().withRepeatCount(0))
-                .startNow()
-                .build();
-
-            scheduler.scheduleJob(jobDetail, trigger);
-            
-            LOGGER.info("Single KPI B.3 job scheduled successfully for instance: {}", instanceIdentification);
-            
-        } catch (Exception e) {
-            LOGGER.error("Error scheduling single KPI B.3 job for instance {}: {}", 
-                        instanceIdentification, e.getMessage(), e);
-        }
-    }
-
-
-
-
-
-    /**
-     * Filters Stand-In data by partner's fiscal code and excludes planned shutdowns if configured.
+     * Schedules KPI B.3 job execution for a single instance
      * 
-     * @param standInData All Stand-In data for the analysis period
-     * @param partnerFiscalCode The partner's fiscal code to filter by
-     * @param analysisStart Start of analysis period
-     * @param analysisEnd End of analysis period
-     * @param kpiConfigurationDTO KPI configuration with shutdown exclusion settings
-     * @return Filtered Stand-In data for the partner
+     * @param instanceIdentification the instance identification to process
      */
-    private List<PagopaNumeroStandin> filterStandInDataByPartner(List<PagopaNumeroStandin> standInData, 
-                                                               String partnerFiscalCode, 
-                                                               LocalDateTime analysisStart, 
-                                                               LocalDateTime analysisEnd,
-                                                               KpiConfigurationDTO kpiConfigurationDTO) {
+    public void scheduleJobForSingleInstance(String instanceIdentification) throws Exception {
+        LOGGER.info("Scheduling KpiB3Job for instance: {}", instanceIdentification);
         
-        LOGGER.debug("Filtering Stand-In data for partner: {}", partnerFiscalCode);
-        
-        try {
-            // Get stations for this specific partner using optimized query
-            List<AnagStation> partnerStations = anagStationRepository.findByAnagPartnerFiscalCode(partnerFiscalCode);
-            
-            if (partnerStations.isEmpty()) {
-                LOGGER.warn("No stations found for partner: {}", partnerFiscalCode);
-                return Collections.emptyList();
-            }
-            
-            Set<String> partnerStationNames = partnerStations.stream()
-                .map(AnagStation::getName)
-                .collect(Collectors.toSet());
-            
-            LOGGER.debug("Found {} stations for partner {}: {}", 
-                       partnerStations.size(), partnerFiscalCode, partnerStationNames);
-            
-            // Filter Stand-In data by partner station names
-            List<PagopaNumeroStandin> partnerData = standInData.stream()
-                .filter(data -> partnerStationNames.contains(data.getStationCode()))
-                .collect(Collectors.toList());
-            
-            LOGGER.debug("Filtered {} Stand-In records for partner {} before shutdown exclusion", partnerData.size(), partnerFiscalCode);
-            
-            // Apply planned shutdown exclusion if configured
-            if (kpiConfigurationDTO.getExcludePlannedShutdown() || kpiConfigurationDTO.getExcludeUnplannedShutdown()) {
-                partnerData = excludePlannedShutdowns(partnerData, partnerFiscalCode, analysisStart, analysisEnd, kpiConfigurationDTO);
-                LOGGER.debug("Filtered {} Stand-In records for partner {} after shutdown exclusion", partnerData.size(), partnerFiscalCode);
-            }
-            
-            return partnerData;
-            
-        } catch (Exception e) {
-            LOGGER.error("Error filtering Stand-In data for partner {}: {}", partnerFiscalCode, e.getMessage(), e);
-            return Collections.emptyList();
-        }
-    }
+        // Create job detail for this specific instance
+        JobDetail jobDetail = JobBuilder.newJob(KpiB3Job.class)
+            .withIdentity("KpiB3Job-" + instanceIdentification, "KPI_JOBS")
+            .usingJobData("instanceIdentification", instanceIdentification)
+            .build();
 
-    /**
-     * Excludes Stand-In data that occurred during planned/unplanned shutdowns if configured.
-     * According to the analysis document, if there's no detailed time info, exclude the entire day.
-     * 
-     * @param standInData Stand-In data to filter
-     * @param partnerFiscalCode Partner's fiscal code
-     * @param analysisStart Analysis period start
-     * @param analysisEnd Analysis period end
-     * @param kpiConfigurationDTO KPI configuration
-     * @return Filtered Stand-In data excluding shutdown periods
-     */
-    private List<PagopaNumeroStandin> excludePlannedShutdowns(List<PagopaNumeroStandin> standInData, 
-                                                            String partnerFiscalCode,
-                                                            LocalDateTime analysisStart, 
-                                                            LocalDateTime analysisEnd,
-                                                            KpiConfigurationDTO kpiConfigurationDTO) {
-        try {
-            // Query planned shutdowns for the analysis period
-            // Convert LocalDateTime to Instant for database query
-            java.time.Instant startInstant = analysisStart.atZone(java.time.ZoneId.systemDefault()).toInstant();
-            java.time.Instant endInstant = analysisEnd.atZone(java.time.ZoneId.systemDefault()).toInstant();
-            
-            // Find all planned shutdowns that overlap with the analysis period
-            List<com.nexigroup.pagopa.cruscotto.domain.AnagPlannedShutdown> shutdowns = 
-                anagPlannedShutdownRepository.findAll().stream()
-                .filter(shutdown -> 
-                    // Check if shutdown period overlaps with analysis period
-                    (shutdown.getShutdownStartDate().isBefore(endInstant) || shutdown.getShutdownStartDate().equals(endInstant)) &&
-                    (shutdown.getShutdownEndDate().isAfter(startInstant) || shutdown.getShutdownEndDate().equals(startInstant))
-                )
-                .collect(Collectors.toList());
-            
-            if (shutdowns.isEmpty()) {
-                LOGGER.debug("No planned shutdowns found for analysis period");
-                return standInData;
-            }
-            
-            LOGGER.debug("Found {} planned shutdowns overlapping with analysis period", shutdowns.size());
-            
-            // Filter out Stand-In data that occurred during shutdown periods
-            return standInData.stream()
-                .filter(data -> {
-                    // Check if this Stand-In data occurred during any shutdown
-                    boolean duringShutdown = shutdowns.stream()
-                        .anyMatch(shutdown -> {
-                            boolean isPlannedShutdown = shutdown.getTypePlanned() == com.nexigroup.pagopa.cruscotto.domain.enumeration.TypePlanned.PROGRAMMATO;
-                            boolean shouldExclude = (isPlannedShutdown && kpiConfigurationDTO.getExcludePlannedShutdown()) ||
-                                                  (!isPlannedShutdown && kpiConfigurationDTO.getExcludeUnplannedShutdown());
-                            
-                            if (shouldExclude) {
-                                // Check if data time falls within shutdown period
-                                // According to analysis doc: if no detailed time, exclude entire day
-                                java.time.LocalDate dataDate = data.getIntervalStart().toLocalDate();
-                                java.time.LocalDate shutdownStartDate = shutdown.getShutdownStartDate().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
-                                java.time.LocalDate shutdownEndDate = shutdown.getShutdownEndDate().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
-                                
-                                return !dataDate.isBefore(shutdownStartDate) && !dataDate.isAfter(shutdownEndDate);
-                            }
-                            
-                            return false;
-                        });
-                    
-                    return !duringShutdown; // Keep data that is NOT during shutdown
-                })
-                .collect(Collectors.toList());
-                
-        } catch (Exception e) {
-            LOGGER.error("Error excluding planned shutdowns for partner {}: {}", partnerFiscalCode, e.getMessage(), e);
-            return standInData; // Return original data if error occurs
-        }
-    }
+        // Create trigger to run immediately
+        Trigger trigger = TriggerBuilder.newTrigger()
+            .withIdentity("KpiB3Trigger-" + instanceIdentification, "KPI_TRIGGERS")
+            .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                .withMisfireHandlingInstructionFireNow()
+                .withRepeatCount(0))
+            .forJob(jobDetail)
+            .build();
 
+        // Schedule the job
+        scheduler.scheduleJob(jobDetail, trigger);
+        LOGGER.info("Successfully scheduled KpiB3Job for instance: {}", instanceIdentification);
+    }
 }
