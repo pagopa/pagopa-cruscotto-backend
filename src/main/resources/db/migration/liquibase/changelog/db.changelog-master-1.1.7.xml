@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+  <!-- Include previous version -->
+  <include file="db.changelog-master-1.1.5.xml" relativeToChangelogFile="true"/>
+
+  <!-- Create KPI B1 result table -->
+  <include file="1.1.7/ddl/20251010120000_added_entity_KpiB1Result.xml" relativeToChangelogFile="true"/>
+
+  <!-- Create KPI B1 detail result table -->
+  <include file="1.1.7/ddl/20251010121000_added_entity_KpiB1DetailResult.xml" relativeToChangelogFile="true"/>
+
+  <!-- Create KPI B1 analytic data table -->
+  <include file="1.1.7/ddl/20251010122000_added_entity_KpiB1AnalyticData.xml" relativeToChangelogFile="true"/>
+
+  <!-- Create KPI B1 analytic drill down table -->
+  <include file="1.1.7/ddl/20251010123000_added_entity_KpiB1AnalyticDrillDown.xml" relativeToChangelogFile="true"/>
+
+  <!-- Add foreign key constraints for KPI B1 tables -->
+  <include file="1.1.7/ddl/20251010125000_add_foreign_keys_kpi_b1.xml" relativeToChangelogFile="true"/>
+
+</databaseChangeLog>
