@@ -6,40 +6,40 @@
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
                       http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-  <!-- Creazione tabella PAGOPA_TRANSAZIONI con ID auto-increment -->
-  <changeSet id="20251006164100-1" author="system" context="ddl">
-    <createTable tableName="PAGOPA_TRANSAZIONI">
+  <!-- Creazione della tabella PAGOPA_IO con IDCF_INSTITUTION -->
+  <changeSet id="20251006150500-1" author="system" context="ddl">
+    <createTable tableName="PAGOPA_IO">
       <column name="ID" type="bigint" autoIncrement="true">
-        <constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_PAGOTRANS"/>
+        <constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_PAGOPAIO"/>
       </column>
-      <column name="PARTNER" type="char(35)">
+      <column name="CF_PARTNER" type="varchar(255)">
         <constraints nullable="false"/>
       </column>
-      <column name="ENTE" type="char(35)">
+      <column name="CF_INSTITUTION" type="varchar(255)">
         <constraints nullable="false"/>
       </column>
-      <column name="DATA" type="date">
+      <column name="DATE" type="timestamp">
         <constraints nullable="false"/>
       </column>
-      <column name="STAZIONE" type="char(35)">
+      <column name="POSITION_NUMBER" type="bigint">
         <constraints nullable="false"/>
       </column>
-      <column name="TOTALE_TRANSAZIONI" type="int">
+      <column name="MESSAGE_NUMBER" type="bigint">
         <constraints nullable="false"/>
       </column>
     </createTable>
 
     <rollback>
-      DROP TABLE ${database.defaultSchemaName}.PAGOPA_TRANSAZIONI CASCADE CONSTRAINTS;
+      DROP TABLE ${database.defaultSchemaName}.PAGOPA_IO CASCADE CONSTRAINTS;
     </rollback>
   </changeSet>
 
-  <!-- Indice su PARTNER, ENTE, STAZIONE -->
-  <changeSet id="20251006164100-2" author="system" context="ddl">
-    <createIndex indexName="IX${project_name}_PAGOTRANS" tableName="PAGOPA_TRANSAZIONI">
-      <column name="PARTNER"/>
-      <column name="ENTE"/>
-      <column name="STAZIONE"/>
+  <!-- Indice su CF_PARTNER, CF_INSTITUTION, DATA -->
+  <changeSet id="20251006150500-2" author="system" context="ddl">
+    <createIndex indexName="IX${project_name}_PAGOPAIO" tableName="PAGOPA_IO">
+      <column name="CF_PARTNER"/>
+      <column name="CF_INSTITUTION"/>
+      <column name="DATE"/>
     </createIndex>
   </changeSet>
 
