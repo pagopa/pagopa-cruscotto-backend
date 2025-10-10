@@ -4758,7 +4758,7 @@
         "tags": [
           "kpi-b-3-pagopa-data-resource"
         ],
-        "operationId": "getByAnalyticDataId",
+        "operationId": "getkpib3ByAnalyticDataId",
         "parameters": [
           {
             "name": "analyticDataId",
@@ -4813,7 +4813,7 @@
         "tags": [
           "kpi-b4-pagopa-data-resource"
         ],
-        "operationId": "getByAnalyticDataId",
+        "operationId": "getkpib4ByAnalyticDataId",
         "parameters": [
           {
             "name": "analyticDataId",
@@ -4868,7 +4868,7 @@
         "tags": [
           "kpi-b5-pagopa-data-resource"
         ],
-        "operationId": "getByAnalyticDataId",
+        "operationId": "getkpib5ByAnalyticDataId",
         "parameters": [
           {
             "name": "analyticDataId",
@@ -4923,7 +4923,7 @@
         "tags": [
           "kpi-b8-pagopa-data-resource"
         ],
-        "operationId": "getByAnalyticDataId",
+        "operationId": "getkpib8ByAnalyticDataId",
         "parameters": [
           {
             "name": "analyticDataId",
