@@ -114,7 +114,7 @@ public class KpiB3Job extends QuartzJobBean {
                         LOGGER.info("Configuration - Eligibility threshold: {}, Exclude planned shutdown: {}, Exclude unplanned shutdown: {}", 
                                    eligibilityThreshold, excludePlannedShutdown, excludeUnplannedShutdown);
 
-                        // 1. Retrieve Stand-In data from pagopa_numero_standin table
+                        // 1. Retrieve Stand-In data from standin_number table
                         LocalDateTime startDateTime = instanceDTO.getAnalysisPeriodStartDate().atStartOfDay();
                         LocalDateTime endDateTime = instanceDTO.getAnalysisPeriodEndDate().atTime(23, 59, 59);
 

@@ -39,6 +39,8 @@
     
      <!-- Remove anag_station column from KPI B.3 detail result table -->
   	<include file="1.1.4/ddl/20251009120500_fix_kpib3_detail_result_anag_station_nullable.xml" relativeToChangelogFile="true"/>
-    
+
+    <!-- Rename table PAGOPA_NUMERO_STANDIN to STANDIN_NUMBER -->
+    <include file="1.1.4/ddl/20251009150000_rename_pagopa_numero_standin_table.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>
