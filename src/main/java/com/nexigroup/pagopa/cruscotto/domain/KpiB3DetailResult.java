@@ -18,8 +18,9 @@ import org.hibernate.annotations.DynamicUpdate;
 /**
  * A KpiB3DetailResult.
  * 
- * Represents detailed results for KPI B.3 "Zero Incident" calculation at station level.
- * This entity stores incident counts and events per station for drill-down analysis.
+ * Represents aggregated results for KPI B.3 "Zero Incident" calculation at partner level.
+ * This entity stores aggregated incident counts per evaluation period (monthly/total).
+ * Station-specific detailed data is stored in KpiB3AnalyticData for drill-down analysis.
  */
 
 @Entity
@@ -50,12 +51,6 @@ public class KpiB3DetailResult implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CO_INSTANCE_MODULE_ID", nullable = false)
     private InstanceModule instanceModule;
-
-    @JsonIgnore
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CO_ANAG_STATION_ID", nullable = false)
-    private AnagStation anagStation;
 
     @NotNull
     @Column(name = "DT_ANALISYS_DATE", nullable = false)

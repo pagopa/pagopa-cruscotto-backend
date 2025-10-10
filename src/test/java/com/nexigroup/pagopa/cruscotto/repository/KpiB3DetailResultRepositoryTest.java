@@ -92,7 +92,7 @@ class KpiB3DetailResultRepositoryTest {
         KpiB3DetailResult detailResult = new KpiB3DetailResult();
         detailResult.setInstance(instance);
         detailResult.setInstanceModule(instanceModule);
-        detailResult.setAnagStation(station);
+        // No anagStation - this entity represents partner-level aggregated data
         detailResult.setKpiB3Result(kpiResult);
         detailResult.setAnalysisDate(analysisDate);
         detailResult.setEvaluationType(EvaluationType.MESE);

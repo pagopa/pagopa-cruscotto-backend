@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                      http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+
+  <!-- Creazione tabella PAGOPA_SEND con IDCF_INSTITUTION -->
+  <changeSet id="20251006163100-1" author="system" context="ddl">
+    <createTable tableName="PAGOPA_SEND">
+      <column name="ID" type="bigint" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_PAGOSEND"/>
+      </column>
+      <column name="CF_PARTNER" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CF_INSTITUTION" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DATE" type="timestamp">
+        <constraints nullable="false"/>
+      </column>
+      <column name="PAYMENTS_NUMBER" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="NOTIFICATION_NUMBER" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <rollback>
+      DROP TABLE ${database.defaultSchemaName}.PAGOPA_SEND CASCADE CONSTRAINTS;
+    </rollback>
+  </changeSet>
+
+  <!-- Indice opzionale per CF_INSTITUTION -->
+  <changeSet id="20251006163100-2" author="system" context="ddl">
+    <createIndex indexName="IX${project_name}_PAGOSEND" tableName="PAGOPA_SEND">
+      <column name="CF_INSTITUTION"/>
+      <column name="CF_PARTNER"/>
+      <column name="DATE"/>
+    </createIndex>
+  </changeSet>
+
+</databaseChangeLog>
