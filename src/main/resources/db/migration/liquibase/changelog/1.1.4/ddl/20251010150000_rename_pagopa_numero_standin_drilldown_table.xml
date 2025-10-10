@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <!--
+        Renamed the table PAGOPA_NUMERO_STANDIN_DRILLDOWN to STANDIN_NUMBER_DRILLDOWN.
+    -->
+    <changeSet id="20251010150000-1" author="system">
+        <comment>Rename table PAGOPA_NUMERO_STANDIN_DRILLDOWN to STANDIN_NUMBER_DRILLDOWN</comment>
+        <renameTable oldTableName="PAGOPA_NUMERO_STANDIN_DRILLDOWN" newTableName="STANDIN_NUMBER_DRILLDOWN"/>
+    </changeSet>
+
+    <changeSet id="20251010150000-2" author="system">
+        <comment>Create indexes on the renamed table STANDIN_NUMBER_DRILLDOWN</comment>
+        
+        <!-- Create indexes for the renamed table -->
+        <createIndex indexName="IDX_STANDIN_DRILL_KPI_B3_ANALYTIC" tableName="STANDIN_NUMBER_DRILLDOWN">
+            <column name="CO_KPI_B3_ANALYTIC_DATA_ID"/>
+        </createIndex>
+        
+        <createIndex indexName="IDX_STANDIN_DRILL_INSTANCE_MODULE" tableName="STANDIN_NUMBER_DRILLDOWN">
+            <column name="CO_INSTANCE_ID"/>
+            <column name="CO_INSTANCE_MODULE_ID"/>
+        </createIndex>
+        
+        <createIndex indexName="IDX_STANDIN_DRILL_STATION_ANALYSIS" tableName="STANDIN_NUMBER_DRILLDOWN">
+            <column name="CO_STATION_ID"/>
+            <column name="DT_ANALYSIS_DATE"/>
+        </createIndex>
+        
+        <createIndex indexName="IDX_STANDIN_DRILL_DATA_ORA_EVENTO" tableName="STANDIN_NUMBER_DRILLDOWN">
+            <column name="DT_DATA_ORA_EVENTO"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

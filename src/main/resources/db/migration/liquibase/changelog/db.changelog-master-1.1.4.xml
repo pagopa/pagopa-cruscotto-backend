@@ -43,4 +43,7 @@
     <!-- Rename table PAGOPA_NUMERO_STANDIN to STANDIN_NUMBER -->
     <include file="1.1.4/ddl/20251009150000_rename_pagopa_numero_standin_table.xml" relativeToChangelogFile="true"/>
 
+    <!-- Rename table PAGOPA_NUMERO_STANDIN_DRILLDOWN to STANDIN_NUMBER_DRILLDOWN -->
+    <include file="1.1.4/ddl/20251010150000_rename_pagopa_numero_standin_drilldown_table.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>
