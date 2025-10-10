@@ -18,7 +18,7 @@ import java.util.Optional;
 
 /**
  * REST controller for managing KPI B.3 PagoPA Raw Data Drilldown.
- * Provides endpoint to retrieve historical Stand-In data snapshots from pagopa_numero_standin_drilldown table
+ * Provides endpoint to retrieve historical Stand-In data snapshots from standin_number_drilldown table
  * as the final drilldown level in KPI B.3 analysis.
  */
 @RestController
