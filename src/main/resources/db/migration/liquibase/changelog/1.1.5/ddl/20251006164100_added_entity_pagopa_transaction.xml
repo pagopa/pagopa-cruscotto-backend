@@ -6,16 +6,16 @@
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
                       http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-  <!-- Creazione tabella PAGOPA_TRANSAZIONI con ID auto-increment -->
+  <!-- Creazione tabella PAGOPA_TRANSACTION con ID auto-increment -->
   <changeSet id="20251006164100-1" author="system" context="ddl">
     <createTable tableName="PAGOPA_TRANSACTION">
       <column name="ID" type="bigint" autoIncrement="true">
         <constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_PAGOTRANS"/>
       </column>
-      <column name="PARTNER" type="varchar(255)">
+      <column name="CF_PARTNER" type="varchar(255)">
         <constraints nullable="false"/>
       </column>
-      <column name="ENTITY" type="varchar(255)">
+      <column name="CF_INSTITUTION" type="varchar(255)">
         <constraints nullable="false"/>
       </column>
       <column name="DATE" type="timestamp">
@@ -30,15 +30,15 @@
     </createTable>
 
     <rollback>
-      DROP TABLE ${database.defaultSchemaName}.PAGOPA_TRANSAZIONI CASCADE CONSTRAINTS;
+      DROP TABLE ${database.defaultSchemaName}.PAGOPA_TRANSACTION CASCADE CONSTRAINTS;
     </rollback>
   </changeSet>
 
-  <!-- Indice su PARTNER, ENTITY, STATION -->
+  <!-- Indice su CF_PARTNER, CF_INSTITUTION, STATION -->
   <changeSet id="20251006164100-2" author="system" context="ddl">
-    <createIndex indexName="IX${project_name}_PAGOTRANS" tableName="PAGOPA_TRANSAZIONI">
-      <column name="PARTNER"/>
-      <column name="ENTITY"/>
+    <createIndex indexName="IX${project_name}_PAGOTRANS" tableName="PAGOPA_TRANSACTION">
+      <column name="CF_PARTNER"/>
+      <column name="CF_INSTITUTION"/>
       <column name="STATION"/>
     </createIndex>
   </changeSet>

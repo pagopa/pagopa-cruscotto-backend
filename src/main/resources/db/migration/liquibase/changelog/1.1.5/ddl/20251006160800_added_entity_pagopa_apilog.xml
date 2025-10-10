@@ -12,7 +12,7 @@
       <column name="ID" type="bigint" autoIncrement="true">
         <constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_PAGOAPILOG"/>
       </column>
-      <column name="PARTNER" type="varchar(255)">
+      <column name="CF_PARTNER" type="varchar(255)">
         <constraints nullable="false"/>
       </column>
       <column name="DATE" type="timestamp">
@@ -21,7 +21,7 @@
       <column name="STATION" type="varchar(255)">
         <constraints nullable="false"/>
       </column>
-      <column name="ENTITY" type="varchar(255)">
+      <column name="CF_INSTITUTION" type="varchar(255)">
         <constraints nullable="false"/>
       </column>
       <column name="API" type="varchar(255)">
@@ -43,13 +43,13 @@
     </rollback>
   </changeSet>
 
-  <!-- Indice su PARTNER, API, STATION, ENTITY -->
+  <!-- Indice su CF_PARTNER, API, STATION, CF_INSTITUTION -->
   <changeSet id="20251006121500-2" author="system" context="ddl">
     <createIndex indexName="IX${project_name}_PAGOAPILOG" tableName="PAGOPA_APILOG">
-      <column name="PARTNER"/>
+      <column name="CF_PARTNER"/>
       <column name="API"/>
       <column name="STATION"/>
-      <column name="ENTITY"/>
+      <column name="CF_INSTITUTION"/>
     </createIndex>
   </changeSet>
 

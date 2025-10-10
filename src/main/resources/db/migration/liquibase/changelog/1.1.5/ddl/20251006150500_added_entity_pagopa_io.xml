@@ -6,16 +6,16 @@
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
                       http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-  <!-- Creazione della tabella PAGOPA_IO con IDENTITY -->
+  <!-- Creazione della tabella PAGOPA_IO con IDCF_INSTITUTION -->
   <changeSet id="20251006150500-1" author="system" context="ddl">
     <createTable tableName="PAGOPA_IO">
       <column name="ID" type="bigint" autoIncrement="true">
         <constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_PAGOPAIO"/>
       </column>
-      <column name="PARTNER" type="varchar(255)">
+      <column name="CF_PARTNER" type="varchar(255)">
         <constraints nullable="false"/>
       </column>
-      <column name="ENTiTY" type="varchar(255)">
+      <column name="CF_INSTITUTION" type="varchar(255)">
         <constraints nullable="false"/>
       </column>
       <column name="DATE" type="timestamp">
@@ -34,11 +34,11 @@
     </rollback>
   </changeSet>
 
-  <!-- Indice su PARTNER, ENTiTY, DATA -->
+  <!-- Indice su CF_PARTNER, CF_INSTITUTION, DATA -->
   <changeSet id="20251006150500-2" author="system" context="ddl">
     <createIndex indexName="IX${project_name}_PAGOPAIO" tableName="PAGOPA_IO">
-      <column name="PARTNER"/>
-      <column name="ENTiTY"/>
+      <column name="CF_PARTNER"/>
+      <column name="CF_INSTITUTION"/>
       <column name="DATE"/>
     </createIndex>
   </changeSet>
