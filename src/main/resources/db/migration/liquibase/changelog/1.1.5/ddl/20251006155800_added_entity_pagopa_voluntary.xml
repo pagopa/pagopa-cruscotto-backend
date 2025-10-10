@@ -8,17 +8,17 @@
 
   <!-- Creazione tabella PAGOPA_SPONTANEI con IDENTITY -->
   <changeSet id="20251006155800-1" author="system" context="ddl">
-    <createTable tableName="PAGOPA_SPONTANEI">
+    <createTable tableName="PAGOPA_VOLUNTARY">
       <column name="ID" type="bigint" autoIncrement="true">
         <constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_PAGOSPONT"/>
       </column>
-      <column name="PARTNER" type="char(35)">
+      <column name="PARTNER" type="varchar(255)">
         <constraints nullable="false"/>
       </column>
-      <column name="STATION" type="char(35)">
+      <column name="ENTITY" type="varchar(255)">
         <constraints nullable="false"/>
       </column>
-      <column name="PAGAMENTI_SPONTANEI" type="boolean">
+      <column name="VOLUNTARY_PAYMENT" type="boolean">
         <constraints nullable="false"/>
       </column>
     </createTable>
@@ -28,11 +28,11 @@
     </rollback>
   </changeSet>
 
-  <!-- Indice su PARTNER e STATION -->
+  <!-- Indice su PARTNER e ENTITY -->
   <changeSet id="20251006155800-2" author="system" context="ddl">
     <createIndex indexName="IX${project_name}_PAGOSPONT" tableName="PAGOPA_SPONTANEI">
       <column name="PARTNER"/>
-      <column name="STATION"/>
+      <column name="ENTITY"/>
     </createIndex>
   </changeSet>
 
