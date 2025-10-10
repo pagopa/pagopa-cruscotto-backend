@@ -33,7 +33,7 @@ import org.hibernate.annotations.DynamicUpdate;
  * consistent drilldown results even if the original data changes.
  */
 @Entity
-@Table(name = "PAGOPA_NUMERO_STANDIN_DRILLDOWN")
+@Table(name = "STANDIN_NUMBER_DRILLDOWN")
 @Getter
 @Setter
 @DynamicUpdate
