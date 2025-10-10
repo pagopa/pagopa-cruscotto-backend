@@ -8,23 +8,23 @@
 
   <!-- Creazione tabella PAGOPA_TRANSAZIONI con ID auto-increment -->
   <changeSet id="20251006164100-1" author="system" context="ddl">
-    <createTable tableName="PAGOPA_TRANSAZIONI">
+    <createTable tableName="PAGOPA_TRANSACTION">
       <column name="ID" type="bigint" autoIncrement="true">
         <constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_PAGOTRANS"/>
       </column>
-      <column name="PARTNER" type="char(35)">
+      <column name="PARTNER" type="varchar(255)">
         <constraints nullable="false"/>
       </column>
-      <column name="ENTE" type="char(35)">
+      <column name="ENTITY" type="varchar(255)">
         <constraints nullable="false"/>
       </column>
-      <column name="DATA" type="date">
+      <column name="DATE" type="timestamp">
         <constraints nullable="false"/>
       </column>
-      <column name="STAZIONE" type="char(35)">
+      <column name="STATION" type="varchar(255)">
         <constraints nullable="false"/>
       </column>
-      <column name="TOTALE_TRANSAZIONI" type="int">
+      <column name="TRANSACTION_TOTAL" type="int">
         <constraints nullable="false"/>
       </column>
     </createTable>
@@ -34,12 +34,12 @@
     </rollback>
   </changeSet>
 
-  <!-- Indice su PARTNER, ENTE, STAZIONE -->
+  <!-- Indice su PARTNER, ENTITY, STATION -->
   <changeSet id="20251006164100-2" author="system" context="ddl">
     <createIndex indexName="IX${project_name}_PAGOTRANS" tableName="PAGOPA_TRANSAZIONI">
       <column name="PARTNER"/>
-      <column name="ENTE"/>
-      <column name="STAZIONE"/>
+      <column name="ENTITY"/>
+      <column name="STATION"/>
     </createIndex>
   </changeSet>
 

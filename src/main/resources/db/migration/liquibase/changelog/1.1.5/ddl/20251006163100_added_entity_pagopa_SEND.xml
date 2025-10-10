@@ -13,19 +13,19 @@
       <column name="ID" type="bigint" autoIncrement="true">
         <constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_PAGOSEND"/>
       </column>
-      <column name="PARTNER" type="char(35)">
+      <column name="PARTNER" type="varchar(255)">
         <constraints nullable="false"/>
       </column>
-      <column name="ENTE" type="char(35)">
+      <column name="ENTITY" type="varchar(255)">
         <constraints nullable="false"/>
       </column>
-      <column name="DATA" type="date">
+      <column name="DATE" type="timestamp">
         <constraints nullable="false"/>
       </column>
-      <column name="NUMERO_PAGAMENTI" type="bigint">
+      <column name="PAYMENTS_NUMBER" type="bigint">
         <constraints nullable="false"/>
       </column>
-      <column name="NUMERO_NOTIFICATION" type="bigint">
+      <column name="NOTIFICATION_NUMBER" type="bigint">
         <constraints nullable="false"/>
       </column>
     </createTable>
@@ -35,12 +35,12 @@
     </rollback>
   </changeSet>
 
-  <!-- Indice opzionale per ENTE -->
+  <!-- Indice opzionale per ENTITY -->
   <changeSet id="20251006163100-2" author="system" context="ddl">
     <createIndex indexName="IX${project_name}_PAGOSEND" tableName="PAGOPA_SEND">
-      <column name="ENTE"/>
+      <column name="ENTITY"/>
       <column name="PARTNER"/>
-      <column name="DATA"/>
+      <column name="DATE"/>
     </createIndex>
   </changeSet>
 
