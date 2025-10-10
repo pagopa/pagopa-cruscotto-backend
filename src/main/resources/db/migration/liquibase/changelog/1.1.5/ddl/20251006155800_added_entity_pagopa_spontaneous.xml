@@ -6,33 +6,33 @@
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
                       http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-  <!-- Creazione tabella PAGOPA_SPONTANEI con IDENTITY -->
+  <!-- Creazione tabella PAGOPA_SPONTANEOUS con IDCF_INSTITUTION -->
   <changeSet id="20251006155800-1" author="system" context="ddl">
-    <createTable tableName="PAGOPA_VOLUNTARY">
+    <createTable tableName="PAGOPA_SPONTANEOUS">
       <column name="ID" type="bigint" autoIncrement="true">
         <constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_PAGOSPONT"/>
       </column>
-      <column name="PARTNER" type="varchar(255)">
+      <column name="CF_PARTNER" type="varchar(255)">
         <constraints nullable="false"/>
       </column>
-      <column name="ENTITY" type="varchar(255)">
+      <column name="CF_INSTITUTION" type="varchar(255)">
         <constraints nullable="false"/>
       </column>
-      <column name="VOLUNTARY_PAYMENT" type="boolean">
+      <column name="SPONTANEOUS_PAYMENT" type="boolean">
         <constraints nullable="false"/>
       </column>
     </createTable>
 
     <rollback>
-      DROP TABLE ${database.defaultSchemaName}.PAGOPA_SPONTANEI CASCADE CONSTRAINTS;
+      DROP TABLE ${database.defaultSchemaName}.PAGOPA_SPONTANEOUS CASCADE CONSTRAINTS;
     </rollback>
   </changeSet>
 
-  <!-- Indice su PARTNER e ENTITY -->
+  <!-- Indice su CF_PARTNER e CF_INSTITUTION -->
   <changeSet id="20251006155800-2" author="system" context="ddl">
-    <createIndex indexName="IX${project_name}_PAGOSPONT" tableName="PAGOPA_SPONTANEI">
-      <column name="PARTNER"/>
-      <column name="ENTITY"/>
+    <createIndex indexName="IX${project_name}_PAGOSPONT" tableName="PAGOPA_SPONTANEOUS">
+      <column name="CF_PARTNER"/>
+      <column name="CF_INSTITUTION"/>
     </createIndex>
   </changeSet>
 

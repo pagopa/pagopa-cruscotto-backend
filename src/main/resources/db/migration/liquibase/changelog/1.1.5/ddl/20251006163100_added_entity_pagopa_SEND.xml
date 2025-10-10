@@ -7,16 +7,16 @@
                       http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
 
-  <!-- Creazione tabella PAGOPA_SEND con IDENTITY -->
+  <!-- Creazione tabella PAGOPA_SEND con IDCF_INSTITUTION -->
   <changeSet id="20251006163100-1" author="system" context="ddl">
     <createTable tableName="PAGOPA_SEND">
       <column name="ID" type="bigint" autoIncrement="true">
         <constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_PAGOSEND"/>
       </column>
-      <column name="PARTNER" type="varchar(255)">
+      <column name="CF_PARTNER" type="varchar(255)">
         <constraints nullable="false"/>
       </column>
-      <column name="ENTITY" type="varchar(255)">
+      <column name="CF_INSTITUTION" type="varchar(255)">
         <constraints nullable="false"/>
       </column>
       <column name="DATE" type="timestamp">
@@ -35,11 +35,11 @@
     </rollback>
   </changeSet>
 
-  <!-- Indice opzionale per ENTITY -->
+  <!-- Indice opzionale per CF_INSTITUTION -->
   <changeSet id="20251006163100-2" author="system" context="ddl">
     <createIndex indexName="IX${project_name}_PAGOSEND" tableName="PAGOPA_SEND">
-      <column name="ENTITY"/>
-      <column name="PARTNER"/>
+      <column name="CF_INSTITUTION"/>
+      <column name="CF_PARTNER"/>
       <column name="DATE"/>
     </createIndex>
   </changeSet>
