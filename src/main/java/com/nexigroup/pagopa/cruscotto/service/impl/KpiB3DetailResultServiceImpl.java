@@ -5,8 +5,7 @@ import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
 import com.nexigroup.pagopa.cruscotto.domain.KpiB3DetailResult;
 import com.nexigroup.pagopa.cruscotto.domain.KpiB3Result;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
-import com.nexigroup.pagopa.cruscotto.domain.AnagStation;
-import com.nexigroup.pagopa.cruscotto.repository.AnagStationRepository;
+
 import com.nexigroup.pagopa.cruscotto.repository.InstanceModuleRepository;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
 import com.nexigroup.pagopa.cruscotto.repository.KpiB3DetailResultRepository;
@@ -40,20 +39,16 @@ public class KpiB3DetailResultServiceImpl implements KpiB3DetailResultService {
 
     private final KpiB3ResultRepository kpiB3ResultRepository;
 
-    private final AnagStationRepository anagStationRepository;
-
     public KpiB3DetailResultServiceImpl(
         InstanceRepository instanceRepository,
         InstanceModuleRepository instanceModuleRepository,
         KpiB3DetailResultRepository kpiB3DetailResultRepository,
-        KpiB3ResultRepository kpiB3ResultRepository,
-        AnagStationRepository anagStationRepository
+        KpiB3ResultRepository kpiB3ResultRepository
     ) {
         this.instanceRepository = instanceRepository;
         this.instanceModuleRepository = instanceModuleRepository;
         this.kpiB3DetailResultRepository = kpiB3DetailResultRepository;
         this.kpiB3ResultRepository = kpiB3ResultRepository;
-        this.anagStationRepository = anagStationRepository;
     }
 
     /**
@@ -91,14 +86,10 @@ public class KpiB3DetailResultServiceImpl implements KpiB3DetailResultService {
         InstanceModule instanceModule,
         KpiB3Result kpiB3Result
     ) {
-        AnagStation anagStation = anagStationRepository
-            .findById(kpiB3DetailResultDTO.getAnagStationId())
-            .orElseThrow(() -> new IllegalArgumentException("AnagStation not found"));
-
         KpiB3DetailResult kpiB3DetailResult = new KpiB3DetailResult();
         kpiB3DetailResult.setInstance(instance);
         kpiB3DetailResult.setInstanceModule(instanceModule);
-        kpiB3DetailResult.setAnagStation(anagStation);
+        // No anagStation field - this entity stores partner-level aggregated data
         kpiB3DetailResult.setKpiB3Result(kpiB3Result);
         kpiB3DetailResult.setAnalysisDate(kpiB3DetailResultDTO.getAnalysisDate());
         kpiB3DetailResult.setEvaluationType(kpiB3DetailResultDTO.getEvaluationType());
@@ -141,7 +132,8 @@ public class KpiB3DetailResultServiceImpl implements KpiB3DetailResultService {
         dto.setId(kpiB3DetailResult.getId());
         dto.setInstanceId(kpiB3DetailResult.getInstance().getId());
         dto.setInstanceModuleId(kpiB3DetailResult.getInstanceModule().getId());
-        dto.setAnagStationId(kpiB3DetailResult.getAnagStation().getId());
+        // No anagStationId - this entity represents partner-level aggregated data
+        dto.setAnagStationId(null);
         dto.setKpiB3ResultId(kpiB3DetailResult.getKpiB3Result().getId());
         dto.setAnalysisDate(kpiB3DetailResult.getAnalysisDate());
         dto.setEvaluationType(kpiB3DetailResult.getEvaluationType());
@@ -151,4 +143,6 @@ public class KpiB3DetailResultServiceImpl implements KpiB3DetailResultService {
         dto.setOutcome(kpiB3DetailResult.getOutcome());
         return dto;
     }
+
+
 }

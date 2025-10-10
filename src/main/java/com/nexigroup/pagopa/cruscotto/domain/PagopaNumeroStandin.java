@@ -20,7 +20,7 @@ import org.hibernate.annotations.DynamicUpdate;
  * Events are aggregated by 15-minute intervals and by station for performance optimization.
  */
 @Entity
-@Table(name = "PAGOPA_NUMERO_STANDIN")
+@Table(name = "STANDIN_NUMBER")
 @Getter
 @Setter
 @DynamicUpdate

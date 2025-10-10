@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                      http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+  <!-- Creazione tabella PAGOPA_APILOG con ID auto-increment -->
+  <changeSet id="20251006121500-1" author="system" context="ddl">
+    <createTable tableName="PAGOPA_APILOG">
+      <column name="ID" type="bigint" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_PAGOAPILOG"/>
+      </column>
+      <column name="CF_PARTNER" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DATE" type="timestamp">
+        <constraints nullable="false"/>
+      </column>
+      <column name="STATION" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CF_INSTITUTION" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="API" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="REQ_TOTAL" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="REQ_OK" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="REQ_KO" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <rollback>
+      DROP TABLE ${database.defaultSchemaName}.PAGOPA_APILOG CASCADE CONSTRAINTS;
+    </rollback>
+  </changeSet>
+
+  <!-- Indice su CF_PARTNER, API, STATION, CF_INSTITUTION -->
+  <changeSet id="20251006121500-2" author="system" context="ddl">
+    <createIndex indexName="IX${project_name}_PAGOAPILOG" tableName="PAGOPA_APILOG">
+      <column name="CF_PARTNER"/>
+      <column name="API"/>
+      <column name="STATION"/>
+      <column name="CF_INSTITUTION"/>
+    </createIndex>
+  </changeSet>
+
+</databaseChangeLog>
