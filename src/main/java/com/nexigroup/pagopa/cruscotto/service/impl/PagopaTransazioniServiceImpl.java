@@ -4,7 +4,7 @@ import com.nexigroup.pagopa.cruscotto.domain.PagopaTransazioni;
 import com.nexigroup.pagopa.cruscotto.domain.QPagopaTransazioni;
 import com.nexigroup.pagopa.cruscotto.repository.PagopaTransazioniRepository;
 import com.nexigroup.pagopa.cruscotto.service.PagopaTransazioniService;
-import com.nexigroup.pagopa.cruscotto.service.dto.PagopaTransazioniDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.PagopaTransactionDTO;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPQLQuery;
@@ -39,7 +39,7 @@ public class PagopaTransazioniServiceImpl implements PagopaTransazioniService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<PagopaTransazioniDTO> findAllRecordIntoPeriodForPartner(
+    public List<PagopaTransactionDTO> findAllRecordIntoPeriodForPartner(
             String partnerFiscalCode, 
             LocalDate startDate, 
             LocalDate endDate) {
@@ -49,7 +49,7 @@ public class PagopaTransazioniServiceImpl implements PagopaTransazioniService {
 
         final QPagopaTransazioni qPagopaTransazioni = QPagopaTransazioni.pagopaTransazioni;
 
-        JPQLQuery<PagopaTransazioniDTO> query = queryBuilder
+        JPQLQuery<PagopaTransactionDTO> query = queryBuilder
             .createQuery()
             .from(qPagopaTransazioni)
             .where(qPagopaTransazioni.partner.eq(partnerFiscalCode)
@@ -59,7 +59,7 @@ public class PagopaTransazioniServiceImpl implements PagopaTransazioniService {
                      qPagopaTransazioni.stazione.asc())
             .select(
                 Projections.fields(
-                    PagopaTransazioniDTO.class,
+                    PagopaTransactionDTO.class,
                     qPagopaTransazioni.id.as("id"),
                     qPagopaTransazioni.partner.as("partner"),
                     qPagopaTransazioni.ente.as("ente"),
@@ -74,7 +74,7 @@ public class PagopaTransazioniServiceImpl implements PagopaTransazioniService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<PagopaTransazioniDTO> findAllRecordIntoPeriodForEntity(
+    public List<PagopaTransactionDTO> findAllRecordIntoPeriodForEntity(
             String entityCode, 
             LocalDate startDate, 
             LocalDate endDate) {
@@ -84,7 +84,7 @@ public class PagopaTransazioniServiceImpl implements PagopaTransazioniService {
 
         final QPagopaTransazioni qPagopaTransazioni = QPagopaTransazioni.pagopaTransazioni;
 
-        JPQLQuery<PagopaTransazioniDTO> query = queryBuilder
+        JPQLQuery<PagopaTransactionDTO> query = queryBuilder
             .createQuery()
             .from(qPagopaTransazioni)
             .where(qPagopaTransazioni.ente.eq(entityCode)
@@ -93,7 +93,7 @@ public class PagopaTransazioniServiceImpl implements PagopaTransazioniService {
                      qPagopaTransazioni.stazione.asc())
             .select(
                 Projections.fields(
-                    PagopaTransazioniDTO.class,
+                    PagopaTransactionDTO.class,
                     qPagopaTransazioni.id.as("id"),
                     qPagopaTransazioni.partner.as("partner"),
                     qPagopaTransazioni.ente.as("ente"),
@@ -158,14 +158,14 @@ public class PagopaTransazioniServiceImpl implements PagopaTransazioniService {
      * @param entity the entity to convert
      * @return the DTO
      */
-    public static @NotNull PagopaTransazioniDTO convertToDTO(PagopaTransazioni entity) {
-        PagopaTransazioniDTO dto = new PagopaTransazioniDTO();
+    public static @NotNull PagopaTransactionDTO convertToDTO(PagopaTransazioni entity) {
+        PagopaTransactionDTO dto = new PagopaTransactionDTO();
         dto.setId(entity.getId());
-        dto.setPartner(entity.getPartner());
-        dto.setEnte(entity.getEnte());
-        dto.setData(entity.getData());
-        dto.setStazione(entity.getStazione());
-        dto.setTotaleTransazioni(entity.getTotaleTransazioni());
+        dto.setCfPartner(entity.getCfPartner());
+        dto.setCfInstitution(entity.getCfInstitution());
+        dto.setDate(entity.getDate());
+        dto.setStation(entity.getStation());
+        dto.setTransactionTotal(entity.getTransactionTotal());
         return dto;
     }
 
@@ -175,14 +175,14 @@ public class PagopaTransazioniServiceImpl implements PagopaTransazioniService {
      * @param dto the DTO to convert
      * @return the entity
      */
-    public static @NotNull PagopaTransazioni convertToEntity(PagopaTransazioniDTO dto) {
+    public static @NotNull PagopaTransazioni convertToEntity(PagopaTransactionDTO dto) {
         PagopaTransazioni entity = new PagopaTransazioni();
         entity.setId(dto.getId());
-        entity.setPartner(dto.getPartner());
-        entity.setEnte(dto.getEnte());
-        entity.setData(dto.getData());
-        entity.setStazione(dto.getStazione());
-        entity.setTotaleTransazioni(dto.getTotaleTransazioni());
+        entity.setCfPartner(dto.getCfPartner());
+        entity.setCfInstitution(dto.getCfInstitution());
+        entity.setDate(dto.getDate());
+        entity.setStation(dto.getStation());
+        entity.setTransactionTotal(dto.getTransactionTotal());
         return entity;
     }
 }
