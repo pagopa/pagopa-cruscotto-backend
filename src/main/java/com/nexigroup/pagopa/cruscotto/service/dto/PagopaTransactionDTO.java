@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import org.springframework.lang.NonNull;
 
 /**
- * A DTO for the {@link com.nexigroup.pagopa.cruscotto.domain.PagopaTransazioni} entity.
+ * A DTO for the {@link com.nexigroup.pagopa.cruscotto.domain.PagopaTransaction} entity.
  */
 public class PagopaTransactionDTO {
 

@@ -1,6 +1,6 @@
 package com.nexigroup.pagopa.cruscotto.repository;
 
-import com.nexigroup.pagopa.cruscotto.domain.PagopaTransazioni;
+import com.nexigroup.pagopa.cruscotto.domain.PagopaTransaction;
 import java.time.LocalDate;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,10 +13,10 @@ import org.springframework.stereotype.Repository;
  * Spring Data repository for the PagopaTransazioni entity.
  */
 @Repository
-public interface PagopaTransazioniRepository extends JpaRepository<PagopaTransazioni, Long>, JpaSpecificationExecutor<PagopaTransazioni> {
+public interface PagopaTransazioniRepository extends JpaRepository<PagopaTransaction, Long>, JpaSpecificationExecutor<PagopaTransaction> {
     
     @Query("SELECT p FROM PagopaTransazioni p WHERE p.data BETWEEN :startDate AND :endDate")
-    List<PagopaTransazioni> findByDateRange(
+    List<PagopaTransaction> findByDateRange(
         @Param("startDate") LocalDate startDate,
         @Param("endDate") LocalDate endDate
     );
@@ -42,14 +42,14 @@ public interface PagopaTransazioniRepository extends JpaRepository<PagopaTransaz
     );
 
     @Query("SELECT p FROM PagopaTransazioni p WHERE p.partner = :partner AND p.data BETWEEN :startDate AND :endDate")
-    List<PagopaTransazioni> findByPartnerAndDateRange(
+    List<PagopaTransaction> findByPartnerAndDateRange(
         @Param("partner") String partner,
         @Param("startDate") LocalDate startDate,
         @Param("endDate") LocalDate endDate
     );
 
     @Query("SELECT p FROM PagopaTransazioni p WHERE p.ente = :ente AND p.data BETWEEN :startDate AND :endDate")
-    List<PagopaTransazioni> findByEnteAndDateRange(
+    List<PagopaTransaction> findByEnteAndDateRange(
         @Param("ente") String ente,
         @Param("startDate") LocalDate startDate,
         @Param("endDate") LocalDate endDate
