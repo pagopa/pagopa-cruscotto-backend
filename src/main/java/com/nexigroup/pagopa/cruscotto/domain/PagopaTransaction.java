@@ -29,7 +29,7 @@ import org.hibernate.annotations.DynamicUpdate;
 @DynamicUpdate
 @DynamicInsert
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class PagopaTransazioni implements Serializable {
+public class PagopaTransaction implements Serializable {
 
     private static final long serialVersionUID = -6090145346504076144L;
 
@@ -65,7 +65,7 @@ public class PagopaTransazioni implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
 
-        if (!(o instanceof PagopaTransazioni that)) return false;
+        if (!(o instanceof PagopaTransaction that)) return false;
 
         return new EqualsBuilder().append(id, that.id).isEquals();
     }

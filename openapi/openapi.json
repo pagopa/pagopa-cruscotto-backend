@@ -4669,7 +4669,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/PagopaNumeroTransazioniDTO"
+                    "$ref": "#/components/schemas/KpiB1AnalyticDrillDownDTO"
                   }
                 }
               }
@@ -10575,7 +10575,7 @@
             "type": "integer",
             "format": "int32"
           },
-          "institutionDifferencePercentageEC":{
+          "institutionDifferencePercentage":{
             "type": "number",
             "format": "double"
           },
@@ -11748,12 +11748,14 @@
           }
         }
       },
-      "PagopaNumeroTransazioniDTO": {
+      "KpiB1AnalyticDrillDownDTO": {
          "required": [
+          "id",
+          "kpiB1AnalyticDataId",
           "partnerFiscalCode",
           "dataDate",
           "stationCode",
-          "fiscalCode",
+          "institutionFiscalCode",
           "transactionCount"
         ],
         "type": "object",
@@ -11762,27 +11764,20 @@
             "type": "integer",
             "format": "int64"
           },
+          "kpiB1AnalyticDataId": {
+            "type": "integer",
+            "format": "int64"
+          },
           "dataDate": {
             "type": "string",
             "format": "date"
           },
-          "loadTimestamp": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "partnerId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "partnerName": {
-            "type": "string"
-          },
-          "fiscalCode": {
+          "partnerFiscalCode": {
             "maxLength": 255,
             "minLength": 0,
             "type": "string"
           },
-          "partnerFiscalCode": {
+          "institutionFiscalCode": {
             "maxLength": 255,
             "minLength": 0,
             "type": "string"
