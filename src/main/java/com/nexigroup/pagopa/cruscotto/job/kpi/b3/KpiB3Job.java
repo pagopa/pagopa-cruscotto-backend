@@ -3,6 +3,7 @@ package com.nexigroup.pagopa.cruscotto.job.kpi.b3;
 import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
+import com.nexigroup.pagopa.cruscotto.job.config.JobConstant;
 import com.nexigroup.pagopa.cruscotto.domain.PagopaNumeroStandin;
 import com.nexigroup.pagopa.cruscotto.repository.PagopaNumeroStandinRepository;
 import com.nexigroup.pagopa.cruscotto.service.InstanceService;
@@ -26,6 +27,7 @@ import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobDetail;
 import org.quartz.JobBuilder;
+import org.quartz.JobKey;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.SimpleScheduleBuilder;
@@ -165,6 +167,22 @@ public class KpiB3Job extends QuartzJobBean {
                         instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(), kpiB3ResultFinalOutcome.get());
 
                         LOGGER.info("Instance module {} updated with outcome: {}", instanceModuleDTO.getId(), kpiB3ResultFinalOutcome.get());
+
+                        // 6. Trigger calculateStateInstanceJob to update instance state
+                        try {
+                            JobDetail job = scheduler.getJobDetail(JobKey.jobKey(JobConstant.CALCULATE_STATE_INSTANCE_JOB, "DEFAULT"));
+
+                            Trigger trigger = TriggerBuilder.newTrigger()
+                                .usingJobData("instanceId", instanceDTO.getId())
+                                .withSchedule(SimpleScheduleBuilder.simpleSchedule().withMisfireHandlingInstructionFireNow().withRepeatCount(0))
+                                .forJob(job)
+                                .build();
+
+                            scheduler.scheduleJob(trigger);
+                            LOGGER.info("Successfully triggered calculateStateInstanceJob for instance: {}", instanceDTO.getId());
+                        } catch (Exception e) {
+                            LOGGER.error("Error triggering calculateStateInstanceJob for instance: {}", instanceDTO.getId(), e);
+                        }
 
                     } catch (Exception e) {
                         LOGGER.error(
