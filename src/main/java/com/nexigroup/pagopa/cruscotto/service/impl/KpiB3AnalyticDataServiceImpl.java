@@ -174,9 +174,8 @@ public class KpiB3AnalyticDataServiceImpl implements KpiB3AnalyticDataService {
             dto.setAnalysisPeriod(periodStart + " - " + periodEnd);
         }
         
-        // Station fiscal code (via partner)
-        dto.setStationFiscalCode(kpiB3AnalyticData.getAnagStation().getAnagPartner() != null ? 
-            kpiB3AnalyticData.getAnagStation().getAnagPartner().getFiscalCode() : null);
+        // Station fiscal code (use station name as it represents the station code)
+        dto.setStationFiscalCode(kpiB3AnalyticData.getAnagStation().getName());
         
         return dto;
     }
