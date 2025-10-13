@@ -12,6 +12,7 @@ import com.nexigroup.pagopa.cruscotto.service.KpiB1ResultService;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB1ResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import com.querydsl.jpa.impl.JPAUpdateClause;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
@@ -79,8 +80,12 @@ public class KpiB1ResultServiceImpl implements KpiB1ResultService {
         kpiB1Result.setInstanceModule(instanceModule);
         kpiB1Result.setAnalysisDate(kpiB1ResultDTO.getAnalysisDate());
         kpiB1Result.setEvaluationType(kpiB1ResultDTO.getEvaluationType());
-        kpiB1Result.setMinEntitiesThreshold(kpiB1ResultDTO.getMinEntitiesThreshold());
-        kpiB1Result.setMinTransactionsThreshold(kpiB1ResultDTO.getMinTransactionsThreshold());
+        kpiB1Result.setExcludePlannedShutdown(false); // Default value
+        kpiB1Result.setExcludeUnplannedShutdown(false); // Default value
+        kpiB1Result.setEntityCountThreshold(kpiB1ResultDTO.getInstitutionTolerance().intValue());
+        kpiB1Result.setTransactionCountThreshold(kpiB1ResultDTO.getTransactionTolerance().longValue());
+        kpiB1Result.setActualEntityCount(kpiB1ResultDTO.getInstitutionCount());
+        kpiB1Result.setActualTransactionCount(kpiB1ResultDTO.getTransactionCount());
         kpiB1Result.setOutcome(kpiB1ResultDTO.getOutcome());
 
         return kpiB1Result;
@@ -93,8 +98,10 @@ public class KpiB1ResultServiceImpl implements KpiB1ResultService {
         kpiB1ResultDTO.setInstanceModuleId(kpiB1Result.getInstanceModule().getId());
         kpiB1ResultDTO.setAnalysisDate(kpiB1Result.getAnalysisDate());
         kpiB1ResultDTO.setEvaluationType(kpiB1Result.getEvaluationType());
-        kpiB1ResultDTO.setMinEntitiesThreshold(kpiB1Result.getMinEntitiesThreshold());
-        kpiB1ResultDTO.setMinTransactionsThreshold(kpiB1Result.getMinTransactionsThreshold());
+        kpiB1ResultDTO.setInstitutionTolerance(BigDecimal.valueOf(kpiB1Result.getEntityCountThreshold()));
+        kpiB1ResultDTO.setTransactionTolerance(BigDecimal.valueOf(kpiB1Result.getTransactionCountThreshold()));
+        kpiB1ResultDTO.setInstitutionCount(kpiB1Result.getActualEntityCount());
+        kpiB1ResultDTO.setTransactionCount(kpiB1Result.getActualTransactionCount());
         kpiB1ResultDTO.setOutcome(kpiB1Result.getOutcome());
         
         return kpiB1ResultDTO;
