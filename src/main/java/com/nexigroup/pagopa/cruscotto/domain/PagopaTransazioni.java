@@ -23,7 +23,7 @@ import org.hibernate.annotations.DynamicUpdate;
  * A PagopaTransazioni.
  */
 @Entity
-@Table(name = "PAGOPA_TRANSAZIONI")
+@Table(name = "PAGOPA_TRANSACTION")
 @Getter
 @Setter
 @DynamicUpdate
@@ -40,26 +40,26 @@ public class PagopaTransazioni implements Serializable {
 
     @NotNull
     @Size(min = 1, max = 35)
-    @Column(name = "PARTNER", length = 35, nullable = false)
-    private String partner;
+    @Column(name = "CF_PARTNER", length = 35, nullable = false)
+    private String cfPartner;
 
     @NotNull
     @Size(min = 1, max = 35)
-    @Column(name = "ENTE", length = 35, nullable = false)
-    private String ente;
+    @Column(name = "CF_INSTITUTION", length = 35, nullable = false)
+    private String cfInstitution;
 
     @NotNull
-    @Column(name = "DATA", nullable = false)
-    private LocalDate data;
+    @Column(name = "DATE", nullable = false)
+    private LocalDate date;
 
     @NotNull
     @Size(min = 1, max = 35)
-    @Column(name = "STAZIONE", length = 35, nullable = false)
-    private String stazione;
+    @Column(name = "STATION", length = 35, nullable = false)
+    private String station;
 
     @NotNull
-    @Column(name = "TOTALE_TRANSAZIONI", nullable = false)
-    private Integer totaleTransazioni;
+    @Column(name = "TRANSACTION_TOTAL", nullable = false)
+    private Integer transactionTotal;
 
     @Override
     public boolean equals(Object o) {
@@ -78,19 +78,19 @@ public class PagopaTransazioni implements Serializable {
     @Override
     public String toString() {
         return (
-            "PagopaTransazioni{" +
+            "PagopaTransaction{" +
             "id=" +
             id +
-            ", partner='" +
-            partner + '\'' +
-            ", ente='" +
-            ente + '\'' +
-            ", data=" +
-            data +
-            ", stazione='" +
-            stazione + '\'' +
-            ", totaleTransazioni=" +
-            totaleTransazioni +
+            ", cfPartner='" +
+            cfPartner + '\'' +
+            ", cfInstitution='" +
+            cfInstitution + '\'' +
+            ", date=" +
+            date +
+            ", station='" +
+            station + '\'' +
+            ", transactionTotal=" +
+            transactionTotal +
             '}'
         );
     }

@@ -61,19 +61,19 @@ public class KpiB1Job extends QuartzJobBean {
      */
     private List<KpiB1AnalyticDrillDownDTO> aggregateKpiB1AnalyticDataDrillDown(
             AtomicReference<KpiB1AnalyticDataDTO> kpiB1AnalyticDataRef,
-            List<PagopaTransazioniDTO> filteredPeriodRecords,
+            List<PagopaTransactionDTO> filteredPeriodRecords,
             LocalDate detailResultEvaluationStartDate,
             LocalDate detailResultEvaluationEndDate) {
 
         List<KpiB1AnalyticDrillDownDTO> drillDownList = new ArrayList<>();
 
-        for (PagopaTransazioniDTO record : filteredPeriodRecords) {
+        for (PagopaTransactionDTO record : filteredPeriodRecords) {
             KpiB1AnalyticDrillDownDTO drillDown = new KpiB1AnalyticDrillDownDTO();
             drillDown.setKpiB1AnalyticDataId(kpiB1AnalyticDataRef.get().getId());
-            drillDown.setEnte(record.getEnte());
-            drillDown.setStazione(record.getStazione());
-            drillDown.setData(record.getData());
-            drillDown.setTotaleTransazioni(record.getTotaleTransazioni());
+            drillDown.setEnte(record.getCfInstitution());
+            drillDown.setStazione(record.getStation());
+            drillDown.setData(record.getDate());
+            drillDown.setTotaleTransazioni(record.getTransactionTotal());
             drillDownList.add(drillDown);
         }
 
@@ -87,27 +87,27 @@ public class KpiB1Job extends QuartzJobBean {
             InstanceDTO instanceDTO,
             InstanceModuleDTO instanceModuleDTO,
             AtomicReference<KpiB1DetailResultDTO> kpiB1DetailResultRef,
-            List<PagopaTransazioniDTO> filteredMonthRecords,
+            List<PagopaTransactionDTO> filteredMonthRecords,
             LocalDate detailResultEvaluationStartDate,
             LocalDate detailResultEvaluationEndDate) {
 
         List<KpiB1AnalyticDataDTO> analyticDataList = new ArrayList<>();
 
         // Group by entity for the month
-        Map<String, List<PagopaTransazioniDTO>> groupedByEntity = filteredMonthRecords.stream()
-                .collect(Collectors.groupingBy(PagopaTransazioniDTO::getEnte));
+        Map<String, List<PagopaTransactionDTO>> groupedByEntity = filteredMonthRecords.stream()
+                .collect(Collectors.groupingBy(PagopaTransactionDTO::getCfInstitution));
 
-        for (Map.Entry<String, List<PagopaTransazioniDTO>> entityEntry : groupedByEntity.entrySet()) {
+        for (Map.Entry<String, List<PagopaTransactionDTO>> entityEntry : groupedByEntity.entrySet()) {
             String entityCode = entityEntry.getKey();
-            List<PagopaTransazioniDTO> entityRecords = entityEntry.getValue();
+            List<PagopaTransactionDTO> entityRecords = entityEntry.getValue();
 
             // Calculate totals for this entity in the month
             long totalTransactions = entityRecords.stream()
-                    .mapToLong(PagopaTransazioniDTO::getTotaleTransazioni)
+                    .mapToLong(PagopaTransactionDTO::getTransactionTotal)
                     .sum();
 
             int uniqueStations = (int) entityRecords.stream()
-                    .map(PagopaTransazioniDTO::getStazione)
+                    .map(PagopaTransactionDTO::getStation)
                     .distinct()
                     .count();
 
@@ -135,7 +135,7 @@ public class KpiB1Job extends QuartzJobBean {
             InstanceDTO instanceDTO,
             InstanceModuleDTO instanceModuleDTO,
             AtomicReference<KpiB1ResultDTO> kpiB1ResultRef,
-            List<PagopaTransazioniDTO> filteredPeriodRecords,
+            List<PagopaTransactionDTO> filteredPeriodRecords,
             AtomicReference<OutcomeStatus> kpiB1ResultFinalOutcome) {
 
         List<KpiB1DetailResultDTO> detailResults = new ArrayList<>();
@@ -154,20 +154,20 @@ public class KpiB1Job extends QuartzJobBean {
                     ? analysisEnd
                     : current.with(TemporalAdjusters.lastDayOfMonth());
 
-            List<PagopaTransazioniDTO> monthPeriodRecords = filteredPeriodRecords.stream()
+            List<PagopaTransactionDTO> monthPeriodRecords = filteredPeriodRecords.stream()
                     .filter(record -> {
-                        LocalDate recordDate = record.getData();
+                        LocalDate recordDate = record.getDate();
                         return !recordDate.isBefore(firstDayOfMonth) && !recordDate.isAfter(lastDayOfMonth);
                     })
                     .collect(Collectors.toList());
 
             // Calculate monthly totals
             long monthlyTotalTransactions = monthPeriodRecords.stream()
-                    .mapToLong(PagopaTransazioniDTO::getTotaleTransazioni)
+                    .mapToLong(PagopaTransactionDTO::getTransactionTotal)
                     .sum();
 
             int monthlyUniqueEntities = (int) monthPeriodRecords.stream()
-                    .map(PagopaTransazioniDTO::getEnte)
+                    .map(PagopaTransactionDTO::getCfInstitution)
                     .distinct()
                     .count();
 
@@ -204,7 +204,7 @@ public class KpiB1Job extends QuartzJobBean {
         // Add TOTALE detail result for the whole analysis period
         // For total period, we need to count unique entities across the entire period
         int totalUniqueEntitiesAcrossPeriod = (int) filteredPeriodRecords.stream()
-                .map(PagopaTransazioniDTO::getEnte)
+                .map(PagopaTransactionDTO::getCfInstitution)
                 .distinct()
                 .count();
 
@@ -241,7 +241,7 @@ public class KpiB1Job extends QuartzJobBean {
             InstanceDTO instanceDTO, 
             InstanceModuleDTO instanceModuleDTO, 
             KpiConfigurationDTO kpiConfigurationDTO, 
-            List<PagopaTransazioniDTO> records) {
+            List<PagopaTransactionDTO> records) {
 
         KpiB1ResultDTO kpiB1ResultDTO = new KpiB1ResultDTO();
         kpiB1ResultDTO.setInstanceId(instanceDTO.getId());
@@ -316,7 +316,7 @@ public class KpiB1Job extends QuartzJobBean {
                 kpiB1ResultService.deleteAllByInstanceModule(instanceModuleDTO.getId());
 
                 // Fetch all transaction records for the analysis period from PAGOPA_TRANSAZIONI
-                List<PagopaTransazioniDTO> periodRecords = pagopaTransazioniService
+                List<PagopaTransactionDTO> periodRecords = pagopaTransazioniService
                         .findAllRecordIntoPeriodForPartner(
                                 instanceDTO.getPartnerFiscalCode(),
                                 instanceDTO.getAnalysisPeriodStartDate(),
@@ -331,7 +331,7 @@ public class KpiB1Job extends QuartzJobBean {
                         kpiB1ResultService.save(kpiB1ResultDTO));
 
                 // For B.1, we don't need maintenance filtering like B.2, but we use all records
-                List<PagopaTransazioniDTO> filteredPeriodRecords = new ArrayList<>(periodRecords);
+                List<PagopaTransactionDTO> filteredPeriodRecords = new ArrayList<>(periodRecords);
 
                 // --- Aggregation: KpiB1DetailResult ---
                 List<KpiB1DetailResultDTO> detailResults = aggregateKpiB1DetailResult(
@@ -353,7 +353,7 @@ public class KpiB1Job extends QuartzJobBean {
                                 kpiB1DetailResultRef,
                                 filteredPeriodRecords.stream()
                                         .filter(record -> {
-                                            LocalDate recordDate = record.getData();
+                                            LocalDate recordDate = record.getDate();
                                             return !recordDate.isBefore(detailResult.getEvaluationStartDate())
                                                     && !recordDate.isAfter(detailResult.getEvaluationEndDate());
                                         })
@@ -370,9 +370,9 @@ public class KpiB1Job extends QuartzJobBean {
                                     kpiB1AnalyticDataRef,
                                     filteredPeriodRecords.stream()
                                             .filter(record ->
-                                                    record.getEnte().equals(analyticData.getEntityCode()) &&
-                                                    !record.getData().isBefore(analyticData.getEvaluationStartDate()) &&
-                                                    !record.getData().isAfter(analyticData.getEvaluationEndDate())
+                                                    record.getCfInstitution().equals(analyticData.getEntityCode()) &&
+                                                    !record.getDate().isBefore(analyticData.getEvaluationStartDate()) &&
+                                                    !record.getDate().isAfter(analyticData.getEvaluationEndDate())
                                             )
                                             .collect(Collectors.toList()),
                                     detailResult.getEvaluationStartDate(),

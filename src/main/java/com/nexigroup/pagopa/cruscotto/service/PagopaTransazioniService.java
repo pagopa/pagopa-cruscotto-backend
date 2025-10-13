@@ -1,6 +1,6 @@
 package com.nexigroup.pagopa.cruscotto.service;
 
-import com.nexigroup.pagopa.cruscotto.service.dto.PagopaTransazioniDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.PagopaTransactionDTO;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -17,7 +17,7 @@ public interface PagopaTransazioniService {
      * @param endDate the end date of the period
      * @return list of PagopaTransazioniDTO
      */
-    List<PagopaTransazioniDTO> findAllRecordIntoPeriodForPartner(
+    List<PagopaTransactionDTO> findAllRecordIntoPeriodForPartner(
             String partnerFiscalCode, 
             LocalDate startDate, 
             LocalDate endDate);
@@ -30,7 +30,7 @@ public interface PagopaTransazioniService {
      * @param endDate the end date of the period
      * @return list of PagopaTransazioniDTO
      */
-    List<PagopaTransazioniDTO> findAllRecordIntoPeriodForEntity(
+    List<PagopaTransactionDTO> findAllRecordIntoPeriodForEntity(
             String entityCode, 
             LocalDate startDate, 
             LocalDate endDate);

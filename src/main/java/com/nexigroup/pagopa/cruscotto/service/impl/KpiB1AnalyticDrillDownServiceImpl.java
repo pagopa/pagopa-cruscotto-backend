@@ -69,10 +69,10 @@ public class KpiB1AnalyticDrillDownServiceImpl implements KpiB1AnalyticDrillDown
     ) {
         KpiB1AnalyticDrillDown kpiB1AnalyticDrillDown = new KpiB1AnalyticDrillDown();
         kpiB1AnalyticDrillDown.setKpiB1AnalyticData(kpiB1AnalyticData);
-        kpiB1AnalyticDrillDown.setEnte(kpiB1AnalyticDrillDownDTO.getEnte());
-        kpiB1AnalyticDrillDown.setStazione(kpiB1AnalyticDrillDownDTO.getStazione());
-        kpiB1AnalyticDrillDown.setData(kpiB1AnalyticDrillDownDTO.getData());
-        kpiB1AnalyticDrillDown.setTotaleTransazioni(kpiB1AnalyticDrillDownDTO.getTotaleTransazioni());
+        kpiB1AnalyticDrillDown.setCfInstitution(kpiB1AnalyticDrillDownDTO.getEnte());
+        kpiB1AnalyticDrillDown.setStation(kpiB1AnalyticDrillDownDTO.getStazione());
+        kpiB1AnalyticDrillDown.setDate(kpiB1AnalyticDrillDownDTO.getData());
+        kpiB1AnalyticDrillDown.setTransactionTotal(kpiB1AnalyticDrillDownDTO.getTotaleTransazioni());
 
         return kpiB1AnalyticDrillDown;
     }
