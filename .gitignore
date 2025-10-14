@@ -166,5 +166,6 @@ __TEMP/*
 *.env
 **/charts/*
 *.BCK
-/analisi
+analisi/*
+test-data/
 .vscode
