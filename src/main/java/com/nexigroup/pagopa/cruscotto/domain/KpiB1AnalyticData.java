@@ -12,9 +12,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
@@ -66,35 +64,18 @@ public class KpiB1AnalyticData implements Serializable {
     private LocalDate dataDate;
 
     @NotNull
-    @Size(min = 1, max = 35)
-    @Column(name = "TE_PARTNER_CODE", length = 35, nullable = false)
-    private String partnerCode;
-
-    @Size(max = 100)
-    @Column(name = "TE_PARTNER_NAME", length = 100)
-    private String partnerName;
-
-    @NotNull
-    @Column(name = "CO_ENTITY_COUNT", nullable = false)
-    private Integer entityCount;
+    @Column(name = "CO_INSTITUTION_COUNT", nullable = false)
+    private Integer institutionCount;
 
     @NotNull
     @Column(name = "CO_TRANSACTION_COUNT", nullable = false)
-    private Long transactionCount;
+    private Integer transactionCount;
 
-    @Column(name = "CO_TRANSACTION_AMOUNT", precision = 19, scale = 2)
-    private BigDecimal transactionAmount;
-
-    @Column(name = "CO_AVERAGE_DAILY_TRANSACTIONS", precision = 19, scale = 2)
-    private BigDecimal averageDailyTransactions;
-
+    @JsonIgnore
     @NotNull
-    @Column(name = "FL_MEETS_ENTITY_THRESHOLD", nullable = false)
-    private Boolean meetsEntityThreshold;
-
-    @NotNull
-    @Column(name = "FL_MEETS_TRANSACTION_THRESHOLD", nullable = false)
-    private Boolean meetsTransactionThreshold;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "CO_KPI_B1_DETAIL_RESULT_ID", nullable = false)
+    private KpiB1DetailResult kpiB1DetailResult;
 
     @Override
     public boolean equals(Object o) {
@@ -124,22 +105,12 @@ public class KpiB1AnalyticData implements Serializable {
             analysisDate +
             ", dataDate=" +
             dataDate +
-            ", partnerCode='" +
-            partnerCode + '\'' +
-            ", partnerName='" +
-            partnerName + '\'' +
-            ", entityCount=" +
-            entityCount +
+            ", institutionCount=" +
+            institutionCount +
             ", transactionCount=" +
             transactionCount +
-            ", transactionAmount=" +
-            transactionAmount +
-            ", averageDailyTransactions=" +
-            averageDailyTransactions +
-            ", meetsEntityThreshold=" +
-            meetsEntityThreshold +
-            ", meetsTransactionThreshold=" +
-            meetsTransactionThreshold +
+            ", kpiB1DetailResult=" +
+            kpiB1DetailResult +
             '}'
         );
     }

@@ -17,6 +17,7 @@ import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
@@ -64,28 +65,20 @@ public class KpiB1Result implements Serializable {
     private LocalDate analysisDate;
 
     @NotNull
-    @Column(name = "FL_EXCLUDE_PLANNED_SHUTDOWN", nullable = false)
-    private Boolean excludePlannedShutdown;
+    @Column(name = "CO_INSTITUTION_COUNT", nullable = false)
+    private Integer institutionCount;
 
     @NotNull
-    @Column(name = "FL_EXCLUDE_UNPLANNED_SHUTDOWN", nullable = false)
-    private Boolean excludeUnplannedShutdown;
+    @Column(name = "CO_TRANSACTION_COUNT", nullable = false)
+    private Integer transactionCount;
 
     @NotNull
-    @Column(name = "CO_ENTITY_COUNT_THRESHOLD", nullable = false)
-    private Integer entityCountThreshold;
+    @Column(name = "CO_INSTITUTION_TOLERANCE", nullable = false)
+    private BigDecimal institutionTolerance;
 
     @NotNull
-    @Column(name = "CO_TRANSACTION_COUNT_THRESHOLD", nullable = false)
-    private Long transactionCountThreshold;
-
-    @NotNull
-    @Column(name = "CO_ACTUAL_ENTITY_COUNT", nullable = false)
-    private Integer actualEntityCount;
-
-    @NotNull
-    @Column(name = "CO_ACTUAL_TRANSACTION_COUNT", nullable = false)
-    private Long actualTransactionCount;
+    @Column(name = "CO_TRANSACTION_TOLERANCE", nullable = false)
+    private BigDecimal transactionTolerance;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -123,18 +116,14 @@ public class KpiB1Result implements Serializable {
             instanceModule +
             ", analysisDate=" +
             analysisDate +
-            ", excludePlannedShutdown=" +
-            excludePlannedShutdown +
-            ", excludeUnplannedShutdown=" +
-            excludeUnplannedShutdown +
-            ", entityCountThreshold=" +
-            entityCountThreshold +
-            ", transactionCountThreshold=" +
-            transactionCountThreshold +
-            ", actualEntityCount=" +
-            actualEntityCount +
-            ", actualTransactionCount=" +
-            actualTransactionCount +
+            ", institutionCount=" +
+            institutionCount +
+            ", transactionCount=" +
+            transactionCount +
+            ", institutionTolerance=" +
+            institutionTolerance +
+            ", transactionTolerance=" +
+            transactionTolerance +
             ", evaluationType=" +
             evaluationType +
             ", outcome=" +

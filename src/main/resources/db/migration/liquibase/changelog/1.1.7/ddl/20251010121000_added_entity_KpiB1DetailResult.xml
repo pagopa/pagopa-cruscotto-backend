@@ -51,6 +51,9 @@
       <column name="TE_OUTCOME" type="varchar(10)">
         <constraints nullable="false"/>
       </column>
+      <column name="CO_KPI_B1_RESULT_ID" type="bigint">
+        <constraints nullable="false"/>
+      </column>
     </createTable>
     <rollback>
       DROP TABLE ${database.defaultSchemaName}.KPI_B1_DETAIL_RESULT CASCADE CONSTRAINTS;
@@ -66,6 +69,11 @@
     <createIndex indexName="IX${project_name}_KPIB1DETARESU_01"
                  tableName="KPI_B1_DETAIL_RESULT">
       <column name="TE_PARTNER_CODE"/>
+    </createIndex>
+
+    <createIndex indexName="IX${project_name}_KPIB1DETARESU_02"
+                 tableName="KPI_B1_DETAIL_RESULT">
+      <column name="CO_KPI_B1_RESULT_ID"/>
     </createIndex>
   </changeSet>
 

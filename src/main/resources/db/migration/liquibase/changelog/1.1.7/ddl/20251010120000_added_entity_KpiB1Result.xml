@@ -24,22 +24,16 @@
       <column name="DT_ANALISYS_DATE" type="date">
         <constraints nullable="false"/>
       </column>
-      <column name="FL_EXCLUDE_PLANNED_SHUTDOWN" type="boolean">
+      <column name="CO_INSTITUTION_COUNT" type="int">
         <constraints nullable="false"/>
       </column>
-      <column name="FL_EXCLUDE_UNPLANNED_SHUTDOWN" type="boolean">
+      <column name="CO_TRANSACTION_COUNT" type="int">
         <constraints nullable="false"/>
       </column>
-      <column name="CO_ENTITY_COUNT_THRESHOLD" type="int">
+      <column name="CO_INSTITUTION_TOLERANCE" type="decimal(19,2)">
         <constraints nullable="false"/>
       </column>
-      <column name="CO_TRANSACTION_COUNT_THRESHOLD" type="bigint">
-        <constraints nullable="false"/>
-      </column>
-      <column name="CO_ACTUAL_ENTITY_COUNT" type="int">
-        <constraints nullable="false"/>
-      </column>
-      <column name="CO_ACTUAL_TRANSACTION_COUNT" type="bigint">
+      <column name="CO_TRANSACTION_TOLERANCE" type="decimal(19,2)">
         <constraints nullable="false"/>
       </column>
       <column name="TE_EVALUATION_TYPE" type="varchar(50)">

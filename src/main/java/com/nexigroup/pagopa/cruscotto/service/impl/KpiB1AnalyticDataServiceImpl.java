@@ -9,8 +9,6 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPQLQuery;
 import java.util.List;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,8 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class KpiB1AnalyticDataServiceImpl implements KpiB1AnalyticDataService {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(KpiB1AnalyticDataServiceImpl.class);
 
     private final InstanceRepository instanceRepository;
 
@@ -121,11 +117,17 @@ public class KpiB1AnalyticDataServiceImpl implements KpiB1AnalyticDataService {
         kpiB1AnalyticData.setInstance(instance);
         kpiB1AnalyticData.setInstanceModule(instanceModule);
         kpiB1AnalyticData.setAnalysisDate(kpiB1AnalyticDataDTO.getAnalysisDate());
-        kpiB1AnalyticData.setEntityCode(kpiB1AnalyticDataDTO.getEntityCode());
-        kpiB1AnalyticData.setEvaluationStartDate(kpiB1AnalyticDataDTO.getEvaluationStartDate());
-        kpiB1AnalyticData.setEvaluationEndDate(kpiB1AnalyticDataDTO.getEvaluationEndDate());
-        kpiB1AnalyticData.setTotalTransactions(kpiB1AnalyticDataDTO.getTotalTransactions());
-        kpiB1AnalyticData.setUniqueStations(kpiB1AnalyticDataDTO.getUniqueStations());
+        kpiB1AnalyticData.setDataDate(kpiB1AnalyticDataDTO.getDataDate());
+        
+        // Map DTO fields to domain entity fields (field names now match)
+        if (kpiB1AnalyticDataDTO.getInstitutionCount() != null) {
+            kpiB1AnalyticData.setInstitutionCount(kpiB1AnalyticDataDTO.getInstitutionCount());
+        }
+        
+        if (kpiB1AnalyticDataDTO.getTransactionCount() != null) {
+            kpiB1AnalyticData.setTransactionCount(kpiB1AnalyticDataDTO.getTransactionCount());
+        }
+        
         kpiB1AnalyticData.setKpiB1DetailResult(kpiB1DetailResult);
 
         return kpiB1AnalyticData;
@@ -144,8 +146,8 @@ public class KpiB1AnalyticDataServiceImpl implements KpiB1AnalyticDataService {
             .createQuery()
             .from(qKpiB1AnalyticData)
             .where(qKpiB1AnalyticData.kpiB1DetailResult.id.eq(detailResultId))
-            .orderBy(qKpiB1AnalyticData.evaluationStartDate.asc(),
-                     qKpiB1AnalyticData.entityCode.asc())
+            .orderBy(qKpiB1AnalyticData.dataDate.asc(),
+                     qKpiB1AnalyticData.id.asc())
             .select(
                 Projections.fields(
                     KpiB1AnalyticDataDTO.class,
@@ -153,11 +155,9 @@ public class KpiB1AnalyticDataServiceImpl implements KpiB1AnalyticDataService {
                     qKpiB1AnalyticData.instance.id.as("instanceId"),
                     qKpiB1AnalyticData.instanceModule.id.as("instanceModuleId"),
                     qKpiB1AnalyticData.analysisDate.as("analysisDate"),
-                    qKpiB1AnalyticData.entityCode.as("entityCode"),
-                    qKpiB1AnalyticData.evaluationStartDate.as("evaluationStartDate"),
-                    qKpiB1AnalyticData.evaluationEndDate.as("evaluationEndDate"),
-                    qKpiB1AnalyticData.totalTransactions.as("totalTransactions"),
-                    qKpiB1AnalyticData.uniqueStations.as("uniqueStations"),
+                    qKpiB1AnalyticData.dataDate.as("dataDate"),
+                    qKpiB1AnalyticData.institutionCount.as("institutionCount"),
+                    qKpiB1AnalyticData.transactionCount.as("transactionCount"),
                     qKpiB1AnalyticData.kpiB1DetailResult.id.as("kpiB1DetailResultId")
                 )
             );
@@ -178,8 +178,8 @@ public class KpiB1AnalyticDataServiceImpl implements KpiB1AnalyticDataService {
             .createQuery()
             .from(qKpiB1AnalyticData)
             .where(qKpiB1AnalyticData.instanceModule.id.eq(instanceModuleId))
-            .orderBy(qKpiB1AnalyticData.evaluationStartDate.asc(),
-                     qKpiB1AnalyticData.entityCode.asc())
+            .orderBy(qKpiB1AnalyticData.dataDate.asc(),
+                     qKpiB1AnalyticData.id.asc())
             .select(
                 Projections.fields(
                     KpiB1AnalyticDataDTO.class,
@@ -187,11 +187,9 @@ public class KpiB1AnalyticDataServiceImpl implements KpiB1AnalyticDataService {
                     qKpiB1AnalyticData.instance.id.as("instanceId"),
                     qKpiB1AnalyticData.instanceModule.id.as("instanceModuleId"),
                     qKpiB1AnalyticData.analysisDate.as("analysisDate"),
-                    qKpiB1AnalyticData.entityCode.as("entityCode"),
-                    qKpiB1AnalyticData.evaluationStartDate.as("evaluationStartDate"),
-                    qKpiB1AnalyticData.evaluationEndDate.as("evaluationEndDate"),
-                    qKpiB1AnalyticData.totalTransactions.as("totalTransactions"),
-                    qKpiB1AnalyticData.uniqueStations.as("uniqueStations"),
+                    qKpiB1AnalyticData.dataDate.as("dataDate"),
+                    qKpiB1AnalyticData.institutionCount.as("institutionCount"),
+                    qKpiB1AnalyticData.transactionCount.as("transactionCount"),
                     qKpiB1AnalyticData.kpiB1DetailResult.id.as("kpiB1DetailResultId")
                 )
             );

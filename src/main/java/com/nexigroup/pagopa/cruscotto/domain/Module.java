@@ -96,6 +96,22 @@ public class Module extends AbstractAuditingEntity<Long> implements Serializable
     @Column(name = "FL_CONFIG_EVALUATION_TYPE", nullable = false)
     private Boolean configEvaluationType;
 
+    @NotNull
+    @Column(name = "FL_CONFIG_INSTITUTION_THRESHOLD", nullable = false)
+    private Boolean configInstitutionThreshold;
+
+    @NotNull
+    @Column(name = "FL_CONFIG_TRANSACTION_THRESHOLD", nullable = false)
+    private Boolean configTransactionThreshold;
+
+    @NotNull
+    @Column(name = "FL_CONFIG_INSTITUTION_TOLERANCE", nullable = false)
+    private Boolean configInstitutionTolerance;
+
+    @NotNull
+    @Column(name = "FL_CONFIG_TRANSACTION_TOLERANCE", nullable = false)
+    private Boolean configTransactionTolerance;
+
     @Column(name = "FL_DELETED", nullable = false)
     private boolean deleted;
 

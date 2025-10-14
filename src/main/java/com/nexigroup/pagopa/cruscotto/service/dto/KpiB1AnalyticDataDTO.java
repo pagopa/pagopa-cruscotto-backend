@@ -20,8 +20,6 @@ public class KpiB1AnalyticDataDTO implements Serializable {
 
     private LocalDate dataDate;
 
-    private Long stationId;
-
     private Integer institutionCount;
 
     private Integer transactionCount;
