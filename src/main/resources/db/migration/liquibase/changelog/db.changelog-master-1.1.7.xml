@@ -22,4 +22,10 @@
   <!-- Add foreign key constraints for KPI B1 tables -->
   <include file="1.1.7/ddl/20251010125000_add_foreign_keys_kpi_b1.xml" relativeToChangelogFile="true"/>
 
+  <!-- Add KPI configuration new fields -->
+  <include file="1.1.7/ddl/20251014150000_add_kpi_configuration_fields.xml" relativeToChangelogFile="true"/>
+
+  <!-- Add Module configuration new fields -->
+  <include file="1.1.7/ddl/20251014151000_add_module_configuration_fields.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>

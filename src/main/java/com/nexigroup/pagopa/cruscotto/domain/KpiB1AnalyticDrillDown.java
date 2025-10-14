@@ -14,7 +14,6 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
@@ -48,50 +47,30 @@ public class KpiB1AnalyticDrillDown implements Serializable {
     @JsonIgnore
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CO_INSTANCE_ID", nullable = false)
-    private Instance instance;
-
-    @JsonIgnore
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CO_INSTANCE_MODULE_ID", nullable = false)
-    private InstanceModule instanceModule;
+    @JoinColumn(name = "CO_KPI_B1_ANALYTIC_DATA_ID", nullable = false)
+    private KpiB1AnalyticData kpiB1AnalyticData;
 
     @NotNull
-    @Column(name = "DT_ANALISYS_DATE", nullable = false)
-    private LocalDate analysisDate;
+    @Column(name = "DT_DATA_DATE", nullable = false)
+    private LocalDate dataDate;
 
     @NotNull
     @Size(min = 1, max = 35)
-    @Column(name = "TE_PARTNER_CODE", length = 35, nullable = false)
-    private String partnerCode;
-
-    @Size(max = 100)
-    @Column(name = "TE_PARTNER_NAME", length = 100)
-    private String partnerName;
+    @Column(name = "TE_PARTNER_FISCAL_CODE", length = 35, nullable = false)
+    private String partnerFiscalCode;
 
     @NotNull
     @Size(min = 1, max = 35)
-    @Column(name = "TE_ENTITY_CODE", length = 35, nullable = false)
-    private String entityCode;
-
-    @Size(max = 100)
-    @Column(name = "TE_ENTITY_NAME", length = 100)
-    private String entityName;
-
-    @NotNull
-    @Column(name = "DT_EVALUATION_DATE", nullable = false)
-    private LocalDate evaluationDate;
+    @Column(name = "TE_INSTITUTION_FISCAL_CODE", length = 35, nullable = false)
+    private String institutionFiscalCode;
 
     @NotNull
     @Column(name = "CO_TRANSACTION_COUNT", nullable = false)
-    private Long transactionCount;
+    private Integer transactionCount;
 
-    @Column(name = "CO_TRANSACTION_AMOUNT", precision = 19, scale = 2)
-    private BigDecimal transactionAmount;
-
-    @Column(name = "CO_AVERAGE_TRANSACTION_AMOUNT", precision = 19, scale = 2)
-    private BigDecimal averageTransactionAmount;
+    @Size(max = 35)
+    @Column(name = "TE_STATION_CODE", length = 35)
+    private String stationCode;
 
     @Override
     public boolean equals(Object o) {
@@ -113,28 +92,18 @@ public class KpiB1AnalyticDrillDown implements Serializable {
             "KpiB1AnalyticDrillDown{" +
             "id=" +
             id +
-            ", instance=" +
-            instance +
-            ", instanceModule=" +
-            instanceModule +
-            ", analysisDate=" +
-            analysisDate +
-            ", partnerCode='" +
-            partnerCode + '\'' +
-            ", partnerName='" +
-            partnerName + '\'' +
-            ", entityCode='" +
-            entityCode + '\'' +
-            ", entityName='" +
-            entityName + '\'' +
-            ", evaluationDate=" +
-            evaluationDate +
+            ", kpiB1AnalyticData=" +
+            kpiB1AnalyticData +
+            ", dataDate=" +
+            dataDate +
+            ", partnerFiscalCode='" +
+            partnerFiscalCode + '\'' +
+            ", institutionFiscalCode='" +
+            institutionFiscalCode + '\'' +
             ", transactionCount=" +
             transactionCount +
-            ", transactionAmount=" +
-            transactionAmount +
-            ", averageTransactionAmount=" +
-            averageTransactionAmount +
+            ", stationCode='" +
+            stationCode + '\'' +
             '}'
         );
     }

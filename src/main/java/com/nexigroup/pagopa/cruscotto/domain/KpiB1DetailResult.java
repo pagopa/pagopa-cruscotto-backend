@@ -103,6 +103,12 @@ public class KpiB1DetailResult implements Serializable {
     @Column(name = "TE_OUTCOME", nullable = false)
     private OutcomeStatus outcome;
 
+    @JsonIgnore
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "CO_KPI_B1_RESULT_ID", nullable = false)
+    private KpiB1Result kpiB1Result;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -147,6 +153,8 @@ public class KpiB1DetailResult implements Serializable {
             meetsTransactionThreshold +
             ", outcome=" +
             outcome +
+            ", kpiB1Result=" +
+            kpiB1Result +
             '}'
         );
     }

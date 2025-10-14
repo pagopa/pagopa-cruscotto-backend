@@ -111,7 +111,6 @@ public class KpiB1Job extends QuartzJobBean {
             analyticData.setInstanceModuleId(instanceModuleDTO.getId());
             analyticData.setAnalysisDate(LocalDate.now());
             analyticData.setDataDate(detailResultEvaluationStartDate);
-            analyticData.setStationId(1L); // Default station ID, you may need to extract this properly
             analyticData.setInstitutionCount(institutionCount);
             analyticData.setTransactionCount(totalTransactions);
             analyticData.setKpiB1DetailResultId(kpiB1DetailResultRef.get().getId());
@@ -279,15 +278,12 @@ public class KpiB1Job extends QuartzJobBean {
             KpiConfigurationDTO kpiConfigurationDTO, 
             List<PagopaTransactionDTO> records) {
 
-        // Calculate counts from the records
-        int institutionCount = (int) records.stream()
-                .map(PagopaTransactionDTO::getCfInstitution)
-                .distinct()
-                .count();
+        // Use counts from kpiConfigurationDTO if available, otherwise set to 0
+        int institutionCount = kpiConfigurationDTO.getInstitutionCount() != null ? 
+            kpiConfigurationDTO.getInstitutionCount() : 0;
         
-        long transactionCount = records.stream()
-                .mapToLong(PagopaTransactionDTO::getTransactionTotal)
-                .sum();
+        int transactionCount = kpiConfigurationDTO.getTransactionCount() != null ? 
+            kpiConfigurationDTO.getTransactionCount() : 0;
 
         KpiB1ResultDTO kpiB1ResultDTO = new KpiB1ResultDTO();
         kpiB1ResultDTO.setInstanceId(instanceDTO.getId());
@@ -296,10 +292,10 @@ public class KpiB1Job extends QuartzJobBean {
         kpiB1ResultDTO.setEvaluationType(kpiConfigurationDTO.getEvaluationType());
         kpiB1ResultDTO.setInstitutionCount(institutionCount);
         kpiB1ResultDTO.setTransactionCount(transactionCount);
-        kpiB1ResultDTO.setInstitutionTolerance(kpiConfigurationDTO.getTolerance() != null ? 
-            BigDecimal.valueOf(kpiConfigurationDTO.getTolerance()) : BigDecimal.valueOf(5));
-        kpiB1ResultDTO.setTransactionTolerance(kpiConfigurationDTO.getEligibilityThreshold() != null ? 
-            BigDecimal.valueOf(kpiConfigurationDTO.getEligibilityThreshold()) : BigDecimal.valueOf(250000));
+        kpiB1ResultDTO.setInstitutionTolerance(kpiConfigurationDTO.getInstitutionTolerance() != null ? 
+            kpiConfigurationDTO.getInstitutionTolerance() : BigDecimal.ZERO);
+        kpiB1ResultDTO.setTransactionTolerance(kpiConfigurationDTO.getTransactionTolerance() != null ? 
+            kpiConfigurationDTO.getTransactionTolerance() : BigDecimal.ZERO);
         kpiB1ResultDTO.setOutcome(!records.isEmpty() ? OutcomeStatus.STANDBY : OutcomeStatus.OK);
 
         return kpiB1ResultDTO;

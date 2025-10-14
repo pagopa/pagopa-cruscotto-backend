@@ -27,28 +27,13 @@
       <column name="DT_DATA_DATE" type="date">
         <constraints nullable="false"/>
       </column>
-      <column name="TE_PARTNER_CODE" type="varchar(35)">
+      <column name="CO_INSTITUTION_COUNT" type="int">
         <constraints nullable="false"/>
       </column>
-      <column name="TE_PARTNER_NAME" type="varchar(100)">
-        <constraints nullable="true"/>
-      </column>
-      <column name="CO_ENTITY_COUNT" type="int">
+      <column name="CO_TRANSACTION_COUNT" type="int">
         <constraints nullable="false"/>
       </column>
-      <column name="CO_TRANSACTION_COUNT" type="bigint">
-        <constraints nullable="false"/>
-      </column>
-      <column name="CO_TRANSACTION_AMOUNT" type="decimal(19,2)">
-        <constraints nullable="true"/>
-      </column>
-      <column name="CO_AVERAGE_DAILY_TRANSACTIONS" type="decimal(19,2)">
-        <constraints nullable="true"/>
-      </column>
-      <column name="FL_MEETS_ENTITY_THRESHOLD" type="boolean">
-        <constraints nullable="false"/>
-      </column>
-      <column name="FL_MEETS_TRANSACTION_THRESHOLD" type="boolean">
+      <column name="CO_KPI_B1_DETAIL_RESULT_ID" type="bigint">
         <constraints nullable="false"/>
       </column>
     </createTable>
@@ -63,14 +48,14 @@
       <column name="CO_INSTANCE_MODULE_ID"/>
     </createIndex>
 
-    <createIndex indexName="IX${project_name}_KPIB1ANALDATA_01"
-                 tableName="KPI_B1_ANALYTIC_DATA">
-      <column name="TE_PARTNER_CODE"/>
-    </createIndex>
-
     <createIndex indexName="IX${project_name}_KPIB1ANALDATA_02"
                  tableName="KPI_B1_ANALYTIC_DATA">
       <column name="DT_DATA_DATE"/>
+    </createIndex>
+
+    <createIndex indexName="IX${project_name}_KPIB1ANALDATA_03"
+                 tableName="KPI_B1_ANALYTIC_DATA">
+      <column name="CO_KPI_B1_DETAIL_RESULT_ID"/>
     </createIndex>
   </changeSet>
 

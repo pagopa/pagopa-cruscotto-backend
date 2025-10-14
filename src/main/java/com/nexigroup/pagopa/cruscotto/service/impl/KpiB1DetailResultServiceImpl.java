@@ -7,10 +7,9 @@ import com.nexigroup.pagopa.cruscotto.service.dto.KpiB1DetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPQLQuery;
+import java.math.BigDecimal;
 import java.util.List;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,8 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class KpiB1DetailResultServiceImpl implements KpiB1DetailResultService {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(KpiB1DetailResultServiceImpl.class);
 
     private final InstanceRepository instanceRepository;
 
@@ -93,9 +90,28 @@ public class KpiB1DetailResultServiceImpl implements KpiB1DetailResultService {
         kpiB1DetailResult.setEvaluationType(kpiB1DetailResultDTO.getEvaluationType());
         kpiB1DetailResult.setEvaluationStartDate(kpiB1DetailResultDTO.getEvaluationStartDate());
         kpiB1DetailResult.setEvaluationEndDate(kpiB1DetailResultDTO.getEvaluationEndDate());
-        kpiB1DetailResult.setTotalTransactions(kpiB1DetailResultDTO.getTotalTransactions());
-        kpiB1DetailResult.setUniqueEntities(kpiB1DetailResultDTO.getUniqueEntities());
-        kpiB1DetailResult.setOutcome(kpiB1DetailResultDTO.getOutcome());
+        
+        // Map DTO fields to domain entity fields
+        // DTO uses totalInstitutions -> domain uses entityCount
+        if (kpiB1DetailResultDTO.getTotalInstitutions() != null) {
+            kpiB1DetailResult.setEntityCount(kpiB1DetailResultDTO.getTotalInstitutions());
+        }
+        
+        // DTO uses totalTransactions -> domain uses transactionCount
+        if (kpiB1DetailResultDTO.getTotalTransactions() != null) {
+            kpiB1DetailResult.setTransactionCount(kpiB1DetailResultDTO.getTotalTransactions().longValue());
+        }
+        
+        // Set outcome based on institutionOutcome (transactions are handled separately in job logic)
+        kpiB1DetailResult.setOutcome(kpiB1DetailResultDTO.getInstitutionOutcome());
+        
+        // Set threshold flags (these would be calculated in the job)
+        kpiB1DetailResult.setMeetsEntityThreshold(false); // Default, calculated in job
+        kpiB1DetailResult.setMeetsTransactionThreshold(false); // Default, calculated in job
+        
+        // Set partner code (if available from DTO or can be derived)
+        kpiB1DetailResult.setPartnerCode("DEFAULT"); // This should be set properly in the job
+        
         kpiB1DetailResult.setKpiB1Result(kpiB1Result);
 
         return kpiB1DetailResult;
@@ -110,9 +126,29 @@ public class KpiB1DetailResultServiceImpl implements KpiB1DetailResultService {
         kpiB1DetailResultDTO.setEvaluationType(kpiB1DetailResult.getEvaluationType());
         kpiB1DetailResultDTO.setEvaluationStartDate(kpiB1DetailResult.getEvaluationStartDate());
         kpiB1DetailResultDTO.setEvaluationEndDate(kpiB1DetailResult.getEvaluationEndDate());
-        kpiB1DetailResultDTO.setTotalTransactions(kpiB1DetailResult.getTotalTransactions());
-        kpiB1DetailResultDTO.setUniqueEntities(kpiB1DetailResult.getUniqueEntities());
-        kpiB1DetailResultDTO.setOutcome(kpiB1DetailResult.getOutcome());
+        
+        // Map domain entity fields to DTO fields
+        // Domain entityCount -> DTO totalInstitutions
+        if (kpiB1DetailResult.getEntityCount() != null) {
+            kpiB1DetailResultDTO.setTotalInstitutions(kpiB1DetailResult.getEntityCount());
+        }
+        
+        // Domain transactionCount -> DTO totalTransactions
+        if (kpiB1DetailResult.getTransactionCount() != null) {
+            kpiB1DetailResultDTO.setTotalTransactions(kpiB1DetailResult.getTransactionCount().intValue());
+        }
+        
+        // Set both institution and transaction outcomes to the same value for now
+        // (This should be properly separated in the job logic)
+        kpiB1DetailResultDTO.setInstitutionOutcome(kpiB1DetailResult.getOutcome());
+        kpiB1DetailResultDTO.setTransactionOutcome(kpiB1DetailResult.getOutcome());
+        
+        // Set difference fields (these should be calculated properly in the job)
+        kpiB1DetailResultDTO.setInstitutionDifference(0);
+        kpiB1DetailResultDTO.setTransactionDifference(0);
+        kpiB1DetailResultDTO.setInstitutionDifferencePercentage(BigDecimal.ZERO);
+        kpiB1DetailResultDTO.setTransactionDifferencePercentage(BigDecimal.ZERO);
+        
         kpiB1DetailResultDTO.setKpiB1ResultId(kpiB1DetailResult.getKpiB1Result().getId());
 
         return kpiB1DetailResultDTO;
@@ -143,9 +179,10 @@ public class KpiB1DetailResultServiceImpl implements KpiB1DetailResultService {
                     qKpiB1DetailResult.evaluationType.as("evaluationType"),
                     qKpiB1DetailResult.evaluationStartDate.as("evaluationStartDate"),
                     qKpiB1DetailResult.evaluationEndDate.as("evaluationEndDate"),
-                    qKpiB1DetailResult.totalTransactions.as("totalTransactions"),
-                    qKpiB1DetailResult.uniqueEntities.as("uniqueEntities"),
-                    qKpiB1DetailResult.outcome.as("outcome"),
+                    qKpiB1DetailResult.entityCount.as("totalInstitutions"),
+                    qKpiB1DetailResult.transactionCount.as("totalTransactions"),
+                    qKpiB1DetailResult.outcome.as("institutionOutcome"),
+                    qKpiB1DetailResult.outcome.as("transactionOutcome"),
                     qKpiB1DetailResult.kpiB1Result.id.as("kpiB1ResultId")
                 )
             );

@@ -8800,6 +8800,18 @@
           "configEvaluationType": {
             "type": "boolean"
           },
+          "configInstitutionThreshold": {
+            "type": "boolean"
+          },
+          "configTransactionThreshold": {
+            "type": "boolean"
+          },
+          "configInstitutionTolerance": {
+            "type": "boolean"
+          },
+          "configTransactionTolerance": {
+            "type": "boolean"
+          },
           "deleted": {
             "type": "boolean"
           },

@@ -23,7 +23,7 @@ public class KpiB1ResultDTO implements Serializable {
 
     private Integer institutionCount;
 
-    private Long transactionCount;
+    private Integer transactionCount;
 
     private BigDecimal institutionTolerance;
 

@@ -16,9 +16,9 @@ import org.springframework.stereotype.Repository;
 public interface KpiB1AnalyticDrillDownRepository extends JpaRepository<KpiB1AnalyticDrillDown, Long>, JpaSpecificationExecutor<KpiB1AnalyticDrillDown> {
     
     @Modifying
-    @Query("DELETE KpiB1AnalyticDrillDown kpiB1AnalyticDrillDown WHERE kpiB1AnalyticDrillDown.instanceModule.id = :instanceModuleId")
-    int deleteAllByInstanceModuleId(@Param("instanceModuleId") Long instanceModuleId);
+    @Query("DELETE KpiB1AnalyticDrillDown kpiB1AnalyticDrillDown WHERE kpiB1AnalyticDrillDown.kpiB1AnalyticData.id IN :analyticDataIds")
+    int deleteByKpiB1AnalyticDataIds(@Param("analyticDataIds") List<Long> analyticDataIds);
 
-    @Query("SELECT b FROM KpiB1AnalyticDrillDown b WHERE b.instanceModule.id = :instanceModuleId")
-    List<KpiB1AnalyticDrillDown> selectByInstanceModuleId(@Param("instanceModuleId") Long instanceModuleId);
+    @Query("SELECT b FROM KpiB1AnalyticDrillDown b WHERE b.kpiB1AnalyticData.id = :analyticDataId ORDER BY b.dataDate ASC, b.partnerFiscalCode ASC")
+    List<KpiB1AnalyticDrillDown> findByKpiB1AnalyticDataId(@Param("analyticDataId") Long analyticDataId);
 }

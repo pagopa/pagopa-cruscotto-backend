@@ -42,8 +42,17 @@
                              referencedTableName="INSTANCE_MODULE"/>
   </changeSet>
 
-  <!-- KPI_B1_ANALYTIC_DATA foreign keys -->
+  <!-- Add missing foreign key from KPI_B1_DETAIL_RESULT to KPI_B1_RESULT -->
   <changeSet id="20251010125000-5" author="system" context="ddl">
+    <addForeignKeyConstraint baseColumnNames="CO_KPI_B1_RESULT_ID"
+                             baseTableName="KPI_B1_DETAIL_RESULT"
+                             constraintName="FK${project_name}_KPIB1DETARESU_RESULT"
+                             referencedColumnNames="CO_ID"
+                             referencedTableName="KPI_B1_RESULT"/>
+  </changeSet>
+
+  <!-- KPI_B1_ANALYTIC_DATA foreign keys -->
+  <changeSet id="20251010125000-6" author="system" context="ddl">
     <addForeignKeyConstraint baseColumnNames="CO_INSTANCE_ID"
                              baseTableName="KPI_B1_ANALYTIC_DATA"
                              constraintName="FK${project_name}_KPIB1ANALDATA_INST"
@@ -51,7 +60,7 @@
                              referencedTableName="INSTANCE"/>
   </changeSet>
 
-  <changeSet id="20251010125000-6" author="system" context="ddl">
+  <changeSet id="20251010125000-7" author="system" context="ddl">
     <addForeignKeyConstraint baseColumnNames="CO_INSTANCE_MODULE_ID"
                              baseTableName="KPI_B1_ANALYTIC_DATA"
                              constraintName="FK${project_name}_KPIB1ANALDATA_INSTMOD"
@@ -59,21 +68,21 @@
                              referencedTableName="INSTANCE_MODULE"/>
   </changeSet>
 
-  <!-- KPI_B1_ANALYTIC_DRILL_DOWN foreign keys -->
-  <changeSet id="20251010125000-7" author="system" context="ddl">
-    <addForeignKeyConstraint baseColumnNames="CO_INSTANCE_ID"
-                             baseTableName="KPI_B1_ANALYTIC_DRILL_DOWN"
-                             constraintName="FK${project_name}_KPIB1ANALDR_INST"
+  <changeSet id="20251010125000-8" author="system" context="ddl">
+    <addForeignKeyConstraint baseColumnNames="CO_KPI_B1_DETAIL_RESULT_ID"
+                             baseTableName="KPI_B1_ANALYTIC_DATA"
+                             constraintName="FK${project_name}_KPIB1ANALDATA_DETRES"
                              referencedColumnNames="CO_ID"
-                             referencedTableName="INSTANCE"/>
+                             referencedTableName="KPI_B1_DETAIL_RESULT"/>
   </changeSet>
 
-  <changeSet id="20251010125000-8" author="system" context="ddl">
-    <addForeignKeyConstraint baseColumnNames="CO_INSTANCE_MODULE_ID"
+  <!-- KPI_B1_ANALYTIC_DRILL_DOWN foreign keys -->
+  <changeSet id="20251010125000-9" author="system" context="ddl">
+    <addForeignKeyConstraint baseColumnNames="CO_KPI_B1_ANALYTIC_DATA_ID"
                              baseTableName="KPI_B1_ANALYTIC_DRILL_DOWN"
-                             constraintName="FK${project_name}_KPIB1ANALDR_INSTMOD"
+                             constraintName="FK${project_name}_KPIB1ANALDR_ANALDATA"
                              referencedColumnNames="CO_ID"
-                             referencedTableName="INSTANCE_MODULE"/>
+                             referencedTableName="KPI_B1_ANALYTIC_DATA"/>
   </changeSet>
 
 </databaseChangeLog>
