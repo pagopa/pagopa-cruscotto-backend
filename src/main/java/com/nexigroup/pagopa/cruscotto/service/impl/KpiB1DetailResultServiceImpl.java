@@ -7,7 +7,6 @@ import com.nexigroup.pagopa.cruscotto.service.dto.KpiB1DetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPQLQuery;
-import java.math.BigDecimal;
 import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
@@ -91,26 +90,16 @@ public class KpiB1DetailResultServiceImpl implements KpiB1DetailResultService {
         kpiB1DetailResult.setEvaluationStartDate(kpiB1DetailResultDTO.getEvaluationStartDate());
         kpiB1DetailResult.setEvaluationEndDate(kpiB1DetailResultDTO.getEvaluationEndDate());
         
-        // Map DTO fields to domain entity fields
-        // DTO uses totalInstitutions -> domain uses entityCount
-        if (kpiB1DetailResultDTO.getTotalInstitutions() != null) {
-            kpiB1DetailResult.setEntityCount(kpiB1DetailResultDTO.getTotalInstitutions());
-        }
+        // Map DTO fields to entity fields using the new field structure
+        kpiB1DetailResult.setTotalInstitutions(kpiB1DetailResultDTO.getTotalInstitutions());
+        kpiB1DetailResult.setInstitutionDifference(kpiB1DetailResultDTO.getInstitutionDifference());
+        kpiB1DetailResult.setInstitutionDifferencePercentage(kpiB1DetailResultDTO.getInstitutionDifferencePercentage());
+        kpiB1DetailResult.setInstitutionOutcome(kpiB1DetailResultDTO.getInstitutionOutcome());
         
-        // DTO uses totalTransactions -> domain uses transactionCount
-        if (kpiB1DetailResultDTO.getTotalTransactions() != null) {
-            kpiB1DetailResult.setTransactionCount(kpiB1DetailResultDTO.getTotalTransactions().longValue());
-        }
-        
-        // Set outcome based on institutionOutcome (transactions are handled separately in job logic)
-        kpiB1DetailResult.setOutcome(kpiB1DetailResultDTO.getInstitutionOutcome());
-        
-        // Set threshold flags (these would be calculated in the job)
-        kpiB1DetailResult.setMeetsEntityThreshold(false); // Default, calculated in job
-        kpiB1DetailResult.setMeetsTransactionThreshold(false); // Default, calculated in job
-        
-        // Set partner code (if available from DTO or can be derived)
-        kpiB1DetailResult.setPartnerCode("DEFAULT"); // This should be set properly in the job
+        kpiB1DetailResult.setTotalTransactions(kpiB1DetailResultDTO.getTotalTransactions());
+        kpiB1DetailResult.setTransactionDifference(kpiB1DetailResultDTO.getTransactionDifference());
+        kpiB1DetailResult.setTransactionDifferencePercentage(kpiB1DetailResultDTO.getTransactionDifferencePercentage());
+        kpiB1DetailResult.setTransactionOutcome(kpiB1DetailResultDTO.getTransactionOutcome());
         
         kpiB1DetailResult.setKpiB1Result(kpiB1Result);
 
@@ -127,27 +116,16 @@ public class KpiB1DetailResultServiceImpl implements KpiB1DetailResultService {
         kpiB1DetailResultDTO.setEvaluationStartDate(kpiB1DetailResult.getEvaluationStartDate());
         kpiB1DetailResultDTO.setEvaluationEndDate(kpiB1DetailResult.getEvaluationEndDate());
         
-        // Map domain entity fields to DTO fields
-        // Domain entityCount -> DTO totalInstitutions
-        if (kpiB1DetailResult.getEntityCount() != null) {
-            kpiB1DetailResultDTO.setTotalInstitutions(kpiB1DetailResult.getEntityCount());
-        }
+        // Map entity fields to DTO fields using the new field structure
+        kpiB1DetailResultDTO.setTotalInstitutions(kpiB1DetailResult.getTotalInstitutions());
+        kpiB1DetailResultDTO.setInstitutionDifference(kpiB1DetailResult.getInstitutionDifference());
+        kpiB1DetailResultDTO.setInstitutionDifferencePercentage(kpiB1DetailResult.getInstitutionDifferencePercentage());
+        kpiB1DetailResultDTO.setInstitutionOutcome(kpiB1DetailResult.getInstitutionOutcome());
         
-        // Domain transactionCount -> DTO totalTransactions
-        if (kpiB1DetailResult.getTransactionCount() != null) {
-            kpiB1DetailResultDTO.setTotalTransactions(kpiB1DetailResult.getTransactionCount().intValue());
-        }
-        
-        // Set both institution and transaction outcomes to the same value for now
-        // (This should be properly separated in the job logic)
-        kpiB1DetailResultDTO.setInstitutionOutcome(kpiB1DetailResult.getOutcome());
-        kpiB1DetailResultDTO.setTransactionOutcome(kpiB1DetailResult.getOutcome());
-        
-        // Set difference fields (these should be calculated properly in the job)
-        kpiB1DetailResultDTO.setInstitutionDifference(0);
-        kpiB1DetailResultDTO.setTransactionDifference(0);
-        kpiB1DetailResultDTO.setInstitutionDifferencePercentage(BigDecimal.ZERO);
-        kpiB1DetailResultDTO.setTransactionDifferencePercentage(BigDecimal.ZERO);
+        kpiB1DetailResultDTO.setTotalTransactions(kpiB1DetailResult.getTotalTransactions());
+        kpiB1DetailResultDTO.setTransactionDifference(kpiB1DetailResult.getTransactionDifference());
+        kpiB1DetailResultDTO.setTransactionDifferencePercentage(kpiB1DetailResult.getTransactionDifferencePercentage());
+        kpiB1DetailResultDTO.setTransactionOutcome(kpiB1DetailResult.getTransactionOutcome());
         
         kpiB1DetailResultDTO.setKpiB1ResultId(kpiB1DetailResult.getKpiB1Result().getId());
 
@@ -179,10 +157,14 @@ public class KpiB1DetailResultServiceImpl implements KpiB1DetailResultService {
                     qKpiB1DetailResult.evaluationType.as("evaluationType"),
                     qKpiB1DetailResult.evaluationStartDate.as("evaluationStartDate"),
                     qKpiB1DetailResult.evaluationEndDate.as("evaluationEndDate"),
-                    qKpiB1DetailResult.entityCount.as("totalInstitutions"),
-                    qKpiB1DetailResult.transactionCount.as("totalTransactions"),
-                    qKpiB1DetailResult.outcome.as("institutionOutcome"),
-                    qKpiB1DetailResult.outcome.as("transactionOutcome"),
+                    qKpiB1DetailResult.totalInstitutions.as("totalInstitutions"),
+                    qKpiB1DetailResult.institutionDifference.as("institutionDifference"),
+                    qKpiB1DetailResult.institutionDifferencePercentage.as("institutionDifferencePercentage"),
+                    qKpiB1DetailResult.institutionOutcome.as("institutionOutcome"),
+                    qKpiB1DetailResult.totalTransactions.as("totalTransactions"),
+                    qKpiB1DetailResult.transactionDifference.as("transactionDifference"),
+                    qKpiB1DetailResult.transactionDifferencePercentage.as("transactionDifferencePercentage"),
+                    qKpiB1DetailResult.transactionOutcome.as("transactionOutcome"),
                     qKpiB1DetailResult.kpiB1Result.id.as("kpiB1ResultId")
                 )
             );
