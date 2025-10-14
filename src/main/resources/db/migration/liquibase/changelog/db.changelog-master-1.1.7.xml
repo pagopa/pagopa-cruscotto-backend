@@ -29,4 +29,7 @@
   <!-- Add Module configuration new fields -->
   <include file="1.1.7/ddl/20251014151000_add_module_configuration_fields.xml" relativeToChangelogFile="true"/>
 
+  <!-- Add KPI B1 authorizations -->
+  <include file="1.1.7/dml/20251014180000_add_kpi_b1_authorizations.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>
