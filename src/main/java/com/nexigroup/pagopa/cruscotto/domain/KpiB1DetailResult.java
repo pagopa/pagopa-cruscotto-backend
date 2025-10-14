@@ -16,8 +16,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
@@ -78,30 +78,38 @@ public class KpiB1DetailResult implements Serializable {
     private LocalDate evaluationEndDate;
 
     @NotNull
-    @Size(min = 1, max = 35)
-    @Column(name = "TE_PARTNER_CODE", length = 35, nullable = false)
-    private String partnerCode;
+    @Column(name = "CO_TOTAL_INSTITUTIONS", nullable = false)
+    private Integer totalInstitutions;
 
     @NotNull
-    @Column(name = "CO_ENTITY_COUNT", nullable = false)
-    private Integer entityCount;
+    @Column(name = "CO_INSTITUTION_DIFFERENCE", nullable = false)
+    private Integer institutionDifference;
 
     @NotNull
-    @Column(name = "CO_TRANSACTION_COUNT", nullable = false)
-    private Long transactionCount;
-
-    @NotNull
-    @Column(name = "FL_MEETS_ENTITY_THRESHOLD", nullable = false)
-    private Boolean meetsEntityThreshold;
-
-    @NotNull
-    @Column(name = "FL_MEETS_TRANSACTION_THRESHOLD", nullable = false)
-    private Boolean meetsTransactionThreshold;
+    @Column(name = "VA_INSTITUTION_DIFFERENCE_PERCENTAGE", precision = 19, scale = 2, nullable = false)
+    private BigDecimal institutionDifferencePercentage;
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "TE_OUTCOME", nullable = false)
-    private OutcomeStatus outcome;
+    @Column(name = "TE_INSTITUTION_OUTCOME", nullable = false)
+    private OutcomeStatus institutionOutcome;
+
+    @NotNull
+    @Column(name = "CO_TOTAL_TRANSACTIONS", nullable = false)
+    private Integer totalTransactions;
+
+    @NotNull
+    @Column(name = "CO_TRANSACTION_DIFFERENCE", nullable = false)
+    private Integer transactionDifference;
+
+    @NotNull
+    @Column(name = "VA_TRANSACTION_DIFFERENCE_PERCENTAGE", precision = 19, scale = 2, nullable = false)
+    private BigDecimal transactionDifferencePercentage;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "TE_TRANSACTION_OUTCOME", nullable = false)
+    private OutcomeStatus transactionOutcome;
 
     @JsonIgnore
     @NotNull
@@ -141,18 +149,22 @@ public class KpiB1DetailResult implements Serializable {
             evaluationStartDate +
             ", evaluationEndDate=" +
             evaluationEndDate +
-            ", partnerCode='" +
-            partnerCode + '\'' +
-            ", entityCount=" +
-            entityCount +
-            ", transactionCount=" +
-            transactionCount +
-            ", meetsEntityThreshold=" +
-            meetsEntityThreshold +
-            ", meetsTransactionThreshold=" +
-            meetsTransactionThreshold +
-            ", outcome=" +
-            outcome +
+            ", totalInstitutions=" +
+            totalInstitutions +
+            ", institutionDifference=" +
+            institutionDifference +
+            ", institutionDifferencePercentage=" +
+            institutionDifferencePercentage +
+            ", institutionOutcome=" +
+            institutionOutcome +
+            ", totalTransactions=" +
+            totalTransactions +
+            ", transactionDifference=" +
+            transactionDifference +
+            ", transactionDifferencePercentage=" +
+            transactionDifferencePercentage +
+            ", transactionOutcome=" +
+            transactionOutcome +
             ", kpiB1Result=" +
             kpiB1Result +
             '}'
