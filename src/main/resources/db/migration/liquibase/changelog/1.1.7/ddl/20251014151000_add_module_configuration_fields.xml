@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+  <changeSet id="20251014151000-1" author="system">
+    <addColumn tableName="MODULE">
+      <column name="FL_CONFIG_INSTITUTION_THRESHOLD" type="BOOLEAN" defaultValueBoolean="false">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="20251014151000-2" author="system">
+    <addColumn tableName="MODULE">
+      <column name="FL_CONFIG_TRANSACTION_THRESHOLD" type="BOOLEAN" defaultValueBoolean="false">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="20251014151000-3" author="system">
+    <addColumn tableName="MODULE">
+      <column name="FL_CONFIG_INSTITUTION_TOLERANCE" type="BOOLEAN" defaultValueBoolean="false">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="20251014151000-4" author="system">
+    <addColumn tableName="MODULE">
+      <column name="FL_CONFIG_TRANSACTION_TOLERANCE" type="BOOLEAN" defaultValueBoolean="false">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+</databaseChangeLog>
