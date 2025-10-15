@@ -31,32 +31,32 @@ public class PagopaApiLog implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @Column(name = "cf_partner", length = 35, nullable = false)
+    @Column(name = "CF_PARTNER", length = 35, nullable = false)
     private String cfPartner;
 
     @Id
-    @Column(name = "date", nullable = false)
+    @Column(name = "DATE", nullable = false)
     private LocalDate date;
 
     @Id
-    @Column(name = "station", length = 35, nullable = false)
+    @Column(name = "STATION", length = 35, nullable = false)
     private String station;
 
     @Id
-    @Column(name = "cf_ente", length = 35, nullable = false)
+    @Column(name = "CF_INSTITUTION", length = 35, nullable = false)
     private String cfEnte;
 
     @Id
-    @Column(name = "api", length = 35, nullable = false)
+    @Column(name = "API", length = 35, nullable = false)
     private String api;
 
-    @Column(name = "tot_req", nullable = false)
+    @Column(name = "REQ_TOTAL", nullable = false)
     private Integer totReq;
 
-    @Column(name = "req_ok", nullable = false)
+    @Column(name = "REQ_OK", nullable = false)
     private Integer reqOk;
 
-    @Column(name = "req_ko", nullable = false)
+    @Column(name = "REQ_KO", nullable = false)
     private Integer reqKo;
 
     /**

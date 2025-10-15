@@ -133,6 +133,17 @@ public interface PagopaApiLogRepository extends JpaRepository<PagopaApiLog, Pago
     boolean existsByCfPartnerAndDateBetween(String cfPartner, LocalDate fromDate, LocalDate toDate);
 
     /**
+     * Check if any API usage data exists in the specified date range for any partner.
+     * This method is used to verify if pagopa_apilog table has data for the analysis period.
+     *
+     * @param fromDate the start date
+     * @param toDate the end date
+     * @return true if any data exists in the period
+     */
+    @Query("SELECT COUNT(p) > 0 FROM PagopaApiLog p WHERE p.date BETWEEN :fromDate AND :toDate")
+    boolean existsDataInPeriod(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
+
+    /**
      * Find distinct dates with paCreate usage for a partner in date range.
      *
      * @param cfPartner the partner CF

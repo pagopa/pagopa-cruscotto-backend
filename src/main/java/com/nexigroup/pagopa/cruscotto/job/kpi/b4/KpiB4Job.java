@@ -3,6 +3,7 @@ package com.nexigroup.pagopa.cruscotto.job.kpi.b4;
 import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
+import com.nexigroup.pagopa.cruscotto.repository.PagopaApiLogRepository;
 import com.nexigroup.pagopa.cruscotto.service.InstanceService;
 import com.nexigroup.pagopa.cruscotto.service.InstanceModuleService;
 import com.nexigroup.pagopa.cruscotto.service.KpiConfigurationService;
@@ -14,8 +15,6 @@ import com.nexigroup.pagopa.cruscotto.service.dto.KpiConfigurationDTO;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.lang.NonNull;
@@ -42,10 +41,8 @@ public class KpiB4Job extends QuartzJobBean {
     private final ApplicationProperties applicationProperties;
     private final KpiConfigurationService kpiConfigurationService;
     private final KpiB4DataService kpiB4DataService;
+    private final PagopaApiLogRepository pagopaApiLogRepository;
     private final Scheduler scheduler;
-
-    @PersistenceContext
-    private EntityManager entityManager;
 
     public KpiB4Job(
         InstanceService instanceService,
@@ -53,12 +50,14 @@ public class KpiB4Job extends QuartzJobBean {
         ApplicationProperties applicationProperties,
         KpiConfigurationService kpiConfigurationService,
         KpiB4DataService kpiB4DataService,
+        PagopaApiLogRepository pagopaApiLogRepository,
         Scheduler scheduler) {
         this.instanceService = instanceService;
         this.instanceModuleService = instanceModuleService;
         this.applicationProperties = applicationProperties;
         this.kpiConfigurationService = kpiConfigurationService;
         this.kpiB4DataService = kpiB4DataService;
+        this.pagopaApiLogRepository = pagopaApiLogRepository;
         this.scheduler = scheduler;
     }
 
@@ -125,6 +124,15 @@ public class KpiB4Job extends QuartzJobBean {
         LOGGER.info("Processing instance module {} for KPI B.4", instanceModuleDTO.getId());
 
         try {
+            // REQUISITO: Verifica prerequisiti - controllo presenza dati API log per il periodo
+            if (!hasApiLogDataForPeriod(instanceDTO)) {
+                LOGGER.warn("SKIPPING KPI B.4 calculation for instance {} - No API log data for analysis period {} to {}", 
+                           instanceDTO.getId(), 
+                           instanceDTO.getAnalysisPeriodStartDate(),
+                           instanceDTO.getAnalysisPeriodEndDate());
+                return; // Non eseguire l'analisi se non ci sono dati
+            }
+
             // Calcola la data di analisi basata sulla configurazione  
             LocalDate analysisDate = calculateAnalysisDate(instanceDTO, instanceModuleDTO);
             
@@ -148,7 +156,7 @@ public class KpiB4Job extends QuartzJobBean {
             LOGGER.error("Error processing instance module {} for KPI B.4: {}", 
                         instanceModuleDTO.getId(), e.getMessage(), e);
             
-            // In caso di errore, salva il risultato con outcome KO
+            // In caso di errore, salva il risultato con outcome KO solo se il problema non è mancanza dati
             try {
                 LocalDate analysisDate = calculateAnalysisDate(instanceDTO, instanceModuleDTO);
                 kpiB4DataService.saveKpiB4Results(instanceDTO, instanceModuleDTO, 
@@ -172,6 +180,30 @@ public class KpiB4Job extends QuartzJobBean {
     }
 
     /**
+     * Verifica se esistono dati nella tabella pagopa_apilog per il periodo dell'istanza.
+     * Se non esistono record per il periodo, l'analisi non deve essere effettuata.
+     *
+     * @param instanceDTO l'istanza da analizzare
+     * @return true se esistono dati per il periodo, false altrimenti
+     */
+    private boolean hasApiLogDataForPeriod(InstanceDTO instanceDTO) {
+        LocalDate periodStart = instanceDTO.getAnalysisPeriodStartDate();
+        LocalDate periodEnd = instanceDTO.getAnalysisPeriodEndDate();
+        
+        if (periodStart == null || periodEnd == null) {
+            LOGGER.warn("Analysis period not defined for instance {}: start={}, end={}", 
+                       instanceDTO.getId(), periodStart, periodEnd);
+            return false;
+        }
+
+        boolean hasData = pagopaApiLogRepository.existsDataInPeriod(periodStart, periodEnd);
+        LOGGER.info("API log data check for period {} to {}: {}", 
+                   periodStart, periodEnd, hasData ? "DATA FOUND" : "NO DATA");
+        
+        return hasData;
+    }
+
+    /**
      * Calcola l'outcome del KPI B.4 basato sulla logica dell'analisi.
      * Verifica la percentuale di request "paCreate" rispetto a "GPD"/"ACA".
      */
@@ -186,9 +218,21 @@ public class KpiB4Job extends QuartzJobBean {
 
             LOGGER.info("Analysis period: {} to {} for partner: {}", periodStart, periodEnd, partnerFiscalCode);
 
-            // Query per contare le request dalla tabella pagopa_apilog
-            Long totalGpdAcaRequests = countApiRequests(partnerFiscalCode, periodStart, periodEnd, "GPD", "ACA");
-            Long totalPaCreateRequests = countApiRequests(partnerFiscalCode, periodStart, periodEnd, "paCreate");
+            // REQUISITO: Verifica prerequisiti - se non esistono dati nella tabella pagopa_apilog 
+            // per il periodo dell'istanza, l'analisi non deve essere effettuata
+            if (!hasApiLogDataForPeriod(instanceDTO)) {
+                LOGGER.warn("SKIPPING KPI B.4 analysis for instance {} - No API log data found for period {} to {}", 
+                           instanceDTO.getId(), periodStart, periodEnd);
+                throw new RuntimeException("No API log data available for analysis period");
+            }
+
+            // Query per contare le request dalla tabella pagopa_apilog usando il repository
+            Long totalGpdAcaRequests = pagopaApiLogRepository.calculateTotalGpdAcaRequests(partnerFiscalCode, periodStart, periodEnd);
+            Long totalPaCreateRequests = pagopaApiLogRepository.calculateTotalPaCreateRequests(partnerFiscalCode, periodStart, periodEnd);
+            
+            // Gestione valori null (nel caso non ci siano dati)
+            if (totalGpdAcaRequests == null) totalGpdAcaRequests = 0L;
+            if (totalPaCreateRequests == null) totalPaCreateRequests = 0L;
 
             LOGGER.info("API requests for partner {}: GPD/ACA={}, paCreate={}", 
                        partnerFiscalCode, totalGpdAcaRequests, totalPaCreateRequests);
@@ -228,48 +272,6 @@ public class KpiB4Job extends QuartzJobBean {
             return OutcomeStatus.KO;
         }
     }
-
-    /**
-     * Conta le request API dalla tabella pagopa_apilog per il periodo specificato.
-     */
-    private Long countApiRequests(String partnerFiscalCode, LocalDate startDate, LocalDate endDate, String... apiTypes) {
-        StringBuilder queryBuilder = new StringBuilder();
-        queryBuilder.append("SELECT COALESCE(SUM(p.totReq), 0) FROM PagopaApiLog p ");
-        queryBuilder.append("WHERE p.cfPartner = :partnerFiscalCode ");
-        queryBuilder.append("AND p.date BETWEEN :startDate AND :endDate ");
-        
-        if (apiTypes.length == 1) {
-            queryBuilder.append("AND p.api = :apiType");
-        } else {
-            queryBuilder.append("AND p.api IN (");
-            for (int i = 0; i < apiTypes.length; i++) {
-                if (i > 0) queryBuilder.append(", ");
-                queryBuilder.append(":apiType").append(i);
-            }
-            queryBuilder.append(")");
-        }
-
-        var query = entityManager.createQuery(queryBuilder.toString(), Long.class);
-        query.setParameter("partnerFiscalCode", partnerFiscalCode);
-        query.setParameter("startDate", startDate);
-        query.setParameter("endDate", endDate);
-        
-        if (apiTypes.length == 1) {
-            query.setParameter("apiType", apiTypes[0]);
-        } else {
-            for (int i = 0; i < apiTypes.length; i++) {
-                query.setParameter("apiType" + i, apiTypes[i]);
-            }
-        }
-
-        Long result = query.getSingleResult();
-        LOGGER.debug("API count for partner {} ({} to {}), types {}: {}", 
-                    partnerFiscalCode, startDate, endDate, String.join(",", apiTypes), result);
-        
-        return result != null ? result : 0L;
-    }
-
-
 
     /**
      * Schedules a job for a single instance calculation.

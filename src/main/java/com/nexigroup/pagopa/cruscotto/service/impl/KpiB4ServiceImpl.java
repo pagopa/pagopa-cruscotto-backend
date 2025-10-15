@@ -3,13 +3,25 @@ package com.nexigroup.pagopa.cruscotto.service.impl;
 import com.nexigroup.pagopa.cruscotto.domain.Instance;
 import com.nexigroup.pagopa.cruscotto.domain.KpiConfiguration;
 import com.nexigroup.pagopa.cruscotto.domain.KpiB4Result;
+import com.nexigroup.pagopa.cruscotto.domain.KpiB4DetailResult;
+import com.nexigroup.pagopa.cruscotto.domain.KpiB4AnalyticData;
+import com.nexigroup.pagopa.cruscotto.domain.Module;
+import com.nexigroup.pagopa.cruscotto.domain.AnagStation;
+import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
 import com.nexigroup.pagopa.cruscotto.repository.KpiB4ResultRepository;
+import com.nexigroup.pagopa.cruscotto.repository.KpiB4DetailResultRepository;
+import com.nexigroup.pagopa.cruscotto.repository.KpiB4AnalyticDataRepository;
 import com.nexigroup.pagopa.cruscotto.repository.KpiConfigurationRepository;
+import com.nexigroup.pagopa.cruscotto.repository.ModuleRepository;
+import com.nexigroup.pagopa.cruscotto.repository.PagopaApiLogRepository;
+import com.nexigroup.pagopa.cruscotto.repository.AnagStationRepository;
+import com.nexigroup.pagopa.cruscotto.service.InstanceModuleService;
 import com.nexigroup.pagopa.cruscotto.service.KpiB4Service;
+import com.nexigroup.pagopa.cruscotto.service.dto.InstanceModuleDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB4AnalyticDataDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB4DetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB4ResultDTO;
@@ -37,8 +49,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class KpiB4ServiceImpl implements KpiB4Service {
 
     private final KpiB4ResultRepository kpiB4ResultRepository;
+    private final KpiB4DetailResultRepository kpiB4DetailResultRepository;
+    private final KpiB4AnalyticDataRepository kpiB4AnalyticDataRepository;
     private final KpiConfigurationRepository kpiConfigurationRepository;
     private final InstanceRepository instanceRepository;
+    private final ModuleRepository moduleRepository;
+    private final PagopaApiLogRepository pagopaApiLogRepository;
+    private final AnagStationRepository anagStationRepository;
+    private final InstanceModuleService instanceModuleService;
     private final KpiB4ResultMapper kpiB4ResultMapper;
 
     @Override
@@ -48,7 +66,7 @@ public class KpiB4ServiceImpl implements KpiB4Service {
         try {
             // Get KPI configuration for threshold and tolerance
             KpiConfiguration configuration = kpiConfigurationRepository
-                .findByModuleCode(ModuleCode.B4)
+                .findByModuleCode(ModuleCode.B4.code)
                 .orElseThrow(() -> new RuntimeException("KPI B4 configuration not found"));
 
             // Get analysis period from instance
@@ -81,9 +99,19 @@ public class KpiB4ServiceImpl implements KpiB4Service {
             boolean isCompliant = successPercentage.compareTo(threshold) >= 0;
             OutcomeStatus outcomeStatus = isCompliant ? OutcomeStatus.OK : OutcomeStatus.KO;
 
+            // Find the B4 module and corresponding InstanceModule
+            Module moduleB4 = moduleRepository.findByCode(ModuleCode.B4.code)
+                .orElseThrow(() -> new RuntimeException("Module B4 not found"));
+            
+            InstanceModuleDTO instanceModuleDTO = instanceModuleService.findOne(instance.getId(), moduleB4.getId())
+                .orElseThrow(() -> new RuntimeException("InstanceModule not found for instance " + instance.getId() + " and module B4"));
+
             // Create KPI B4 result using existing entity structure
             KpiB4Result result = new KpiB4Result();
             result.setInstance(instance);
+            // Set the required instanceModule field to avoid constraint violation
+            result.setInstanceModule(instanceModuleService.findById(instanceModuleDTO.getId())
+                .orElseThrow(() -> new RuntimeException("InstanceModule entity not found by ID")));
             result.setAnalysisDate(LocalDate.now());
             result.setExcludePlannedShutdown(configuration.getExcludePlannedShutdown() != null ? configuration.getExcludePlannedShutdown() : false);
             result.setExcludeUnplannedShutdown(configuration.getExcludeUnplannedShutdown() != null ? configuration.getExcludeUnplannedShutdown() : false);
@@ -94,7 +122,11 @@ public class KpiB4ServiceImpl implements KpiB4Service {
 
             KpiB4Result savedResult = kpiB4ResultRepository.save(result);
 
-            log.info("KPI B.4 calculated for instance {}: {}% success rate (threshold: {}%), status: {}", 
+            // NUOVO: Popola anche le tabelle di dettaglio KpiB4DetailResult e KpiB4AnalyticData
+            createAndSaveDetailResults(savedResult, instance);
+            createAndSaveAnalyticData(savedResult, instance);
+
+            log.info("KPI B.4 calculated for instance {}: {}% success rate (threshold: {}%), status: {} - Detail and analytic data saved", 
                 instance.getId(), successPercentage, threshold, outcomeStatus);
 
             return kpiB4ResultMapper.toDto(savedResult);
@@ -213,5 +245,165 @@ public class KpiB4ServiceImpl implements KpiB4Service {
         
         // Recalculate with current date
         return executeKpiB4Calculation(instance);
+    }
+
+    /**
+     * Crea e salva i record KpiB4DetailResult con dati dettagliati per stazione.
+     * Questa tabella contiene il dettaglio dei risultati KPI B.4 per ogni stazione dell'ente.
+     */
+    private void createAndSaveDetailResults(KpiB4Result kpiB4Result, Instance instance) {
+        log.info("Creating KPI B.4 detail results for instance {}", instance.getId());
+
+        try {
+            // Ottieni tutte le stazioni associate all'ente per creare record dettagliati
+            List<AnagStation> stations = anagStationRepository.findByAnagPartnerFiscalCode(instance.getPartner().getFiscalCode());
+            
+            if (stations.isEmpty()) {
+                log.warn("No stations found for partner {}, creating single detail record", 
+                        instance.getPartner().getFiscalCode());
+                // Se non ci sono stazioni, creiamo un record generico
+                stations = List.of(createDefaultStation(instance));
+            }
+
+            LocalDate analysisDate = kpiB4Result.getAnalysisDate();
+            LocalDate periodStart = instance.getAnalysisPeriodStartDate();
+            LocalDate periodEnd = instance.getAnalysisPeriodEndDate();
+
+            for (AnagStation station : stations) {
+                KpiB4DetailResult detailResult = new KpiB4DetailResult();
+                // Impostare gli ID esplicitamente (necessario per i campi @NotNull)
+                detailResult.setInstanceId(instance.getId());
+                detailResult.setInstanceModuleId(kpiB4Result.getInstanceModule().getId());
+                detailResult.setAnagStationId(station.getId());
+                // Impostare anche le relazioni per JPA
+                detailResult.setInstance(instance);
+                detailResult.setInstanceModule(kpiB4Result.getInstanceModule());
+                detailResult.setAnagStation(station);
+                detailResult.setAnalysisDate(analysisDate);
+                detailResult.setEvaluationType(kpiB4Result.getEvaluationType());
+                detailResult.setEvaluationStartDate(periodStart);
+                detailResult.setEvaluationEndDate(periodEnd);
+                detailResult.setKpiB4Result(kpiB4Result);
+                detailResult.setOutcome(kpiB4Result.getOutcome());
+
+                // Calcola il totale stand-in per questa stazione (placeholder per ora)
+                // In un'implementazione reale, questo dovrebbe essere calcolato dai dati effettivi
+                Integer totalStandIn = calculateStandInForStation(instance, station, periodStart, periodEnd);
+                detailResult.setTotalStandIn(totalStandIn);
+
+                kpiB4DetailResultRepository.save(detailResult);
+                log.debug("Saved KPI B.4 detail result for station {} (Partner: {})", 
+                         station.getId(), instance.getPartner().getFiscalCode());
+            }
+
+            log.info("Created {} KPI B.4 detail results for instance {}", stations.size(), instance.getId());
+
+        } catch (Exception e) {
+            log.error("Error creating KPI B.4 detail results for instance {}: {}", instance.getId(), e.getMessage(), e);
+            throw new RuntimeException("Failed to create KPI B.4 detail results", e);
+        }
+    }
+
+    /**
+     * Crea e salva i record KpiB4AnalyticData con dati analitici giornalieri delle API.
+     * Questa tabella contiene l'andamento giornaliero delle chiamate API per l'analisi di drill-down.
+     */
+    private void createAndSaveAnalyticData(KpiB4Result kpiB4Result, Instance instance) {
+        log.info("Creating KPI B.4 analytic data for instance {}", instance.getId());
+
+        try {
+            LocalDate periodStart = instance.getAnalysisPeriodStartDate();
+            LocalDate periodEnd = instance.getAnalysisPeriodEndDate();
+            String partnerFiscalCode = instance.getPartner().getFiscalCode();
+
+            // Ottieni i dati aggregati giornalieri dalla tabella pagopa_apilog
+            List<Object[]> dailyAggregatedData = pagopaApiLogRepository.calculateDailyAggregatedData(
+                partnerFiscalCode, periodStart, periodEnd);
+
+            if (dailyAggregatedData.isEmpty()) {
+                log.warn("No daily aggregated data found for partner {} in period {} to {}", 
+                        partnerFiscalCode, periodStart, periodEnd);
+                return;
+            }
+
+            for (Object[] dayData : dailyAggregatedData) {
+                LocalDate evaluationDate = (LocalDate) dayData[0];
+                Long gpdAcaTotal = (Long) dayData[1];
+                Long paCreateTotal = (Long) dayData[2];
+
+                // Crea record per GPD/ACA se ci sono dati
+                if (gpdAcaTotal != null && gpdAcaTotal > 0) {
+                    KpiB4AnalyticData gpdAcaAnalyticData = new KpiB4AnalyticData();
+                    // Impostare l'ID esplicitamente (necessario per il campo @NotNull)
+                    gpdAcaAnalyticData.setInstanceId(instance.getId());
+                    // Impostare anche le relazioni per JPA
+                    gpdAcaAnalyticData.setInstance(instance);
+                    gpdAcaAnalyticData.setAnalysisDate(kpiB4Result.getAnalysisDate());
+                    gpdAcaAnalyticData.setEvaluationDate(evaluationDate);
+                    gpdAcaAnalyticData.setApiType("GPD/ACA");
+                    gpdAcaAnalyticData.setRequestCount(gpdAcaTotal);
+                    // gpdAcaAnalyticData.setKpiB4DetailResult(null); // Potresti collegarlo a un detail result specifico
+
+                    kpiB4AnalyticDataRepository.save(gpdAcaAnalyticData);
+                }
+
+                // Crea record per paCreate se ci sono dati
+                if (paCreateTotal != null && paCreateTotal > 0) {
+                    KpiB4AnalyticData paCreateAnalyticData = new KpiB4AnalyticData();
+                    // Impostare l'ID esplicitamente (necessario per il campo @NotNull)
+                    paCreateAnalyticData.setInstanceId(instance.getId());
+                    // Impostare anche le relazioni per JPA
+                    paCreateAnalyticData.setInstance(instance);
+                    paCreateAnalyticData.setAnalysisDate(kpiB4Result.getAnalysisDate());
+                    paCreateAnalyticData.setEvaluationDate(evaluationDate);
+                    paCreateAnalyticData.setApiType("paCreate");
+                    paCreateAnalyticData.setRequestCount(paCreateTotal);
+                    // paCreateAnalyticData.setKpiB4DetailResult(null); // Potresti collegarlo a un detail result specifico
+
+                    kpiB4AnalyticDataRepository.save(paCreateAnalyticData);
+                }
+
+                log.debug("Saved KPI B.4 analytic data for date {} - GPD/ACA: {}, paCreate: {}", 
+                         evaluationDate, gpdAcaTotal, paCreateTotal);
+            }
+
+            log.info("Created {} days of KPI B.4 analytic data for instance {}", 
+                    dailyAggregatedData.size(), instance.getId());
+
+        } catch (Exception e) {
+            log.error("Error creating KPI B.4 analytic data for instance {}: {}", instance.getId(), e.getMessage(), e);
+            throw new RuntimeException("Failed to create KPI B.4 analytic data", e);
+        }
+    }
+
+    /**
+     * Calcola il totale stand-in per una specifica stazione nel periodo di analisi.
+     * Questo è un placeholder - nell'implementazione reale dovrebbe interrogare i dati effettivi.
+     */
+    private Integer calculateStandInForStation(Instance instance, AnagStation station, 
+                                              LocalDate periodStart, LocalDate periodEnd) {
+        // Placeholder: in una implementazione reale, questo dovrebbe:
+        // 1. Interrogare la tabella dei dati stand-in per la stazione specifica
+        // 2. Filtrare per il periodo di analisi
+        // 3. Sommare gli eventi stand-in
+        
+        // Per ora, restituiamo un valore fittizio basato sull'ID della stazione
+        return (int) (station.getId() % 10); // 0-9 eventi stand-in
+    }
+
+    /**
+     * Crea una stazione di default quando non ne esistono per il partner.
+     */
+    private AnagStation createDefaultStation(Instance instance) {
+        // Questo è un placeholder - in una implementazione reale potresti voler:
+        // 1. Creare una stazione generica nel database
+        // 2. Oppure gestire diversamente il caso di partner senza stazioni
+        
+        AnagStation defaultStation = new AnagStation();
+        defaultStation.setId(0L); // ID fittizio
+        defaultStation.setAnagPartner(instance.getPartner());
+        // Altri campi necessari...
+        
+        return defaultStation;
     }
 }

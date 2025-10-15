@@ -41,6 +41,12 @@ public class KpiB4AnalyticData implements Serializable {
     @Column(name = "TE_INSTANCE_ID", nullable = false)
     private Long instanceId;
 
+    @JsonIgnore
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "TE_INSTANCE_ID", nullable = false, insertable = false, updatable = false)
+    private Instance instance;
+
     @NotNull
     @Column(name = "DT_ANALYSIS_DATE", nullable = false)
     private LocalDate analysisDate;
@@ -84,7 +90,6 @@ public class KpiB4AnalyticData implements Serializable {
         return "KpiB4AnalyticData{" +
             "id=" + id +
             ", instanceId=" + instanceId +
-            ", instanceModuleId=" + instanceModuleId +
             ", analysisDate='" + analysisDate + "'" +
             ", evaluationDate='" + evaluationDate + "'" +
             ", apiType='" + apiType + "'" +

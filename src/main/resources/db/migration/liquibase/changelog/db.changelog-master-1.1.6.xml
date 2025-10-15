@@ -25,4 +25,10 @@
     <!-- Add KPI B.4 authorizations -->
     <include file="1.1.6/dml/20251006150000_add_kpi_b4_authorizations.xml" relativeToChangelogFile="true"/>
 
+    <!-- Add KPI B.4 configuration -->
+    <include file="1.1.6/dml/20250115120000_added_kpi_b4_configuration.xml" relativeToChangelogFile="true"/>
+
+    <!-- Activate KPI B.4 module -->
+    <include file="1.1.6/dml/20250115120001_activate_kpi_b4_module.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>
