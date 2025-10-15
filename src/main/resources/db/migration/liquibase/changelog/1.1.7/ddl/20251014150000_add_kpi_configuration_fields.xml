@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+  <changeSet id="20251014150000-1" author="system">
+    <addColumn tableName="KPI_CONFIGURATION">
+      <column name="CO_INSTITUTION_COUNT" type="INTEGER">
+        <constraints nullable="true"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="20251014150000-2" author="system">
+    <addColumn tableName="KPI_CONFIGURATION">
+      <column name="CO_TRANSACTION_COUNT" type="INTEGER">
+        <constraints nullable="true"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="20251014150000-3" author="system">
+    <addColumn tableName="KPI_CONFIGURATION">
+      <column name="CO_INSTITUTION_TOLERANCE" type="DECIMAL(19,2)">
+        <constraints nullable="true"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="20251014150000-4" author="system">
+    <addColumn tableName="KPI_CONFIGURATION">
+      <column name="CO_TRANSACTION_TOLERANCE" type="DECIMAL(19,2)">
+        <constraints nullable="true"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+</databaseChangeLog>
