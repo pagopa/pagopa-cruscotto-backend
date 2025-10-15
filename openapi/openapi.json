@@ -8800,10 +8800,10 @@
           "configEvaluationType": {
             "type": "boolean"
           },
-          "configInstitutionThreshold": {
+          "configInstitutionCount": {
             "type": "boolean"
           },
-          "configTransactionThreshold": {
+          "configTransactionCount": {
             "type": "boolean"
           },
           "configInstitutionTolerance": {
