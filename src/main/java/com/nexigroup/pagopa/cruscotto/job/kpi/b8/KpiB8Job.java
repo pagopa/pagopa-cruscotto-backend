@@ -38,7 +38,7 @@ public class KpiB8Job extends QuartzJobBean {
     private final KpiConfigurationService kpiConfigurationService;
     private final AnagPlannedShutdownService anagPlannedShutdownService;
     private final PagopaNumeroStandinRepository pagopaNumeroStandinRepository;
-    private final KpiB3DataService kpiB3DataService;
+    private final KpiB8DataService kpiB8DataService;
     private final Scheduler scheduler;
 
     @Override
@@ -46,14 +46,14 @@ public class KpiB8Job extends QuartzJobBean {
         LOGGER.info("Start calculate kpi B.8");
 
         try {
-            if (!applicationProperties.getJob().getKpiB3Job().isEnabled()) {
+            if (!applicationProperties.getJob().getKpiB8Job().isEnabled()) {
                 LOGGER.info("Job calculate kpi B.8 disabled. Exit...");
                 return;
             }
 
             List<InstanceDTO> instanceDTOS = instanceService.findInstanceToCalculate(
-                ModuleCode.B3,
-                applicationProperties.getJob().getKpiB3Job().getLimit()
+                ModuleCode.B8,
+                applicationProperties.getJob().getKpiB8Job().getLimit()
             );
 
             if (instanceDTOS.isEmpty()) {
@@ -83,7 +83,7 @@ public class KpiB8Job extends QuartzJobBean {
                             .findOne(instanceDTO.getId(), kpiConfigurationDTO.getModuleId())
                             .orElseThrow(() -> new NullPointerException("KPI B.8 InstanceModule not found"));
 
-                        LOGGER.info("Deletion phase for any previous processing in error (handled by KpiB3DataService)");
+                        LOGGER.info("Deletion phase for any previous processing in error (handled by KpiB8DataService)");
 
                         // Calculate analysis date
                         LocalDate analysisDate = LocalDate.now();
@@ -127,20 +127,20 @@ public class KpiB8Job extends QuartzJobBean {
                         LOGGER.info("After filtering shutdowns: {} Stand-In records remain", filteredStandInData.size());
 
                         // 3. Calculate final outcome based on Stand-In data
-                        AtomicReference<OutcomeStatus> kpiB3ResultFinalOutcome = new AtomicReference<>(OutcomeStatus.OK);
+                        AtomicReference<OutcomeStatus> kpiB8ResultFinalOutcome = new AtomicReference<>(OutcomeStatus.OK);
 
-                        OutcomeStatus outcome = calculateKpiB3Outcome(
+                        OutcomeStatus outcome = calculateKpiB8Outcome(
                             filteredStandInData,
                             eligibilityThreshold,
                             instanceDTO
                         );
 
-                        kpiB3ResultFinalOutcome.set(outcome);
+                        kpiB8ResultFinalOutcome.set(outcome);
 
                         LOGGER.info("Calculated KPI B.8 outcome: {}", outcome);
 
                         // 4. Salva risultati nelle tabelle KPI B.8 usando il data service
-                        kpiB3DataService.saveKpiB3Results(
+                        kpiB8DataService.saveKpiB8Results(
                             instanceDTO,
                             instanceModuleDTO,
                             kpiConfigurationDTO,
@@ -152,9 +152,9 @@ public class KpiB8Job extends QuartzJobBean {
                         LOGGER.info("KPI B.8 results saved successfully");
 
                         // 5. Update automatic outcome of instance module
-                        instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(), kpiB3ResultFinalOutcome.get());
+                        instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(), kpiB8ResultFinalOutcome.get());
 
-                        LOGGER.info("Instance module {} updated with outcome: {}", instanceModuleDTO.getId(), kpiB3ResultFinalOutcome.get());
+                        LOGGER.info("Instance module {} updated with outcome: {}", instanceModuleDTO.getId(), kpiB8ResultFinalOutcome.get());
 
                     } catch (Exception e) {
                         LOGGER.error(
@@ -255,7 +255,7 @@ public class KpiB8Job extends QuartzJobBean {
     /**
      * Calculates KPI B.8 outcome based on Stand-In data and configured threshold
      */
-    private OutcomeStatus calculateKpiB3Outcome(
+    private OutcomeStatus calculateKpiB8Outcome(
             List<PagopaNumeroStandin> filteredStandInData,
             Double eligibilityThreshold,
             InstanceDTO instanceDTO) {
@@ -300,17 +300,17 @@ public class KpiB8Job extends QuartzJobBean {
      * @param instanceIdentification the instance identification to process
      */
     public void scheduleJobForSingleInstance(String instanceIdentification) throws Exception {
-        LOGGER.info("Scheduling KpiB3Job for instance: {}", instanceIdentification);
+        LOGGER.info("Scheduling KpiB8Job for instance: {}", instanceIdentification);
 
         // Create job detail for this specific instance
         JobDetail jobDetail = JobBuilder.newJob(KpiB8Job.class)
-            .withIdentity("KpiB3Job-" + instanceIdentification, "KPI_JOBS")
+            .withIdentity("KpiB8Job-" + instanceIdentification, "KPI_JOBS")
             .usingJobData("instanceIdentification", instanceIdentification)
             .build();
 
         // Create trigger to run immediately
         Trigger trigger = TriggerBuilder.newTrigger()
-            .withIdentity("KpiB3Trigger-" + instanceIdentification, "KPI_TRIGGERS")
+            .withIdentity("KpiB8Trigger-" + instanceIdentification, "KPI_TRIGGERS")
             .withSchedule(SimpleScheduleBuilder.simpleSchedule()
                 .withMisfireHandlingInstructionFireNow()
                 .withRepeatCount(0))
@@ -319,6 +319,6 @@ public class KpiB8Job extends QuartzJobBean {
 
         // Schedule the job
         scheduler.scheduleJob(jobDetail, trigger);
-        LOGGER.info("Successfully scheduled KpiB3Job for instance: {}", instanceIdentification);
+        LOGGER.info("Successfully scheduled KpiB8Job for instance: {}", instanceIdentification);
     }
 }

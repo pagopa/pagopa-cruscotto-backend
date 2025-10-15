@@ -146,7 +146,7 @@ application:
       enabled: true
       cron: 0 0/50 07-8 ? * SAT *
     load-registry-job:
-      enabled: true
+      enabled: false
       cron: 0 0/50 0-23 ? * SAT *
     kpi-a1-job:
       enabled: true
@@ -168,6 +168,12 @@ application:
       enabled: true
       cron: 0 0/2 08-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
       limit: 20
+    kpi-b8-job:
+      enabled: false
+      cron: 0 0/2 08-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
+      limit: 20
+
+
     load-stand-in-data-job:
       enabled: true
       cron-expression: 0 0 0 * * ? # Every day at midnight
