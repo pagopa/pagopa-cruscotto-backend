@@ -45,6 +45,14 @@ public class ModuleDTO implements Serializable {
 
     private Boolean configEvaluationType;
 
+    private Boolean configInstitutionCount;
+
+    private Boolean configTransactionCount;
+
+    private Boolean configInstitutionTolerance;
+
+    private Boolean configTransactionTolerance;
+
     private boolean deleted;
 
     private ZonedDateTime deletedDate;
