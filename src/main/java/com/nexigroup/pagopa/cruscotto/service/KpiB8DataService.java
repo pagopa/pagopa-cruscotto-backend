@@ -24,7 +24,7 @@ public interface KpiB8DataService {
      * @param outcome the calculation outcome
      * @param standInData the Stand-In aggregated data from database
      */
-    void saveKpiB3Results(InstanceDTO instanceDTO, InstanceModuleDTO instanceModuleDTO,
+    void saveKpiB8Results(InstanceDTO instanceDTO, InstanceModuleDTO instanceModuleDTO,
                          KpiConfigurationDTO kpiConfigurationDTO, LocalDate analysisDate,
                          OutcomeStatus outcome, List<PagopaNumeroStandin> standInData);
 
@@ -35,9 +35,9 @@ public interface KpiB8DataService {
      * @param instanceModuleDTO the instance module
      * @param kpiConfigurationDTO the KPI configuration
      * @param analysisDate the analysis date
-     * @return the saved KpiB3ResultDTO
+     * @return the saved KpiB8ResultDTO
      */
-    KpiB3ResultDTO createKpiB3Result(InstanceDTO instanceDTO, InstanceModuleDTO instanceModuleDTO,
+    KpiB8ResultDTO createKpiB8Result(InstanceDTO instanceDTO, InstanceModuleDTO instanceModuleDTO,
                                     KpiConfigurationDTO kpiConfigurationDTO, LocalDate analysisDate);
 
     /**
@@ -46,7 +46,7 @@ public interface KpiB8DataService {
      * @param detailResult the detail result to save
      * @return the saved detail result
      */
-    KpiB3DetailResultDTO saveKpiB3DetailResult(KpiB3DetailResultDTO detailResult);
+    KpiB8DetailResultDTO saveKpiB8DetailResult(KpiB8DetailResultDTO detailResult);
 
     /**
      * Saves KPI B.3 analytic data for Stand-In events
@@ -55,7 +55,7 @@ public interface KpiB8DataService {
      * @param instanceModuleDTO the instance module
      * @param standInData the Stand-In data
      */
-    void saveKpiB3AnalyticData(InstanceDTO instanceDTO, InstanceModuleDTO instanceModuleDTO,
+    void saveKpiB8AnalyticData(InstanceDTO instanceDTO, InstanceModuleDTO instanceModuleDTO,
                               List<PagopaNumeroStandin> standInData);
 
     /**
@@ -64,5 +64,5 @@ public interface KpiB8DataService {
      * @param resultId the result ID
      * @param outcome the new outcome
      */
-    void updateKpiB3ResultOutcome(Long resultId, OutcomeStatus outcome);
+    void updateKpiB8ResultOutcome(Long resultId, OutcomeStatus outcome);
 }
