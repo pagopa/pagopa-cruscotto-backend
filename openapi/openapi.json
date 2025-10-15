@@ -8693,6 +8693,10 @@
           "configExcludePlannedShutdown",
           "configExcludeUnplannedShutdown",
           "configTolerance",
+          "configInstitutionCount",
+          "configTransactionCount",
+          "configInstitutionTolerance",
+          "configTransactionTolerance",
           "description",
           "name",
           "status"
