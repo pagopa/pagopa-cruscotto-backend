@@ -4,9 +4,8 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-  <property name="project_name" value="CRUSC8"/>
   <!-- Include previous version -->
-  <!-- <include file="db.changelog-master-1.1.5.xml" relativeToChangelogFile="true"/> -->
+  <include file="db.changelog-master-1.1.5.xml" relativeToChangelogFile="true"/>
 
   <!-- Create KPI B1 result table -->
   <include file="1.1.7/ddl/20251010120000_added_entity_KpiB1Result.xml" relativeToChangelogFile="true"/>
