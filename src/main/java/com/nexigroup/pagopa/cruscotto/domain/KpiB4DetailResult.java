@@ -39,22 +39,34 @@ public class KpiB4DetailResult implements Serializable {
     @GeneratedValue(generator = "SQCRUSC8_KPIB4DETARESU", strategy = GenerationType.SEQUENCE)
     private Long id;
 
+    @NotNull
+    @Column(name = "CO_INSTANCE_ID", nullable = false)
+    private Long instanceId;
+
+    @NotNull
+    @Column(name = "CO_INSTANCE_MODULE_ID", nullable = false)
+    private Long instanceModuleId;
+
+    @NotNull
+    @Column(name = "CO_ANAG_STATION_ID", nullable = false)
+    private Long anagStationId;
+
     @JsonIgnore
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CO_INSTANCE_ID", nullable = false)
+    @JoinColumn(name = "CO_INSTANCE_ID", nullable = false, insertable = false, updatable = false)
     private Instance instance;
 
     @JsonIgnore
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CO_INSTANCE_MODULE_ID", nullable = false)
+    @JoinColumn(name = "CO_INSTANCE_MODULE_ID", nullable = false, insertable = false, updatable = false)
     private InstanceModule instanceModule;
 
     @JsonIgnore
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CO_ANAG_STATION_ID", nullable = false)
+    @JoinColumn(name = "CO_ANAG_STATION_ID", nullable = false, insertable = false, updatable = false)
     private AnagStation anagStation;
 
     @NotNull

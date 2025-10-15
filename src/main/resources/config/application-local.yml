@@ -48,9 +48,9 @@ spring:
   #         batch_size: 50
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:postgresql://localhost:5432/cruscotto
-    username: root
-    password: root
+    url: jdbc:postgresql://10.8.79.25:3306/qualification_dashboard
+    username: qualification_dashboard
+    password: qualification_dashboard
     hikari:
       poolName: Hikari
       auto-commit: false
@@ -68,9 +68,9 @@ spring:
       org.quartz.jobStore.dataSource: cruscotto
       org.quartz.dataSource.cruscotto.provider: hikaricp
       org.quartz.dataSource.cruscotto.driver: org.postgresql.Driver
-      org.quartz.dataSource.cruscotto.URL: jdbc:postgresql://localhost:5432/cruscotto
-      org.quartz.dataSource.cruscotto.user: root
-      org.quartz.dataSource.cruscotto.password: root
+      org.quartz.dataSource.cruscotto.URL: jdbc:postgresql://10.8.79.25:3306/qualification_dashboard
+      org.quartz.dataSource.cruscotto.user: qualification_dashboard
+      org.quartz.dataSource.cruscotto.password: qualification_dashboard
       org.quartz.dataSource.cruscotto.validationQuery: select 1
       org.quartz.dataSource.cruscotto.maxConnections: 10
 server:
@@ -133,9 +133,9 @@ application:
       api-key-name: ocp-apim-subscription-key
       api-key-value: 52f2f22cf8f94544baf9bfd2760f3dbd
     stand-in:
-      url: https://api.dev.platform.pagopa.it/technical-support/stand-in/api/v1
+      url: https://api.uat.platform.pagopa.it/technical-support/stand-in/api/v1
       api-key-name: ocp-apim-subscription-key
-      api-key-value: 71bce556ab0d4017828fabfe262b8178
+      api-key-value: b514df56c9c943bba6cbcf778d698dce #71bce556ab0d4017828fabfe262b8178
   auth-group:
     super-admin: NEXI
   job:
@@ -143,10 +143,10 @@ application:
       enabled: true
       cron: 0 0/50 07-8 ? * SAT *
     load-maintenance-job:
-      enabled: true
+      enabled: false
       cron: 0 0/50 07-8 ? * SAT *
     load-registry-job:
-      enabled: true
+      enabled: false
       cron: 0 0/50 0-23 ? * SAT *
     kpi-a1-job:
       enabled: true

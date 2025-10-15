@@ -31,5 +31,5 @@ public interface KpiConfigurationRepository extends JpaRepository<KpiConfigurati
      * @return the KpiConfiguration
      */
     @Query("SELECT kc FROM KpiConfiguration kc JOIN kc.module m WHERE m.code = :moduleCode")
-    Optional<KpiConfiguration> findByModuleCode(@Param("moduleCode") ModuleCode moduleCode);
+    Optional<KpiConfiguration> findByModuleCode(@Param("moduleCode") String moduleCode);
 }

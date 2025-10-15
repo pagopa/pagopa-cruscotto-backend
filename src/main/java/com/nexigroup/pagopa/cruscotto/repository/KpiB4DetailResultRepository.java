@@ -22,7 +22,7 @@ public interface KpiB4DetailResultRepository extends JpaRepository<KpiB4DetailRe
      * @param instanceId the instance ID
      * @return the list of KpiB4DetailResult
      */
-    List<KpiB4DetailResult> findByInstanceIdOrderByAnalysisDateDesc(String instanceId);
+    List<KpiB4DetailResult> findByInstanceIdOrderByAnalysisDateDesc(Long instanceId);
 
     /**
      * Find KpiB4DetailResult by instance ID and analysis date.
@@ -31,20 +31,20 @@ public interface KpiB4DetailResultRepository extends JpaRepository<KpiB4DetailRe
      * @param analysisDate the analysis date
      * @return the list of KpiB4DetailResult
      */
-    List<KpiB4DetailResult> findByInstanceIdAndAnalysisDate(String instanceId, LocalDateTime analysisDate);
+    List<KpiB4DetailResult> findByInstanceIdAndAnalysisDate(Long instanceId, LocalDateTime analysisDate);
 
     /**
-     * Find KpiB4DetailResult by instance ID, analysis date and period type.
+     * Find KpiB4DetailResult by instance ID, analysis date and evaluation type.
      *
      * @param instanceId the instance ID
      * @param analysisDate the analysis date
-     * @param periodType the period type (MESE/TOTALE)
+     * @param evaluationType the evaluation type (MESE/TOTALE)
      * @return the list of KpiB4DetailResult
      */
-    List<KpiB4DetailResult> findByInstanceIdAndAnalysisDateAndPeriodType(
-        String instanceId, 
+    List<KpiB4DetailResult> findByInstanceIdAndAnalysisDateAndEvaluationType(
+        Long instanceId, 
         LocalDateTime analysisDate, 
-        String periodType
+        String evaluationType
     );
 
     /**
@@ -54,7 +54,7 @@ public interface KpiB4DetailResultRepository extends JpaRepository<KpiB4DetailRe
      * @param pageable the pagination information
      * @return the page of KpiB4DetailResult
      */
-    Page<KpiB4DetailResult> findByInstanceIdOrderByAnalysisDateDesc(String instanceId, Pageable pageable);
+    Page<KpiB4DetailResult> findByInstanceIdOrderByAnalysisDateDesc(Long instanceId, Pageable pageable);
 
     /**
      * Find monthly results for an instance and analysis date.
@@ -63,9 +63,9 @@ public interface KpiB4DetailResultRepository extends JpaRepository<KpiB4DetailRe
      * @param analysisDate the analysis date
      * @return the list of monthly KpiB4DetailResult
      */
-    @Query("SELECT k FROM KpiB4DetailResult k WHERE k.instanceId = :instanceId AND k.analysisDate = :analysisDate AND k.periodType = 'MESE' ORDER BY k.periodFrom ASC")
+    @Query("SELECT k FROM KpiB4DetailResult k WHERE k.instanceId = :instanceId AND k.analysisDate = :analysisDate AND k.evaluationType = 'MESE' ORDER BY k.evaluationStartDate ASC")
     List<KpiB4DetailResult> findMonthlyResultsByInstanceIdAndAnalysisDate(
-        @Param("instanceId") String instanceId, 
+        @Param("instanceId") Long instanceId, 
         @Param("analysisDate") LocalDateTime analysisDate
     );
 
@@ -76,9 +76,9 @@ public interface KpiB4DetailResultRepository extends JpaRepository<KpiB4DetailRe
      * @param analysisDate the analysis date
      * @return the total KpiB4DetailResult
      */
-    @Query("SELECT k FROM KpiB4DetailResult k WHERE k.instanceId = :instanceId AND k.analysisDate = :analysisDate AND k.periodType = 'TOTALE'")
+    @Query("SELECT k FROM KpiB4DetailResult k WHERE k.instanceId = :instanceId AND k.analysisDate = :analysisDate AND k.evaluationType = 'TOTALE'")
     KpiB4DetailResult findTotalResultByInstanceIdAndAnalysisDate(
-        @Param("instanceId") String instanceId, 
+        @Param("instanceId") Long instanceId, 
         @Param("analysisDate") LocalDateTime analysisDate
     );
 
@@ -87,7 +87,7 @@ public interface KpiB4DetailResultRepository extends JpaRepository<KpiB4DetailRe
      *
      * @param instanceId the instance ID
      */
-    void deleteByInstanceId(String instanceId);
+    void deleteByInstanceId(Long instanceId);
 
     /**
      * Check if non-compliant results exist for instance and analysis date.
@@ -96,9 +96,9 @@ public interface KpiB4DetailResultRepository extends JpaRepository<KpiB4DetailRe
      * @param analysisDate the analysis date
      * @return true if non-compliant results exist
      */
-    @Query("SELECT COUNT(k) > 0 FROM KpiB4DetailResult k WHERE k.instanceId = :instanceId AND k.analysisDate = :analysisDate AND k.outcome = false")
+    @Query("SELECT COUNT(k) > 0 FROM KpiB4DetailResult k WHERE k.instanceId = :instanceId AND k.analysisDate = :analysisDate AND k.outcome = 'KO'")
     boolean existsNonCompliantByInstanceIdAndAnalysisDate(
-        @Param("instanceId") String instanceId, 
+        @Param("instanceId") Long instanceId, 
         @Param("analysisDate") LocalDateTime analysisDate
     );
 }
