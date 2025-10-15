@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <!--
+        Renamed the table PAGOPA_NUMERO_STANDIN to STANDIN_NUMBER.
+    -->
+    <changeSet id="20251009150000-1" author="system">
+        <comment>Rename table PAGOPA_NUMERO_STANDIN to STANDIN_NUMBER</comment>
+        <renameTable oldTableName="PAGOPA_NUMERO_STANDIN" newTableName="STANDIN_NUMBER"/>
+    </changeSet>
+
+    <changeSet id="20251009150000-2" author="system">
+        <comment>Recreate indexes with new table name</comment>
+        
+        <!-- Drop old indexes -->
+        <dropIndex tableName="STANDIN_NUMBER" indexName="IDX_PAGOPA_STANDIN_STATION_DATE"/>
+        <dropIndex tableName="STANDIN_NUMBER" indexName="IDX_PAGOPA_STANDIN_DATE_RANGE"/>
+        
+        <!-- Create new indexes with updated names -->
+        <createIndex indexName="IDX_STANDIN_NUMBER_STATION_DATE" tableName="STANDIN_NUMBER">
+            <column name="TE_STATION_CODE"/>
+            <column name="DT_DATA_DATE"/>
+        </createIndex>
+        
+        <createIndex indexName="IDX_STANDIN_NUMBER_DATE_RANGE" tableName="STANDIN_NUMBER">
+            <column name="DT_DATA_DATE"/>
+            <column name="DT_INTERVAL_START"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
+
+</databaseChangeLog>
