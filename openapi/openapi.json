@@ -8,7 +8,7 @@
       "name": "unlicensed",
       "url": ""
     },
-    "version": "0.7.21"
+    "version": "0.7.22"
   },
   "servers": [
     {
@@ -10591,7 +10591,7 @@
             "type": "integer",
             "format": "int32"
           },
-          "institutionDifferencePercentage":{
+          "institutionDifferencePercentage": {
             "type": "number",
             "format": "double"
           },
@@ -11765,7 +11765,7 @@
         }
       },
       "KpiB1AnalyticDrillDownDTO": {
-         "required": [
+        "required": [
           "id",
           "kpiB1AnalyticDataId",
           "partnerFiscalCode",
