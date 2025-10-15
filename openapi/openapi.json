@@ -11815,7 +11815,7 @@
             "type": "integer",
             "format": "int64"
           },
-          "kpiB4AnalyticDataId": {
+          "kpiB8AnalyticDataId": {
             "type": "integer",
             "format": "int64"
           },
