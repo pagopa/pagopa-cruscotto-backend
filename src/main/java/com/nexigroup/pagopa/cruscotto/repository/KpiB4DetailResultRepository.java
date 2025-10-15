@@ -101,4 +101,12 @@ public interface KpiB4DetailResultRepository extends JpaRepository<KpiB4DetailRe
         @Param("instanceId") Long instanceId, 
         @Param("analysisDate") LocalDateTime analysisDate
     );
+
+    /**
+     * Find KpiB4DetailResult by KpiB4Result.
+     *
+     * @param kpiB4Result the KpiB4Result
+     * @return the list of KpiB4DetailResult
+     */
+    List<KpiB4DetailResult> findByKpiB4Result(com.nexigroup.pagopa.cruscotto.domain.KpiB4Result kpiB4Result);
 }

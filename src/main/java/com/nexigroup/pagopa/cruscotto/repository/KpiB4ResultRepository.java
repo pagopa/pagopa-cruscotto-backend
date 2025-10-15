@@ -76,4 +76,20 @@ public interface KpiB4ResultRepository extends JpaRepository<KpiB4Result, Long> 
      */
     @Query("SELECT k FROM KpiB4Result k WHERE k.instance = :instance ORDER BY k.analysisDate DESC LIMIT 1")
     KpiB4Result findLatestByInstance(@Param("instance") Instance instance);
+
+    /**
+     * Delete all KpiB4Result by instanceModule id.
+     *
+     * @param instanceModuleId the instanceModule id
+     * @return the number of deleted records
+     */
+    int deleteAllByInstanceModuleId(Long instanceModuleId);
+
+    /**
+     * Find all KpiB4Result by instanceModule id ordered by analysis date desc.
+     *
+     * @param instanceModuleId the instanceModule id
+     * @return the list of KpiB4Result
+     */
+    List<KpiB4Result> findAllByInstanceModuleIdOrderByAnalysisDateDesc(Long instanceModuleId);
 }

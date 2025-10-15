@@ -316,6 +316,18 @@ public class KpiB4ServiceImpl implements KpiB4Service {
             LocalDate periodEnd = instance.getAnalysisPeriodEndDate();
             String partnerFiscalCode = instance.getPartner().getFiscalCode();
 
+            // Ottieni i KpiB4DetailResult salvati per questo risultato
+            List<KpiB4DetailResult> detailResults = kpiB4DetailResultRepository.findByKpiB4Result(kpiB4Result);
+            
+            if (detailResults.isEmpty()) {
+                log.warn("No detail results found for KPI B.4 result {}, cannot create analytic data", kpiB4Result.getId());
+                return;
+            }
+
+            // Per semplicità, usiamo il primo detail result come riferimento per tutti i dati analitici
+            // In un'implementazione più complessa, potresti voler associare dati specifici a detail results specifici
+            KpiB4DetailResult primaryDetailResult = detailResults.get(0);
+
             // Ottieni i dati aggregati giornalieri dalla tabella pagopa_apilog
             List<Object[]> dailyAggregatedData = pagopaApiLogRepository.calculateDailyAggregatedData(
                 partnerFiscalCode, periodStart, periodEnd);
@@ -342,7 +354,8 @@ public class KpiB4ServiceImpl implements KpiB4Service {
                     gpdAcaAnalyticData.setEvaluationDate(evaluationDate);
                     gpdAcaAnalyticData.setApiType("GPD/ACA");
                     gpdAcaAnalyticData.setRequestCount(gpdAcaTotal);
-                    // gpdAcaAnalyticData.setKpiB4DetailResult(null); // Potresti collegarlo a un detail result specifico
+                    // CORREZIONE: Collega al KpiB4DetailResult per evitare null nella colonna co_kpi_b4_detail_result_id
+                    gpdAcaAnalyticData.setKpiB4DetailResult(primaryDetailResult);
 
                     kpiB4AnalyticDataRepository.save(gpdAcaAnalyticData);
                 }
@@ -358,17 +371,18 @@ public class KpiB4ServiceImpl implements KpiB4Service {
                     paCreateAnalyticData.setEvaluationDate(evaluationDate);
                     paCreateAnalyticData.setApiType("paCreate");
                     paCreateAnalyticData.setRequestCount(paCreateTotal);
-                    // paCreateAnalyticData.setKpiB4DetailResult(null); // Potresti collegarlo a un detail result specifico
+                    // CORREZIONE: Collega al KpiB4DetailResult per evitare null nella colonna co_kpi_b4_detail_result_id
+                    paCreateAnalyticData.setKpiB4DetailResult(primaryDetailResult);
 
                     kpiB4AnalyticDataRepository.save(paCreateAnalyticData);
                 }
 
-                log.debug("Saved KPI B.4 analytic data for date {} - GPD/ACA: {}, paCreate: {}", 
-                         evaluationDate, gpdAcaTotal, paCreateTotal);
+                log.debug("Saved KPI B.4 analytic data for date {} - GPD/ACA: {}, paCreate: {} (linked to detail result {})", 
+                         evaluationDate, gpdAcaTotal, paCreateTotal, primaryDetailResult.getId());
             }
 
-            log.info("Created {} days of KPI B.4 analytic data for instance {}", 
-                    dailyAggregatedData.size(), instance.getId());
+            log.info("Created {} days of KPI B.4 analytic data for instance {} (linked to detail result {})", 
+                    dailyAggregatedData.size(), instance.getId(), primaryDetailResult.getId());
 
         } catch (Exception e) {
             log.error("Error creating KPI B.4 analytic data for instance {}: {}", instance.getId(), e.getMessage(), e);
