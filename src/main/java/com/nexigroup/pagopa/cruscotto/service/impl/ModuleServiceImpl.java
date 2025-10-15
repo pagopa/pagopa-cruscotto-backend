@@ -287,7 +287,11 @@ public class ModuleServiceImpl implements ModuleService {
             QModule.module.configEligibilityThreshold.as("configEligibilityThreshold"),
             QModule.module.configTolerance.as("configTolerance"),
             QModule.module.configAverageTimeLimit.as("configAverageTimeLimit"),
-            QModule.module.configEvaluationType.as("configEvaluationType")
+            QModule.module.configEvaluationType.as("configEvaluationType"),
+            QModule.module.configTransactionCount.as("configTransactionCount"),
+            QModule.module.configTransactionTolerance.as("configTransactionTolerance"),
+            QModule.module.configInstitutionCount.as("configInstitutionCount"),
+            QModule.module.configInstitutionTolerance.as("configInstitutionTolerance")
         );
     }
 }
