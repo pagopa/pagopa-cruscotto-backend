@@ -213,6 +213,10 @@ public class ModuleServiceImpl implements ModuleService {
         module.setConfigTolerance(moduleToCreate.getConfigTolerance());
         module.setConfigAverageTimeLimit(moduleToCreate.getConfigAverageTimeLimit());
         module.setConfigEvaluationType(moduleToCreate.getConfigEvaluationType());
+        module.setConfigTransactionCount(moduleToCreate.getConfigTransactionCount());
+        module.setConfigTransactionTolerance(moduleToCreate.getConfigTransactionTolerance());
+        module.setConfigInstitutionCount(moduleToCreate.getConfigInstitutionCount());
+        module.setConfigInstitutionTolerance(moduleToCreate.getConfigInstitutionTolerance());
 
         module = moduleRepository.save(module);
 
@@ -256,6 +260,10 @@ public class ModuleServiceImpl implements ModuleService {
                 module.setConfigTolerance(moduleToUpdate.getConfigTolerance());
                 module.setConfigAverageTimeLimit(moduleToUpdate.getConfigAverageTimeLimit());
                 module.setConfigEvaluationType(moduleToUpdate.getConfigEvaluationType());
+                module.setConfigTransactionCount(moduleToUpdate.getConfigTransactionCount());
+                module.setConfigTransactionTolerance(moduleToUpdate.getConfigTransactionTolerance());
+                module.setConfigInstitutionCount(moduleToUpdate.getConfigInstitutionCount());
+                module.setConfigInstitutionTolerance(moduleToUpdate.getConfigInstitutionTolerance());
                 moduleRepository.save(module);
 
                 log.info("Updating of module with identification {} by user {}", module.getId(), loginUtenteLoggato);

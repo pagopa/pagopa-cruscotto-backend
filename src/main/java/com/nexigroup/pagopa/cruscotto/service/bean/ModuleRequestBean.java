@@ -50,4 +50,16 @@ public class ModuleRequestBean {
 
     @NotNull
     private Boolean configTolerance;
+
+    @NotNull
+    private Boolean configTransactionCount;
+
+    @NotNull
+    private Boolean configTransactionTolerance;
+
+    @NotNull
+    private Boolean configInstitutionCount;
+
+    @NotNull
+    private Boolean configInstitutionTolerance;
 }
