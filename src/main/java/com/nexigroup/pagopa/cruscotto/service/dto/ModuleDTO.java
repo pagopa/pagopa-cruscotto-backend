@@ -45,9 +45,9 @@ public class ModuleDTO implements Serializable {
 
     private Boolean configEvaluationType;
 
-    private Boolean configInstitutionThreshold;
+    private Boolean configInstitutionCount;
 
-    private Boolean configTransactionThreshold;
+    private Boolean configTransactionCount;
 
     private Boolean configInstitutionTolerance;
 

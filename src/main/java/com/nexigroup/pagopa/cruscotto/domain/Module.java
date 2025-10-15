@@ -98,11 +98,11 @@ public class Module extends AbstractAuditingEntity<Long> implements Serializable
 
     @NotNull
     @Column(name = "FL_CONFIG_INSTITUTION_THRESHOLD", nullable = false)
-    private Boolean configInstitutionThreshold;
+    private Boolean configInstitutionCount;
 
     @NotNull
     @Column(name = "FL_CONFIG_TRANSACTION_THRESHOLD", nullable = false)
-    private Boolean configTransactionThreshold;
+    private Boolean configTransactionCount;
 
     @NotNull
     @Column(name = "FL_CONFIG_INSTITUTION_TOLERANCE", nullable = false)
