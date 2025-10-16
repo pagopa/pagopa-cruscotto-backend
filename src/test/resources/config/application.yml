@@ -189,13 +189,17 @@ application:
       enabled: true
       cron: 0 0/2 0-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
       limit: 20
+    kpi-b1-job:
+      enabled: true
+      cron: 0 0/2 08-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
+      limit: 20  
     clear-log-job:
       cron: 0 0/20 05-6 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
       days: 7
 
   liquibase:
     async-start: false
-    dbVersion: 1.1.3
+    dbVersion: 1.1.7
 
 decorator:
   datasource:

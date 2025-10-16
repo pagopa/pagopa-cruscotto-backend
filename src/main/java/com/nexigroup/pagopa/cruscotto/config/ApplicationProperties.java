@@ -71,6 +71,8 @@ public class ApplicationProperties {
 
         private KpiB4Job kpiB4Job = new KpiB4Job();
 
+        private KpiB1Job kpiB1Job = new KpiB1Job();
+
         private LoadStandInDataJob loadStandInDataJob = new LoadStandInDataJob();
 
         private ClearLogJob clearLogJob = new ClearLogJob();
@@ -161,6 +163,17 @@ public class ApplicationProperties {
     @Getter
     @Setter
     public static class KpiB4Job {
+
+        private boolean enabled = true;
+
+        private String cron;
+
+        private int limit;
+    }
+
+    @Getter
+    @Setter
+    public static class KpiB1Job {
 
         private boolean enabled = true;
 

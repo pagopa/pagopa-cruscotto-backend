@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+  <changeSet id="20251010123000-1" author="system" context="ddl">
+    <createSequence sequenceName="SQ${project_name}_KPIB1ANALDR" startValue="3000" cacheSize="20"/>
+  </changeSet>
+
+  <changeSet id="20251010123000-2" author="system" context="ddl">
+    <createTable tableName="KPI_B1_ANALYTIC_DRILL_DOWN">
+      <column name="CO_ID" type="bigint">
+        <constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_KPIB1ANALDR"/>
+      </column>
+      <column name="CO_KPI_B1_ANALYTIC_DATA_ID" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DT_DATA_DATE" type="date">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TE_PARTNER_FISCAL_CODE" type="varchar(35)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TE_INSTITUTION_FISCAL_CODE" type="varchar(35)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_TRANSACTION_COUNT" type="int">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TE_STATION_CODE" type="varchar(35)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+    <rollback>
+      DROP TABLE ${database.defaultSchemaName}.KPI_B1_ANALYTIC_DRILL_DOWN CASCADE CONSTRAINTS;
+    </rollback>
+  </changeSet>
+
+  <changeSet id="20251010123000-3" author="system" context="ddl">
+    <createIndex indexName="IX${project_name}_KPIB1ANALDR"
+                 tableName="KPI_B1_ANALYTIC_DRILL_DOWN">
+      <column name="CO_KPI_B1_ANALYTIC_DATA_ID"/>
+    </createIndex>
+
+    <createIndex indexName="IX${project_name}_KPIB1ANALDR_01"
+                 tableName="KPI_B1_ANALYTIC_DRILL_DOWN">
+      <column name="DT_DATA_DATE"/>
+    </createIndex>
+
+    <createIndex indexName="IX${project_name}_KPIB1ANALDR_02"
+                 tableName="KPI_B1_ANALYTIC_DRILL_DOWN">
+      <column name="TE_PARTNER_FISCAL_CODE"/>
+    </createIndex>
+  </changeSet>
+
+</databaseChangeLog>

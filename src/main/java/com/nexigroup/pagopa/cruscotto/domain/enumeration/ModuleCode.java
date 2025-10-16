@@ -6,7 +6,8 @@ public enum ModuleCode {
     B2("B.2"),
     B3("B.3"),
     B4("B.4"),
-    B9("B.9");
+    B9("B.9"),
+    B1("B.1");
 
     public final String code;
 

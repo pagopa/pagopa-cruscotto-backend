@@ -4,6 +4,7 @@ import com.nexigroup.pagopa.cruscotto.domain.KpiConfiguration;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,6 +42,14 @@ public class KpiConfigurationDTO implements Serializable {
 
     private EvaluationType evaluationType;
 
+    private Integer institutionCount;
+
+    private Integer transactionCount;
+
+    private BigDecimal institutionTolerance;
+
+    private BigDecimal transactionTolerance;
+
     private Boolean configExcludePlannedShutdown;
 
     private Boolean configExcludeUnplannedShutdown;
@@ -52,4 +61,12 @@ public class KpiConfigurationDTO implements Serializable {
     private Boolean configAverageTimeLimit;
 
     private Boolean configEvaluationType;
+
+    private Boolean configInstitutionCount;
+
+    private Boolean configTransactionCount;
+
+    private Boolean configInstitutionTolerance;
+
+    private Boolean configTransactionTolerance;
 }
