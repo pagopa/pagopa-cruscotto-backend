@@ -2,7 +2,6 @@ package com.nexigroup.pagopa.cruscotto.service.impl;
 
 import com.nexigroup.pagopa.cruscotto.domain.*;
 import com.nexigroup.pagopa.cruscotto.domain.Module;
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.*;
 import com.nexigroup.pagopa.cruscotto.repository.KpiConfigurationRepository;
 import com.nexigroup.pagopa.cruscotto.repository.ModuleRepository;
 import com.nexigroup.pagopa.cruscotto.security.SecurityUtils;
@@ -246,6 +245,18 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
         if (module.getConfigTolerance()) {
             kpiConfiguration.setTolerance(Math.round(kpiConfigurationToCreate.getTolerance() * 100.0) / 100.0);
         }
+        if (module.getConfigInstitutionTolerance()) {
+            kpiConfiguration.setInstitutionTolerance(kpiConfigurationToCreate.getInstitutionTolerance());
+        }
+        if (module.getConfigTransactionTolerance()) {
+            kpiConfiguration.setTransactionTolerance(kpiConfigurationToCreate.getTransactionTolerance());
+        }
+        if (module.getConfigInstitutionCount()) {
+            kpiConfiguration.setInstitutionCount(kpiConfigurationToCreate.getInstitutionCount());
+        }
+        if (module.getConfigTransactionCount()) {
+            kpiConfiguration.setTransactionCount(kpiConfigurationToCreate.getTransactionCount());
+        }
 
         kpiConfiguration = kpiConfigurationRepository.save(kpiConfiguration);
 
@@ -308,6 +319,18 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
                 }
                 if (module.getConfigTolerance()) {
                     kpiConfiguration.setTolerance(Math.round(kpiConfigurationToUpdate.getTolerance() * 100.0) / 100.0);
+                }
+                if (module.getConfigInstitutionTolerance()) {
+                    kpiConfiguration.setInstitutionTolerance(kpiConfigurationToUpdate.getInstitutionTolerance());
+                }
+                if (module.getConfigTransactionTolerance()) {
+                    kpiConfiguration.setTransactionTolerance(kpiConfigurationToUpdate.getTransactionTolerance());
+                }
+                if (module.getConfigInstitutionCount()) {
+                    kpiConfiguration.setInstitutionCount(kpiConfigurationToUpdate.getInstitutionCount());
+                }
+                if (module.getConfigTransactionCount()) {
+                    kpiConfiguration.setTransactionCount(kpiConfigurationToUpdate.getTransactionCount());
                 }
 
                 kpiConfigurationRepository.save(kpiConfiguration);
