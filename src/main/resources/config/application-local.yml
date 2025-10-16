@@ -12,8 +12,13 @@
 
 logging:
   level:
-    ROOT: DEBUG
-    com.nexigroup.pagopa.cruscotto: DEBUG
+    ROOT: INFO
+    com.nexigroup.pagopa.cruscotto: INFO
+    # Disable Hibernate SQL logging
+    org.hibernate.SQL: ERROR
+    org.hibernate.type.descriptor.sql.BasicBinder: ERROR
+    org.hibernate.orm.jdbc.bind: ERROR
+    org.hibernate.engine.jdbc.spi.SqlExceptionHelper: ERROR
 #    com.nexigroup.pagopa.cruscotto.config: DEBUG
 #    # Logging per AWS SES
 #    com.amazonaws.services.simpleemail: DEBUG
@@ -43,7 +48,7 @@ spring:
     properties:
       hibernate:
         generate_statistics: false
-    show-sql: true
+    show-sql: false
   #       jdbc:
   #         batch_size: 50
   datasource:
