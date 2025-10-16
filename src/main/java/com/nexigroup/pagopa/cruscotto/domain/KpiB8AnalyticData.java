@@ -12,17 +12,18 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
- * A KpiB3AnalyticData.
+ * A KpiB8AnalyticData.
  *
  * Represents individual Stand-In event data for KPI B.3 "Zero Incident" calculation.
  * This entity stores detailed event information for drill-down analysis and debugging.
  */
 
 @Entity
-@Table(name = "KPI_B3_ANALYTIC_DATA")
+@Table(name = "KPI_B8_ANALYTIC_DATA")
 @Getter
 @Setter
 @DynamicUpdate
@@ -34,8 +35,8 @@ public class KpiB8AnalyticData implements Serializable {
 
     @Id
     @Column(name = "CO_ID")
-    @SequenceGenerator(name = "SQCRUSC8_KPIB3ANALDATA", sequenceName = "SQCRUSC8_KPIB3ANALDATA", allocationSize = 1)
-    @GeneratedValue(generator = "SQCRUSC8_KPIB3ANALDATA", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "SQCRUSC8_KPIB8ANALDATA", sequenceName = "SQCRUSC8_KPIB8ANALDATA", allocationSize = 1)
+    @GeneratedValue(generator = "SQCRUSC8_KPIB8ANALDATA", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @JsonIgnore
@@ -50,30 +51,27 @@ public class KpiB8AnalyticData implements Serializable {
     @JoinColumn(name = "CO_INSTANCE_MODULE_ID", nullable = false)
     private InstanceModule instanceModule;
 
+    @NotNull
+    @Column(name = "DT_ANALISYS_DATE", nullable = false)
+    private LocalDate analysisDate;
+
+    @NotNull
+    @Column(name = "DT_DATA_DATE", nullable = false)
+    private LocalDate dataDate;
+
+    @NotNull
+    @Column(name = "CO_TOT_REQ", nullable = false)
+    private Long totReq;
+
+    @NotNull
+    @Column(name = "CO_REQ_KO", nullable = false)
+    private Long reqKO;
+
     @JsonIgnore
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CO_ANAG_STATION_ID", nullable = false)
-    private AnagStation anagStation;
-
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CO_KPI_B3_DETAIL_RESULT_ID")
-    private KpiB3DetailResult kpiB3DetailResult;
-
-    @Size(max = 255)
-    @Column(name = "TE_EVENT_ID", length = 255)
-    private String eventId;
-
-    @Size(max = 255)
-    @Column(name = "TE_EVENT_TYPE", length = 255)
-    private String eventType;
-
-    @Column(name = "DT_EVENT_TIMESTAMP")
-    private LocalDateTime eventTimestamp;
-
-    @Column(name = "CO_STAND_IN_COUNT")
-    private Integer standInCount;
+    @JoinColumn(name = "CO_KPI_B8_DETAIL_RESULT_ID", nullable = false)
+    private KpiB8DetailResult kpiB8DetailResult;
 
     // JHipster needle - entity add field
 
@@ -94,14 +92,20 @@ public class KpiB8AnalyticData implements Serializable {
     }
 
     // prettier-ignore
+
     @Override
     public String toString() {
-        return "KpiB3AnalyticData{" +
+        return "KpiB8AnalyticData{" +
             "id=" + id +
-            ", eventId='" + eventId + "'" +
-            ", eventType='" + eventType + "'" +
-            ", eventTimestamp='" + eventTimestamp + "'" +
-            ", standInCount=" + standInCount +
-            "}";
+            ", instance=" + instance +
+            ", instanceModule=" + instanceModule +
+            ", analysisDate=" + analysisDate +
+            ", dataDate=" + dataDate +
+            ", totReq=" + totReq +
+            ", reqKO=" + reqKO +
+            ", kpiB8DetailResult=" + kpiB8DetailResult.toString() +
+            '}';
     }
+
+
 }

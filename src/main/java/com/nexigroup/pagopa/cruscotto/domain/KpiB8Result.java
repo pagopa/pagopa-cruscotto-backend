@@ -15,14 +15,15 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
- * A KpiB3Result.
+ * A KpiB8Result.
  */
 
 @Entity
-@Table(name = "KPI_B3_RESULT")
+@Table(name = "KPI_B8_RESULT")
 @Getter
 @Setter
 @DynamicUpdate
@@ -34,8 +35,8 @@ public class KpiB8Result implements Serializable {
 
     @Id
     @Column(name = "CO_ID")
-    @SequenceGenerator(name = "SQCRUSC8_KPIB3RESU", sequenceName = "SQCRUSC8_KPIB3RESU", allocationSize = 1)
-    @GeneratedValue(generator = "SQCRUSC8_KPIB3RESU", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "SQCRUSC8_KPIB8RESU", sequenceName = "SQCRUSC8_KPIB8RESU", allocationSize = 1)
+    @GeneratedValue(generator = "SQCRUSC8_KPIB8RESU", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @JsonIgnore
@@ -55,14 +56,6 @@ public class KpiB8Result implements Serializable {
     private LocalDate analysisDate;
 
     @NotNull
-    @Column(name = "FL_EXCLUDE_PLANNED_SHUTDOWN", nullable = false)
-    private Boolean excludePlannedShutdown;
-
-    @NotNull
-    @Column(name = "FL_EXCLUDE_UNPLANNED_SHUTDOWN", nullable = false)
-    private Boolean excludeUnplannedShutdown;
-
-    @NotNull
     @Column(name = "CO_ELIGIBILITY_THRESHOLD", nullable = false)
     private Double eligibilityThreshold;
 
@@ -79,6 +72,8 @@ public class KpiB8Result implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "TE_OUTCOME", nullable = false)
     private OutcomeStatus outcome;
+
+
 
     @Override
     public boolean equals(Object o) {
@@ -97,7 +92,7 @@ public class KpiB8Result implements Serializable {
     @Override
     public String toString() {
         return (
-            "KpiB3Result [id=" +
+            "KpiB8Result [id=" +
             id +
             ", instance=" +
             instance +
@@ -105,10 +100,6 @@ public class KpiB8Result implements Serializable {
             instanceModule +
             ", analysisDate=" +
             analysisDate +
-            ", excludePlannedShutdown=" +
-            excludePlannedShutdown +
-            ", excludeUnplannedShutdown=" +
-            excludeUnplannedShutdown +
             ", eligibilityThreshold=" +
             eligibilityThreshold +
             ", tolerance=" +
