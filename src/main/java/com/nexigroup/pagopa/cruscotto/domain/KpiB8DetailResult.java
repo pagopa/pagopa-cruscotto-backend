@@ -16,15 +16,15 @@ import java.io.Serializable;
 import java.time.LocalDate;
 
 /**
- * A KpiB3DetailResult.
+ * A KpiB8DetailResult.
  *
  * Represents aggregated results for KPI B.3 "Zero Incident" calculation at partner level.
  * This entity stores aggregated incident counts per evaluation period (monthly/total).
- * Station-specific detailed data is stored in KpiB3AnalyticData for drill-down analysis.
+ * Station-specific detailed data is stored in KpiB8AnalyticData for drill-down analysis.
  */
 
 @Entity
-@Table(name = "KPI_B3_DETAIL_RESULT")
+@Table(name = "KPI_B8_DETAIL_RESULT")
 @Getter
 @Setter
 @DynamicUpdate
@@ -36,8 +36,8 @@ public class KpiB8DetailResult implements Serializable {
 
     @Id
     @Column(name = "CO_ID")
-    @SequenceGenerator(name = "SQCRUSC8_KPIB3DETARESU", sequenceName = "SQCRUSC8_KPIB3DETARESU", allocationSize = 1)
-    @GeneratedValue(generator = "SQCRUSC8_KPIB3DETARESU", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "SQCRUSC8_KPIB8DETARESU", sequenceName = "SQCRUSC8_KPIB8DETARESU", allocationSize = 1)
+    @GeneratedValue(generator = "SQCRUSC8_KPIB8DETARESU", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @JsonIgnore
@@ -69,8 +69,18 @@ public class KpiB8DetailResult implements Serializable {
     @Column(name = "DT_EVALUATION_END_DATE", nullable = false)
     private LocalDate evaluationEndDate;
 
-    @Column(name = "CO_TOTAL_STANDIN")
-    private Integer totalStandIn;
+    @NotNull
+    @Column(name = "CO_TOT_REQ", nullable = false)
+    private Long totReq;
+
+    @NotNull
+    @Column(name = "CO_SUM_REQ_KO", nullable = false)
+    private Long reqKO;
+
+    @NotNull
+    @Column(name = "CO_PER_REQ_KO", nullable = false)
+    private Long perKO;
+    
 
     @Enumerated(EnumType.STRING)
     @Column(name = "TE_OUTCOME")
@@ -78,8 +88,8 @@ public class KpiB8DetailResult implements Serializable {
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CO_KPI_B3_RESULT_ID")
-    private KpiB3Result kpiB3Result;
+    @JoinColumn(name = "CO_KPI_B8_RESULT_ID")
+    private KpiB8Result kpiB8Result;
 
     // JHipster needle - entity add field
 
@@ -99,17 +109,21 @@ public class KpiB8DetailResult implements Serializable {
         return 31;
     }
 
-    // prettier-ignore
     @Override
     public String toString() {
-        return "KpiB3DetailResult{" +
+        return "KpiB8DetailResult{" +
             "id=" + id +
-            ", analysisDate='" + analysisDate + "'" +
-            ", evaluationType='" + evaluationType + "'" +
-            ", evaluationStartDate='" + evaluationStartDate + "'" +
-            ", evaluationEndDate='" + evaluationEndDate + "'" +
-            ", totalStandIn=" + totalStandIn +
-            ", outcome='" + outcome + "'" +
-            "}";
+            ", instance=" + instance +
+            ", instanceModule=" + instanceModule +
+            ", analysisDate=" + analysisDate +
+            ", evaluationType=" + evaluationType +
+            ", evaluationStartDate=" + evaluationStartDate +
+            ", evaluationEndDate=" + evaluationEndDate +
+            ", totReq=" + totReq +
+            ", reqKO=" + reqKO +
+            ", perKO=" + perKO +
+            ", outcome=" + outcome +
+            ", kpiB8Result=" + kpiB8Result +
+            '}';
     }
 }
