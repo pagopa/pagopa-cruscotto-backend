@@ -60,11 +60,4 @@
 	</createIndex>
   </changeSet>
 
-  <changeSet id="20251006120002-6" author="system" context="ddl">
-	<createIndex indexName="IX${project_name}_KPIB4ANALDATA_API"
-				 tableName="KPI_B4_ANALYTIC_DATA">
-	  <column name="TE_API_TYPE"/>
-	</createIndex>
-  </changeSet>
-
 </databaseChangeLog>
