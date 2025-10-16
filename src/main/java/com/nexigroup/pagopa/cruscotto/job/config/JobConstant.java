@@ -20,6 +20,8 @@ public class JobConstant {
 
     public static final String KPI_B3_JOB = "kpiB3Job";
 
+    public static final String KPI_B4_JOB = "kpiB4Job";
+
     public static final String KPI_B1_JOB = "kpiB1Job";
 
     public static final String LOAD_STAND_IN_DATA_JOB = "loadStandInDataJob";
