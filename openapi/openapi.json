@@ -10825,6 +10825,12 @@
               "RUNNING",
               "STANDBY"
             ]
+          },
+          "stationCode": {
+            "type": "string"
+          },
+          "stationName": {
+            "type": "string"
           }
         }
       },
@@ -11385,6 +11391,9 @@
           "totalCP": {
             "type": "integer",
             "format": "int32"
+          },
+          "analysisDatePeriod": {
+            "type": "string"
           }
         }
       },
