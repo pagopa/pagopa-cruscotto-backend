@@ -61,4 +61,12 @@ public class KpiConfigurationDTO implements Serializable {
     private Boolean configAverageTimeLimit;
 
     private Boolean configEvaluationType;
+
+    private Boolean configInstitutionCount;
+
+    private Boolean configTransactionCount;
+
+    private Boolean configInstitutionTolerance;
+
+    private Boolean configTransactionTolerance;
 }
