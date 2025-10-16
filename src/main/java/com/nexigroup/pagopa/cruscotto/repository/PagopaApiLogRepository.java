@@ -157,4 +157,22 @@ public interface PagopaApiLogRepository extends JpaRepository<PagopaApiLog, Pago
         @Param("fromDate") LocalDate fromDate,
         @Param("toDate") LocalDate toDate
     );
+
+    /**
+     * Find detailed API log records for drilldown snapshot by partner and specific date.
+     * Returns all fields needed for populating the drilldown table.
+     *
+     * @param cfPartner the partner CF
+     * @param date the specific date
+     * @return the list of detailed API log data for drilldown
+     */
+    @Query("SELECT p.cfPartner, p.date, p.station, p.cfEnte, p.api, p.totReq, p.reqOk, p.reqKo " +
+           "FROM PagopaApiLog p " +
+           "WHERE p.cfPartner = :cfPartner " +
+           "AND p.date = :date " +
+           "ORDER BY p.station, p.api")
+    List<Object[]> findDetailedApiLogByPartnerAndDate(
+        @Param("cfPartner") String cfPartner,
+        @Param("date") LocalDate date
+    );
 }

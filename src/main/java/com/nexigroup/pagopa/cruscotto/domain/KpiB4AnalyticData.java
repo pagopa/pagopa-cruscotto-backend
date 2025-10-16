@@ -55,11 +55,11 @@ public class KpiB4AnalyticData implements Serializable {
     @Column(name = "DT_EVALUATION_DATE", nullable = false)
     private LocalDate evaluationDate;
 
-    @Column(name = "TE_API_TYPE", length = 50)
-    private String apiType;
+    @Column(name = "CO_NUM_REQUEST_GPD")
+    private Long numRequestGpd;
 
-    @Column(name = "CO_REQUEST_COUNT")
-    private Long requestCount;
+    @Column(name = "CO_NUM_REQUEST_CP")
+    private Long numRequestCp;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
@@ -92,8 +92,8 @@ public class KpiB4AnalyticData implements Serializable {
             ", instanceId=" + instanceId +
             ", analysisDate='" + analysisDate + "'" +
             ", evaluationDate='" + evaluationDate + "'" +
-            ", apiType='" + apiType + "'" +
-            ", requestCount=" + requestCount +
+            ", numRequestGpd=" + numRequestGpd +
+            ", numRequestCp=" + numRequestCp +
             "}";
     }
 }

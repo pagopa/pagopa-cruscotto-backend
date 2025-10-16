@@ -104,6 +104,15 @@ public interface KpiB4Service {
     boolean existsKpiB4Calculation(String instanceId, LocalDateTime analysisDate);
 
     /**
+     * Update the outcome of a specific KPI B4 result.
+     * This method is used to correct the outcome when the job calculates it differently from the service.
+     *
+     * @param resultId the KPI B4 result ID
+     * @param outcome the new outcome to set
+     */
+    void updateKpiB4ResultOutcome(Long resultId, com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus outcome);
+
+    /**
      * Recalculate KPI B4 for a specific instance (force recalculation).
      *
      * @param instanceId the instance ID

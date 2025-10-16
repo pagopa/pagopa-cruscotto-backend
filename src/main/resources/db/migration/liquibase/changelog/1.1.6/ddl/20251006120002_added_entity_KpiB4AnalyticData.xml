@@ -27,11 +27,11 @@
 	  <column name="DT_EVALUATION_DATE" type="date">
 		<constraints nullable="false"/>
 	  </column>
-	  <column name="TE_API_TYPE" type="varchar(100)">
-		<constraints nullable="false"/>
+	  <column name="CO_NUM_REQUEST_GPD" type="bigint">
+		<constraints nullable="true"/>
 	  </column>
-	  <column name="CO_REQUEST_COUNT" type="bigint">
-		<constraints nullable="false"/>
+	  <column name="CO_NUM_REQUEST_CP" type="bigint">
+		<constraints nullable="true"/>
 	  </column>
 	</createTable>
 	<rollback>

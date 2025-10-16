@@ -104,8 +104,8 @@ public interface KpiB4AnalyticDataRepository extends JpaRepository<KpiB4Analytic
      * @return the summary data
      */
     @Query("SELECT " +
-           "SUM(CASE WHEN k.apiType IN ('GPD', 'ACA') THEN k.requestCount ELSE 0 END) as totalGpdRequests, " +
-           "SUM(CASE WHEN k.apiType = 'paCreate' THEN k.requestCount ELSE 0 END) as totalCpRequests " +
+           "SUM(k.numRequestGpd) as totalGpdRequests, " +
+           "SUM(k.numRequestCp) as totalCpRequests " +
            "FROM KpiB4AnalyticData k " +
            "WHERE k.instanceId = :instanceId " +
            "AND k.analysisDate = :analysisDate " +
@@ -133,11 +133,20 @@ public interface KpiB4AnalyticDataRepository extends JpaRepository<KpiB4Analytic
      * @param toDate the end date
      * @return the list of dates with paCreate usage
      */
-    @Query("SELECT DISTINCT k.evaluationDate FROM KpiB4AnalyticData k WHERE k.instanceId = :instanceId AND k.analysisDate = :analysisDate AND k.evaluationDate BETWEEN :fromDate AND :toDate AND k.apiType = 'paCreate' AND k.requestCount > 0 ORDER BY k.evaluationDate ASC")
+    @Query("SELECT DISTINCT k.evaluationDate FROM KpiB4AnalyticData k WHERE k.instanceId = :instanceId AND k.analysisDate = :analysisDate AND k.evaluationDate BETWEEN :fromDate AND :toDate AND k.numRequestCp > 0 ORDER BY k.evaluationDate ASC")
     List<LocalDate> findDatesWithPaCreateUsage(
         @Param("instanceId") Long instanceId,
         @Param("analysisDate") LocalDate analysisDate,
         @Param("fromDate") LocalDate fromDate,
         @Param("toDate") LocalDate toDate
     );
+
+    /**
+     * Find all KpiB4AnalyticData by KpiB4DetailResult ID ordered by evaluation date descending.
+     *
+     * @param detailResultId the KpiB4DetailResult ID
+     * @return the list of KpiB4AnalyticData
+     */
+    @Query("SELECT k FROM KpiB4AnalyticData k WHERE k.kpiB4DetailResult.id = :detailResultId ORDER BY k.evaluationDate DESC")
+    List<KpiB4AnalyticData> findAllByDetailResultIdOrderByEvaluationDateDesc(@Param("detailResultId") Long detailResultId);
 }

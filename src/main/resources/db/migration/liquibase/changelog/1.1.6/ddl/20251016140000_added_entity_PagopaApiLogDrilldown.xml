@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <!--
+        Added the entity PagopaApiLogDrilldown.
+        
+        This table stores a snapshot of PAGOPA_API_LOG data at the time of KPI B.4 analysis execution.
+        It contains the detailed API usage logs for drilldown analysis, showing the actual API calls
+        made by partners at specific dates and times.
+    -->
+    <changeSet id="20251016140000-1" author="system">
+        <createTable tableName="PAGOPA_API_LOG_DRILLDOWN" remarks="Stores API log drilldown data for KPI B.4 analysis">
+            <column name="CO_ID" type="bigint" remarks="Primary key">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="CO_INSTANCE_ID" type="bigint" remarks="Instance ID reference">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CO_INSTANCE_MODULE_ID" type="bigint" remarks="Instance Module ID reference">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CO_STATION_ID" type="bigint" remarks="Station ID reference">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CO_KPI_B4_ANALYTIC_DATA_ID" type="bigint" remarks="KPI B4 Analytic Data ID reference">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DT_ANALYSIS_DATE" type="date" remarks="Date of the KPI analysis execution">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DT_DATA_DATE" type="date" remarks="Date of the API log data">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TE_PARTNER_FISCAL_CODE" type="varchar(35)" remarks="Partner fiscal code">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TE_STATION_CODE" type="varchar(35)" remarks="Station code">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TE_FISCAL_CODE" type="varchar(35)" remarks="Entity fiscal code">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TE_API" type="varchar(35)" remarks="API type (GPD, ACA, paCreate)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CO_TOTAL_REQUESTS" type="int" remarks="Total number of API requests">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CO_OK_REQUESTS" type="int" remarks="Number of successful API requests">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CO_KO_REQUESTS" type="int" remarks="Number of failed API requests">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>
