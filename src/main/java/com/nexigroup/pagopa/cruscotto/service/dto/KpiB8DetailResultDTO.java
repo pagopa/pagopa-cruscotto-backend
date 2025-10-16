@@ -11,6 +11,7 @@ import java.time.LocalDate;
  * A DTO for the {@link com.nexigroup.pagopa.cruscotto.domain.KpiB3DetailResult} entity.
  */
 @Data
+
 public class KpiB8DetailResultDTO implements Serializable {
 
     private Long id;
@@ -18,10 +19,6 @@ public class KpiB8DetailResultDTO implements Serializable {
     private Long instanceId;
 
     private Long instanceModuleId;
-
-    private Long anagStationId;
-
-    private Long kpiB3ResultId;
 
     private LocalDate analysisDate;
 
@@ -31,8 +28,13 @@ public class KpiB8DetailResultDTO implements Serializable {
 
     private LocalDate evaluationEndDate;
 
-    private Integer totalStandIn;
+    private Long totReq;
+
+    private Long reqKO;
+
+    private Long perKO;
 
     private OutcomeStatus outcome;
 
+    private Long kpiB8ResultId;
 }
