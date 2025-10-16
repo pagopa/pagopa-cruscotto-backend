@@ -21,10 +21,6 @@ public class KpiB8ResultDTO implements Serializable {
 
     private LocalDate analysisDate;
 
-    private Boolean excludePlannedShutdown;
-
-    private Boolean excludeUnplannedShutdown;
-
     private Double eligibilityThreshold;
 
     private Double tolerance;
@@ -32,5 +28,4 @@ public class KpiB8ResultDTO implements Serializable {
     private EvaluationType evaluationType;
 
     private OutcomeStatus outcome;
-
 }
