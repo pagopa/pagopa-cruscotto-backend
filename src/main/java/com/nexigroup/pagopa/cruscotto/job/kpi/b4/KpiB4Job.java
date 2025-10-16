@@ -1,6 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.job.kpi.b4;
 
 import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
+import com.nexigroup.pagopa.cruscotto.job.config.JobConstant;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.repository.PagopaApiLogRepository;
@@ -21,6 +22,7 @@ import org.springframework.lang.NonNull;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
+import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SimpleScheduleBuilder;
 import org.quartz.Trigger;
@@ -133,6 +135,9 @@ public class KpiB4Job extends QuartzJobBean {
                 return; // Non eseguire l'analisi se non ci sono dati
             }
 
+            // Update instance status from "planned" to "in progress"
+            instanceService.updateInstanceStatusInProgress(instanceDTO.getId());
+
             // Calcola la data di analisi basata sulla configurazione  
             LocalDate analysisDate = calculateAnalysisDate(instanceDTO, instanceModuleDTO);
             
@@ -147,10 +152,35 @@ public class KpiB4Job extends QuartzJobBean {
                        instanceDTO.getId(), outcome, instanceDTO.getPartnerFiscalCode());
 
             // Salva i risultati tramite il service esistente
-            kpiB4DataService.saveKpiB4Results(instanceDTO, instanceModuleDTO, 
-                                            kpiConfigurationDTO, analysisDate, outcome);
+            OutcomeStatus finalOutcome = kpiB4DataService.saveKpiB4Results(instanceDTO, instanceModuleDTO, 
+                                                                          kpiConfigurationDTO, analysisDate, outcome);
 
-            LOGGER.info("KPI B.4 calculation completed for instance module {}", instanceModuleDTO.getId());
+            // Update automatic outcome of instance module with the final outcome (potentially corrected for monthly evaluation)
+            instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(), finalOutcome);
+
+            LOGGER.info("Instance module {} updated with final outcome: {}", instanceModuleDTO.getId(), finalOutcome);
+
+            // Trigger calculateStateInstanceJob to update instance state
+            try {
+                JobDetail job = scheduler.getJobDetail(JobKey.jobKey(JobConstant.CALCULATE_STATE_INSTANCE_JOB, "DEFAULT"));
+
+                Trigger trigger = TriggerBuilder.newTrigger()
+                    .usingJobData("instanceId", instanceDTO.getId())
+                    .withSchedule(SimpleScheduleBuilder.simpleSchedule().withMisfireHandlingInstructionFireNow().withRepeatCount(0))
+                    .forJob(job)
+                    .build();
+
+                scheduler.scheduleJob(trigger);
+
+                LOGGER.info("Triggered calculateStateInstanceJob for instance: {}", instanceDTO.getId());
+
+            } catch (Exception e) {
+                LOGGER.error("Error triggering calculateStateInstanceJob for instance {}: {}", 
+                           instanceDTO.getId(), e.getMessage(), e);
+            }
+
+            LOGGER.info("KPI B.4 calculation completed for instance module {} with final outcome: {}", 
+                       instanceModuleDTO.getId(), finalOutcome);
 
         } catch (Exception e) {
             LOGGER.error("Error processing instance module {} for KPI B.4: {}", 
@@ -205,11 +235,13 @@ public class KpiB4Job extends QuartzJobBean {
 
     /**
      * Calcola l'outcome del KPI B.4 basato sulla logica dell'analisi.
-     * Verifica la percentuale di request "paCreate" rispetto a "GPD"/"ACA".
+     * Considera il tipo di valutazione configurata:
+     * - TOTALE: Verifica la percentuale di request "paCreate" rispetto a "GPD"/"ACA" sull'intero periodo
+     * - MESE: Se almeno un mese ha esito KO nei detail results, l'esito complessivo è KO
      */
     private OutcomeStatus calculateKpiB4Outcome(InstanceDTO instanceDTO, KpiConfigurationDTO kpiConfigurationDTO) {
-        LOGGER.info("Calculating KPI B.4 outcome for instance {} partner {}", 
-                   instanceDTO.getId(), instanceDTO.getPartnerFiscalCode());
+        LOGGER.info("Calculating KPI B.4 outcome for instance {} partner {} with evaluation type: {}", 
+                   instanceDTO.getId(), instanceDTO.getPartnerFiscalCode(), kpiConfigurationDTO.getEvaluationType());
 
         try {
             LocalDate periodStart = instanceDTO.getAnalysisPeriodStartDate();
@@ -226,50 +258,74 @@ public class KpiB4Job extends QuartzJobBean {
                 throw new RuntimeException("No API log data available for analysis period");
             }
 
-            // Query per contare le request dalla tabella pagopa_apilog usando il repository
-            Long totalGpdAcaRequests = pagopaApiLogRepository.calculateTotalGpdAcaRequests(partnerFiscalCode, periodStart, periodEnd);
-            Long totalPaCreateRequests = pagopaApiLogRepository.calculateTotalPaCreateRequests(partnerFiscalCode, periodStart, periodEnd);
-            
-            // Gestione valori null (nel caso non ci siano dati)
-            if (totalGpdAcaRequests == null) totalGpdAcaRequests = 0L;
-            if (totalPaCreateRequests == null) totalPaCreateRequests = 0L;
-
-            LOGGER.info("API requests for partner {}: GPD/ACA={}, paCreate={}", 
-                       partnerFiscalCode, totalGpdAcaRequests, totalPaCreateRequests);
-
-            // Calcola la percentuale di paCreate rispetto al totale
-            double paCreatePercentage = 0.0;
-            if (totalGpdAcaRequests > 0) {
-                paCreatePercentage = (totalPaCreateRequests.doubleValue() / totalGpdAcaRequests.doubleValue()) * 100.0;
-            }
-
-            // Recupera soglia e tolleranza dalla configurazione
-            Double thresholdPercentage = kpiConfigurationDTO.getEligibilityThreshold(); // Soglia (default 0%)
-            Double tolerancePercentage = kpiConfigurationDTO.getTolerance(); // Tolleranza (default 1%)
-
-            if (thresholdPercentage == null) thresholdPercentage = 0.0; // Default: 0% paCreate consentito
-            if (tolerancePercentage == null) tolerancePercentage = 1.0; // Default: 1% tolleranza
-
-            double maxAllowedPercentage = thresholdPercentage + tolerancePercentage;
-
-            LOGGER.info("KPI B.4 calculation: paCreate {}%, threshold {}%, tolerance {}%, max allowed {}%", 
-                       paCreatePercentage, thresholdPercentage, tolerancePercentage, maxAllowedPercentage);
-
-            // Se la percentuale di paCreate supera la soglia + tolleranza, il KPI è KO
-            if (paCreatePercentage > maxAllowedPercentage) {
-                LOGGER.warn("KPI B.4 NON-COMPLIANT for partner {}: paCreate {}% exceeds max allowed {}%", 
-                           partnerFiscalCode, paCreatePercentage, maxAllowedPercentage);
-                return OutcomeStatus.KO;
-            } else {
-                LOGGER.info("KPI B.4 COMPLIANT for partner {}: paCreate {}% within allowed {}%", 
-                           partnerFiscalCode, paCreatePercentage, maxAllowedPercentage);
+            // Verifica il tipo di valutazione configurata
+            if (kpiConfigurationDTO.getEvaluationType() != null && 
+                kpiConfigurationDTO.getEvaluationType().toString().equals("MESE")) {
+                
+                LOGGER.info("Using MONTHLY evaluation type - outcome will be determined by checking detail results after saving");
+                
+                // Per la valutazione mensile, il calcolo iniziale restituisce sempre OK
+                // L'outcome finale sarà determinato dal KpiB4DataServiceImpl controllando 
+                // se ci sono detail results mensili con outcome KO
                 return OutcomeStatus.OK;
+                
+            } else {
+                // Valutazione TOTALE: usa la logica sui dati complessivi del periodo
+                LOGGER.info("Using TOTAL evaluation type - calculating outcome on entire period");
+                return calculateTotalPeriodOutcome(partnerFiscalCode, periodStart, periodEnd, kpiConfigurationDTO);
             }
 
         } catch (Exception e) {
             LOGGER.error("Error calculating KPI B.4 outcome for instance {}: {}", 
                         instanceDTO.getId(), e.getMessage(), e);
             return OutcomeStatus.KO;
+        }
+    }
+
+    /**
+     * Calcola l'outcome basato sui dati del periodo totale.
+     */
+    private OutcomeStatus calculateTotalPeriodOutcome(String partnerFiscalCode, LocalDate periodStart, 
+                                                     LocalDate periodEnd, KpiConfigurationDTO kpiConfigurationDTO) {
+        
+        // Query per contare le request dalla tabella pagopa_apilog usando il repository
+        Long totalGpdAcaRequests = pagopaApiLogRepository.calculateTotalGpdAcaRequests(partnerFiscalCode, periodStart, periodEnd);
+        Long totalPaCreateRequests = pagopaApiLogRepository.calculateTotalPaCreateRequests(partnerFiscalCode, periodStart, periodEnd);
+        
+        // Gestione valori null (nel caso non ci siano dati)
+        if (totalGpdAcaRequests == null) totalGpdAcaRequests = 0L;
+        if (totalPaCreateRequests == null) totalPaCreateRequests = 0L;
+
+        LOGGER.info("API requests for partner {}: GPD/ACA={}, paCreate={}", 
+                   partnerFiscalCode, totalGpdAcaRequests, totalPaCreateRequests);
+
+        // Calcola la percentuale di paCreate rispetto al totale
+        double paCreatePercentage = 0.0;
+        if (totalGpdAcaRequests > 0) {
+            paCreatePercentage = (totalPaCreateRequests.doubleValue() / totalGpdAcaRequests.doubleValue()) * 100.0;
+        }
+
+        // Recupera soglia e tolleranza dalla configurazione
+        Double thresholdPercentage = kpiConfigurationDTO.getEligibilityThreshold();
+        Double tolerancePercentage = kpiConfigurationDTO.getTolerance();
+
+        if (thresholdPercentage == null) thresholdPercentage = 0.0;
+        if (tolerancePercentage == null) tolerancePercentage = 0.0;
+
+        double maxAllowedPercentage = thresholdPercentage + tolerancePercentage;
+
+        LOGGER.info("KPI B.4 calculation: paCreate {}%, threshold {}%, tolerance {}%, max allowed {}%", 
+                   paCreatePercentage, thresholdPercentage, tolerancePercentage, maxAllowedPercentage);
+
+        // Se la percentuale di paCreate supera la soglia + tolleranza, il KPI è KO
+        if (paCreatePercentage > maxAllowedPercentage) {
+            LOGGER.warn("KPI B.4 NON-COMPLIANT for partner {}: paCreate {}% exceeds max allowed {}%", 
+                       partnerFiscalCode, paCreatePercentage, maxAllowedPercentage);
+            return OutcomeStatus.KO;
+        } else {
+            LOGGER.info("KPI B.4 COMPLIANT for partner {}: paCreate {}% within allowed {}%", 
+                       partnerFiscalCode, paCreatePercentage, maxAllowedPercentage);
+            return OutcomeStatus.OK;
         }
     }
 

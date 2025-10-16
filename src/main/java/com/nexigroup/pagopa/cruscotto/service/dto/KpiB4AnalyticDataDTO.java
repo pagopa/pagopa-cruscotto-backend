@@ -1,14 +1,14 @@
 package com.nexigroup.pagopa.cruscotto.service.dto;
 
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
 
 /**
  * A DTO for the {@link com.nexigroup.pagopa.cruscotto.domain.KpiB4AnalyticData} entity.
+ * Represents daily API usage data for KPI B.4 "API Integration" analysis.
  */
 @Getter
 @Setter
@@ -19,27 +19,23 @@ public class KpiB4AnalyticDataDTO implements Serializable {
     @NotNull
     private Long instanceId;
 
-    @NotNull
-    private Long instanceModuleId;
-
-    @NotNull
-    private Long anagStationId;
-
     private Long kpiB4DetailResultId;
 
-    @Size(max = 255)
-    private String eventId;
+    @NotNull
+    private LocalDate analysisDate;
 
-    @Size(max = 255)
-    private String eventType;
+    @NotNull
+    @com.fasterxml.jackson.annotation.JsonProperty("dataDate")
+    private LocalDate evaluationDate;
 
-    private LocalDateTime eventTimestamp;
+    @com.fasterxml.jackson.annotation.JsonProperty("totalGPD")
+    private Long numRequestGpd;
 
-    private Integer standInCount;
+    @com.fasterxml.jackson.annotation.JsonProperty("totalCP")
+    private Long numRequestCp;
 
-    // Station details for display
-    private String stationCode;
-    private String stationName;
+    // Additional fields for API output
+    private String analysisDatePeriod;
 
     @Override
     public boolean equals(Object o) {
@@ -68,15 +64,12 @@ public class KpiB4AnalyticDataDTO implements Serializable {
         return "KpiB4AnalyticDataDTO{" +
             "id=" + id +
             ", instanceId=" + instanceId +
-            ", instanceModuleId=" + instanceModuleId +
-            ", anagStationId=" + anagStationId +
             ", kpiB4DetailResultId=" + kpiB4DetailResultId +
-            ", eventId='" + eventId + "'" +
-            ", eventType='" + eventType + "'" +
-            ", eventTimestamp='" + eventTimestamp + "'" +
-            ", standInCount=" + standInCount +
-            ", stationCode='" + stationCode + "'" +
-            ", stationName='" + stationName + "'" +
+            ", analysisDate='" + analysisDate + "'" +
+            ", evaluationDate='" + evaluationDate + "'" +
+            ", numRequestGpd=" + numRequestGpd +
+            ", numRequestCp=" + numRequestCp +
+            ", analysisDatePeriod='" + analysisDatePeriod + "'" +
             "}";
     }
 }

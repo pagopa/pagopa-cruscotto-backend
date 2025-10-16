@@ -7,6 +7,7 @@ import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
@@ -86,8 +87,14 @@ public class KpiB4DetailResult implements Serializable {
     @Column(name = "DT_EVALUATION_END_DATE", nullable = false)
     private LocalDate evaluationEndDate;
 
-    @Column(name = "CO_TOTAL_STANDIN")
-    private Integer totalStandIn;
+    @Column(name = "CO_SUM_TOT_GPD")
+    private Long sumTotGpd;
+
+    @Column(name = "CO_SUM_TOT_CP")
+    private Long sumTotCp;
+
+    @Column(name = "CO_PER_API_CP")
+    private BigDecimal perApiCp;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "TE_OUTCOME")
@@ -125,7 +132,9 @@ public class KpiB4DetailResult implements Serializable {
             ", evaluationType='" + evaluationType + "'" +
             ", evaluationStartDate='" + evaluationStartDate + "'" +
             ", evaluationEndDate='" + evaluationEndDate + "'" +
-            ", totalStandIn=" + totalStandIn +
+            ", sumTotGpd=" + sumTotGpd +
+            ", sumTotCp=" + sumTotCp +
+            ", perApiCp=" + perApiCp +
             ", outcome='" + outcome + "'" +
             "}";
     }

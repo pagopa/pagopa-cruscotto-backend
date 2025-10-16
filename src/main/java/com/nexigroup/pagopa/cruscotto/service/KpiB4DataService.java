@@ -20,8 +20,9 @@ public interface KpiB4DataService {
      * @param kpiConfigurationDTO the KPI configuration
      * @param analysisDate the analysis date
      * @param outcome the calculation outcome
+     * @return the final outcome (potentially corrected for monthly evaluation)
      */
-    void saveKpiB4Results(InstanceDTO instanceDTO, InstanceModuleDTO instanceModuleDTO, 
-                         KpiConfigurationDTO kpiConfigurationDTO, LocalDate analysisDate, 
-                         OutcomeStatus outcome);
+    OutcomeStatus saveKpiB4Results(InstanceDTO instanceDTO, InstanceModuleDTO instanceModuleDTO, 
+                                  KpiConfigurationDTO kpiConfigurationDTO, LocalDate analysisDate, 
+                                  OutcomeStatus outcome);
 }

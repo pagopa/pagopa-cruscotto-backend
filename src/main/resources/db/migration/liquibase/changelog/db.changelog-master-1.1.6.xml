@@ -31,4 +31,10 @@
     <!-- Activate KPI B.4 module -->
     <include file="1.1.6/dml/20250115120001_activate_kpi_b4_module.xml" relativeToChangelogFile="true"/>
 
+    <!-- Create PagoPa API Log drilldown table -->
+    <include file="1.1.6/ddl/20251016140000_added_entity_PagopaApiLogDrilldown.xml" relativeToChangelogFile="true"/>
+
+    <!-- Add constraints for PagoPa API Log drilldown table -->
+    <include file="1.1.6/ddl/20251016140001_added_entity_constraints_PagopaApiLogDrilldown.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>

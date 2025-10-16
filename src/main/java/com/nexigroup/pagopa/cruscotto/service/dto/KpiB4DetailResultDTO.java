@@ -38,7 +38,14 @@ public class KpiB4DetailResultDTO implements Serializable {
     @NotNull
     private LocalDate evaluationEndDate;
 
-    private Integer totalStandIn;
+    @com.fasterxml.jackson.annotation.JsonProperty("totalGPD")
+    private Long sumTotGpd;
+
+    @com.fasterxml.jackson.annotation.JsonProperty("totalCP")
+    private Long sumTotCp;
+
+    @com.fasterxml.jackson.annotation.JsonProperty("percentageCP")
+    private java.math.BigDecimal perApiCp;
 
     private OutcomeStatus outcome;
 
@@ -81,7 +88,9 @@ public class KpiB4DetailResultDTO implements Serializable {
             ", evaluationType='" + evaluationType + "'" +
             ", evaluationStartDate='" + evaluationStartDate + "'" +
             ", evaluationEndDate='" + evaluationEndDate + "'" +
-            ", totalStandIn=" + totalStandIn +
+            ", sumTotGpd=" + sumTotGpd +
+            ", sumTotCp=" + sumTotCp +
+            ", perApiCp=" + perApiCp +
             ", outcome='" + outcome + "'" +
             ", kpiB4ResultId=" + kpiB4ResultId +
             ", stationCode='" + stationCode + "'" +

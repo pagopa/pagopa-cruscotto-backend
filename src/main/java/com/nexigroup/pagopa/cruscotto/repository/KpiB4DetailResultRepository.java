@@ -109,4 +109,23 @@ public interface KpiB4DetailResultRepository extends JpaRepository<KpiB4DetailRe
      * @return the list of KpiB4DetailResult
      */
     List<KpiB4DetailResult> findByKpiB4Result(com.nexigroup.pagopa.cruscotto.domain.KpiB4Result kpiB4Result);
+
+    /**
+     * Find all KpiB4DetailResult by KpiB4Result ID ordered by analysis date descending.
+     *
+     * @param resultId the KpiB4Result ID
+     * @return the list of KpiB4DetailResult
+     */
+    @Query("SELECT kdr FROM KpiB4DetailResult kdr WHERE kdr.kpiB4Result.id = :resultId ORDER BY kdr.analysisDate DESC")
+    List<KpiB4DetailResult> findAllByResultIdOrderByAnalysisDateDesc(@Param("resultId") Long resultId);
+
+    /**
+     * Check if there are any detail results with KO outcome for a specific KpiB4Result ID.
+     * Used for MONTHLY evaluation type to determine if the overall outcome should be KO.
+     *
+     * @param resultId the KpiB4Result ID
+     * @return true if at least one detail result has KO outcome
+     */
+    @Query("SELECT COUNT(kdr) > 0 FROM KpiB4DetailResult kdr WHERE kdr.kpiB4Result.id = :resultId AND kdr.outcome = 'KO'")
+    boolean existsKoOutcomeByResultId(@Param("resultId") Long resultId);
 }
