@@ -51,12 +51,20 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
     public static final String FIELD_TOLERANCE = "tolerance";
     public static final String FIELD_AVERAGE_TIME_LIMIT = "averageTimeLimit";
     public static final String FIELD_EVALUATION_TYPE = "evaluationType";
+    public static final String FIELD_TRANSACTION_COUNT = "transactionCount";
+    public static final String FIELD_INSTITUTION_COUNT = "institutionCount";
+    public static final String FIELD_TRANSACTION_TOLERANCE = "transactionTolerance";
+    public static final String FIELD_INSTITUTION_TOLERANCE = "institutionTolerance";
     public static final String FIELD_CONFIG_EXCLUDE_PLANNED_SHUTDOWN = "configExcludePlannedShutdown";
     public static final String FIELD_CONFIG_EXCLUDE_UNPLANNED_SHUTDOWN = "configExcludeUnplannedShutdown";
     public static final String FIELD_CONFIG_ELIGIBILITY_THRESHOLD = "configEligibilityThreshold";
     public static final String FIELD_CONFIG_TOLERANCE = "configTolerance";
     public static final String FIELD_CONFIG_AVERAGE_TIME_LIMIT = "configAverageTimeLimit";
     public static final String FIELD_CONFIG_EVALUATION_TYPE = "configEvaluationType";
+    public static final String FIELD_CONFIG_INSTITUTION_COUNT = "configInstitutionCount";
+    public static final String FIELD_CONFIG_TRANSACTION_COUNT = "configTransactionCount";
+    public static final String FIELD_CONFIG_INSTITUTION_TOLERANCE = "configInstitutionTolerance";
+    public static final String FIELD_CONFIG_TRANSACTION_TOLERANCE = "configTransactionTolerance";
 
     private static final String CURRENT_USER_LOGIN_NOT_FOUND = "Current user login not found";
 
@@ -162,13 +170,21 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
             qKpiConfiguration.tolerance.as(FIELD_TOLERANCE),
             qKpiConfiguration.averageTimeLimit.as(FIELD_AVERAGE_TIME_LIMIT),
             qKpiConfiguration.evaluationType.as(FIELD_EVALUATION_TYPE),
+            qKpiConfiguration.transactionCount.as(FIELD_TRANSACTION_COUNT),
+            qKpiConfiguration.institutionCount.as(FIELD_INSTITUTION_COUNT),
+            qKpiConfiguration.transactionTolerance.as(FIELD_TRANSACTION_TOLERANCE),
+            qKpiConfiguration.institutionTolerance.as(FIELD_INSTITUTION_TOLERANCE),
             qModule.name.as(FIELD_MODULE_NAME),
             qModule.configExcludePlannedShutdown.as(FIELD_CONFIG_EXCLUDE_PLANNED_SHUTDOWN),
             qModule.configExcludeUnplannedShutdown.as(FIELD_CONFIG_EXCLUDE_UNPLANNED_SHUTDOWN),
             qModule.configEligibilityThreshold.as(FIELD_CONFIG_ELIGIBILITY_THRESHOLD),
             qModule.configTolerance.as(FIELD_CONFIG_TOLERANCE),
             qModule.configAverageTimeLimit.as(FIELD_CONFIG_AVERAGE_TIME_LIMIT),
-            qModule.configEvaluationType.as(FIELD_CONFIG_EVALUATION_TYPE)
+            qModule.configEvaluationType.as(FIELD_CONFIG_EVALUATION_TYPE),
+            qModule.configInstitutionCount.as(FIELD_CONFIG_INSTITUTION_COUNT),
+            qModule.configTransactionCount.as(FIELD_CONFIG_TRANSACTION_COUNT),
+            qModule.configInstitutionTolerance.as(FIELD_CONFIG_INSTITUTION_TOLERANCE),
+            qModule.configTransactionTolerance.as(FIELD_CONFIG_TRANSACTION_TOLERANCE)
         );
     }
 
