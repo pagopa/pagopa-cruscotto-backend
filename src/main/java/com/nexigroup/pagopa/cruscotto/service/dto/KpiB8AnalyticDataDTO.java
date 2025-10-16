@@ -1,5 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.service.dto;
 
+import jakarta.persistence.Column;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -18,23 +20,15 @@ public class KpiB8AnalyticDataDTO implements Serializable {
 
     private Long instanceModuleId;
 
-    private Long anagStationId;
+    private LocalDate analysisDate;
+
+    private LocalDate dataDate;
+
+    private Long totReq;
+
+    private Long reqKO;
 
     private Long kpiB8DetailResultId;
 
-    private String eventId;
-
-    private String eventType;
-
-    private LocalDateTime eventTimestamp;
-
-    private Integer standInCount;
-
-    // Additional fields required for API output
-    private LocalDate analysisDate;
-
-    private String analysisPeriod;
-
-    private String stationFiscalCode;
 
 }
