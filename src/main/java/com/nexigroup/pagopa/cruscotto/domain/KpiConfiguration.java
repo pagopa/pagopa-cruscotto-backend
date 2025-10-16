@@ -5,6 +5,7 @@ import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
@@ -58,6 +59,18 @@ public class KpiConfiguration implements Serializable {
     @Column(name = "TE_EVALUATION_TYPE")
     private EvaluationType evaluationType;
 
+    @Column(name = "CO_INSTITUTION_COUNT")
+    private Integer institutionCount;
+
+    @Column(name = "CO_TRANSACTION_COUNT")
+    private Integer transactionCount;
+
+    @Column(name = "CO_INSTITUTION_TOLERANCE", precision = 19, scale = 2)
+    private BigDecimal institutionTolerance;
+
+    @Column(name = "CO_TRANSACTION_TOLERANCE", precision = 19, scale = 2)
+    private BigDecimal transactionTolerance;
+
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof KpiConfiguration that)) return false;
@@ -89,6 +102,14 @@ public class KpiConfiguration implements Serializable {
             averageTimeLimit +
             ", evaluationType=" +
             evaluationType +
+            ", institutionCount=" +
+            institutionCount +
+            ", transactionCount=" +
+            transactionCount +
+            ", institutionTolerance=" +
+            institutionTolerance +
+            ", transactionTolerance=" +
+            transactionTolerance +
             '}'
         );
     }
