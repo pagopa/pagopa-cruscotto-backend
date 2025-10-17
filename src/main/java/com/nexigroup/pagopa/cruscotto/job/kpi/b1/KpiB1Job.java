@@ -89,19 +89,20 @@ public class KpiB1Job extends QuartzJobBean {
 
         List<KpiB1AnalyticDataDTO> analyticDataList = new ArrayList<>();
 
-        // Group by entity for the month
-        Map<String, List<PagopaTransactionDTO>> groupedByEntity = filteredMonthRecords.stream()
-                .collect(Collectors.groupingBy(PagopaTransactionDTO::getCfInstitution));
+        // Group by date for the month
+        Map<LocalDate, List<PagopaTransactionDTO>> groupedByDate = filteredMonthRecords.stream()
+                .collect(Collectors.groupingBy(PagopaTransactionDTO::getDate));
 
-        for (Map.Entry<String, List<PagopaTransactionDTO>> entityEntry : groupedByEntity.entrySet()) {
-            List<PagopaTransactionDTO> entityRecords = entityEntry.getValue();
+        for (Map.Entry<LocalDate, List<PagopaTransactionDTO>> dateEntry : groupedByDate.entrySet()) {
+            List<PagopaTransactionDTO> dateRecords = dateEntry.getValue();
+            LocalDate recordDate = dateEntry.getKey();
 
-            // Calculate totals for this entity in the month
-            int totalTransactions = (int) entityRecords.stream()
+            // Calculate totals for this date in the month
+            int totalTransactions = (int) dateRecords.stream()
                     .mapToLong(PagopaTransactionDTO::getTransactionTotal)
                     .sum();
 
-            int institutionCount = (int) entityRecords.stream()
+            int institutionCount = (int) dateRecords.stream()
                     .map(PagopaTransactionDTO::getCfInstitution)
                     .distinct()
                     .count();
@@ -110,7 +111,7 @@ public class KpiB1Job extends QuartzJobBean {
             analyticData.setInstanceId(instanceDTO.getId());
             analyticData.setInstanceModuleId(instanceModuleDTO.getId());
             analyticData.setAnalysisDate(LocalDate.now());
-            analyticData.setDataDate(detailResultEvaluationStartDate);
+            analyticData.setDataDate(recordDate);
             analyticData.setInstitutionCount(institutionCount);
             analyticData.setTransactionCount(totalTransactions);
             analyticData.setKpiB1DetailResultId(kpiB1DetailResultRef.get().getId());
