@@ -3453,6 +3453,114 @@
         }
       }
     },
+    "/api/kpi-results/c1/module/{moduleId}": {
+      "get": {
+        "tags": [
+          "kpi-result-resource"
+        ],
+        "operationId": "getKpiC1Results",
+        "parameters": [
+          {
+            "name": "moduleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiC1ResultDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-results/c2/module/{moduleId}": {
+      "get": {
+        "tags": [
+          "kpi-result-resource"
+        ],
+        "operationId": "getKpiC2Results",
+        "parameters": [
+          {
+            "name": "moduleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiC2ResultDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/kpi-detail-results/a1/module/{resultId}": {
       "get": {
         "tags": [
@@ -3965,6 +4073,114 @@
                   "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/KpiB9DetailResultDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-detail-results/c1/module/{resultId}": {
+      "get": {
+        "tags": [
+          "kpi-detail-result-resource"
+        ],
+        "operationId": "getKpiC1DetailResults",
+        "parameters": [
+          {
+            "name": "resultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiC1DetailResultDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-detail-results/c2/module/{resultId}": {
+      "get": {
+        "tags": [
+          "kpi-detail-result-resource"
+        ],
+        "operationId": "getKpiC2DetailResults",
+        "parameters": [
+          {
+            "name": "resultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiC2DetailResultDTO"
                   }
                 }
               }
@@ -4533,6 +4749,114 @@
         }
       }
     },
+    "/api/kpi-analytic-data/c1/module/{detailResultId}": {
+      "get": {
+        "tags": [
+          "kpi-analytic-data-resource"
+        ],
+        "operationId": "getKpiC1AnalyticDataResults",
+        "parameters": [
+          {
+            "name": "detailResultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiC1AnalyticDataDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+     "/api/kpi-analytic-data/c2/module/{detailResultId}": {
+      "get": {
+        "tags": [
+          "kpi-analytic-data-resource"
+        ],
+        "operationId": "getKpiC2AnalyticDataResults",
+        "parameters": [
+          {
+            "name": "detailResultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiC2AnalyticDataDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/kpi-a1-analytic-drilldown/{analyticDataId}": {
       "get": {
         "tags": [
@@ -4945,6 +5269,116 @@
                   "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/PagopaAPILogDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-c1-pagopa-data/{analyticDataId}": {
+      "get": {
+        "tags": [
+          "kpi-c1-pagopa-data-resource"
+        ],
+        "operationId": "getkpic1ByAnalyticDataId",
+        "parameters": [
+          {
+            "name": "analyticDataId",
+            "in": "path",
+            "description": "ID of the KPI C.1 analytic data",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiC1AnalyticDrillDownDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-c2-pagopa-data/{analyticDataId}": {
+      "get": {
+        "tags": [
+          "kpi-c2-pagopa-data-resource"
+        ],
+        "operationId": "getkpic2ByAnalyticDataId",
+        "parameters": [
+          {
+            "name": "analyticDataId",
+            "in": "path",
+            "description": "ID of the KPI C.2 analytic data",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KpiC2AnalyticDrillDownDTO"
                   }
                 }
               }
@@ -10395,6 +10829,110 @@
           }
         }
       },
+      "KpiC1ResultDTO": {
+        "required": [
+          "analysisDate",
+          "eligibilityThreshold",
+          "tolerance",
+          "evaluationType",
+          "instanceId",
+          "instanceModuleId",
+          "outcome"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceModuleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "analysisDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "eligibilityThreshold": {
+            "type": "number",
+            "format": "double"
+          },
+          "tolerance": {
+            "type": "number",
+            "format": "double"
+          },
+          "evaluationType": {
+            "type": "string",
+            "enum": [
+              "MESE",
+              "TOTALE"
+            ]
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "OK",
+              "KO"
+            ]
+          }
+        }
+      },
+      "KpiC2ResultDTO": {
+        "required": [
+          "analysisDate",
+          "eligibilityThreshold",
+          "tolerance",
+          "evaluationType",
+          "instanceId",
+          "instanceModuleId",
+          "outcome"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceModuleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "analysisDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "eligibilityThreshold": {
+            "type": "number",
+            "format": "double"
+          },
+          "tolerance": {
+            "type": "number",
+            "format": "double"
+          },
+          "evaluationType": {
+            "type": "string",
+            "enum": [
+              "MESE",
+              "TOTALE"
+            ]
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "OK",
+              "KO"
+            ]
+          }
+        }
+      },
       "KpiA1DetailResultDTO": {
         "required": [
           "analysisDate",
@@ -11080,6 +11618,167 @@
           }
         }
       },
+      "KpiC1DetailResultDTO": {
+        "required": [
+          "analysisDate",
+          "evaluationType",
+          "evaluationStartDate",
+          "evaluationEndDate",
+          "instanceId",
+          "instanceModuleId",
+          "kpiC1ResultId",
+          "totalInstitutions",
+          "okTotalInstitutions",
+          "percentageOkInstitutions",
+          "outcome"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceModuleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "analysisDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "evaluationType": {
+            "type": "string",
+            "enum": [
+              "MESE",
+              "TOTALE"
+            ]
+          },
+          "evaluationStartDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "evaluationEndDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "totalInstitutions": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "okTotalInstitutions": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "percentageOkInstitutions": {
+            "type": "number",
+            "format": "double"
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "OK",
+              "KO",
+              "RUNNING",
+              "STANDBY"
+            ]
+          },
+          "kpiC1ResultId": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "KpiC2DetailResultDTO": {
+        "required": [
+          "analysisDate",
+          "evaluationType",
+          "evaluationStartDate",
+          "evaluationEndDate",
+          "instanceId",
+          "instanceModuleId",
+          "kpiC2ResultId",
+          "totalInstitutions",
+          "sendTotalInstitutions",
+          "percentageSendInstitutions",
+          "totalPayments",
+          "totalNotifications",
+          "percentageOkInstitutions",
+          "outcome"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceModuleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "kpiC2ResultId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "analysisDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "evaluationType": {
+            "type": "string",
+            "enum": [
+              "MESE",
+              "TOTALE"
+            ]
+          },
+          "evaluationStartDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "evaluationEndDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "totalInstitutions": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "sendTotalInstitutions": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "percentageSendInstitutions": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalPayments":{
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalNotifications":{
+            "type": "integer",
+            "format": "int32"
+          },
+          "percentageOkInstitutions": {
+            "type": "number",
+            "format": "double"
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "OK",
+              "KO"
+            ]
+          }
+        }
+      },
       "KpiA1AnalyticDataDTO": {
         "required": [
           "analysisDate",
@@ -11604,6 +12303,128 @@
           }
         }
       },
+      "KpiC1AnalyticDataDTO": {
+        "required": [
+          "instanceId",
+          "instanceModuleId",
+          "stationId",
+          "kpiC1DetailResultId",
+          "analysisDate",
+          "dataDate",
+          "institutionCount",
+          "koInstitutionCount"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceModuleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "stationId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "kpiC1DetailResultId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "analysisDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "dataDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "institutionCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "koInstitutionCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "KpiC2AnalyticDataDTO": {
+        "required": [
+          "instanceId",
+          "instanceModuleId",
+          "stationId",
+          "kpiC2DetailResultId",
+          "analysisDate",
+          "dataDate",
+          "institutionCount",
+          "sendInstitutionCount",
+          "percentageSendInstitutions",
+          "totalPayments",
+          "totalNotifications",
+          "percentageNotifications"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceModuleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "stationId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "kpiC2DetailResultId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "analysisDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "dataDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "institutionCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sendInstitutionCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "percentageSendInstitutions": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalPayments":{
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalNotifications":{
+            "type": "integer",
+            "format": "int32"
+          },
+          "percentageNotifications": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
       "KpiA1AnalyticDrillDownDTO": {
         "type": "object",
         "properties": {
@@ -11929,6 +12750,108 @@
               "ATTIVI",
               "NON ATTIVI"
             ]
+          }
+        }
+      },
+      "KpiC1AnalyticDrillDownDTO": {
+         "required": [
+          "instanceId",
+          "analysisDate",
+          "dataDate",
+          "institutionFiscalCode",
+          "positionsCount",
+          "messagesCount",
+          "percentageMessages"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "kpiC1AnalyticDataId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "analysisDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "dataDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "institutionFiscalCode": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          },
+          "positionsCount":{
+            "type": "integer",
+            "format": "int32"
+          },
+          "messagesCount":{
+            "type": "integer",
+            "format": "int32"
+          },
+          "percentageMessages":{
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "KpiC2AnalyticDrillDownDTO": {
+         "required": [
+          "instanceId",
+          "analysisDate",
+          "dataDate",
+          "institutionFiscalCode",
+          "totalPayments",
+          "totalNotifications",
+          "percentageNotifications"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "kpiC2AnalyticDataId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "analysisDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "dataDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "institutionFiscalCode": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          },
+          "totalPayments":{
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalNotifications":{
+            "type": "integer",
+            "format": "int32"
+          },
+          "percentageNotifications": {
+            "type": "number",
+            "format": "double"
           }
         }
       },
