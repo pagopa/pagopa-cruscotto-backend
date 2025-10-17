@@ -2,10 +2,15 @@ package com.nexigroup.pagopa.cruscotto.service.impl;
 
 import com.nexigroup.pagopa.cruscotto.domain.KpiB1AnalyticData;
 import com.nexigroup.pagopa.cruscotto.domain.KpiB1AnalyticDrillDown;
+import com.nexigroup.pagopa.cruscotto.domain.QKpiB1AnalyticDrillDown;
 import com.nexigroup.pagopa.cruscotto.repository.KpiB1AnalyticDataRepository;
 import com.nexigroup.pagopa.cruscotto.repository.KpiB1AnalyticDrillDownRepository;
 import com.nexigroup.pagopa.cruscotto.service.KpiB1AnalyticDrillDownService;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB1AnalyticDrillDownDTO;
+import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
+import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.JPQLQuery;
+
 import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
@@ -20,14 +25,17 @@ public class KpiB1AnalyticDrillDownServiceImpl implements KpiB1AnalyticDrillDown
 
     private final KpiB1AnalyticDrillDownRepository kpiB1AnalyticDrillDownRepository;
     private final KpiB1AnalyticDataRepository kpiB1AnalyticDataRepository;
+    private final QueryBuilder queryBuilder;
 
 
     public KpiB1AnalyticDrillDownServiceImpl(
         KpiB1AnalyticDrillDownRepository kpiB1AnalyticDrillDownRepository,
-        KpiB1AnalyticDataRepository kpiB1AnalyticDataRepository
+        KpiB1AnalyticDataRepository kpiB1AnalyticDataRepository,
+        QueryBuilder queryBuilder
     ) {
         this.kpiB1AnalyticDrillDownRepository = kpiB1AnalyticDrillDownRepository;
         this.kpiB1AnalyticDataRepository = kpiB1AnalyticDataRepository;
+        this.queryBuilder = queryBuilder;
     }
 
     /**
@@ -76,8 +84,27 @@ public class KpiB1AnalyticDrillDownServiceImpl implements KpiB1AnalyticDrillDown
 
     @Override
     public List<KpiB1AnalyticDrillDownDTO> findByAnalyticDataId(Long analyticDataId) {
-        // TODO: Implement after QueryDSL and Lombok compilation is fixed
-        // This method requires QueryDSL classes and Lombok-generated getters/setters to work properly
-        return java.util.Collections.emptyList();
+        final QKpiB1AnalyticDrillDown qKpiB1AnalyticDrillDown = QKpiB1AnalyticDrillDown.kpiB1AnalyticDrillDown;
+
+        JPQLQuery<KpiB1AnalyticDrillDownDTO> query = queryBuilder
+            .createQuery()
+            .from(qKpiB1AnalyticDrillDown)
+            .where(qKpiB1AnalyticDrillDown.kpiB1AnalyticData.id.eq(analyticDataId))
+            .orderBy(qKpiB1AnalyticDrillDown.dataDate.asc(),
+                     qKpiB1AnalyticDrillDown.institutionFiscalCode.asc(),
+                     qKpiB1AnalyticDrillDown.stationCode.asc())
+            .select(
+                Projections.fields(
+                    KpiB1AnalyticDrillDownDTO.class,
+                    qKpiB1AnalyticDrillDown.id.as("id"),
+                    qKpiB1AnalyticDrillDown.kpiB1AnalyticData.id.as("kpiB1AnalyticDataId"),
+                    qKpiB1AnalyticDrillDown.institutionFiscalCode.as("institutionFiscalCode"),
+                    qKpiB1AnalyticDrillDown.stationCode.as("stationCode"),
+                    qKpiB1AnalyticDrillDown.dataDate.as("dataDate"),
+                    qKpiB1AnalyticDrillDown.transactionCount.as("transactionCount")
+                )
+            );
+
+        return query.fetch();
     }
 }
