@@ -1,99 +1,79 @@
 package com.nexigroup.pagopa.cruscotto.domain;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
+import jakarta.persistence.Table;
 import java.io.Serializable;
-import java.time.LocalDateTime;
-import lombok.Getter;
-import lombok.Setter;
+import java.time.LocalDate;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
 
 /**
- * A PagopaApiLog.
- *
- * Represents API log data collected from PagoPA.
+ * A PagopaApiLog entity representing the pagopa_apilog table.
+ * This table contains API usage logs from PagoPA for KPI B4 and B8 calculations.
  */
 @Entity
-@Table(name = "pagopa_apilog", schema = "public", catalog = "qualification_dashboard")
-@Getter
-@Setter
-@DynamicUpdate
-@DynamicInsert
+@Table(name = "pagopa_apilog")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = false)
+@IdClass(PagopaApiLog.PagopaApiLogId.class)
 public class PagopaApiLog implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @Id
-    @Column(name = "id")
-    private Long id;
-
-    @NotNull
-    @Size(max = 255)
-    @Column(name = "cf_partner", nullable = false, length = 255)
+    @Column(name = "CF_PARTNER", length = 35, nullable = false)
     private String cfPartner;
 
-    @NotNull
-    @Column(name = "date", nullable = false)
-    private LocalDateTime date;
+    @Id
+    @Column(name = "DATE", nullable = false)
+    private LocalDate date;
 
-    @NotNull
-    @Size(max = 255)
-    @Column(name = "station", nullable = false, length = 255)
+    @Id
+    @Column(name = "STATION", length = 35, nullable = false)
     private String station;
 
-    @NotNull
-    @Size(max = 255)
-    @Column(name = "cf_institution", nullable = false, length = 255)
-    private String cfInstitution;
+    @Id
+    @Column(name = "CF_INSTITUTION", length = 35, nullable = false)
+    private String cfEnte;
 
-    @NotNull
-    @Size(max = 255)
-    @Column(name = "api", nullable = false, length = 255)
+    @Id
+    @Column(name = "API", length = 35, nullable = false)
     private String api;
 
-    @NotNull
-    @Column(name = "req_total", nullable = false)
-    private Long reqTotal;
+    @Column(name = "REQ_TOTAL", nullable = false)
+    private Integer totReq;
 
-    @NotNull
-    @Column(name = "req_ok", nullable = false)
-    private Long reqOk;
+    @Column(name = "REQ_OK", nullable = false)
+    private Integer reqOk;
 
-    @NotNull
-    @Column(name = "req_ko", nullable = false)
-    private Long reqKo;
+    @Column(name = "REQ_KO", nullable = false)
+    private Integer reqKo;
 
-    // JHipster needle - entity add field
+    /**
+     * Composite primary key for PagopaApiLog entity.
+     */
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @EqualsAndHashCode
+    public static class PagopaApiLogId implements Serializable {
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PagopaApiLog)) return false;
-        return id != null && id.equals(((PagopaApiLog) o).id);
-    }
+        private static final long serialVersionUID = 1L;
 
-    @Override
-    public int hashCode() {
-        return 31;
-    }
-
-    @Override
-    public String toString() {
-        return "PagopaApiLog{" +
-            "id=" + id +
-            ", cfPartner='" + cfPartner + '\'' +
-            ", date=" + date +
-            ", station='" + station + '\'' +
-            ", cfInstitution='" + cfInstitution + '\'' +
-            ", api='" + api + '\'' +
-            ", reqTotal=" + reqTotal +
-            ", reqOk=" + reqOk +
-            ", reqKo=" + reqKo +
-            '}';
+        private String cfPartner;
+        private LocalDate date;
+        private String station;
+        private String cfEnte;
+        private String api;
     }
 }
