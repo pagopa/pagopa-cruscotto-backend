@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+  <changeSet id="20251017120000-1" author="system" context="dml">
+    <comment>Add KpiB5Job authorization configuration</comment>
+    <validCheckSum>ANY</validCheckSum>
+    <sql splitStatements="true" stripComments="true">
+      
+      -- Inserisce una nuova autorizzazione specifica per il KPI B.5 Job
+      INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) 
+      VALUES(10070, 'KPI_B5_JOB_EXECUTION', 'GTW');
+      
+      -- Associa la nuova autorizzazione alla funzione di gestione moduli (per amministratori)
+      INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) 
+      VALUES(10070, 10018);
+      
+    </sql>
+  </changeSet>
+
+</databaseChangeLog>
