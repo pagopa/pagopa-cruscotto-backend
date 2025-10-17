@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+  <changeSet id="20250115120001-1" author="system" context="dml">
+    <validCheckSum>ANY</validCheckSum>
+    <comment>Activate KPI B.4 module and set it to automatic analysis</comment>
+    <sql splitStatements="true" stripComments="true">
+
+      UPDATE ${database.defaultSchemaName}.MODULE 
+      SET TE_STATUS = 'ATTIVO',
+          TE_ANALYSIS_TYPE = 'AUTOMATICA',
+          FL_ALLOW_MANUAL_OUTCOME = false,
+          TE_LAST_MODIFIED_BY = 'system',
+          DT_LAST_MODIFIED_DATE = CURRENT_TIMESTAMP
+      WHERE TE_CODE = 'B.4';
+
+    </sql>
+    <rollback>
+      UPDATE ${database.defaultSchemaName}.MODULE 
+      SET TE_STATUS = 'NON_ATTIVO',
+          TE_ANALYSIS_TYPE = 'MANUALE',
+          FL_ALLOW_MANUAL_OUTCOME = true,
+          TE_LAST_MODIFIED_BY = 'system',
+          DT_LAST_MODIFIED_DATE = CURRENT_TIMESTAMP
+      WHERE TE_CODE = 'B.4';
+    </rollback>
+  </changeSet>
+
+</databaseChangeLog>

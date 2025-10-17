@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+  <changeSet id="20251006150000-1" author="system" context="dml">
+	<validCheckSum>ANY</validCheckSum>
+	<comment>Add KPI B4 authorizations for result, detail result and analytic data APIs</comment>
+	<sql splitStatements="true" stripComments="true">
+	
+	  <!-- Insert KPI B4 permissions -->
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10078, 'KPI_B4_RESULT_DETAIL', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10079, 'KPI_B4_DETAIL_RESULT_DETAIL', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10080, 'KPI_B4_ANALITIC_DATA_DETAIL', 'GTW');
+	  
+	  <!-- Associate permissions with function 10004 (KPI function) -->
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10078, 10004);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10079, 10004);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10080, 10004);
+	  
+	</sql>
+	<rollback>
+	
+	  <!-- Remove function-permission associations -->
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM WHERE co_auth_permission_id = 10078 AND co_auth_function_id = 10004;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM WHERE co_auth_permission_id = 10079 AND co_auth_function_id = 10004;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM WHERE co_auth_permission_id = 10080 AND co_auth_function_id = 10004;
+	  
+	  <!-- Remove permissions -->
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_PERMISSION WHERE co_id = 10078;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_PERMISSION WHERE co_id = 10079;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_PERMISSION WHERE co_id = 10080;
+	  	  
+	</rollback>
+  </changeSet>
+
+</databaseChangeLog>

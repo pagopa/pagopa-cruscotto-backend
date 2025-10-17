@@ -1,5 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.service.bean;
 
+import java.math.BigDecimal;
+
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -25,5 +27,13 @@ public class KpiConfigurationRequestBean {
     private Double averageTimeLimit;
 
     private EvaluationType evaluationType;
+
+    private Integer institutionCount;
+
+    private Integer transactionCount;
+
+    private BigDecimal institutionTolerance;
+
+    private BigDecimal transactionTolerance;
 
 }
