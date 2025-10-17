@@ -140,6 +140,7 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
             partnerExample.setQualified(null);
 
             AnagPartner anagPartner = anagPartnerRepository.findOne(Example.of(partnerExample)).orElse(new AnagPartner());
+            anagPartner.setInstitutionsCount(0L);
             anagPartner.setName(partnerDTO.getPartnerIdentification().getName());
             anagPartner.setFiscalCode(partnerDTO.getPartnerIdentification().getFiscalCode());
 
@@ -245,7 +246,7 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
         if (analysisPeriodEndDate != null && !analysisPeriodEndDate.isEmpty()) {
             predicate.and(QAnagPartner.anagPartner.analysisPeriodEndDate.stringValue().loe(analysisPeriodEndDate));
         }
-        if (showNotActive == null ||  (showNotActive != null && !showNotActive.booleanValue())) {
+        if (showNotActive == null || !showNotActive) {
         	predicate.and(QAnagPartner.anagPartner.status.stringValue().eq(PartnerStatus.ATTIVO.name()));
         }
 
