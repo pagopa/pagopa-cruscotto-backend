@@ -50,6 +50,8 @@ public class LoadRegistryJob extends QuartzJobBean {
     private final AnagInstitutionService anagInstitutionService;
     private final AnagStationAnagInstitutionService anagStationAnagInstitutionService;
 
+    private static final String LOG_AFTER_VALIDATION_PATTERN = "After validation {} records will be saved";
+
     @Override
     protected void executeInternal(@NotNull JobExecutionContext context) {
         LOGGER.info("Start load cache from PagoPA");
@@ -135,21 +137,30 @@ public class LoadRegistryJob extends QuartzJobBean {
                     LOGGER.warn("Station or Institution not found for codes: {} / {}", cis.getStationCode(), cis.getCreditorInstitutionCode());
                 }
             }
-            // Save all associations
-            
-            
 
-            LOGGER.info("After validation {} records will be saved", associations.size());
+            // Filtra solo associazioni con istituti attivi
+            List<AnagStationAnagInstitution> activeAssociations = new ArrayList<>();
+            for (AnagStationAnagInstitution assoc : associations) {
+                if (Boolean.TRUE.equals(assoc.getAnagInstitution().getEnabled())) {
+                    activeAssociations.add(assoc);
+                }
+            }
+
+            LOGGER.info(LOG_AFTER_VALIDATION_PATTERN, activeAssociations.size());
 
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
 
-            anagStationAnagInstitutionService.saveAll(associations);
+            // Salva solo le associazioni attive
+            anagStationAnagInstitutionService.saveAll(activeAssociations);
+
+            // Aggiorna contatori basati solo su enti attivi
             anagStationService.updateAllStationsAssociatedInstitutionsCount();
             anagPartnerService.updateAllPartnersInstitutionsCount();
             stopWatch.stop();
 
-            LOGGER.info("Saved {} rows institutionStation to database into {} seconds", associations.size(), stopWatch.getTime(TimeUnit.SECONDS));
+            LOGGER.info("Saved {} rows active institution-station associations to database into {} seconds",
+                activeAssociations.size(), stopWatch.getTime(TimeUnit.SECONDS));
         }
     }
 
