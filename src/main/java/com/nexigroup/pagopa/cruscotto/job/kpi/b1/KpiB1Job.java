@@ -16,6 +16,7 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import org.quartz.*;
@@ -30,6 +31,10 @@ import org.springframework.stereotype.Component;
  * 
  * Business Rule: È richiesta l'intermediazione di oltre 5 enti o almeno 250.000 transazioni nel periodo di riferimento
  * (More than 5 Institutions OR at least 250,000 transactions in the reference period)
+ * 
+ * Note: KpiB1Result.institutionCount contains the THRESHOLD from configuration (e.g., 5).
+ * Analysis aggregations (monthly, daily) use actual master data institution counts from AnagPartner entity 
+ * for comparison values instead of counting from transaction records.
  */
 @Component
 @AllArgsConstructor
@@ -45,6 +50,7 @@ public class KpiB1Job extends QuartzJobBean {
     private final InstanceModuleService instanceModuleService;
     private final KpiConfigurationService kpiConfigurationService;
     private final PagopaTransazioniService pagopaTransazioniService;
+    private final AnagPartnerService anagPartnerService;
     private final KpiB1ResultService kpiB1ResultService;
     private final KpiB1DetailResultService kpiB1DetailResultService;
     private final KpiB1AnalyticDataService kpiB1AnalyticDataService;
@@ -77,7 +83,7 @@ public class KpiB1Job extends QuartzJobBean {
     }
 
     /**
-     * Aggregates KpiB1AnalyticData from transaction records for a specific month
+     * Aggregates KpiB1AnalyticData from master data for a specific month
      */
     private List<KpiB1AnalyticDataDTO> aggregateKpiB1AnalyticData(
             InstanceDTO instanceDTO,
@@ -85,7 +91,8 @@ public class KpiB1Job extends QuartzJobBean {
             AtomicReference<KpiB1DetailResultDTO> kpiB1DetailResultRef,
             List<PagopaTransactionDTO> filteredMonthRecords,
             LocalDate detailResultEvaluationStartDate,
-            LocalDate detailResultEvaluationEndDate) {
+            LocalDate detailResultEvaluationEndDate,
+            int masterDataInstitutionCount) {
 
         List<KpiB1AnalyticDataDTO> analyticDataList = new ArrayList<>();
 
@@ -102,10 +109,8 @@ public class KpiB1Job extends QuartzJobBean {
                     .mapToLong(PagopaTransactionDTO::getTransactionTotal)
                     .sum();
 
-            int institutionCount = (int) dateRecords.stream()
-                    .map(PagopaTransactionDTO::getCfInstitution)
-                    .distinct()
-                    .count();
+            // Use master data institution count instead of transaction-based count
+            int institutionCount = masterDataInstitutionCount;
 
             KpiB1AnalyticDataDTO analyticData = new KpiB1AnalyticDataDTO();
             analyticData.setInstanceId(instanceDTO.getId());
@@ -123,7 +128,7 @@ public class KpiB1Job extends QuartzJobBean {
     }
 
     /**
-     * Aggregates KpiB1DetailResult for monthly and total evaluations
+     * Aggregates KpiB1DetailResult for monthly and total evaluations using master data
      */
     private List<KpiB1DetailResultDTO> aggregateKpiB1DetailResult(
             InstanceDTO instanceDTO,
@@ -134,7 +139,8 @@ public class KpiB1Job extends QuartzJobBean {
             Integer institutionThreshold,
             Long transactionThreshold,
             BigDecimal institutionTolerance,
-            BigDecimal transactionTolerance) {
+            BigDecimal transactionTolerance,
+            int masterDataInstitutionCount) {
 
         List<KpiB1DetailResultDTO> detailResults = new ArrayList<>();
         LocalDate analysisStart = instanceDTO.getAnalysisPeriodStartDate();
@@ -142,7 +148,6 @@ public class KpiB1Job extends QuartzJobBean {
         LocalDate current = analysisStart.withDayOfMonth(1);
 
         long totalTransactionsForPeriod = 0;
-        int totalInstitutionsForPeriod = 0;
 
         // Process month by month
         while (!current.isAfter(analysisEnd)) {
@@ -164,15 +169,10 @@ public class KpiB1Job extends QuartzJobBean {
                     .mapToLong(PagopaTransactionDTO::getTransactionTotal)
                     .sum();
 
-            int monthlyUniqueInstitutions = (int) monthPeriodRecords.stream()
-                    .map(PagopaTransactionDTO::getCfInstitution)
-                    .distinct()
-                    .count();
+            // Use master data institution count for monthly evaluations
+            int monthlyUniqueInstitutions = masterDataInstitutionCount;
 
             totalTransactionsForPeriod += monthlyTotalTransactions;
-            if (monthlyUniqueInstitutions > totalInstitutionsForPeriod) {
-                totalInstitutionsForPeriod = monthlyUniqueInstitutions;
-            }
 
             // Determine monthly outcome: OK if institutions > threshold OR transactions >= threshold
             OutcomeStatus monthlyOutcome = (monthlyUniqueInstitutions > institutionThreshold || 
@@ -222,11 +222,8 @@ public class KpiB1Job extends QuartzJobBean {
         }
 
         // Add TOTALE detail result for the whole analysis period
-        // For total period, we need to count unique Institutions across the entire period
-        int totalUniqueInstitutionsAcrossPeriod = (int) filteredPeriodRecords.stream()
-                .map(PagopaTransactionDTO::getCfInstitution)
-                .distinct()
-                .count();
+        // Use master data institution count for total period evaluation
+        int totalUniqueInstitutionsAcrossPeriod = masterDataInstitutionCount;
 
         OutcomeStatus totalOutcomeStatus = (totalUniqueInstitutionsAcrossPeriod > institutionThreshold || 
                                           totalTransactionsForPeriod >= transactionThreshold) 
@@ -277,7 +274,10 @@ public class KpiB1Job extends QuartzJobBean {
     }
 
     /**
-     * Aggregates KpiB1Result from transaction records
+     * Aggregates KpiB1Result with configuration thresholds
+     * 
+     * Note: institutionCount in KpiB1Result represents the THRESHOLD for evaluation (e.g., "5 institutions"),
+     * not the actual partner's institution count. The actual counts are used separately in analysis aggregations.
      */
     private KpiB1ResultDTO aggregateKpiB1Result(
             InstanceDTO instanceDTO, 
@@ -285,7 +285,8 @@ public class KpiB1Job extends QuartzJobBean {
             KpiConfigurationDTO kpiConfigurationDTO, 
             List<PagopaTransactionDTO> records) {
 
-        // Use counts from kpiConfigurationDTO if available, otherwise set to 0
+        // Use institutionCount from kpiConfigurationDTO as threshold (not master data)
+        // This represents the threshold for KPI evaluation (e.g., "more than 5 institutions")
         int institutionCount = kpiConfigurationDTO.getInstitutionCount() != null ? 
             kpiConfigurationDTO.getInstitutionCount() : 0;
         
@@ -392,6 +393,11 @@ public class KpiB1Job extends QuartzJobBean {
                 BigDecimal institutionTolerance = kpiB1ResultRef.get().getInstitutionTolerance();
                 BigDecimal transactionTolerance = kpiB1ResultRef.get().getTransactionTolerance();
 
+                // Get master data institution count for analysis aggregations
+                Optional<AnagPartnerDTO> partnerOpt = anagPartnerService.findOneByFiscalCode(instanceDTO.getPartnerFiscalCode());
+                Long masterDataInstitutionCountLong = partnerOpt.map(AnagPartnerDTO::getAssociatedInstitutes).orElse(0L);
+                int masterDataInstitutionCount = masterDataInstitutionCountLong.intValue();
+
                 // --- Aggregation: KpiB1DetailResult ---
                 List<KpiB1DetailResultDTO> detailResults = aggregateKpiB1DetailResult(
                         instanceDTO,
@@ -402,7 +408,8 @@ public class KpiB1Job extends QuartzJobBean {
                         institutionThreshold,
                         transactionThreshold,
                         institutionTolerance,
-                        transactionTolerance);
+                        transactionTolerance,
+                        masterDataInstitutionCount); // Use master data institution count for analysis
 
                 for (KpiB1DetailResultDTO detailResult : detailResults) {
                     AtomicReference<KpiB1DetailResultDTO> kpiB1DetailResultRef = new AtomicReference<>(
@@ -422,7 +429,8 @@ public class KpiB1Job extends QuartzJobBean {
                                         })
                                         .collect(Collectors.toList()),
                                 detailResult.getEvaluationStartDate(),
-                                detailResult.getEvaluationEndDate());
+                                detailResult.getEvaluationEndDate(),
+                                masterDataInstitutionCount); // Use master data institution count for analysis
 
                         for (KpiB1AnalyticDataDTO analyticData : analyticDataList) {
                             AtomicReference<KpiB1AnalyticDataDTO> kpiB1AnalyticDataRef = new AtomicReference<>(
