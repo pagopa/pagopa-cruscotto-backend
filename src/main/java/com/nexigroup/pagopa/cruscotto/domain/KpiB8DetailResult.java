@@ -60,6 +60,12 @@ public class KpiB8DetailResult implements Serializable {
     @Column(name = "CO_INSTANCE_MODULE_ID", nullable = false)
     private Long instanceModuleId;
 
+    @JsonIgnore
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "CO_ANAG_STATION_ID", nullable = false, insertable = false, updatable = false)
+    private AnagStation anagStation;
+
     @NotNull
     @Column(name = "CO_ANAG_STATION_ID", nullable = false)
     private Long anagStationId;
