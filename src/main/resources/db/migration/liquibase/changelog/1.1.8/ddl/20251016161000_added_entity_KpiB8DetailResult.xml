@@ -79,7 +79,7 @@
       <column name="CO_KPI_B8_RESULT_ID"/>
     </createIndex>
 
-    <createIndex indexName="IX${project_name}_KPIB8DETARESU_04"
+    <createIndex indexName="IX${project_name}_KPIB8DETARESU_05"
                  tableName="KPI_B8_DETAIL_RESULT">
       <column name="CO_ANAG_STATION_ID"/>
     </createIndex>

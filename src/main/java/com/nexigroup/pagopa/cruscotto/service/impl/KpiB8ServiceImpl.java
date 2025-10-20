@@ -121,8 +121,8 @@ public class KpiB8ServiceImpl implements KpiB8Service {
             result.setInstanceModule(instanceModuleService.findById(instanceModuleDTO.getId())
                 .orElseThrow(() -> new RuntimeException("InstanceModule entity not found by ID")));
             result.setAnalysisDate(LocalDate.now());
-            result.setExcludePlannedShutdown(configuration.getExcludePlannedShutdown() != null ? configuration.getExcludePlannedShutdown() : false);
-            result.setExcludeUnplannedShutdown(configuration.getExcludeUnplannedShutdown() != null ? configuration.getExcludeUnplannedShutdown() : false);
+            //result.setExcludePlannedShutdown(configuration.getExcludePlannedShutdown() != null ? configuration.getExcludePlannedShutdown() : false);
+            //result.setExcludeUnplannedShutdown(configuration.getExcludeUnplannedShutdown() != null ? configuration.getExcludeUnplannedShutdown() : false);
             result.setEligibilityThreshold(configuration.getEligibilityThreshold() != null ? configuration.getEligibilityThreshold() : 95.0);
             result.setTolerance(configuration.getTolerance() != null ? configuration.getTolerance() : 5.0);
             result.setEvaluationType(configuration.getEvaluationType() != null ? configuration.getEvaluationType() : EvaluationType.MESE);
@@ -329,9 +329,9 @@ public class KpiB8ServiceImpl implements KpiB8Service {
                 monthlyDetailResult.setEvaluationType(com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType.MESE);
                 monthlyDetailResult.setEvaluationStartDate(monthStart);
                 monthlyDetailResult.setEvaluationEndDate(monthEnd);
-                monthlyDetailResult.setSumTotGpd(monthlyGpdCalls); // Totale GPD+ACA del mese
-                monthlyDetailResult.setSumTotCp(monthlyCpCalls); // Totale CP del mese
-                monthlyDetailResult.setPerApiCp(monthlyPercentageCp); // % CP del mese
+                monthlyDetailResult.setReqKO(monthlyGpdCalls); // Totale GPD+ACA del mese
+                monthlyDetailResult.setTotReq(monthlyCpCalls); // Totale CP del mese
+                monthlyDetailResult.setPerKO(monthlyPercentageCp); // % CP del mese
                 monthlyDetailResult.setOutcome(calculateDetailResultOutcome(monthlyPercentageCp, kpiB8Result)); // Calcola outcome specifico per questo detail result
 
                 kpiB8DetailResultRepository.save(monthlyDetailResult);
@@ -367,9 +367,9 @@ public class KpiB8ServiceImpl implements KpiB8Service {
             totalDetailResult.setEvaluationType(com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType.TOTALE);
             totalDetailResult.setEvaluationStartDate(periodStart);
             totalDetailResult.setEvaluationEndDate(periodEnd);
-            totalDetailResult.setSumTotGpd(totalGpdCalls); // Totale GPD+ACA dell'intero periodo
-            totalDetailResult.setSumTotCp(totalCpCalls); // Totale CP dell'intero periodo
-            totalDetailResult.setPerApiCp(totalPercentageCp); // % CP dell'intero periodo
+            totalDetailResult.setTotReq(totalGpdCalls); // Totale GPD+ACA dell'intero periodo
+            totalDetailResult.setReqKO(totalCpCalls); // Totale CP dell'intero periodo
+            totalDetailResult.setPerKO(totalPercentageCp); // % CP dell'intero periodo
             totalDetailResult.setOutcome(calculateDetailResultOutcome(totalPercentageCp, kpiB8Result)); // Calcola outcome specifico per questo detail result
 
             kpiB8DetailResultRepository.save(totalDetailResult);
@@ -448,8 +448,8 @@ public class KpiB8ServiceImpl implements KpiB8Service {
                 dailyAnalyticData.setInstance(instance);
                 dailyAnalyticData.setAnalysisDate(kpiB8Result.getAnalysisDate());
                 dailyAnalyticData.setEvaluationDate(evaluationDate);
-                dailyAnalyticData.setNumRequestGpd(gpdAcaTotal); // Numero Request GPD del giorno
-                dailyAnalyticData.setNumRequestCp(paCreateTotal); // Numero Request CP del giorno
+                dailyAnalyticData.setTotReq(gpdAcaTotal); // Numero Request GPD del giorno
+                dailyAnalyticData.setReqKO(paCreateTotal); // Numero Request CP del giorno
                 dailyAnalyticData.setKpiB8DetailResult(appropriateDetailResult);
 
                 KpiB8AnalyticData savedAnalyticData = kpiB8AnalyticDataRepository.save(dailyAnalyticData);
