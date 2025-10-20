@@ -104,8 +104,8 @@ public interface KpiB8AnalyticDataRepository extends JpaRepository<KpiB8Analytic
      * @return the summary data
      */
     @Query("SELECT " +
-        "SUM(k.numRequestGpd) as totalGpdRequests, " +
-        "SUM(k.numRequestCp) as totalCpRequests " +
+        "SUM(k.totReq) as totalRequests, " +
+        "SUM(k.reqKO) as totalKORequests " +
         "FROM KpiB8AnalyticData k " +
         "WHERE k.instanceId = :instanceId " +
         "AND k.analysisDate = :analysisDate " +
