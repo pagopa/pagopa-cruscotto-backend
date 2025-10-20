@@ -42,13 +42,13 @@ public class KpiB8Result implements Serializable {
     @JsonIgnore
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CO_INSTANCE_ID", nullable = false)
+    @JoinColumn(name = "CO_INSTANCE_ID", nullable = false, insertable = false, updatable = false)
     private Instance instance;
 
     @JsonIgnore
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CO_INSTANCE_MODULE_ID", nullable = false)
+    @JoinColumn(name = "CO_INSTANCE_MODULE_ID", nullable = false, insertable = false, updatable = false)
     private InstanceModule instanceModule;
 
     @NotNull

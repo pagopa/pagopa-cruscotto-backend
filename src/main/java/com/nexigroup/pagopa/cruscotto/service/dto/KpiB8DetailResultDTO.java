@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
@@ -46,7 +47,7 @@ public class KpiB8DetailResultDTO implements Serializable {
     private Long reqKO;
 
     @NotNull
-    private Long perKO;
+    private BigDecimal perKO;
 
     private OutcomeStatus outcome;
 

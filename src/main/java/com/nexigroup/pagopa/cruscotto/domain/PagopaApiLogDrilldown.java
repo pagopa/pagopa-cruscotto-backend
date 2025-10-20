@@ -25,7 +25,7 @@ import org.hibernate.annotations.DynamicUpdate;
 
 /**
  * A PagopaApiLogDrilldown.
- * 
+ *
  * Stores API log data for KPI B.4 drilldown analysis.
  * This table maintains a snapshot of PAGOPA_API_LOG data at the time of KPI B.4 analysis execution,
  * providing detailed breakdown of API requests by partner, station, and fiscal code.
@@ -70,6 +70,13 @@ public class PagopaApiLogDrilldown implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CO_KPI_B4_ANALYTIC_DATA_ID", nullable = false)
     private KpiB4AnalyticData kpiB4AnalyticData;
+
+    @JsonIgnore
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "CO_KPI_B8_ANALYTIC_DATA_ID", nullable = false)
+    private KpiB8AnalyticData kpiB8AnalyticData;
+
 
     @NotNull
     @Column(name = "DT_ANALYSIS_DATE", nullable = false)

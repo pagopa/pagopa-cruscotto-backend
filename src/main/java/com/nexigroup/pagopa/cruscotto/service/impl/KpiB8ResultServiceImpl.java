@@ -77,8 +77,8 @@ public class KpiB8ResultServiceImpl implements KpiB8ResultService {
         kpiB8Result.setInstance(instance);
         kpiB8Result.setInstanceModule(instanceModule);
         kpiB8Result.setAnalysisDate(kpiB8ResultDTO.getAnalysisDate());
-        kpiB8Result.setExcludePlannedShutdown(kpiB8ResultDTO.getExcludePlannedShutdown());
-        kpiB8Result.setExcludeUnplannedShutdown(kpiB8ResultDTO.getExcludeUnplannedShutdown());
+        //kpiB8Result.setExcludePlannedShutdown(kpiB8ResultDTO.getExcludePlannedShutdown());
+        //kpiB8Result.setExcludeUnplannedShutdown(kpiB8ResultDTO.getExcludeUnplannedShutdown());
         kpiB8Result.setEligibilityThreshold(kpiB8ResultDTO.getEligibilityThreshold());
         kpiB8Result.setTolerance(kpiB8ResultDTO.getTolerance());
         kpiB8Result.setEvaluationType(kpiB8ResultDTO.getEvaluationType());
@@ -119,8 +119,8 @@ public class KpiB8ResultServiceImpl implements KpiB8ResultService {
         dto.setInstanceId(kpiB8Result.getInstance().getId());
         dto.setInstanceModuleId(kpiB8Result.getInstanceModule().getId());
         dto.setAnalysisDate(kpiB8Result.getAnalysisDate());
-        dto.setExcludePlannedShutdown(kpiB8Result.getExcludePlannedShutdown());
-        dto.setExcludeUnplannedShutdown(kpiB8Result.getExcludeUnplannedShutdown());
+        //dto.setExcludePlannedShutdown(kpiB8Result.getExcludePlannedShutdown());
+        //dto.setExcludeUnplannedShutdown(kpiB8Result.getExcludeUnplannedShutdown());
         dto.setEligibilityThreshold(kpiB8Result.getEligibilityThreshold());
         dto.setTolerance(kpiB8Result.getTolerance());
         dto.setEvaluationType(kpiB8Result.getEvaluationType());
