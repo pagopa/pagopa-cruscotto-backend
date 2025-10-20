@@ -53,6 +53,17 @@ public class PagopaApiLogDrilldownServiceImpl implements PagopaApiLogDrilldownSe
 
     @Override
     @Transactional(readOnly = true)
+    public List<PagopaAPILogDTO> findByKpiB8AnalyticDataId(Long analyticDataId) {
+        LOGGER.debug("Request to get all PagopaApiLogDrilldown by KpiB8AnalyticData ID: {}", analyticDataId);
+        return pagopaApiLogDrilldownRepository.findByKpiB8AnalyticDataId(analyticDataId)
+            .stream()
+            .map(pagopaApiLogDrilldownMapper::toDto)
+            .collect(Collectors.toList());
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
     public List<PagopaAPILogDTO> findByInstanceIdAndAnalysisDate(Long instanceId, LocalDate analysisDate) {
         LOGGER.debug("Request to get all PagopaApiLogDrilldown by instance ID: {} and analysis date: {}", instanceId, analysisDate);
         return pagopaApiLogDrilldownRepository.findByInstanceIdAndAnalysisDate(instanceId, analysisDate)

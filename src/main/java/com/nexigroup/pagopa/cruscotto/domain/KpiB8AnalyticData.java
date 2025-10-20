@@ -39,6 +39,10 @@ public class KpiB8AnalyticData implements Serializable {
     @GeneratedValue(generator = "SQCRUSC8_KPIB8ANALDATA", strategy = GenerationType.SEQUENCE)
     private Long id;
 
+    @NotNull
+    @Column(name = "CO_INSTANCE_ID", nullable = false)
+    private Long instanceId;
+
     @JsonIgnore
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
@@ -51,13 +55,19 @@ public class KpiB8AnalyticData implements Serializable {
     @JoinColumn(name = "CO_INSTANCE_MODULE_ID", nullable = false)
     private InstanceModule instanceModule;
 
+
+    @NotNull
+    @Column(name = "CO_INSTANCE_MODULE_ID", nullable = false)
+    private Long instanceModuleId;
+
+
     @NotNull
     @Column(name = "DT_ANALISYS_DATE", nullable = false)
     private LocalDate analysisDate;
 
     @NotNull
-    @Column(name = "DT_DATA_DATE", nullable = false)
-    private LocalDate dataDate;
+    @Column(name = "DT_EVALUATION_DATE", nullable = false)
+    private LocalDate evaluationDate;
 
     @NotNull
     @Column(name = "CO_TOT_REQ", nullable = false)
@@ -93,19 +103,20 @@ public class KpiB8AnalyticData implements Serializable {
 
     // prettier-ignore
 
+
     @Override
     public String toString() {
         return "KpiB8AnalyticData{" +
             "id=" + id +
+            ", instanceId=" + instanceId +
             ", instance=" + instance +
             ", instanceModule=" + instanceModule +
+            ", instanceModuleId=" + instanceModuleId +
             ", analysisDate=" + analysisDate +
-            ", dataDate=" + dataDate +
+            ", evaluationDate=" + evaluationDate +
             ", totReq=" + totReq +
             ", reqKO=" + reqKO +
-            ", kpiB8DetailResult=" + kpiB8DetailResult.toString() +
+            ", kpiB8DetailResult=" + kpiB8DetailResult +
             '}';
     }
-
-
 }

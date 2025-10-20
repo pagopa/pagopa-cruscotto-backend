@@ -46,11 +46,23 @@ public class KpiB8DetailResult implements Serializable {
     @JoinColumn(name = "CO_INSTANCE_ID", nullable = false)
     private Instance instance;
 
+    @NotNull
+    @Column(name = "CO_INSTANCE_ID", nullable = false)
+    private Long instanceId;
+
     @JsonIgnore
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CO_INSTANCE_MODULE_ID", nullable = false)
     private InstanceModule instanceModule;
+
+    @NotNull
+    @Column(name = "CO_INSTANCE_MODULE_ID", nullable = false)
+    private Long instanceModuleId;
+
+    @NotNull
+    @Column(name = "CO_ANAG_STATION_ID", nullable = false)
+    private Long anagStationId;
 
     @NotNull
     @Column(name = "DT_ANALISYS_DATE", nullable = false)
@@ -80,7 +92,7 @@ public class KpiB8DetailResult implements Serializable {
     @NotNull
     @Column(name = "CO_PER_REQ_KO", nullable = false)
     private Long perKO;
-    
+
 
     @Enumerated(EnumType.STRING)
     @Column(name = "TE_OUTCOME")
@@ -114,7 +126,10 @@ public class KpiB8DetailResult implements Serializable {
         return "KpiB8DetailResult{" +
             "id=" + id +
             ", instance=" + instance +
+            ", instanceId=" + instanceId +
             ", instanceModule=" + instanceModule +
+            ", instanceModuleId=" + instanceModuleId +
+            ", anagStationId=" + anagStationId +
             ", analysisDate=" + analysisDate +
             ", evaluationType=" + evaluationType +
             ", evaluationStartDate=" + evaluationStartDate +

@@ -2,6 +2,7 @@ package com.nexigroup.pagopa.cruscotto.service.dto;
 
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -14,24 +15,37 @@ import java.time.LocalDate;
 
 public class KpiB8DetailResultDTO implements Serializable {
 
+    @NotNull
     private Long id;
 
+    @NotNull
     private Long instanceId;
 
+    @NotNull
     private Long instanceModuleId;
 
+    @NotNull
+    private Long anagStationId;
+
+    @NotNull
     private LocalDate analysisDate;
 
+    @NotNull
     private EvaluationType evaluationType;
 
+    @NotNull
     private LocalDate evaluationStartDate;
 
+    @NotNull
     private LocalDate evaluationEndDate;
 
+    @NotNull
     private Long totReq;
 
+    @NotNull
     private Long reqKO;
 
+    @NotNull
     private Long perKO;
 
     private OutcomeStatus outcome;

@@ -8,16 +8,15 @@ import com.nexigroup.pagopa.cruscotto.repository.InstanceModuleRepository;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
 import com.nexigroup.pagopa.cruscotto.repository.KpiB8ResultRepository;
 import com.nexigroup.pagopa.cruscotto.service.KpiB8ResultService;
-import com.nexigroup.pagopa.cruscotto.service.KpiB8ResultService;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB8ResultDTO;
+
+import java.util.List;
+import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Service Implementation for managing {@link KpiB8Result}.
