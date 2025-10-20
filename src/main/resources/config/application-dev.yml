@@ -174,6 +174,8 @@ application:
       limit: 20
     kpi-b1-job:
       enabled: true
+      cron: 0 0/2 08-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
+      limit: 20
     kpi-b8-job:
       enabled: false
       cron: 0 0/2 08-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
