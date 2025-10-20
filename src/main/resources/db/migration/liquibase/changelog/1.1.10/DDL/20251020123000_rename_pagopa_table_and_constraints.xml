@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+  <changeSet id="20251020130000-rename-table-constraints-indexes" author="system">
+
+    <!-- ✅ Rinomina tabella -->
+    <renameTable
+      oldTableName="PAGOPA_API_LOG_DRILLDOWN"
+      newTableName="API_LOG_DRILLDOWN" />
+
+    <!-- ✅ Rinomina constraint e indici via SQL -->
+    <sql>
+      -- Foreign keys
+      ALTER TABLE API_LOG_DRILLDOWN RENAME CONSTRAINT FK_PAGOPA_API_LOG_DRILL_INSTANCE_ID TO FK_API_LOG_DRILL_INSTANCE_ID;
+      ALTER TABLE API_LOG_DRILLDOWN RENAME CONSTRAINT FK_PAGOPA_API_LOG_DRILL_INSTANCE_MODULE_ID TO FK_API_LOG_DRILL_INSTANCE_MODULE_ID;
+      ALTER TABLE API_LOG_DRILLDOWN RENAME CONSTRAINT FK_PAGOPA_API_LOG_DRILL_STATION_ID TO FK_API_LOG_DRILL_STATION_ID;
+      ALTER TABLE API_LOG_DRILLDOWN RENAME CONSTRAINT FK_PAGOPA_API_LOG_DRILL_KPI_B4_ANALYTIC_DATA_ID TO FK_API_LOG_DRILL_KPI_B4_ANALYTIC_DATA_ID;
+
+      -- Indexes
+      ALTER INDEX IDX_PAGOPA_API_LOG_DRILL_ANALYSIS_DATE RENAME TO IDX_API_LOG_DRILL_ANALYSIS_DATE;
+      ALTER INDEX IDX_PAGOPA_API_LOG_DRILL_DATA_DATE RENAME TO IDX_API_LOG_DRILL_DATA_DATE;
+      ALTER INDEX IDX_PAGOPA_API_LOG_DRILL_PARTNER_FC RENAME TO IDX_API_LOG_DRILL_PARTNER_FC;
+      ALTER INDEX IDX_PAGOPA_API_LOG_DRILL_STATION_CODE RENAME TO IDX_API_LOG_DRILL_STATION_CODE;
+      ALTER INDEX IDX_PAGOPA_API_LOG_DRILL_API RENAME TO IDX_API_LOG_DRILL_API;
+
+      -- Sequence (opzionale)
+      ALTER SEQUENCE SQCRUSC8_PAGOPAAPILOGDRILL RENAME TO SQCRUSC8_API_LOG_DRILL;
+    </sql>
+
+  </changeSet>
+
+</databaseChangeLog>
