@@ -6,7 +6,22 @@
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-    <!-- KpiB5Job authorization configuration -->
-    <include file="dml/20251017120000_added_kpi_b5_job_authorization.xml" relativeToChangelogFile="true"/>
+    <property name="project_name" value="CRUSC8"/>
+
+    <!-- Include previous version -->
+    <include file="db.changelog-master-1.1.8.xml" relativeToChangelogFile="true"/>
+
+    <!-- PAGOPA_SPONTANEOUS table column rename -->
+    <include file="1.1.9/ddl/20251020150000_rename_column_pagopa_spontaneous.xml" relativeToChangelogFile="true"/>
+
+    <!-- KPI B5 database tables (DDL only - DML will be added later) -->
+    <include file="1.1.9/ddl/20251017140000_added_entity_KpiB5Result.xml" relativeToChangelogFile="true"/>
+    <include file="1.1.9/ddl/20251017141000_added_entity_KpiB5DetailResult.xml" relativeToChangelogFile="true"/>
+    <include file="1.1.9/ddl/20251017142000_added_entity_KpiB5AnalyticData.xml" relativeToChangelogFile="true"/>
+    <include file="1.1.9/ddl/20251017143000_added_entity_KpiB5AnalyticDrillDown.xml" relativeToChangelogFile="true"/>
+    <include file="1.1.9/ddl/20251017145000_add_foreign_keys_kpi_b5.xml" relativeToChangelogFile="true"/>
+
+    <!-- KPI B5 authorizations (DML) -->
+    <include file="1.1.9/dml/20251023120000_add_kpi_b5_authorizations.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>
