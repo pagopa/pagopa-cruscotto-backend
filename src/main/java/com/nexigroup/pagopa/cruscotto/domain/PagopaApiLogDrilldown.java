@@ -25,13 +25,13 @@ import org.hibernate.annotations.DynamicUpdate;
 
 /**
  * A PagopaApiLogDrilldown.
- * 
+ *
  * Stores API log data for KPI B.4 drilldown analysis.
  * This table maintains a snapshot of PAGOPA_API_LOG data at the time of KPI B.4 analysis execution,
  * providing detailed breakdown of API requests by partner, station, and fiscal code.
  */
 @Entity
-@Table(name = "PAGOPA_API_LOG_DRILLDOWN")
+@Table(name = "API_LOG_DRILLDOWN")
 @Getter
 @Setter
 @DynamicUpdate
