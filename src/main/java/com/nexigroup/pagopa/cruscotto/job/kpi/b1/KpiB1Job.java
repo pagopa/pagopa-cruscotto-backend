@@ -174,11 +174,6 @@ public class KpiB1Job extends QuartzJobBean {
 
             totalTransactionsForPeriod += monthlyTotalTransactions;
 
-            // Determine monthly outcome: OK if institutions > threshold OR transactions >= threshold
-            OutcomeStatus monthlyOutcome = (monthlyUniqueInstitutions > institutionThreshold || 
-                                         monthlyTotalTransactions >= transactionThreshold) 
-                                         ? OutcomeStatus.OK : OutcomeStatus.KO;
-
             KpiB1DetailResultDTO detailResult = new KpiB1DetailResultDTO();
             detailResult.setInstanceId(instanceDTO.getId());
             detailResult.setInstanceModuleId(instanceModuleDTO.getId());
@@ -213,6 +208,9 @@ public class KpiB1Job extends QuartzJobBean {
             detailResult.setInstitutionOutcome(institutionOutcome);
             detailResult.setTransactionOutcome(transactionOutcome);
 
+            monthlyOutcome = (institutionOutcome == OutcomeStatus.OK || transactionOutcome == OutcomeStatus.OK) 
+                             ? OutcomeStatus.OK : OutcomeStatus.KO;
+
             detailResults.add(detailResult);
             if (kpiB1ResultRef.get().getEvaluationType().compareTo(EvaluationType.MESE) == 0 &&
                     monthlyOutcome.compareTo(OutcomeStatus.KO) == 0) {
@@ -224,15 +222,6 @@ public class KpiB1Job extends QuartzJobBean {
         // Add TOTALE detail result for the whole analysis period
         // Use master data institution count for total period evaluation
         int totalUniqueInstitutionsAcrossPeriod = masterDataInstitutionCount;
-
-        OutcomeStatus totalOutcomeStatus = (totalUniqueInstitutionsAcrossPeriod > institutionThreshold || 
-                                          totalTransactionsForPeriod >= transactionThreshold) 
-                                          ? OutcomeStatus.OK : OutcomeStatus.KO;
-
-        if (kpiB1ResultRef.get().getEvaluationType() == EvaluationType.TOTALE &&
-                totalOutcomeStatus == OutcomeStatus.KO) {
-            kpiB1ResultFinalOutcome.set(OutcomeStatus.KO);
-        }
 
         KpiB1DetailResultDTO totalDetailResult = new KpiB1DetailResultDTO();
         totalDetailResult.setInstanceId(instanceDTO.getId());
@@ -267,6 +256,17 @@ public class KpiB1Job extends QuartzJobBean {
         totalDetailResult.setTransactionDifferencePercentage(totalTransactionDifferencePercentage);
         totalDetailResult.setInstitutionOutcome(totalInstitutionOutcome);
         totalDetailResult.setTransactionOutcome(totalTransactionOutcome);
+
+        // Calculate total outcome using tolerance-adjusted results
+        OutcomeStatus totalOutcomeStatus = (totalInstitutionOutcome == OutcomeStatus.OK || totalTransactionOutcome == OutcomeStatus.OK) 
+                                           ? OutcomeStatus.OK : OutcomeStatus.KO;
+
+        // Only update final outcome for TOTALE evaluation type
+        // For MESE evaluation, the final outcome is already determined by monthly results above
+        if (kpiB1ResultRef.get().getEvaluationType() == EvaluationType.TOTALE &&
+                totalOutcomeStatus == OutcomeStatus.KO) {
+            kpiB1ResultFinalOutcome.set(OutcomeStatus.KO);
+        }
 
         detailResults.add(totalDetailResult);
 
