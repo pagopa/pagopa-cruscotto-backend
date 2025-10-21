@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.quartz.DisallowConcurrentExecution;
@@ -37,6 +38,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
 
+import com.nexigroup.pagopa.cruscotto.domain.AnagStation;
+import com.nexigroup.pagopa.cruscotto.repository.AnagStationRepository;
+
 @Component
 @AllArgsConstructor
 @DisallowConcurrentExecution
@@ -50,6 +54,7 @@ public class KpiB3Job extends QuartzJobBean {
     private final KpiConfigurationService kpiConfigurationService;
     private final AnagPlannedShutdownService anagPlannedShutdownService;
     private final PagopaNumeroStandinRepository pagopaNumeroStandinRepository;
+    private final AnagStationRepository anagStationRepository;
     private final KpiB3DataService kpiB3DataService;
     private final Scheduler scheduler;
 
@@ -116,17 +121,43 @@ public class KpiB3Job extends QuartzJobBean {
                         LOGGER.info("Configuration - Eligibility threshold: {}, Exclude planned shutdown: {}, Exclude unplanned shutdown: {}", 
                                    eligibilityThreshold, excludePlannedShutdown, excludeUnplannedShutdown);
 
-                        // 1. Retrieve Stand-In data from standin_number table
+                        // 1. Get partner stations to filter Stand-In data correctly
+                        List<AnagStation> partnerStations = anagStationRepository.findByAnagPartnerFiscalCode(
+                            instanceDTO.getPartnerFiscalCode()
+                        );
+                        
+                        if (partnerStations.isEmpty()) {
+                            LOGGER.warn("No stations found for partner {}, skipping KPI B.3 calculation", 
+                                      instanceDTO.getPartnerFiscalCode());
+                            return;
+                        }
+                        
+                        // Create list of station codes for filtering
+                        List<String> partnerStationCodes = partnerStations.stream()
+                            .map(AnagStation::getName)
+                            .collect(Collectors.toList());
+                        
+                        LOGGER.info("Partner {} has {} stations: {}", 
+                                   instanceDTO.getPartnerFiscalCode(), partnerStations.size(), partnerStationCodes);
+
+                        // 2. Retrieve Stand-In data from standin_number table
                         LocalDateTime startDateTime = instanceDTO.getAnalysisPeriodStartDate().atStartOfDay();
                         LocalDateTime endDateTime = instanceDTO.getAnalysisPeriodEndDate().atTime(23, 59, 59);
 
                         LOGGER.info("Querying Stand-In data from {} to {}", startDateTime, endDateTime);
                         
-                        List<PagopaNumeroStandin> standInData = pagopaNumeroStandinRepository.findByDateRange(
+                        // Get all Stand-In data for the period, then filter for partner stations
+                        List<PagopaNumeroStandin> allStandInData = pagopaNumeroStandinRepository.findByDateRange(
                             startDateTime, endDateTime
                         );
+                        
+                        // Filter to include only events for partner stations
+                        List<PagopaNumeroStandin> standInData = allStandInData.stream()
+                            .filter(event -> partnerStationCodes.contains(event.getStationCode()))
+                            .collect(Collectors.toList());
 
-                        LOGGER.info("Found {} Stand-In records for the analysis period", standInData.size());
+                        LOGGER.info("Found {} total Stand-In records, {} for partner {} stations", 
+                                   allStandInData.size(), standInData.size(), instanceDTO.getPartnerFiscalCode());
 
                         // 2. Filter data excluding shutdowns if configured
                         List<PagopaNumeroStandin> filteredStandInData = filterShutdownPeriods(
