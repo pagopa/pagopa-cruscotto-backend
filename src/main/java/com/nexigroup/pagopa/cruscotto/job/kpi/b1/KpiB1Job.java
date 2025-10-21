@@ -202,10 +202,10 @@ public class KpiB1Job extends QuartzJobBean {
             
             // Determine separate outcomes for institutions and transactions using tolerance against difference percentages
             OutcomeStatus institutionOutcome = monthlyUniqueInstitutions > institutionThreshold ? OutcomeStatus.OK : 
-                (institutionDifferencePercentage.abs().compareTo(institutionTolerance) <= 0 ? OutcomeStatus.OK : OutcomeStatus.KO);
+                (institutionDifferencePercentage.abs().compareTo(institutionTolerance.abs()) <= 0 ? OutcomeStatus.OK : OutcomeStatus.KO);
             OutcomeStatus transactionOutcome = monthlyTotalTransactions >= transactionThreshold ? OutcomeStatus.OK :
-                (transactionDifferencePercentage.abs().compareTo(transactionTolerance) <= 0 ? OutcomeStatus.OK : OutcomeStatus.KO);
-            
+                (transactionDifferencePercentage.abs().compareTo(transactionTolerance.abs()) <= 0 ? OutcomeStatus.OK : OutcomeStatus.KO);
+
             detailResult.setInstitutionDifference(institutionDifference);
             detailResult.setInstitutionDifferencePercentage(institutionDifferencePercentage);
             detailResult.setTransactionDifference(transactionDifference);
@@ -257,9 +257,9 @@ public class KpiB1Job extends QuartzJobBean {
         
         // Determine separate outcomes for institutions and transactions for total period using tolerance against difference percentages
         OutcomeStatus totalInstitutionOutcome = totalUniqueInstitutionsAcrossPeriod > institutionThreshold ? OutcomeStatus.OK : 
-            (totalInstitutionDifferencePercentage.abs().compareTo(institutionTolerance) <= 0 ? OutcomeStatus.OK : OutcomeStatus.KO);
+            (totalInstitutionDifferencePercentage.abs().compareTo(institutionTolerance.abs()) <= 0 ? OutcomeStatus.OK : OutcomeStatus.KO);
         OutcomeStatus totalTransactionOutcome = totalTransactionsForPeriod >= transactionThreshold ? OutcomeStatus.OK :
-            (totalTransactionDifferencePercentage.abs().compareTo(transactionTolerance) <= 0 ? OutcomeStatus.OK : OutcomeStatus.KO);
+            (totalTransactionDifferencePercentage.abs().compareTo(transactionTolerance.abs()) <= 0 ? OutcomeStatus.OK : OutcomeStatus.KO);
         
         totalDetailResult.setInstitutionDifference(totalInstitutionDifference);
         totalDetailResult.setInstitutionDifferencePercentage(totalInstitutionDifferencePercentage);
