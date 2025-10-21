@@ -208,7 +208,7 @@ public class KpiB1Job extends QuartzJobBean {
             detailResult.setInstitutionOutcome(institutionOutcome);
             detailResult.setTransactionOutcome(transactionOutcome);
 
-            monthlyOutcome = (institutionOutcome == OutcomeStatus.OK || transactionOutcome == OutcomeStatus.OK) 
+            OutcomeStatus monthlyOutcome = (institutionOutcome == OutcomeStatus.OK || transactionOutcome == OutcomeStatus.OK) 
                              ? OutcomeStatus.OK : OutcomeStatus.KO;
 
             detailResults.add(detailResult);
