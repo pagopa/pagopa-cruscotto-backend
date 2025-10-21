@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.nexigroup.pagopa.cruscotto.domain.QAnagStationAnagInstitution;
+import com.querydsl.jpa.JPAExpressions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -312,10 +314,11 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
         JPQLQuery<Tuple> query = queryBuilder.<Tuple>createQuery()
             .select(
                 QAnagPartner.anagPartner.id,
-                QAnagStation.anagStation.associatedInstitutes.sum().coalesce(0)
+                QAnagStationAnagInstitution.anagStationAnagInstitution.anagInstitution.id.countDistinct()
             )
-            .from(QAnagPartner.anagPartner)
-            .leftJoin(QAnagPartner.anagPartner.anagStations, QAnagStation.anagStation)
+            .from(QAnagStationAnagInstitution.anagStationAnagInstitution)
+            .innerJoin(QAnagStationAnagInstitution.anagStationAnagInstitution.anagStation, QAnagStation.anagStation) // solo stazioni collegate
+            .innerJoin(QAnagStation.anagStation.anagPartner, QAnagPartner.anagPartner) // solo partner con stazioni
             .groupBy(QAnagPartner.anagPartner.id);
 
         List<Tuple> results = query.fetch();
@@ -323,9 +326,8 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
         // Aggiorna il count per ogni partner
         results.forEach(result -> {
             Long partnerId = result.get(QAnagPartner.anagPartner.id);
-            Integer institutionsCountInt = result.get(QAnagStation.anagStation.associatedInstitutes.sum().coalesce(0));
-            Long institutionsCount = institutionsCountInt != null ? institutionsCountInt.longValue() : 0L;
-            
+            Long institutionsCount = result.get(QAnagStationAnagInstitution.anagStationAnagInstitution.anagInstitution.id.countDistinct());
+
             try {
                 updateInstitutionsCount(partnerId, institutionsCount);
                 log.debug("Updated partner {} with institutions count: {}", partnerId, institutionsCount);

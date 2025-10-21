@@ -31,7 +31,7 @@ import org.hibernate.annotations.DynamicUpdate;
  * providing detailed breakdown of API requests by partner, station, and fiscal code.
  */
 @Entity
-@Table(name = "PAGOPA_API_LOG_DRILLDOWN")
+@Table(name = "API_LOG_DRILLDOWN")
 @Getter
 @Setter
 @DynamicUpdate
@@ -43,8 +43,8 @@ public class PagopaApiLogDrilldown implements Serializable {
 
     @Id
     @Column(name = "CO_ID")
-    @SequenceGenerator(name = "SQCRUSC8_PAGOPAAPILOGDRILL", sequenceName = "SQCRUSC8_PAGOPAAPILOGDRILL", allocationSize = 1)
-    @GeneratedValue(generator = "SQCRUSC8_PAGOPAAPILOGDRILL", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "SQCRUSC8_API_LOG_DRILL", sequenceName = "SQCRUSC8_API_LOG_DRILL", allocationSize = 1)
+    @GeneratedValue(generator = "SQCRUSC8_API_LOG_DRILL", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @JsonIgnore
