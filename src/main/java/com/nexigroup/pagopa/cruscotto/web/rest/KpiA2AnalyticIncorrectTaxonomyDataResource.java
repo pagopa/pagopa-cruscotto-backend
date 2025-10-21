@@ -35,7 +35,7 @@ public class KpiA2AnalyticIncorrectTaxonomyDataResource {
      * @return the list of incorrect taxonomy records wrapped in ResponseEntity, or 404 Not Found if none exist
      */
     @GetMapping("kpi-a2-analytic-incorrect-taxonomy-data/{analyticDataId}")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.PAGOPA_TAXONOMY_AGGREGATE_POSITION_LIST + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.KPI_A2_ANALITIC_DATA_DETAIL + "\")")
     public ResponseEntity<List<KpiA2AnalyticIncorrectTaxonomyDataDTO>> getByAnalyticDataId(@PathVariable Long analyticDataId) {
         List<KpiA2AnalyticIncorrectTaxonomyDataDTO> kpiA2AnalyticIncTaxData = service.findByKpiA2AnalyticDataId(analyticDataId);
         return ResponseUtil.wrapOrNotFound(

@@ -40,7 +40,7 @@ public class PagoPaPaymentReceiptDrilldownResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the quarter-hour drilldown data
      */
     @GetMapping("/drilldown/instance/{instanceId}/station/{stationId}")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.PAGOPA_PAYMENT_RECEIPT_LIST + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.KPI_B9_ANALITIC_DATA_DETAIL + "\")")
     public ResponseEntity<List<PagoPaPaymentReceiptDrilldownDTO>> getQuarterHourDrilldown(
         @PathVariable Long instanceId,
         @PathVariable Long stationId,
