@@ -15,7 +15,7 @@ logging:
     ROOT: INFO
     com.nexigroup.pagopa.cruscotto: INFO
     # Disable Hibernate SQL logging
-    org.hibernate.SQL: ERROR
+    org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: ERROR
     org.hibernate.orm.jdbc.bind: ERROR
     org.hibernate.engine.jdbc.spi.SqlExceptionHelper: ERROR

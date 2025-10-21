@@ -174,11 +174,6 @@ public class KpiB1Job extends QuartzJobBean {
 
             totalTransactionsForPeriod += monthlyTotalTransactions;
 
-            // Determine monthly outcome: OK if institutions > threshold OR transactions >= threshold
-            OutcomeStatus monthlyOutcome = (monthlyUniqueInstitutions > institutionThreshold || 
-                                         monthlyTotalTransactions >= transactionThreshold) 
-                                         ? OutcomeStatus.OK : OutcomeStatus.KO;
-
             KpiB1DetailResultDTO detailResult = new KpiB1DetailResultDTO();
             detailResult.setInstanceId(instanceDTO.getId());
             detailResult.setInstanceModuleId(instanceModuleDTO.getId());
@@ -202,16 +197,19 @@ public class KpiB1Job extends QuartzJobBean {
             
             // Determine separate outcomes for institutions and transactions using tolerance against difference percentages
             OutcomeStatus institutionOutcome = monthlyUniqueInstitutions > institutionThreshold ? OutcomeStatus.OK : 
-                (institutionDifferencePercentage.abs().compareTo(institutionTolerance) <= 0 ? OutcomeStatus.OK : OutcomeStatus.KO);
+                (institutionDifferencePercentage.abs().compareTo(institutionTolerance.abs()) <= 0 ? OutcomeStatus.OK : OutcomeStatus.KO);
             OutcomeStatus transactionOutcome = monthlyTotalTransactions >= transactionThreshold ? OutcomeStatus.OK :
-                (transactionDifferencePercentage.abs().compareTo(transactionTolerance) <= 0 ? OutcomeStatus.OK : OutcomeStatus.KO);
-            
+                (transactionDifferencePercentage.abs().compareTo(transactionTolerance.abs()) <= 0 ? OutcomeStatus.OK : OutcomeStatus.KO);
+
             detailResult.setInstitutionDifference(institutionDifference);
             detailResult.setInstitutionDifferencePercentage(institutionDifferencePercentage);
             detailResult.setTransactionDifference(transactionDifference);
             detailResult.setTransactionDifferencePercentage(transactionDifferencePercentage);
             detailResult.setInstitutionOutcome(institutionOutcome);
             detailResult.setTransactionOutcome(transactionOutcome);
+
+            OutcomeStatus monthlyOutcome = (institutionOutcome == OutcomeStatus.OK || transactionOutcome == OutcomeStatus.OK) 
+                             ? OutcomeStatus.OK : OutcomeStatus.KO;
 
             detailResults.add(detailResult);
             if (kpiB1ResultRef.get().getEvaluationType().compareTo(EvaluationType.MESE) == 0 &&
@@ -224,15 +222,6 @@ public class KpiB1Job extends QuartzJobBean {
         // Add TOTALE detail result for the whole analysis period
         // Use master data institution count for total period evaluation
         int totalUniqueInstitutionsAcrossPeriod = masterDataInstitutionCount;
-
-        OutcomeStatus totalOutcomeStatus = (totalUniqueInstitutionsAcrossPeriod > institutionThreshold || 
-                                          totalTransactionsForPeriod >= transactionThreshold) 
-                                          ? OutcomeStatus.OK : OutcomeStatus.KO;
-
-        if (kpiB1ResultRef.get().getEvaluationType() == EvaluationType.TOTALE &&
-                totalOutcomeStatus == OutcomeStatus.KO) {
-            kpiB1ResultFinalOutcome.set(OutcomeStatus.KO);
-        }
 
         KpiB1DetailResultDTO totalDetailResult = new KpiB1DetailResultDTO();
         totalDetailResult.setInstanceId(instanceDTO.getId());
@@ -257,9 +246,9 @@ public class KpiB1Job extends QuartzJobBean {
         
         // Determine separate outcomes for institutions and transactions for total period using tolerance against difference percentages
         OutcomeStatus totalInstitutionOutcome = totalUniqueInstitutionsAcrossPeriod > institutionThreshold ? OutcomeStatus.OK : 
-            (totalInstitutionDifferencePercentage.abs().compareTo(institutionTolerance) <= 0 ? OutcomeStatus.OK : OutcomeStatus.KO);
+            (totalInstitutionDifferencePercentage.abs().compareTo(institutionTolerance.abs()) <= 0 ? OutcomeStatus.OK : OutcomeStatus.KO);
         OutcomeStatus totalTransactionOutcome = totalTransactionsForPeriod >= transactionThreshold ? OutcomeStatus.OK :
-            (totalTransactionDifferencePercentage.abs().compareTo(transactionTolerance) <= 0 ? OutcomeStatus.OK : OutcomeStatus.KO);
+            (totalTransactionDifferencePercentage.abs().compareTo(transactionTolerance.abs()) <= 0 ? OutcomeStatus.OK : OutcomeStatus.KO);
         
         totalDetailResult.setInstitutionDifference(totalInstitutionDifference);
         totalDetailResult.setInstitutionDifferencePercentage(totalInstitutionDifferencePercentage);
@@ -267,6 +256,17 @@ public class KpiB1Job extends QuartzJobBean {
         totalDetailResult.setTransactionDifferencePercentage(totalTransactionDifferencePercentage);
         totalDetailResult.setInstitutionOutcome(totalInstitutionOutcome);
         totalDetailResult.setTransactionOutcome(totalTransactionOutcome);
+
+        // Calculate total outcome using tolerance-adjusted results
+        OutcomeStatus totalOutcomeStatus = (totalInstitutionOutcome == OutcomeStatus.OK || totalTransactionOutcome == OutcomeStatus.OK) 
+                                           ? OutcomeStatus.OK : OutcomeStatus.KO;
+
+        // Only update final outcome for TOTALE evaluation type
+        // For MESE evaluation, the final outcome is already determined by monthly results above
+        if (kpiB1ResultRef.get().getEvaluationType() == EvaluationType.TOTALE &&
+                totalOutcomeStatus == OutcomeStatus.KO) {
+            kpiB1ResultFinalOutcome.set(OutcomeStatus.KO);
+        }
 
         detailResults.add(totalDetailResult);
 
