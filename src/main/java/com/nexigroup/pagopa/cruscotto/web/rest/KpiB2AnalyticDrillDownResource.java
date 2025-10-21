@@ -32,7 +32,7 @@ public class KpiB2AnalyticDrillDownResource {
      * @return the list of drilldown records wrapped in ResponseEntity, or 404 Not Found if none exist
      */
     @GetMapping("kpi-b2-analytic-drilldown/{analyticDataId}")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.PAGOPA_RECORDED_TIMEOUT_LIST + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.KPI_B2_ANALITIC_DATA_DETAIL + "\")")
     public ResponseEntity<List<KpiB2AnalyticDrillDownDTO>> getByAnalyticDataId(@PathVariable Long analyticDataId) {
         List<KpiB2AnalyticDrillDownDTO> drillDowns = service.findByKpiB2AnalyticDataId(analyticDataId);
         return ResponseUtil.wrapOrNotFound(

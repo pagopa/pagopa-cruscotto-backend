@@ -43,8 +43,8 @@ public class PagopaApiLogDrilldown implements Serializable {
 
     @Id
     @Column(name = "CO_ID")
-    @SequenceGenerator(name = "SQCRUSC8_PAGOPAAPILOGDRILL", sequenceName = "SQCRUSC8_PAGOPAAPILOGDRILL", allocationSize = 1)
-    @GeneratedValue(generator = "SQCRUSC8_PAGOPAAPILOGDRILL", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "SQCRUSC8_API_LOG_DRILL", sequenceName = "SQCRUSC8_API_LOG_DRILL", allocationSize = 1)
+    @GeneratedValue(generator = "SQCRUSC8_API_LOG_DRILL", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @JsonIgnore
