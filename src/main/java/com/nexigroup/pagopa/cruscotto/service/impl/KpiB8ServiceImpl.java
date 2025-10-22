@@ -420,7 +420,7 @@ public class KpiB8ServiceImpl implements KpiB8Service {
             KpiB8DetailResult fallbackDetailResult = totalDetailResult != null ? totalDetailResult : detailResults.get(0);
 
             // Ottieni i dati aggregati giornalieri dalla tabella pagopa_apilog
-            List<Object[]> dailyAggregatedData = pagopaApiLogRepository.calculateDailyAggregatedData(
+            List<Object[]> dailyAggregatedData = pagopaApiLogRepository.calculateDailyAggregatedDataAndApiGPDOrAca(
                 partnerFiscalCode, periodStart, periodEnd);
 
             if (dailyAggregatedData.isEmpty()) {
@@ -432,11 +432,11 @@ public class KpiB8ServiceImpl implements KpiB8Service {
             for (Object[] dayData : dailyAggregatedData) {
                 LocalDate evaluationDate = (LocalDate) dayData[0];
                 Long gpdAcaTotal = (Long) dayData[1];
-                Long paCreateTotal = (Long) dayData[2];
+                Long gpdAcaTotalKO = (Long) dayData[2];
 
                 // Gestione valori null
                 if (gpdAcaTotal == null) gpdAcaTotal = 0L;
-                if (paCreateTotal == null) paCreateTotal = 0L;
+                if (gpdAcaTotalKO == null) gpdAcaTotalKO = 0L;
 
                 // Trova il detail result corretto per questa data
                 KpiB8DetailResult appropriateDetailResult = findDetailResultForDate(evaluationDate, detailResultsByDate, fallbackDetailResult);
@@ -449,13 +449,13 @@ public class KpiB8ServiceImpl implements KpiB8Service {
                 dailyAnalyticData.setAnalysisDate(kpiB8Result.getAnalysisDate());
                 dailyAnalyticData.setEvaluationDate(evaluationDate);
                 dailyAnalyticData.setTotReq(gpdAcaTotal); // Numero Request GPD del giorno
-                dailyAnalyticData.setReqKO(paCreateTotal); // Numero Request CP del giorno
+                dailyAnalyticData.setReqKO(gpdAcaTotalKO); // Numero Request CP del giorno
                 dailyAnalyticData.setKpiB8DetailResult(appropriateDetailResult);
 
                 KpiB8AnalyticData savedAnalyticData = kpiB8AnalyticDataRepository.save(dailyAnalyticData);
 
                 log.debug("Saved KPI B.8 analytic data for date {} - GPD: {}, CP: {} (linked to detail result {})",
-                    evaluationDate, gpdAcaTotal, paCreateTotal, appropriateDetailResult.getId());
+                    evaluationDate, gpdAcaTotal, gpdAcaTotalKO, appropriateDetailResult.getId());
 
                 // Popola la tabella drilldown con i dati API log dettagliati per questa data
                 populateDrilldownData(savedAnalyticData, instance, evaluationDate);
@@ -526,7 +526,7 @@ public class KpiB8ServiceImpl implements KpiB8Service {
 
             // Query dettagliata per ottenere i singoli record API log per la data specifica
             // Questo crea uno snapshot storico dei dati al momento dell'analisi
-            List<Object[]> detailedApiLogData = pagopaApiLogRepository.findDetailedApiLogByPartnerAndDate(
+            List<Object[]> detailedApiLogData = pagopaApiLogRepository.findDetailedApiLogByPartnerAndDateGPDAndACA(
                 partnerFiscalCode, evaluationDate);
 
             if (detailedApiLogData.isEmpty()) {
