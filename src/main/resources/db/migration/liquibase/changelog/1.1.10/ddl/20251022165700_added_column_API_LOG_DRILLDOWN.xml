@@ -7,7 +7,7 @@
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
 
-  <changeSet id="20251016165700-2" author="system">
+  <changeSet id="20251022165700-2" author="system">
     <addColumn tableName="API_LOG_DRILLDOWN">
       <column name="CO_KPI_B8_ANALYTIC_DATA_ID" type="bigint" remarks="KPI B8 Analytic Data ID reference">
         <constraints nullable="true"/>
@@ -22,7 +22,7 @@
 
 
   </changeSet>
-  <changeSet id="20251016165700-3" author="system" context="ddl">
+  <changeSet id="20251022165700-3" author="system" context="ddl">
     <dropNotNullConstraint
       tableName="API_LOG_DRILLDOWN"
       columnName="CO_KPI_B4_ANALYTIC_DATA_ID"

@@ -10,5 +10,5 @@
   <!-- Create KPI B8 analytic data table -->
   <include file="1.1.10/ddl/20251020123000_rename_pagopa_table_and_constraints.xml" relativeToChangelogFile="true"/>
 
-
+  <include file="1.1.10/ddl/20251022165700_added_column_API_LOG_DRILLDOWN.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

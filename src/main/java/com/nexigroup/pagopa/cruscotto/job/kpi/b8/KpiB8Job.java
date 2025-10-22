@@ -226,7 +226,7 @@ public class KpiB8Job extends QuartzJobBean {
             return false;
         }
 
-        boolean hasData = pagopaApiLogRepository.existsDataInPeriod(periodStart, periodEnd);
+        boolean hasData = pagopaApiLogRepository.existsDataInPeriodAndApiInGPDOrACA(periodStart, periodEnd);
         LOGGER.info("API log data check for period {} to {}: {}",
             periodStart, periodEnd, hasData ? "DATA FOUND" : "NO DATA");
 
