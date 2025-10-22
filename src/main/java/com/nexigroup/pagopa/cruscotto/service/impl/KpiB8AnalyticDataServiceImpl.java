@@ -1,12 +1,9 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
 import com.nexigroup.pagopa.cruscotto.domain.Instance;
-import com.nexigroup.pagopa.cruscotto.domain.KpiB4AnalyticData;
 import com.nexigroup.pagopa.cruscotto.domain.KpiB8AnalyticData;
 import com.nexigroup.pagopa.cruscotto.repository.*;
-import com.nexigroup.pagopa.cruscotto.service.KpiB4AnalyticDataService;
 import com.nexigroup.pagopa.cruscotto.service.KpiB8AnalyticDataService;
-import com.nexigroup.pagopa.cruscotto.service.dto.KpiB4AnalyticDataDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB8AnalyticDataDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Service Implementation for managing {@link KpiB4AnalyticData}.
+ * Service Implementation for managing {@link KpiB8AnalyticData}.
  */
 @Service
 @Transactional

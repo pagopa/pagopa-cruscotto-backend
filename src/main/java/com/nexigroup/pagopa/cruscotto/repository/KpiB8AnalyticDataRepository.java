@@ -133,7 +133,7 @@ public interface KpiB8AnalyticDataRepository extends JpaRepository<KpiB8Analytic
      * @param toDate the end date
      * @return the list of dates with paCreate usage
      */
-    @Query("SELECT DISTINCT k.evaluationDate FROM KpiB8AnalyticData k WHERE k.instanceId = :instanceId AND k.analysisDate = :analysisDate AND k.evaluationDate BETWEEN :fromDate AND :toDate AND k.numRequestCp > 0 ORDER BY k.evaluationDate ASC")
+    @Query("SELECT DISTINCT k.evaluationDate FROM KpiB8AnalyticData k WHERE k.instanceId = :instanceId AND k.analysisDate = :analysisDate AND k.evaluationDate BETWEEN :fromDate AND :toDate AND k.totReq > 0 ORDER BY k.evaluationDate ASC")
     List<LocalDate> findDatesWithPaCreateUsage(
         @Param("instanceId") Long instanceId,
         @Param("analysisDate") LocalDate analysisDate,

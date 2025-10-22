@@ -26,7 +26,7 @@
         m.CO_ID,
         false,
         false,
-        0.0,
+        5.0,
         1.0,
         null,
         'TOTALE'

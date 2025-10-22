@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 
 /**
- * Service Implementation for managing KPI B.4 data.
+ * Service Implementation for managing KPI B.8 data.
  */
 @Service
 @Transactional
@@ -34,7 +34,7 @@ public class KpiB8DataServiceImpl implements KpiB8DataService {
     private final KpiB8DetailResultRepository kpiB8DetailResultRepository;
 
     /**
-     * Save KPI B.4 results in the three tables (Result, DetailResult, AnalyticData)
+     * Save KPI B.8 results in the three tables (Result, DetailResult, AnalyticData)
      * This method is transactional and will handle the delete and save operations correctly.
      *
      * @param instanceDTO the instance
@@ -48,7 +48,7 @@ public class KpiB8DataServiceImpl implements KpiB8DataService {
                                          KpiConfigurationDTO kpiConfigurationDTO, LocalDate analysisDate,
                                          OutcomeStatus outcome) {
 
-        LOGGER.info("Starting KPI B.4 calculation and save for instance: {}, module: {}, date: {}",
+        LOGGER.info("Starting KPI B.8 calculation and save for instance: {}, module: {}, date: {}",
                    instanceDTO.getId(), instanceModuleDTO.getId(), analysisDate);
 
         try {
@@ -56,7 +56,7 @@ public class KpiB8DataServiceImpl implements KpiB8DataService {
             Instance instance = instanceRepository.findById(instanceDTO.getId())
                 .orElseThrow(() -> new RuntimeException("Instance not found: " + instanceDTO.getId()));
 
-            // Eseguo il calcolo completo del KPI B.4 che salva automaticamente i risultati
+            // Eseguo il calcolo completo del KPI B.8 che salva automaticamente i risultati
             KpiB8ResultDTO result = kpiB8Service.executeKpiB8Calculation(instance);
 
             // CORREZIONE BUG: Gestisce l'outcome basato sul tipo di valutazione
@@ -79,19 +79,19 @@ public class KpiB8DataServiceImpl implements KpiB8DataService {
             // CORREZIONE BUG: Sovrascrivi l'outcome con quello corretto calcolato
             if (result.getId() != null) {
                 kpiB8Service.updateKpiB8ResultOutcome(result.getId(), finalOutcome);
-                LOGGER.info("Updated KPI B.4 result outcome from {} to {} for instance {} (evaluation type: {})",
+                LOGGER.info("Updated KPI B.8 result outcome from {} to {} for instance {} (evaluation type: {})",
                            result.getOutcome(), finalOutcome, instanceDTO.getId(),
                            kpiConfigurationDTO.getEvaluationType());
             }
 
-            LOGGER.info("KPI B.4 calculation completed successfully for instance: {}. Final outcome: {}",
+            LOGGER.info("KPI B.8 calculation completed successfully for instance: {}. Final outcome: {}",
                        instanceDTO.getId(), finalOutcome);
 
             return finalOutcome;
 
         } catch (Exception e) {
-            LOGGER.error("Error calculating KPI B.4 for instance: {} - {}", instanceDTO.getId(), e.getMessage());
-            throw new RuntimeException("KPI B.4 calculation failed: " + e.getMessage(), e);
+            LOGGER.error("Error calculating KPI B.8 for instance: {} - {}", instanceDTO.getId(), e.getMessage());
+            throw new RuntimeException("KPI B.8 calculation failed: " + e.getMessage(), e);
         }
     }
 }

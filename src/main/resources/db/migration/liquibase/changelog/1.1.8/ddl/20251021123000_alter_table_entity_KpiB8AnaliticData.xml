@@ -21,4 +21,15 @@
     </rollback>
   </changeSet>
 
+  <changeSet id="20251021123000-02" author="system" context="ddl">
+    <dropColumn tableName="KPI_B8_ANALYTIC_DATA" columnName="CO_INSTANCE_MODULE_ID"/>
+
+    <rollback>
+      <addColumn tableName="KPI_B8_ANALYTIC_DATA">
+        <column name="CO_INSTANCE_MODULE_ID" type="bigint">
+          <constraints nullable="false"/>
+        </column>
+      </addColumn>
+    </rollback>
+  </changeSet>
 </databaseChangeLog>
