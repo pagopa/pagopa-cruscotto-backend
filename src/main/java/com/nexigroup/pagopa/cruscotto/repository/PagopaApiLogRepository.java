@@ -68,6 +68,19 @@ public interface PagopaApiLogRepository extends JpaRepository<PagopaApiLog, Pago
     @Query("SELECT SUM(p.totReq) FROM PagopaApiLog p WHERE p.cfPartner = :cfPartner AND p.date BETWEEN :fromDate AND :toDate AND (p.api = 'GPD' OR p.api = 'ACA')")
     Long calculateTotalGpdAcaRequests(@Param("cfPartner") String cfPartner, @Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
 
+
+    /**
+     * Calculate aggregated GPD/ACA requests for a partner in a date range.
+     *
+     * @param cfPartner the partner CF
+     * @param fromDate the start date
+     * @param toDate the end date
+     * @return the total GPD/ACA requests
+     */
+    @Query("SELECT SUM(p.reqKo) FROM PagopaApiLog p WHERE p.cfPartner = :cfPartner AND p.date BETWEEN :fromDate AND :toDate AND (p.api = 'GPD' OR p.api = 'ACA')")
+    Long calculateTotalGpdAcaRequestsKO(@Param("cfPartner") String cfPartner, @Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
+
+
     /**
      * Calculate aggregated paCreate requests for a partner in a date range.
      *

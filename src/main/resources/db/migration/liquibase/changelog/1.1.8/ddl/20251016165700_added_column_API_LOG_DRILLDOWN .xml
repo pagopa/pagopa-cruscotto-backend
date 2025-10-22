@@ -22,4 +22,18 @@
 
 
   </changeSet>
+  <changeSet id="20251016165700-3" author="system" context="ddl">
+    <dropNotNullConstraint
+      tableName="API_LOG_DRILLDOWN"
+      columnName="CO_KPI_B4_ANALYTIC_DATA_ID"
+      columnDataType="bigint"/>
+
+    <rollback>
+      <addNotNullConstraint
+        tableName="API_LOG_DRILLDOWN"
+        columnName="CO_KPI_B4_ANALYTIC_DATA_ID"
+        columnDataType="bigint"/>
+    </rollback>
+  </changeSet>
+
 </databaseChangeLog>

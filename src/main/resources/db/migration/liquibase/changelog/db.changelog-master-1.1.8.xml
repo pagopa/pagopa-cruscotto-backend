@@ -22,6 +22,13 @@
   <!-- Add foreign key constraints for KPI B8 analytic data -->
   <include file="1.1.8/ddl/20251016165600_added_entity_constraints_KpiB8AnalyticData.xml" relativeToChangelogFile="true"/>
 
+  <include file="1.1.8/ddl/20251016165700_added_column_API_LOG_DRILLDOWN .xml" relativeToChangelogFile="true"/>
+
+  <include file="1.1.8/ddl/20251020123000_alter_table_entity_KpiB8DetailResult.xml" relativeToChangelogFile="true"/>
+
+  <include file="1.1.8/ddl/20251021123000_alter_table_entity_KpiB8AnaliticData.xml" relativeToChangelogFile="true"/>
+
+  <include file="1.1.8/ddl/20251021124000_alter_table_entity_KpiB8DetailResult.xml" relativeToChangelogFile="true"/>
 
   <!-- Create KPI B8 result table -->
   <include file="1.1.8/dml/20251016120000_added_kpi_b8_configuration.xml" relativeToChangelogFile="true"/>

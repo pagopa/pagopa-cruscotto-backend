@@ -134,14 +134,14 @@ public class KpiB8ServiceImpl implements KpiB8Service {
             createAndSaveDetailResults(savedResult, instance);
             createAndSaveAnalyticData(savedResult, instance);
 
-            log.info("KPI B.4 calculated for instance {}: {}% success rate (threshold: {}%), status: {} - Detail and analytic data saved",
+            log.info("KPI B.8 calculated for instance {}: {}% success rate (threshold: {}%), status: {} - Detail and analytic data saved",
                 instance.getId(), successPercentage, threshold, outcomeStatus);
 
             return kpiB8ResultMapper.toDto(savedResult);
 
         } catch (Exception e) {
-            log.error("Error calculating KPI B.4 for instance {}: {}", instance.getId(), e.getMessage(), e);
-            throw new RuntimeException("Failed to calculate KPI B.4", e);
+            log.error("Error calculating KPI B.8 for instance {}: {}", instance.getId(), e.getMessage(), e);
+            throw new RuntimeException("Failed to calculate KPI B.8", e);
         }
     }
 
@@ -188,7 +188,7 @@ public class KpiB8ServiceImpl implements KpiB8Service {
     @Transactional(readOnly = true)
     public List<KpiB8DetailResultDTO> getKpiB8DetailResults(String instanceId, LocalDateTime analysisDate) {
         log.debug("Finding KPI B8 detail results for instance {} and date {}", instanceId, analysisDate);
-        // For KPI B.4, details are typically aggregated by API type or time period
+        // For KPI B.8, details are typically aggregated by API type or time period
         // This would be implemented based on specific requirements for detailed breakdown
         return List.of();
     }
@@ -257,17 +257,17 @@ public class KpiB8ServiceImpl implements KpiB8Service {
 
     /**
      * Crea e salva i record KpiB8DetailResult con dati dettagliati per stazione.
-     * Questa tabella contiene il dettaglio dei risultati KPI B.4 per ogni stazione dell'ente.
+     * Questa tabella contiene il dettaglio dei risultati KPI B.8 per ogni stazione dell'ente.
      */
     private void createAndSaveDetailResults(KpiB8Result kpiB8Result, Instance instance) {
-        log.info("Creating KPI B.4 detail results for instance {} (partner-level aggregated)", instance.getId());
+        log.info("Creating KPI B.8 detail results for instance {} (partner-level aggregated)", instance.getId());
 
         try {
-            // Verifica che il partner abbia stazioni (necessario per calcolare il KPI B.4)
+            // Verifica che il partner abbia stazioni (necessario per calcolare il KPI B.8)
             List<AnagStation> stations = anagStationRepository.findByAnagPartnerFiscalCode(instance.getPartner().getFiscalCode());
 
             if (stations.isEmpty()) {
-                log.warn("SKIPPING KPI B.4 detail results for partner {} - No stations found. Cannot calculate KPI B.4 without stations.",
+                log.warn("SKIPPING KPI B.8 detail results for partner {} - No stations found. Cannot calculate KPI B.8 without stations.",
                     instance.getPartner().getFiscalCode());
                 return; // Salta il partner se non ha stazioni associate
             }
@@ -277,7 +277,7 @@ public class KpiB8ServiceImpl implements KpiB8Service {
             LocalDate periodEnd = instance.getAnalysisPeriodEndDate();
             String partnerFiscalCode = instance.getPartner().getFiscalCode();
 
-            // Ottieni la prima stazione per il campo obbligatorio (il KPI B.4 è a livello partner, non per singola stazione)
+            // Ottieni la prima stazione per il campo obbligatorio (il KPI B.8 è a livello partner, non per singola stazione)
             AnagStation primaryStation = stations.get(0);
 
             // Calcola tutti i mesi nel periodo di analisi
@@ -301,17 +301,17 @@ public class KpiB8ServiceImpl implements KpiB8Service {
 
                 // Calcola GPD e CP separatamente per questo mese
                 Long monthlyGpdCalls = pagopaApiLogRepository.calculateTotalGpdAcaRequests(partnerFiscalCode, monthStart, monthEnd);
-                Long monthlyCpCalls = pagopaApiLogRepository.calculateTotalPaCreateRequests(partnerFiscalCode, monthStart, monthEnd);
+                Long monthlyGpdKOCalls = pagopaApiLogRepository.calculateTotalGpdAcaRequestsKO(partnerFiscalCode, monthStart, monthEnd);
 
                 if (monthlyGpdCalls == null) monthlyGpdCalls = 0L;
-                if (monthlyCpCalls == null) monthlyCpCalls = 0L;
+                if (monthlyGpdKOCalls == null) monthlyGpdKOCalls = 0L;
 
-                totalApiCallsAllMonths += (monthlyGpdCalls + monthlyCpCalls);
+                totalApiCallsAllMonths += (monthlyGpdCalls + monthlyGpdKOCalls);
 
                 // Calcola percentuale CP per questo mese
                 BigDecimal monthlyPercentageCp = BigDecimal.ZERO;
                 if (monthlyGpdCalls > 0) {
-                    monthlyPercentageCp = new BigDecimal(monthlyCpCalls)
+                    monthlyPercentageCp = new BigDecimal(monthlyGpdKOCalls)
                         .multiply(new BigDecimal("100"))
                         .divide(new BigDecimal(monthlyGpdCalls), 2, RoundingMode.HALF_UP);
                 }
@@ -330,26 +330,26 @@ public class KpiB8ServiceImpl implements KpiB8Service {
                 monthlyDetailResult.setEvaluationStartDate(monthStart);
                 monthlyDetailResult.setEvaluationEndDate(monthEnd);
                 monthlyDetailResult.setReqKO(monthlyGpdCalls); // Totale GPD+ACA del mese
-                monthlyDetailResult.setTotReq(monthlyCpCalls); // Totale CP del mese
+                monthlyDetailResult.setTotReq(monthlyGpdKOCalls); // Totale CP del mese
                 monthlyDetailResult.setPerKO(monthlyPercentageCp); // % CP del mese
                 monthlyDetailResult.setOutcome(calculateDetailResultOutcome(monthlyPercentageCp, kpiB8Result)); // Calcola outcome specifico per questo detail result
 
                 kpiB8DetailResultRepository.save(monthlyDetailResult);
-                log.debug("Saved monthly KPI B.4 detail result for partner {} in {}: {} GPD, {} CP",
-                    partnerFiscalCode, yearMonth, monthlyGpdCalls, monthlyCpCalls);
+                log.debug("Saved monthly KPI B.8 detail result for partner {} in {}: {} GPD, {} CP",
+                    partnerFiscalCode, yearMonth, monthlyGpdCalls, monthlyGpdKOCalls);
             }
 
             // Calcola totali per l'intero periodo
             Long totalGpdCalls = pagopaApiLogRepository.calculateTotalGpdAcaRequests(partnerFiscalCode, periodStart, periodEnd);
-            Long totalCpCalls = pagopaApiLogRepository.calculateTotalPaCreateRequests(partnerFiscalCode, periodStart, periodEnd);
+            Long totalGpdKOCalls = pagopaApiLogRepository.calculateTotalGpdAcaRequestsKO(partnerFiscalCode, periodStart, periodEnd);
 
             if (totalGpdCalls == null) totalGpdCalls = 0L;
-            if (totalCpCalls == null) totalCpCalls = 0L;
+            if (totalGpdKOCalls == null) totalGpdKOCalls = 0L;
 
             // Calcola percentuale CP per l'intero periodo
             BigDecimal totalPercentageCp = BigDecimal.ZERO;
             if (totalGpdCalls > 0) {
-                totalPercentageCp = new BigDecimal(totalCpCalls)
+                totalPercentageCp = new BigDecimal(totalGpdKOCalls)
                     .multiply(new BigDecimal("100"))
                     .divide(new BigDecimal(totalGpdCalls), 2, RoundingMode.HALF_UP);
             }
@@ -368,18 +368,18 @@ public class KpiB8ServiceImpl implements KpiB8Service {
             totalDetailResult.setEvaluationStartDate(periodStart);
             totalDetailResult.setEvaluationEndDate(periodEnd);
             totalDetailResult.setTotReq(totalGpdCalls); // Totale GPD+ACA dell'intero periodo
-            totalDetailResult.setReqKO(totalCpCalls); // Totale CP dell'intero periodo
+            totalDetailResult.setReqKO(totalGpdKOCalls); // Totale CP dell'intero periodo
             totalDetailResult.setPerKO(totalPercentageCp); // % CP dell'intero periodo
             totalDetailResult.setOutcome(calculateDetailResultOutcome(totalPercentageCp, kpiB8Result)); // Calcola outcome specifico per questo detail result
 
             kpiB8DetailResultRepository.save(totalDetailResult);
 
-            log.info("Created {} monthly + 1 total KPI B.4 detail results for partner {} with {} total API calls",
+            log.info("Created {} monthly + 1 total KPI B.8 detail results for partner {} with {} total API calls",
                 monthsInPeriod.size(), partnerFiscalCode, totalApiCallsAllMonths);
 
         } catch (Exception e) {
-            log.error("Error creating KPI B.4 detail results for instance {}: {}", instance.getId(), e.getMessage(), e);
-            throw new RuntimeException("Failed to create KPI B.4 detail results", e);
+            log.error("Error creating KPI B.8 detail results for instance {}: {}", instance.getId(), e.getMessage(), e);
+            throw new RuntimeException("Failed to create KPI B.8 detail results", e);
         }
     }
 
@@ -388,7 +388,7 @@ public class KpiB8ServiceImpl implements KpiB8Service {
      * Questa tabella contiene l'andamento giornaliero delle chiamate API per l'analisi di drill-down.
      */
     private void createAndSaveAnalyticData(KpiB8Result kpiB8Result, Instance instance) {
-        log.info("Creating KPI B.4 analytic data for instance {}", instance.getId());
+        log.info("Creating KPI B.8 analytic data for instance {}", instance.getId());
 
         try {
             LocalDate periodStart = instance.getAnalysisPeriodStartDate();
@@ -399,7 +399,7 @@ public class KpiB8ServiceImpl implements KpiB8Service {
             List<KpiB8DetailResult> detailResults = kpiB8DetailResultRepository.findByKpiB8Result(kpiB8Result);
 
             if (detailResults.isEmpty()) {
-                log.warn("No detail results found for KPI B.4 result {}, cannot create analytic data", kpiB8Result.getId());
+                log.warn("No detail results found for KPI B.8 result {}, cannot create analytic data", kpiB8Result.getId());
                 return;
             }
 
@@ -454,19 +454,19 @@ public class KpiB8ServiceImpl implements KpiB8Service {
 
                 KpiB8AnalyticData savedAnalyticData = kpiB8AnalyticDataRepository.save(dailyAnalyticData);
 
-                log.debug("Saved KPI B.4 analytic data for date {} - GPD: {}, CP: {} (linked to detail result {})",
+                log.debug("Saved KPI B.8 analytic data for date {} - GPD: {}, CP: {} (linked to detail result {})",
                     evaluationDate, gpdAcaTotal, paCreateTotal, appropriateDetailResult.getId());
 
                 // Popola la tabella drilldown con i dati API log dettagliati per questa data
                 populateDrilldownData(savedAnalyticData, instance, evaluationDate);
             }
 
-            log.info("Created {} days of KPI B.4 analytic data for instance {} with proper detail result associations",
+            log.info("Created {} days of KPI B.8 analytic data for instance {} with proper detail result associations",
                 dailyAggregatedData.size(), instance.getId());
 
         } catch (Exception e) {
-            log.error("Error creating KPI B.4 analytic data for instance {}: {}", instance.getId(), e.getMessage(), e);
-            throw new RuntimeException("Failed to create KPI B.4 analytic data", e);
+            log.error("Error creating KPI B.8 analytic data for instance {}: {}", instance.getId(), e.getMessage(), e);
+            throw new RuntimeException("Failed to create KPI B.8 analytic data", e);
         }
     }
 
@@ -511,14 +511,14 @@ public class KpiB8ServiceImpl implements KpiB8Service {
 
     /**
      * Popola la tabella drilldown PAGOPA_API_LOG_DRILLDOWN con i dati dettagliati delle API
-     * per preservare uno snapshot storico al momento dell'analisi KPI B.4.
+     * per preservare uno snapshot storico al momento dell'analisi KPI B.8.
      *
      * @param analyticData il record KpiB8AnalyticData salvato
      * @param instance l'istanza analizzata
      * @param evaluationDate la data di valutazione
      */
     private void populateDrilldownData(KpiB8AnalyticData analyticData, Instance instance, LocalDate evaluationDate) {
-        log.debug("Populating drilldown data for KPI B.4 analytic data {} on date {}",
+        log.debug("Populating drilldown data for KPI B.8 analytic data {} on date {}",
             analyticData.getId(), evaluationDate);
 
         try {
@@ -585,11 +585,11 @@ public class KpiB8ServiceImpl implements KpiB8Service {
                     totalRequests, okRequests, koRequests);
             }
 
-            log.debug("Populated {} drilldown records for KPI B.4 analytic data {} on date {}",
+            log.debug("Populated {} drilldown records for KPI B.8 analytic data {} on date {}",
                 detailedApiLogData.size(), analyticData.getId(), evaluationDate);
 
         } catch (Exception e) {
-            log.error("Error populating drilldown data for KPI B.4 analytic data {} on date {}: {}",
+            log.error("Error populating drilldown data for KPI B.8 analytic data {} on date {}: {}",
                 analyticData.getId(), evaluationDate, e.getMessage(), e);
             // Non interrompere il flusso principale per errori nel drilldown
         }

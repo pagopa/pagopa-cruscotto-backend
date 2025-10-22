@@ -66,15 +66,13 @@ public class PagopaApiLogDrilldown implements Serializable {
     private AnagStation station;
 
     @JsonIgnore
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CO_KPI_B4_ANALYTIC_DATA_ID", nullable = false)
+    @JoinColumn(name = "CO_KPI_B4_ANALYTIC_DATA_ID")
     private KpiB4AnalyticData kpiB4AnalyticData;
 
     @JsonIgnore
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CO_KPI_B8_ANALYTIC_DATA_ID", nullable = false)
+    @JoinColumn(name = "CO_KPI_B8_ANALYTIC_DATA_ID")
     private KpiB8AnalyticData kpiB8AnalyticData;
 
 

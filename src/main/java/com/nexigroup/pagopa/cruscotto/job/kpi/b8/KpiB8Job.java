@@ -290,19 +290,19 @@ public class KpiB8Job extends QuartzJobBean {
 
         // Query per contare le request dalla tabella pagopa_apilog usando il repository
         Long totalGpdAcaRequests = pagopaApiLogRepository.calculateTotalGpdAcaRequests(partnerFiscalCode, periodStart, periodEnd);
-        Long totalPaCreateRequests = pagopaApiLogRepository.calculateTotalPaCreateRequests(partnerFiscalCode, periodStart, periodEnd);
+        Long totalKOGpdAcaRequests = pagopaApiLogRepository.calculateTotalGpdAcaRequestsKO(partnerFiscalCode, periodStart, periodEnd);
 
         // Gestione valori null (nel caso non ci siano dati)
         if (totalGpdAcaRequests == null) totalGpdAcaRequests = 0L;
-        if (totalPaCreateRequests == null) totalPaCreateRequests = 0L;
+        if (totalKOGpdAcaRequests == null) totalKOGpdAcaRequests = 0L;
 
-        LOGGER.info("API requests for partner {}: GPD/ACA={}, paCreate={}",
-            partnerFiscalCode, totalGpdAcaRequests, totalPaCreateRequests);
+        LOGGER.info("API requests for partner {}: TOT  GPD/ACA={}, KO GPD/ACA={}",
+            partnerFiscalCode, totalGpdAcaRequests, totalKOGpdAcaRequests);
 
         // Calcola la percentuale di paCreate rispetto al totale
         double paCreatePercentage = 0.0;
         if (totalGpdAcaRequests > 0) {
-            paCreatePercentage = (totalPaCreateRequests.doubleValue() / totalGpdAcaRequests.doubleValue()) * 100.0;
+            paCreatePercentage = (totalKOGpdAcaRequests.doubleValue() / totalGpdAcaRequests.doubleValue()) * 100.0;
         }
 
         // Recupera soglia e tolleranza dalla configurazione
