@@ -126,17 +126,37 @@ public class KpiB4Job extends QuartzJobBean {
         LOGGER.info("Processing instance module {} for KPI B.4", instanceModuleDTO.getId());
 
         try {
+            // Update instance status from "planned" to "in progress"
+            instanceService.updateInstanceStatusInProgress(instanceDTO.getId());
+
             // REQUISITO: Verifica prerequisiti - controllo presenza dati API log per il periodo
             if (!hasApiLogDataForPeriod(instanceDTO)) {
                 LOGGER.warn("SKIPPING KPI B.4 calculation for instance {} - No API log data for analysis period {} to {}", 
                            instanceDTO.getId(), 
                            instanceDTO.getAnalysisPeriodStartDate(),
                            instanceDTO.getAnalysisPeriodEndDate());
+                
+                // BUG FIX: Anche quando non ci sono dati, trigger il job per completare lo stato dell'istanza
+                try {
+                    JobDetail job = scheduler.getJobDetail(JobKey.jobKey(JobConstant.CALCULATE_STATE_INSTANCE_JOB, "DEFAULT"));
+
+                    Trigger trigger = TriggerBuilder.newTrigger()
+                        .usingJobData("instanceId", instanceDTO.getId())
+                        .withSchedule(SimpleScheduleBuilder.simpleSchedule().withMisfireHandlingInstructionFireNow().withRepeatCount(0))
+                        .forJob(job)
+                        .build();
+
+                    scheduler.scheduleJob(trigger);
+
+                    LOGGER.info("Triggered calculateStateInstanceJob for instance: {} (no data scenario)", instanceDTO.getId());
+
+                } catch (Exception e) {
+                    LOGGER.error("Error triggering calculateStateInstanceJob for instance {}: {}", 
+                               instanceDTO.getId(), e.getMessage(), e);
+                }
+                
                 return; // Non eseguire l'analisi se non ci sono dati
             }
-
-            // Update instance status from "planned" to "in progress"
-            instanceService.updateInstanceStatusInProgress(instanceDTO.getId());
 
             // Calcola la data di analisi basata sulla configurazione  
             LocalDate analysisDate = calculateAnalysisDate(instanceDTO, instanceModuleDTO);
