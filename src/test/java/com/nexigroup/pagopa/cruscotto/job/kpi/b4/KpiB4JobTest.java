@@ -54,6 +54,9 @@ class KpiB4JobTest {
 
     @Mock
     private JobExecutionContext jobExecutionContext;
+    
+    @Mock
+    private com.nexigroup.pagopa.cruscotto.repository.PagopaApiLogRepository pagopaApiLogRepository;
 
     @InjectMocks
     private KpiB4Job kpiB4Job;
@@ -197,5 +200,44 @@ class KpiB4JobTest {
         instanceModuleDTO.setInstanceId(1L);
         instanceModuleDTO.setModuleCode(ModuleCode.B4.code);
         return instanceModuleDTO;
+    }
+
+    @Test
+    void executeInternal_whenNoApiLogDataForPeriod_shouldCompleteSuccessfully() throws Exception {
+        // Given
+        List<InstanceDTO> instanceDTOs = Arrays.asList(createTestInstanceDTOWithPeriod());
+        KpiConfigurationDTO kpiConfig = createTestKpiConfigurationDTO();
+        InstanceModuleDTO instanceModule = createTestInstanceModuleDTO();
+
+        when(instanceService.findInstanceToCalculate(ModuleCode.B4, 10))
+                .thenReturn(instanceDTOs);
+        when(kpiConfigurationService.findKpiConfigurationByCode(ModuleCode.B4.code))
+                .thenReturn(Optional.of(kpiConfig));
+        when(instanceModuleService.findOne(1L, kpiConfig.getModuleId()))
+                .thenReturn(Optional.of(instanceModule));
+        
+        // Mock no API log data for the period
+        when(pagopaApiLogRepository.existsDataInPeriod(any(), any())).thenReturn(false);
+
+        // When
+        kpiB4Job.executeInternal(jobExecutionContext);
+
+        // Then
+        verify(instanceService).findInstanceToCalculate(ModuleCode.B4, 10);
+        verify(kpiConfigurationService).findKpiConfigurationByCode(ModuleCode.B4.code);
+        verify(instanceModuleService).findOne(1L, kpiConfig.getModuleId());
+        verify(pagopaApiLogRepository).existsDataInPeriod(any(), any());
+        verify(instanceService).updateInstanceStatusInProgress(1L);
+        verify(kpiB4DataService).saveKpiB4Results(any(), any(), any(), any(), any());
+        verify(instanceModuleService).updateAutomaticOutcome(1L, any());
+    }
+
+    private InstanceDTO createTestInstanceDTOWithPeriod() {
+        InstanceDTO instanceDTO = new InstanceDTO();
+        instanceDTO.setId(1L);
+        instanceDTO.setInstanceIdentification("TEST_INSTANCE");
+        instanceDTO.setAnalysisPeriodStartDate(java.time.LocalDate.of(2023, 1, 1));
+        instanceDTO.setAnalysisPeriodEndDate(java.time.LocalDate.of(2023, 1, 31));
+        return instanceDTO;
     }
 }
