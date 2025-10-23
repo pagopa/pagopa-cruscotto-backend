@@ -6,7 +6,10 @@ import com.nexigroup.pagopa.cruscotto.domain.KpiB5AnalyticData;
 import com.nexigroup.pagopa.cruscotto.domain.KpiB5AnalyticDrillDown;
 import com.nexigroup.pagopa.cruscotto.domain.KpiB5DetailResult;
 import com.nexigroup.pagopa.cruscotto.domain.KpiB5Result;
+import com.nexigroup.pagopa.cruscotto.domain.KpiConfiguration;
 import com.nexigroup.pagopa.cruscotto.domain.PagopaSpontaneous;
+import com.nexigroup.pagopa.cruscotto.domain.SpontaneousDrilldown;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.SpontaneousPayments;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
@@ -15,7 +18,9 @@ import com.nexigroup.pagopa.cruscotto.repository.KpiB5AnalyticDataRepository;
 import com.nexigroup.pagopa.cruscotto.repository.KpiB5AnalyticDrillDownRepository;
 import com.nexigroup.pagopa.cruscotto.repository.KpiB5DetailResultRepository;
 import com.nexigroup.pagopa.cruscotto.repository.KpiB5ResultRepository;
+import com.nexigroup.pagopa.cruscotto.repository.KpiConfigurationRepository;
 import com.nexigroup.pagopa.cruscotto.repository.PagopaSpontaneousRepository;
+import com.nexigroup.pagopa.cruscotto.repository.SpontaneousDrilldownRepository;
 import com.nexigroup.pagopa.cruscotto.service.KpiB5Service;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB5AnalyticDataDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB5DetailResultDTO;
@@ -50,6 +55,8 @@ public class KpiB5ServiceImpl implements KpiB5Service {
     private final KpiB5AnalyticDataRepository kpiB5AnalyticDataRepository;
     private final KpiB5AnalyticDrillDownRepository kpiB5AnalyticDrillDownRepository;
     private final PagopaSpontaneousRepository pagopaSpontaneousRepository;
+    private final SpontaneousDrilldownRepository spontaneousDrilldownRepository;
+    private final KpiConfigurationRepository kpiConfigurationRepository;
     private final InstanceRepository instanceRepository;
     private final InstanceModuleRepository instanceModuleRepository;
 
@@ -110,10 +117,12 @@ public class KpiB5ServiceImpl implements KpiB5Service {
     @Override
     public void deleteAllByInstanceModuleId(Long instanceModuleId) {
         log.debug("Request to delete all KpiB5Result by instanceModuleId : {}", instanceModuleId);
-        kpiB5ResultRepository.deleteAllByInstanceModuleId(instanceModuleId);
-        kpiB5DetailResultRepository.deleteAllByInstanceModuleId(instanceModuleId);
-        kpiB5AnalyticDataRepository.deleteAllByInstanceModuleId(instanceModuleId);
+        // Delete in correct order to respect foreign key constraints
+        spontaneousDrilldownRepository.deleteByInstanceModuleId(instanceModuleId);
         kpiB5AnalyticDrillDownRepository.deleteAllByInstanceModuleId(instanceModuleId);
+        kpiB5AnalyticDataRepository.deleteAllByInstanceModuleId(instanceModuleId);
+        kpiB5DetailResultRepository.deleteAllByInstanceModuleId(instanceModuleId);
+        kpiB5ResultRepository.deleteAllByInstanceModuleId(instanceModuleId);
     }
 
     @Override
@@ -140,10 +149,12 @@ public class KpiB5ServiceImpl implements KpiB5Service {
     @Transactional(readOnly = true)
     public List<PagopaSpontaneiDTO> findDrillDownByAnalyticDataId(Long analyticDataId) {
         log.debug("Request to get drill-down data by analyticDataId : {}", analyticDataId);
-        return kpiB5AnalyticDrillDownRepository.selectByKpiB5AnalyticDataId(analyticDataId)
+        
+        // Use historical snapshot data from SpontaneousDrilldown table
+        return spontaneousDrilldownRepository.findByKpiB5AnalyticDataId(analyticDataId)
             .stream()
             .map(drillDown -> {
-                // Convert drill-down entity to PagopaSpontaneiDTO
+                // Convert historical snapshot to PagopaSpontaneiDTO
                 PagopaSpontaneiDTO dto = new PagopaSpontaneiDTO();
                 dto.setId(drillDown.getId());
                 dto.setKpiB5AnalyticDataId(drillDown.getKpiB5AnalyticData().getId());
@@ -162,7 +173,7 @@ public class KpiB5ServiceImpl implements KpiB5Service {
     }
 
     @Override
-    public void calculateKpiB5(Long instanceId, Long instanceModuleId, LocalDate analysisDate) {
+    public OutcomeStatus calculateKpiB5(Long instanceId, Long instanceModuleId, LocalDate analysisDate) {
         log.info("Starting KPI B.5 calculation for instanceId: {}, instanceModuleId: {}, analysisDate: {}", 
                  instanceId, instanceModuleId, analysisDate);
 
@@ -170,11 +181,16 @@ public class KpiB5ServiceImpl implements KpiB5Service {
             // 1. Elimina eventuali dati precedenti per questo instanceModuleId
             deleteAllByInstanceModuleId(instanceModuleId);
 
-            // 2. Ottieni tutti i partner PagoPA
+            // 2. Recupera configurazione KPI B.5 per soglia e tolleranza
+            KpiConfiguration configuration = kpiConfigurationRepository
+                .findByModuleCode(ModuleCode.B5.code)
+                .orElseThrow(() -> new RuntimeException("KPI B.5 configuration not found"));
+
+            // 3. Ottieni tutti i partner PagoPA
             List<PagopaSpontaneous> allPartners = pagopaSpontaneousRepository.findAll();
             log.debug("Found {} total partners", allPartners.size());
 
-            // 3. Calcola statistiche globali
+            // 4. Calcola statistiche globali
             long partnersWithoutSpontaneous = allPartners.stream()
                 .filter(partner -> Boolean.FALSE.equals(partner.getSpontaneousPayment()))
                 .count();
@@ -186,23 +202,33 @@ public class KpiB5ServiceImpl implements KpiB5Service {
                     .divide(BigDecimal.valueOf(allPartners.size()), 2, RoundingMode.HALF_UP);
             }
 
-            // 4. Determina outcome basato su soglie configurabili (per ora hardcoded)
-            // TODO: Recuperare da configurazione KPI
-            BigDecimal thresholdIndex = BigDecimal.ZERO; // 0% soglia di default
-            BigDecimal toleranceIndex = BigDecimal.ZERO; // 0% tolleranza di default
+            // 5. Recupera soglie dalla configurazione
+            Double thresholdValue = configuration.getEligibilityThreshold(); // Soglia configurabile
+            Double toleranceValue = configuration.getTolerance(); // Tolleranza configurabile
+            
+            // Valori di default se non configurati (come negli altri KPI)
+            BigDecimal thresholdIndex = thresholdValue != null ? BigDecimal.valueOf(thresholdValue) : BigDecimal.ZERO;
+            BigDecimal toleranceIndex = toleranceValue != null ? BigDecimal.valueOf(toleranceValue) : BigDecimal.ZERO;
+            
+            // 6. Determina outcome: OK se %_senza_spontanei <= (soglia + tolleranza)
             OutcomeStatus outcome = determineOutcomeWithThresholds(percentageWithoutSpontaneous, thresholdIndex, toleranceIndex);
+            
+            log.debug("KPI B.5 calculation: partnersTotal={}, partnersWithoutSpontaneous={}, percentage={}%, threshold={}%, tolerance={}%, outcome={}", 
+                     allPartners.size(), partnersWithoutSpontaneous, percentageWithoutSpontaneous, thresholdValue, toleranceValue, outcome);
 
-            // 5. Crea risultato principale
+            // 7. Crea risultato principale
             KpiB5Result mainResult = createMainResult(instanceId, instanceModuleId, analysisDate, thresholdIndex, toleranceIndex, outcome);
 
-            // 6. Crea dettaglio aggregato
+            // 8. Crea dettaglio aggregato
             createDetailResult(mainResult, instanceId, instanceModuleId, allPartners, analysisDate);
 
-            log.info("KPI B.5 calculation completed successfully for instanceModuleId: {}", instanceModuleId);
+            log.info("KPI B.5 calculation completed successfully for instanceModuleId: {} with outcome: {}", instanceModuleId, outcome);
+            
+            return outcome;
 
         } catch (Exception e) {
             log.error("Error calculating KPI B.5 for instanceModuleId: {}", instanceModuleId, e);
-            throw new RuntimeException("Failed to calculate KPI B.5", e);
+            return OutcomeStatus.KO;
         }
     }
 
@@ -277,8 +303,11 @@ public class KpiB5ServiceImpl implements KpiB5Service {
 
         analyticData = kpiB5AnalyticDataRepository.save(analyticData);
 
-        // Crea drill-down per ogni partner
+        // Crea drill-down per ogni partner (legacy)
         createDrillDownData(analyticData, allPartners);
+        
+        // Crea snapshot dei dati per drill-down storico
+        createSpontaneousSnapshot(analyticData, allPartners);
     }
 
     private void createDrillDownData(KpiB5AnalyticData analyticData, List<PagopaSpontaneous> partners) {
@@ -303,5 +332,38 @@ public class KpiB5ServiceImpl implements KpiB5Service {
 
             kpiB5AnalyticDrillDownRepository.save(drillDown);
         }
+    }
+
+    /**
+     * Creates a historical snapshot of pagopa_spontaneous data at the time of KPI calculation.
+     * This ensures that drilldown data remains consistent over time even if the original data changes.
+     */
+    private void createSpontaneousSnapshot(KpiB5AnalyticData analyticData, List<PagopaSpontaneous> partners) {
+        log.debug("Creating spontaneous snapshot for analyticData: {}, partners count: {}", 
+                  analyticData.getId(), partners.size());
+        
+        for (PagopaSpontaneous partner : partners) {
+            SpontaneousDrilldown snapshot = new SpontaneousDrilldown();
+            
+            // Link to all related entities for consistency and cleanup
+            snapshot.setInstance(analyticData.getInstance());
+            snapshot.setInstanceModule(analyticData.getInstanceModule());
+            snapshot.setKpiB5AnalyticData(analyticData);
+            
+            // Copy current state as snapshot
+            snapshot.setPartnerId(partner.getId());
+            snapshot.setPartnerName(null); // PagopaSpontaneous doesn't have partnerName
+            snapshot.setPartnerFiscalCode(partner.getCfPartner());
+            snapshot.setStationCode(partner.getStation());
+            snapshot.setFiscalCode(partner.getStation());
+            snapshot.setSpontaneousPayment(partner.getSpontaneousPayment());
+            
+            // Note: getSpontaneousPayments() is a @Transient method that derives enum from boolean
+            // No need to set enum separately as it's computed from spontaneousPayment boolean
+
+            spontaneousDrilldownRepository.save(snapshot);
+        }
+        
+        log.debug("Spontaneous snapshot created successfully for {} partners", partners.size());
     }
 }

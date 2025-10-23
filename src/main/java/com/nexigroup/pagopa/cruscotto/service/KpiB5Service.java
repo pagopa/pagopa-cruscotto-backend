@@ -103,5 +103,5 @@ public interface KpiB5Service {
      * @param instanceModuleId the instance module ID
      * @param analysisDate the date of analysis
      */
-    void calculateKpiB5(Long instanceId, Long instanceModuleId, LocalDate analysisDate);
+    com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus calculateKpiB5(Long instanceId, Long instanceModuleId, LocalDate analysisDate);
 }
