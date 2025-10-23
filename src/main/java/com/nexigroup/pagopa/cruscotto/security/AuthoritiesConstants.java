@@ -175,6 +175,12 @@ public final class AuthoritiesConstants {
     
     public static final String KPI_B4_ANALITIC_DATA_DETAIL = "GTW.KPI_B4_ANALITIC_DATA_DETAIL";
     
+    public static final String KPI_B6_RESULT_DETAIL = "GTW.KPI_B6_RESULT_DETAIL";
+    
+    public static final String KPI_B6_DETAIL_RESULT_DETAIL = "GTW.KPI_B6_DETAIL_RESULT_DETAIL";
+    
+    public static final String KPI_B6_ANALITIC_DATA_DETAIL = "GTW.KPI_B6_ANALITIC_DATA_DETAIL";
+    
     public static final String KPI_CONFIGURATION_LIST = "GTW.KPI_CONFIGURATION_LIST";    
     
     public static final String KPI_CONFIGURATION_DETAIL = "GTW.KPI_CONFIGURATION_DETAIL";

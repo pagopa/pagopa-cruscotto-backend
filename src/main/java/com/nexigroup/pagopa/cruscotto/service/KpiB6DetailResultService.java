@@ -50,6 +50,14 @@ public interface KpiB6DetailResultService {
     List<KpiB6DetailResultDTO> findAll();
 
     /**
+     * Get all the kpiB6DetailResults by result id.
+     *
+     * @param resultId the result id.
+     * @return the list of entities.
+     */
+    List<KpiB6DetailResultDTO> findByResultId(Long resultId);
+
+    /**
      * Get the "id" kpiB6DetailResult.
      *
      * @param id the id of the entity.

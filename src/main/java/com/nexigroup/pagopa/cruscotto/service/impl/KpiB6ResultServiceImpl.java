@@ -13,7 +13,6 @@ import com.nexigroup.pagopa.cruscotto.service.mapper.KpiB6ResultMapper;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -109,6 +108,15 @@ public class KpiB6ResultServiceImpl implements KpiB6ResultService {
     public List<KpiB6ResultDTO> findAll() {
         LOGGER.debug("Request to get all KpiB6Results");
         return kpiB6ResultRepository.findAll().stream()
+            .map(kpiB6ResultMapper::toDto)
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<KpiB6ResultDTO> findByInstanceModuleId(Long instanceModuleId) {
+        LOGGER.debug("Request to get KpiB6Results by instanceModuleId : {}", instanceModuleId);
+        return kpiB6ResultRepository.selectByInstanceModuleId(instanceModuleId).stream()
             .map(kpiB6ResultMapper::toDto)
             .collect(Collectors.toList());
     }

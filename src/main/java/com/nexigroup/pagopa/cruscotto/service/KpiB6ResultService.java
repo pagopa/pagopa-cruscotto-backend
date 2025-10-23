@@ -42,6 +42,14 @@ public interface KpiB6ResultService {
     List<KpiB6ResultDTO> findAll();
 
     /**
+     * Get all the kpiB6Results by instanceModule id.
+     *
+     * @param instanceModuleId the instanceModule id.
+     * @return the list of entities.
+     */
+    List<KpiB6ResultDTO> findByInstanceModuleId(Long instanceModuleId);
+
+    /**
      * Get the "id" kpiB6Result.
      *
      * @param id the id of the entity.
