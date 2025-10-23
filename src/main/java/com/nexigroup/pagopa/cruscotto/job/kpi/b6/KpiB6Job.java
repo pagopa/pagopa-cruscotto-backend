@@ -41,10 +41,9 @@ public class KpiB6Job extends QuartzJobBean {
     private final KpiConfigurationService kpiConfigurationService;
     private final StationDataService stationDataService;
     private final KpiB6Processor kpiB6Processor;
-    // TODO: Add service interfaces for B.6 persistence
-    // private final KpiB6ResultService kpiB6ResultService;
-    // private final KpiB6DetailResultService kpiB6DetailResultService;
-    // private final KpiB6AnalyticDataService kpiB6AnalyticDataService;
+    private final KpiB6ResultService kpiB6ResultService;
+    private final KpiB6DetailResultService kpiB6DetailResultService;
+    private final KpiB6AnalyticDataService kpiB6AnalyticDataService;
     private final Scheduler scheduler;
 
     @Override
@@ -117,8 +116,10 @@ public class KpiB6Job extends QuartzJobBean {
                 .orElseThrow(() -> new NullPointerException("KPI B.6 InstanceModule not found"));
 
         // Delete previous data for this instanceModule
-        // TODO: Implement cleanup
         LOGGER.info("Deletion phase for any previous processing in error");
+        kpiB6ResultService.deleteAllByInstanceModuleId(instanceModuleDTO.getId());
+        kpiB6DetailResultService.deleteAllByInstanceModule(instanceModuleDTO.getId());
+        kpiB6AnalyticDataService.deleteAllByInstanceModuleId(instanceModuleDTO.getId());
 
         // Fetch station data for the partner
         List<StationDataDTO> stationData = stationDataService.findActiveStationsForPartner(
@@ -145,22 +146,19 @@ public class KpiB6Job extends QuartzJobBean {
 
         // Process using the new framework
         KpiB6ResultDTO kpiResult = kpiB6Processor.processKpiResult(executionContext);
-        // TODO: Save kpiResult
-        // kpiResult = kpiB6ResultService.save(kpiResult);
+        kpiResult = kpiB6ResultService.save(kpiResult);
         
         // Update context with saved result ID
-        executionContext.setAdditionalData("kpiResultId", kpiResult.getId());
+        additionalParams.put("kpiResultId", kpiResult.getId());
 
         List<KpiB6DetailResultDTO> detailResults = kpiB6Processor.processDetailResults(executionContext, kpiResult);
-        // TODO: Save detail results
-        // detailResults = kpiB6DetailResultService.saveAll(detailResults);
+        detailResults = kpiB6DetailResultService.saveAll(detailResults);
 
         // Process analytic data for monthly results
         for (KpiB6DetailResultDTO detailResult : detailResults) {
             if (detailResult.getEvaluationType() == com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType.MESE) {
                 List<KpiB6AnalyticDataDTO> analyticData = kpiB6Processor.processAnalyticData(executionContext, detailResult);
-                // TODO: Save analytic data
-                // kpiB6AnalyticDataService.saveAll(analyticData);
+                kpiB6AnalyticDataService.saveAll(analyticData);
             }
         }
 
@@ -171,9 +169,8 @@ public class KpiB6Job extends QuartzJobBean {
         LOGGER.info("Final outcome: {}", finalOutcome);
 
         // Update result and instance module with final outcome
-        // TODO: Implement outcome updates
-        // kpiB6ResultService.updateOutcome(kpiResult.getId(), finalOutcome);
-        // instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(), finalOutcome);
+        kpiB6ResultService.updateOutcome(kpiResult.getId(), finalOutcome);
+        instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(), finalOutcome);
 
         // Trigger state calculation job
         triggerStateCalculationJob(instanceDTO.getId());

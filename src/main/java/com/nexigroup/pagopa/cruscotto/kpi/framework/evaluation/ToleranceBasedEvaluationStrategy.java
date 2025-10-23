@@ -11,18 +11,22 @@ import java.math.BigDecimal;
  * Example: tolerance=1.00 means 99% compliance is acceptable
  */
 @Component
-public class ToleranceBasedEvaluationStrategy implements KpiEvaluationStrategy<BigDecimal> {
+public class ToleranceBasedEvaluationStrategy implements KpiEvaluationStrategy<Number> {
 
     @Override
-    public OutcomeStatus evaluate(BigDecimal actualPercentage, BigDecimal targetPercentage, BigDecimal tolerance, BigDecimal differencePercentage) {
+    public OutcomeStatus evaluate(Number actualPercentage, Number targetPercentage, BigDecimal tolerance, BigDecimal differencePercentage) {
         if (actualPercentage == null || tolerance == null) {
             return OutcomeStatus.KO;
         }
         
-        // Calculate minimum acceptable percentage: target - tolerance
-        BigDecimal minimumAcceptable = targetPercentage.subtract(tolerance);
+        // Convert to BigDecimal for precise calculations
+        BigDecimal actual = new BigDecimal(actualPercentage.toString());
+        BigDecimal target = new BigDecimal(targetPercentage.toString());
         
-        return actualPercentage.compareTo(minimumAcceptable) >= 0 ? OutcomeStatus.OK : OutcomeStatus.KO;
+        // Calculate minimum acceptable percentage: target - tolerance
+        BigDecimal minimumAcceptable = target.subtract(tolerance);
+        
+        return actual.compareTo(minimumAcceptable) >= 0 ? OutcomeStatus.OK : OutcomeStatus.KO;
     }
 
     @Override

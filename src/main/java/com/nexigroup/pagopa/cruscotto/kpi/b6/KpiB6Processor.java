@@ -6,6 +6,7 @@ import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.kpi.b6.aggregation.StationPaymentOptionsAggregator;
 import com.nexigroup.pagopa.cruscotto.kpi.framework.AbstractKpiProcessor;
 import com.nexigroup.pagopa.cruscotto.kpi.framework.KpiExecutionContext;
+import com.nexigroup.pagopa.cruscotto.kpi.framework.evaluation.KpiEvaluationStrategy;
 import com.nexigroup.pagopa.cruscotto.kpi.framework.evaluation.ToleranceBasedEvaluationStrategy;
 import com.nexigroup.pagopa.cruscotto.service.dto.*;
 import org.springframework.stereotype.Component;
@@ -25,12 +26,10 @@ import java.util.List;
 public class KpiB6Processor extends AbstractKpiProcessor<KpiB6ResultDTO, KpiB6DetailResultDTO, KpiB6AnalyticDataDTO> {
     
     private final StationPaymentOptionsAggregator aggregator;
-    private final ToleranceBasedEvaluationStrategy toleranceEvaluationStrategy;
     
     public KpiB6Processor(StationPaymentOptionsAggregator aggregator, ToleranceBasedEvaluationStrategy toleranceEvaluationStrategy) {
         super(toleranceEvaluationStrategy);
         this.aggregator = aggregator;
-        this.toleranceEvaluationStrategy = toleranceEvaluationStrategy;
     }
     
     @Override
@@ -147,7 +146,7 @@ public class KpiB6Processor extends AbstractKpiProcessor<KpiB6ResultDTO, KpiB6De
         BigDecimal tolerance = kpiResult.getToleranceThreshold();
         BigDecimal actualPercentage = detailResult.getCompliancePercentage();
         
-        OutcomeStatus outcome = toleranceEvaluationStrategy.evaluate(
+        OutcomeStatus outcome = evaluationStrategy.evaluate(
                 actualPercentage, targetPercentage, tolerance, null);
         detailResult.setOutcome(outcome);
         
