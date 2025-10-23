@@ -8,20 +8,28 @@ import java.util.List;
  * Service Interface for managing PagopaApiLogDrilldown.
  */
 public interface PagopaApiLogDrilldownService {
-    
+
     /**
      * Save a PagopaApiLogDrilldown.
      * @param pagopaAPILogDTO the entity to save.
      * @return the persisted entity.
      */
     PagopaAPILogDTO save(PagopaAPILogDTO pagopaAPILogDTO);
-    
+
     /**
      * Find all drilldown records for a specific KPI B.4 analytic data ID.
      * @param analyticDataId the KPI B.4 analytic data ID
      * @return the list of entities.
      */
     List<PagopaAPILogDTO> findByKpiB4AnalyticDataId(Long analyticDataId);
+
+    /**
+     * Find all drilldown records for a specific KPI B.4 analytic data ID.
+     * @param analyticDataId the KPI B.4 analytic data ID
+     * @return the list of entities.
+     */
+    List<PagopaAPILogDTO> findByKpiB8AnalyticDataId(Long analyticDataId);
+
 
     /**
      * Find all drilldown records for a specific instance and analysis date.
