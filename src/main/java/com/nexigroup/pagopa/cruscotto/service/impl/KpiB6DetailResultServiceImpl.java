@@ -114,6 +114,15 @@ public class KpiB6DetailResultServiceImpl implements KpiB6DetailResultService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<KpiB6DetailResultDTO> findByResultId(Long resultId) {
+        LOGGER.debug("Request to get KpiB6DetailResults by resultId : {}", resultId);
+        return kpiB6DetailResultRepository.findAllByKpiB6ResultId(resultId).stream()
+            .map(kpiB6DetailResultMapper::toDto)
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Optional<KpiB6DetailResultDTO> findOne(Long id) {
         LOGGER.debug("Request to get KpiB6DetailResult : {}", id);
         return kpiB6DetailResultRepository.findById(id)

@@ -50,6 +50,14 @@ public interface KpiB6AnalyticDataService {
     List<KpiB6AnalyticDataDTO> findAll();
 
     /**
+     * Get all the kpiB6AnalyticData by detail result id.
+     *
+     * @param detailResultId the detail result id.
+     * @return the list of entities.
+     */
+    List<KpiB6AnalyticDataDTO> findByDetailResultId(Long detailResultId);
+
+    /**
      * Get the "id" kpiB6AnalyticData.
      *
      * @param id the id of the entity.

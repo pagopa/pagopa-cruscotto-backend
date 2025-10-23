@@ -114,6 +114,15 @@ public class KpiB6AnalyticDataServiceImpl implements KpiB6AnalyticDataService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<KpiB6AnalyticDataDTO> findByDetailResultId(Long detailResultId) {
+        LOGGER.debug("Request to get KpiB6AnalyticData by detailResultId : {}", detailResultId);
+        return kpiB6AnalyticDataRepository.findAllByKpiB6DetailResultId(detailResultId).stream()
+            .map(kpiB6AnalyticDataMapper::toDto)
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Optional<KpiB6AnalyticDataDTO> findOne(Long id) {
         LOGGER.debug("Request to get KpiB6AnalyticData : {}", id);
         return kpiB6AnalyticDataRepository.findById(id)
