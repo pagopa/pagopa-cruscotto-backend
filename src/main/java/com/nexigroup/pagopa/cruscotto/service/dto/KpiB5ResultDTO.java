@@ -27,10 +27,10 @@ public class KpiB5ResultDTO implements Serializable {
     private LocalDate analysisDate;
 
     @NotNull
-    private BigDecimal thresholdIndex;
+    private BigDecimal eligibilityThreshold;
 
     @NotNull
-    private BigDecimal toleranceIndex;
+    private BigDecimal tolerance;
 
     @NotNull
     private OutcomeStatus outcome;
@@ -58,8 +58,8 @@ public class KpiB5ResultDTO implements Serializable {
             ", instanceId=" + instanceId +
             ", instanceModuleId=" + instanceModuleId +
             ", analysisDate=" + analysisDate +
-            ", thresholdIndex=" + thresholdIndex +
-            ", toleranceIndex=" + toleranceIndex +
+            ", eligibilityThreshold=" + eligibilityThreshold +
+            ", tolerance=" + tolerance +
             ", outcome=" + outcome +
             "}";
     }

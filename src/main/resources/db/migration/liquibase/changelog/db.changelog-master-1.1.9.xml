@@ -20,6 +20,9 @@
     <include file="1.1.9/ddl/20251017142000_added_entity_KpiB5AnalyticData.xml" relativeToChangelogFile="true"/>
     <include file="1.1.9/ddl/20251017143000_added_entity_KpiB5AnalyticDrillDown.xml" relativeToChangelogFile="true"/>
     <include file="1.1.9/ddl/20251017145000_add_foreign_keys_kpi_b5.xml" relativeToChangelogFile="true"/>
+    
+    <!-- KPI B5 Historical Snapshot table -->
+    <include file="1.1.9/20251023140000_added_entity_SpontaneousDrilldown.xml" relativeToChangelogFile="true"/>
 
     <!-- KPI B5 authorizations (DML) -->
     <include file="1.1.9/dml/20251023120000_add_kpi_b5_authorizations.xml" relativeToChangelogFile="true"/>

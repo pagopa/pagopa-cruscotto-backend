@@ -117,12 +117,14 @@ public class KpiB5Job extends QuartzJobBean {
                        instanceDTO.getAnalysisPeriodStartDate(), instanceDTO.getAnalysisPeriodEndDate());
 
             // Implementazione logica KPI B.5 - Calcolo utilizzo pagamenti spontanei
-            kpiB5Service.calculateKpiB5(instanceDTO.getId(), instanceModuleDTO.getId(), analysisDate);
+            // Calculate KPI B.5 and get the actual outcome
+            com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus outcome = 
+                kpiB5Service.calculateKpiB5(instanceDTO.getId(), instanceModuleDTO.getId(), analysisDate);
 
-            // Get the calculated outcome from the service
-            // For now, we'll use OK as default - the real outcome is calculated inside the service
-            instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(), 
-                com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus.OK);
+            // Update instance module with the actual calculated outcome
+            instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(), outcome);
+            
+            LOGGER.info("Instance module {} updated with outcome: {}", instanceModuleDTO.getId(), outcome);
             
             // Trigger calculateStateInstanceJob to update instance state
             try {
@@ -155,8 +157,13 @@ public class KpiB5Job extends QuartzJobBean {
     }
 
     private LocalDate calculateAnalysisDate(InstanceDTO instanceDTO, InstanceModuleDTO instanceModuleDTO) {
-        // Per KPI B.5, usiamo la data di fine del periodo di analisi
-        // dato che analizziamo lo stato corrente dei pagamenti spontanei
-        return instanceDTO.getAnalysisPeriodEndDate();
+        // La data di analisi è la data prevista dall'istanza o la data odierna
+        LocalDate analysisDate = instanceDTO.getPredictedDateAnalysis();
+        if (analysisDate == null) {
+            analysisDate = LocalDate.now();
+        }
+        
+        LOGGER.debug("Analysis date calculated for instance {}: {}", instanceDTO.getId(), analysisDate);
+        return analysisDate;
     }
 }

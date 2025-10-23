@@ -77,8 +77,8 @@ public class KpiB5ResultServiceImpl implements KpiB5ResultService {
         kpiB5Result.setInstance(instance);
         kpiB5Result.setInstanceModule(instanceModule);
         kpiB5Result.setAnalysisDate(kpiB5ResultDTO.getAnalysisDate());
-        kpiB5Result.setThresholdIndex(kpiB5ResultDTO.getThresholdIndex());
-        kpiB5Result.setToleranceIndex(kpiB5ResultDTO.getToleranceIndex());
+        kpiB5Result.setThresholdIndex(kpiB5ResultDTO.getEligibilityThreshold());
+        kpiB5Result.setToleranceIndex(kpiB5ResultDTO.getTolerance());
         kpiB5Result.setOutcome(kpiB5ResultDTO.getOutcome());
 
         return kpiB5Result;
@@ -116,8 +116,8 @@ public class KpiB5ResultServiceImpl implements KpiB5ResultService {
         dto.setInstanceId(kpiB5Result.getInstance().getId());
         dto.setInstanceModuleId(kpiB5Result.getInstanceModule().getId());
         dto.setAnalysisDate(kpiB5Result.getAnalysisDate());
-        dto.setThresholdIndex(kpiB5Result.getThresholdIndex());
-        dto.setToleranceIndex(kpiB5Result.getToleranceIndex());
+        dto.setEligibilityThreshold(kpiB5Result.getThresholdIndex());
+        dto.setTolerance(kpiB5Result.getToleranceIndex());
         dto.setOutcome(kpiB5Result.getOutcome());
         return dto;
     }
