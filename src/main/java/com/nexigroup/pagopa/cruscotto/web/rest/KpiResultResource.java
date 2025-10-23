@@ -1,5 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.web.rest;
 
+import com.nexigroup.pagopa.cruscotto.service.*;
+import com.nexigroup.pagopa.cruscotto.service.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,15 +20,12 @@ import com.nexigroup.pagopa.cruscotto.service.KpiB2ResultService;
 import com.nexigroup.pagopa.cruscotto.service.KpiB9ResultService;
 import com.nexigroup.pagopa.cruscotto.service.KpiB3ResultService;
 import com.nexigroup.pagopa.cruscotto.service.KpiB4ResultService;
-import com.nexigroup.pagopa.cruscotto.service.KpiB5ResultService;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA1ResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA2ResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB1ResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2ResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB9ResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB3ResultDTO;
-import com.nexigroup.pagopa.cruscotto.service.dto.KpiB4ResultDTO;
-import com.nexigroup.pagopa.cruscotto.service.dto.KpiB5ResultDTO;
 
 import java.util.List;
 import java.util.Optional;
@@ -57,29 +56,35 @@ public class KpiResultResource {
 
     private final KpiB3ResultService kpiB3ResultService;
 
+    private final KpiB8ResultService kpiB8ResultService;
+
+
     private final KpiB4ResultService kpiB4ResultService;
 
     private final KpiB5ResultService kpiB5ResultService;
 
     public KpiResultResource(
-        KpiA1ResultService kpiA1ResultService,
-        KpiB1ResultService kpiB1ResultService,
-        KpiB2ResultService kpiB2ResultService,
-        KpiA2ResultService kpiA2ResultService,
-        KpiB9ResultService kpiB9ResultService,
-        KpiB3ResultService kpiB3ResultService,
-        KpiB4ResultService kpiB4ResultService,
-        KpiB5ResultService kpiB5ResultService
-    ) {
-        this.kpiA1ResultService = kpiA1ResultService;
-        this.kpiB1ResultService = kpiB1ResultService;
-        this.kpiB2ResultService = kpiB2ResultService;
-        this.kpiA2ResultService = kpiA2ResultService;
-        this.kpiB9ResultService = kpiB9ResultService;
-        this.kpiB3ResultService = kpiB3ResultService;
-        this.kpiB4ResultService = kpiB4ResultService;
-        this.kpiB5ResultService = kpiB5ResultService;
-    }
+            KpiA1ResultService kpiA1ResultService,
+            KpiB1ResultService kpiB1ResultService,
+            KpiB2ResultService kpiB2ResultService,
+            KpiA2ResultService kpiA2ResultService,
+            KpiB9ResultService kpiB9ResultService,
+            KpiB3ResultService kpiB3ResultService,
+            KpiB4ResultService kpiB4ResultService,
+            KpiB5ResultService kpiB5ResultService,
+            KpiB8ResultService kpiB8ResultService
+
+            ) {
+            this.kpiA1ResultService = kpiA1ResultService;
+            this.kpiB1ResultService = kpiB1ResultService;
+            this.kpiB2ResultService = kpiB2ResultService;
+            this.kpiA2ResultService = kpiA2ResultService;
+            this.kpiB9ResultService = kpiB9ResultService;
+            this.kpiB3ResultService = kpiB3ResultService;
+            this.kpiB8ResultService = kpiB8ResultService;
+            this.kpiB4ResultService = kpiB4ResultService;
+            this.kpiB5ResultService = kpiB5ResultService;
+        }
 
     /**
      * {@code GET  /kpi-results/a1/module/{moduleId}} : get the kpiA1ResultDTOs associated to the "id" instanceModule of type A1.
@@ -164,6 +169,22 @@ public class KpiResultResource {
         List<KpiB3ResultDTO> kpiB3Results = kpiB3ResultService.findByInstanceModuleId(moduleId);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(kpiB3Results));
     }
+
+    /**
+     * {@code GET  /kpi-results/b3/module/{moduleId}} : get the kpiB3ResultDTOs associated to the "id" instanceModule of type B3.
+     *
+     * @param moduleId the id of the instanceModuleDTO the kpi results to retrieve are associated to
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the KpiB3ResultDTOs, or with status {@code 404 (Not Found)}.
+     */
+    @GetMapping("kpi-results/b8/module/{moduleId}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.KPI_B3_RESULT_DETAIL + "\")")
+    public ResponseEntity<List<KpiB8ResultDTO>> getKpiB8Results(@PathVariable Long moduleId) {
+        log.debug("REST request to get kpi results of instanceModule : {} of type b8", moduleId);
+        List<KpiB8ResultDTO> kpiB3Results = kpiB8ResultService.findByInstanceModuleId(moduleId);
+        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(kpiB3Results));
+    }
+
+
 
     /**
      * {@code GET  /kpi-results/b4/module/{moduleId}} : get the kpiB4ResultDTOs associated to the "id" instanceModule of type B4.
