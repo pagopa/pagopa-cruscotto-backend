@@ -129,10 +129,17 @@ public class KpiB5Job extends QuartzJobBean {
             // Trigger calculateStateInstanceJob to update instance state
             try {
                 JobDetail job = scheduler.getJobDetail(JobKey.jobKey(JobConstant.CALCULATE_STATE_INSTANCE_JOB, "DEFAULT"));
+                
+                if (job == null) {
+                    LOGGER.error("CalculateStateInstanceJob not found in scheduler");
+                    return;
+                }
 
                 Trigger trigger = TriggerBuilder.newTrigger()
                     .usingJobData("instanceId", instanceDTO.getId())
-                    .withSchedule(SimpleScheduleBuilder.simpleSchedule().withMisfireHandlingInstructionFireNow().withRepeatCount(0))
+                    .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                        .withMisfireHandlingInstructionFireNow()
+                        .withRepeatCount(0))
                     .forJob(job)
                     .build();
 
@@ -149,10 +156,34 @@ public class KpiB5Job extends QuartzJobBean {
 
         } catch (Exception e) {
             LOGGER.error("Error processing instance module {} for KPI B.5: {}", instanceModuleDTO.getId(), e.getMessage(), e);
-            // Update outcome to KO in case of failure
-            instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(), 
-                com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus.KO);
-            throw e;
+            
+            try {
+                // Update outcome to KO in case of failure
+                instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(), 
+                    com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus.KO);
+                
+                // Trigger calculateStateInstanceJob even in case of error
+                JobDetail job = scheduler.getJobDetail(JobKey.jobKey(JobConstant.CALCULATE_STATE_INSTANCE_JOB, "DEFAULT"));
+                
+                if (job != null) {
+                    Trigger trigger = TriggerBuilder.newTrigger()
+                        .usingJobData("instanceId", instanceDTO.getId())
+                        .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                            .withMisfireHandlingInstructionFireNow()
+                            .withRepeatCount(0))
+                        .forJob(job)
+                        .build();
+
+                    scheduler.scheduleJob(trigger);
+                    LOGGER.info("Triggered calculateStateInstanceJob for instance {} after error", instanceDTO.getId());
+                } else {
+                    LOGGER.error("CalculateStateInstanceJob not found in scheduler after error");
+                }
+                
+            } catch (Exception schedulingException) {
+                LOGGER.error("Failed to trigger calculateStateInstanceJob after error for instance {}: {}", 
+                           instanceDTO.getId(), schedulingException.getMessage(), schedulingException);
+            }
         }
     }
 
