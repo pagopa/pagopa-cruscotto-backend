@@ -27,20 +27,11 @@ import java.util.List;
 public class KpiB6Processor extends AbstractKpiProcessor<KpiResultDTO, KpiDetailResultDTO, KpiAnalyticDataDTO> {
     
     private final StationPaymentOptionsAggregator aggregator;
-    private final GenericKpiResultService genericKpiResultService;
-    private final GenericKpiDetailResultService genericKpiDetailResultService;
-    private final GenericKpiAnalyticDataService genericKpiAnalyticDataService;
     
     public KpiB6Processor(StationPaymentOptionsAggregator aggregator, 
-                         ToleranceBasedEvaluationStrategy toleranceEvaluationStrategy,
-                         GenericKpiResultService genericKpiResultService,
-                         GenericKpiDetailResultService genericKpiDetailResultService,
-                         GenericKpiAnalyticDataService genericKpiAnalyticDataService) {
+                         ToleranceBasedEvaluationStrategy toleranceEvaluationStrategy) {
         super(toleranceEvaluationStrategy);
         this.aggregator = aggregator;
-        this.genericKpiResultService = genericKpiResultService;
-        this.genericKpiDetailResultService = genericKpiDetailResultService;
-        this.genericKpiAnalyticDataService = genericKpiAnalyticDataService;
     }
     
     @Override
@@ -61,7 +52,7 @@ public class KpiB6Processor extends AbstractKpiProcessor<KpiResultDTO, KpiDetail
                 BigDecimal.valueOf(context.getConfiguration().getTolerance()) : BigDecimal.ZERO;
         
         KpiResultDTO result = new KpiResultDTO();
-        result.setModuleCode(ModuleCode.B_6);
+        result.setModuleCode(ModuleCode.B6);
         result.setInstanceId(context.getInstance().getId());
         result.setInstanceModuleId(context.getInstanceModule().getId());
         result.setAnalysisDate(LocalDate.now());
@@ -141,7 +132,7 @@ public class KpiB6Processor extends AbstractKpiProcessor<KpiResultDTO, KpiDetail
                                                    StationPaymentOptionsAggregator.AggregationResult aggregationResult) {
         
         KpiDetailResultDTO detailResult = new KpiDetailResultDTO();
-        detailResult.setModuleCode(ModuleCode.B_6);
+        detailResult.setModuleCode(ModuleCode.B6);
         detailResult.setInstanceId(context.getInstance().getId());
         detailResult.setInstanceModuleId(context.getInstanceModule().getId());
         detailResult.setKpiResultId(kpiResult.getId());
@@ -187,7 +178,7 @@ public class KpiB6Processor extends AbstractKpiProcessor<KpiResultDTO, KpiDetail
             }
             
             KpiAnalyticDataDTO analyticData = new KpiAnalyticDataDTO();
-            analyticData.setModuleCode(ModuleCode.B_6);
+            analyticData.setModuleCode(ModuleCode.B6);
             analyticData.setInstanceId(context.getInstance().getId());
             analyticData.setInstanceModuleId(context.getInstanceModule().getId());
             analyticData.setKpiDetailResultId(detailResult.getId());
@@ -222,6 +213,6 @@ public class KpiB6Processor extends AbstractKpiProcessor<KpiResultDTO, KpiDetail
     
     @Override
     public String getModuleCode() {
-        return ModuleCode.B_6.name();
+        return ModuleCode.B6.name();
     }
 }

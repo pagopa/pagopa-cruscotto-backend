@@ -21,6 +21,14 @@ public interface GenericKpiAnalyticDataService {
     KpiAnalyticDataDTO save(KpiAnalyticDataDTO kpiAnalyticDataDTO);
 
     /**
+     * Save all kpiAnalyticData.
+     *
+     * @param kpiAnalyticDataDTOs the entities to save.
+     * @return the persisted entities.
+     */
+    List<KpiAnalyticDataDTO> saveAll(List<KpiAnalyticDataDTO> kpiAnalyticDataDTOs);
+
+    /**
      * Update kpiAnalyticData.
      *
      * @param kpiAnalyticDataDTO the entity to update.
@@ -45,6 +53,13 @@ public interface GenericKpiAnalyticDataService {
     List<KpiAnalyticDataDTO> findAll(ModuleCode moduleCode);
 
     /**
+     * Get all the kpiAnalyticData.
+     *
+     * @return the list of entities.
+     */
+    List<KpiAnalyticDataDTO> findAll();
+
+    /**
      * Get the "id" kpiAnalyticData.
      *
      * @param id the id of the entity.
@@ -67,6 +82,15 @@ public interface GenericKpiAnalyticDataService {
      * @return the list of entities.
      */
     List<KpiAnalyticDataDTO> findByDetailResultId(ModuleCode moduleCode, Long kpiDetailResultId);
+
+    /**
+     * Find analytic data by module code and instance module id.
+     *
+     * @param moduleCode the KPI module code.
+     * @param instanceModuleId the instance module id.
+     * @return the list of entities.
+     */
+    List<KpiAnalyticDataDTO> findByInstanceModuleId(ModuleCode moduleCode, Long instanceModuleId);
 
     /**
      * Delete all analytic data by module code and instance module id.

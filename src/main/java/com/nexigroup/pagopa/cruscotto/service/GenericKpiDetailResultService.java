@@ -20,6 +20,14 @@ public interface GenericKpiDetailResultService {
     KpiDetailResultDTO save(KpiDetailResultDTO kpiDetailResultDTO);
 
     /**
+     * Save all kpiDetailResults.
+     *
+     * @param kpiDetailResultDTOs the entities to save.
+     * @return the persisted entities.
+     */
+    List<KpiDetailResultDTO> saveAll(List<KpiDetailResultDTO> kpiDetailResultDTOs);
+
+    /**
      * Update kpiDetailResult.
      *
      * @param kpiDetailResultDTO the entity to update.
@@ -34,6 +42,13 @@ public interface GenericKpiDetailResultService {
      * @return the persisted entity.
      */
     Optional<KpiDetailResultDTO> partialUpdate(KpiDetailResultDTO kpiDetailResultDTO);
+
+    /**
+     * Get all kpiDetailResults.
+     *
+     * @return the list of entities.
+     */
+    List<KpiDetailResultDTO> findAll();
 
     /**
      * Get all the kpiDetailResults for a specific KPI type.
@@ -66,6 +81,15 @@ public interface GenericKpiDetailResultService {
      * @return the list of entities.
      */
     List<KpiDetailResultDTO> findByKpiResultId(ModuleCode moduleCode, Long kpiResultId);
+
+    /**
+     * Find detail results by module code and instance module id.
+     *
+     * @param moduleCode the KPI module code.
+     * @param instanceModuleId the instance module id.
+     * @return the list of entities.
+     */
+    List<KpiDetailResultDTO> findByInstanceModuleId(ModuleCode moduleCode, Long instanceModuleId);
 
     /**
      * Delete all detail results by module code and instance module id.

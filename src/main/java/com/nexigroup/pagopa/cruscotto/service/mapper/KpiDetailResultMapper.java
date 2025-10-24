@@ -38,6 +38,14 @@ public interface KpiDetailResultMapper extends EntityMapper<KpiDetailResultDTO, 
     @Mapping(target = "partnerFiscalCode", ignore = true)
     KpiDetailResult toEntity(KpiDetailResultDTO kpiDetailResultDTO);
 
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "createdDate", ignore = true)
+    @Mapping(target = "stationName", ignore = true)
+    @Mapping(target = "partnerFiscalCode", ignore = true)
+    KpiDetailResult partialUpdate(KpiDetailResultDTO kpiDetailResultDTO, @MappingTarget KpiDetailResult kpiDetailResult);
+
     default KpiDetailResult fromId(Long id) {
         if (id == null) {
             return null;

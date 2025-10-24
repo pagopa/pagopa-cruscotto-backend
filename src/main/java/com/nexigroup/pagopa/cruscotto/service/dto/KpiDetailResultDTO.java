@@ -3,6 +3,7 @@ package com.nexigroup.pagopa.cruscotto.service.dto;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
+import com.nexigroup.pagopa.cruscotto.kpi.framework.KpiDetailResult;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -15,7 +16,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode
-public class KpiDetailResultDTO implements Serializable {
+public class KpiDetailResultDTO implements Serializable, KpiDetailResult {
 
     private static final long serialVersionUID = 1L;
 

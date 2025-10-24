@@ -1,6 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.service.dto;
 
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
+import com.nexigroup.pagopa.cruscotto.kpi.framework.KpiAnalyticData;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -13,7 +14,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode
-public class KpiAnalyticDataDTO implements Serializable {
+public class KpiAnalyticDataDTO implements Serializable, KpiAnalyticData {
 
     private static final long serialVersionUID = 1L;
 

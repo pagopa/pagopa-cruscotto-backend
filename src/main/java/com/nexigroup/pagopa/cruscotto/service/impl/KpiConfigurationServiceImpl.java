@@ -2,6 +2,7 @@ package com.nexigroup.pagopa.cruscotto.service.impl;
 
 import com.nexigroup.pagopa.cruscotto.domain.*;
 import com.nexigroup.pagopa.cruscotto.domain.Module;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.repository.KpiConfigurationRepository;
 import com.nexigroup.pagopa.cruscotto.repository.ModuleRepository;
 import com.nexigroup.pagopa.cruscotto.security.SecurityUtils;
@@ -373,5 +374,12 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
                     "kpiConfiguration.notExists"
                 )
             );
+    }
+
+    @Override
+    public Optional<KpiConfigurationDTO> findByModuleCode(ModuleCode moduleCode) {
+        LOGGER.debug("Request to find KpiConfiguration by ModuleCode: {}", moduleCode);
+        return kpiConfigurationRepository.findByModuleCode(moduleCode.name())
+            .map(kpiConfigurationMapper::toDto);
     }
 }
