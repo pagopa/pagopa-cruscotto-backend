@@ -206,7 +206,7 @@ public class KpiDetailResultResource {
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.KPI_B6_DETAIL_RESULT_DETAIL + "\")")
     public ResponseEntity<List<KpiDetailResultDTO>> getKpiB6DetailResults(@PathVariable Long resultId) {
         log.debug("REST request to get kpi detail results of kpiB6Result : {} of type b6", resultId);
-        List<KpiDetailResultDTO> kpiB6DetailResults = genericKpiDetailResultService.findByResultId(ModuleCode.B6, resultId);
+        List<KpiDetailResultDTO> kpiB6DetailResults = genericKpiDetailResultService.findByKpiResultId(ModuleCode.B6, resultId);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(kpiB6DetailResults));
     }
 }
