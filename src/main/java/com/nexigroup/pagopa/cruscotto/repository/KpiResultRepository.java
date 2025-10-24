@@ -30,6 +30,23 @@ public interface KpiResultRepository extends JpaRepository<KpiResult, Long>, Jpa
     Optional<KpiResult> findByInstanceModuleIdAndModuleCode(Long instanceModuleId, ModuleCode moduleCode);
 
     /**
+     * Find results by module code and instance module ID (different parameter order)
+     */
+    List<KpiResult> findByModuleCodeAndInstanceModuleId(ModuleCode moduleCode, Long instanceModuleId);
+
+    /**
+     * Find results by module code, instance module ID and outcome
+     */
+    List<KpiResult> findByModuleCodeAndInstanceModuleIdAndOutcome(ModuleCode moduleCode, Long instanceModuleId, com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus outcome);
+
+    /**
+     * Delete by module code and instance module ID (different parameter order)
+     */
+    @Modifying
+    @Query("DELETE FROM KpiResult kr WHERE kr.moduleCode = :moduleCode AND kr.instanceModuleId = :instanceModuleId")
+    void deleteByModuleCodeAndInstanceModuleId(@Param("moduleCode") ModuleCode moduleCode, @Param("instanceModuleId") Long instanceModuleId);
+
+    /**
      * Find results by instance ID and module code
      */
     List<KpiResult> findByInstanceIdAndModuleCode(Long instanceId, ModuleCode moduleCode);

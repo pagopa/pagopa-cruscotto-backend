@@ -1,7 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.job.config;
 
 import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
-import com.nexigroup.pagopa.cruscotto.job.kpi.b6.KpiB6Job;
+import com.nexigroup.pagopa.cruscotto.job.kpi.GenericKpiJob;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.JobBuilder;
 import org.quartz.JobDataMap;
@@ -21,17 +21,21 @@ public class KpiB6ConfigJob {
         ).withMisfireHandlingInstructionFireAndProceed();
 
         return TriggerBuilder.newTrigger()
-            .forJob(kpiB6JobDetail())
+            .forJob(kpiB6JobDetail(applicationProperties))
             .withIdentity(JobConstant.KPI_B6_JOB, "DEFAULT")
             .withSchedule(scheduleBuilder)
             .build();
     }
 
     @Bean
-    public JobDetail kpiB6JobDetail() {
-        return JobBuilder.newJob(KpiB6Job.class)
+    public JobDetail kpiB6JobDetail(ApplicationProperties applicationProperties) {
+        JobDataMap jobDataMap = new JobDataMap();
+        jobDataMap.put("moduleCode", "B6");
+        jobDataMap.put("enabled", applicationProperties.getJob().getKpiB6Job().isEnabled());
+        
+        return JobBuilder.newJob(GenericKpiJob.class)
             .withIdentity(JobConstant.KPI_B6_JOB, "DEFAULT")
-            .setJobData(new JobDataMap())
+            .setJobData(jobDataMap)
             .storeDurably()
             .build();
     }

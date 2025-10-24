@@ -1,7 +1,11 @@
 package com.nexigroup.pagopa.cruscotto.kpi.framework;
 
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.service.*;
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiAnalyticDataDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiDetailResultDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiResultDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -23,14 +27,23 @@ public class KpiOrchestrator {
     private final Map<String, KpiProcessor<?, ?, ?>> kpiProcessors;
     private final InstanceService instanceService;
     private final InstanceModuleService instanceModuleService;
+    private final GenericKpiResultService genericKpiResultService;
+    private final GenericKpiDetailResultService genericKpiDetailResultService;
+    private final GenericKpiAnalyticDataService genericKpiAnalyticDataService;
     
     public KpiOrchestrator(List<KpiProcessor<?, ?, ?>> processors, 
                           InstanceService instanceService,
-                          InstanceModuleService instanceModuleService) {
+                          InstanceModuleService instanceModuleService,
+                          GenericKpiResultService genericKpiResultService,
+                          GenericKpiDetailResultService genericKpiDetailResultService,
+                          GenericKpiAnalyticDataService genericKpiAnalyticDataService) {
         this.kpiProcessors = processors.stream()
                 .collect(Collectors.toMap(KpiProcessor::getModuleCode, Function.identity()));
         this.instanceService = instanceService;
         this.instanceModuleService = instanceModuleService;
+        this.genericKpiResultService = genericKpiResultService;
+        this.genericKpiDetailResultService = genericKpiDetailResultService;
+        this.genericKpiAnalyticDataService = genericKpiAnalyticDataService;
     }
     
     /**
@@ -50,23 +63,33 @@ public class KpiOrchestrator {
         LOGGER.info("Processing KPI {} using processor: {}", moduleCode, processor.getClass().getSimpleName());
         
         try {
-            // Process main result
+            // Clear previous results for this instance
+            clearPreviousResults(context);
+            
+            // Process and save main result
             R kpiResult = processor.processKpiResult(context);
+            R savedKpiResult = (R) genericKpiResultService.save((KpiResultDTO) kpiResult);
             
-            // Process detail results
-            List<D> detailResults = processor.processDetailResults(context, kpiResult);
+            // Process and save detail results
+            List<D> detailResults = processor.processDetailResults(context, savedKpiResult);
+            List<D> savedDetailResults = detailResults.stream()
+                    .map(detail -> (D) genericKpiDetailResultService.save((KpiDetailResultDTO) detail))
+                    .collect(Collectors.toList());
             
-            // Process analytic data (only for monthly evaluations)
-            for (D detailResult : detailResults) {
-                // Check if this is a monthly result that needs analytic data
+            // Process and save analytic data
+            for (D detailResult : savedDetailResults) {
                 if (shouldProcessAnalyticData(detailResult)) {
                     List<A> analyticData = processor.processAnalyticData(context, detailResult);
-                    // Save analytic data through appropriate service
+                    genericKpiAnalyticDataService.saveAll(
+                            analyticData.stream()
+                                    .map(data -> (KpiAnalyticDataDTO) data)
+                                    .collect(Collectors.toList())
+                    );
                 }
             }
             
             // Calculate final outcome
-            OutcomeStatus finalOutcome = processor.calculateFinalOutcome(context, kpiResult, detailResults);
+            OutcomeStatus finalOutcome = processor.calculateFinalOutcome(context, savedKpiResult, savedDetailResults);
             
             // Update instance module outcome
             instanceModuleService.updateAutomaticOutcome(context.getInstanceModule().getId(), finalOutcome);
@@ -95,5 +118,34 @@ public class KpiOrchestrator {
      */
     public Map<String, KpiProcessor<?, ?, ?>> getAvailableProcessors() {
         return Map.copyOf(kpiProcessors);
+    }
+    
+    /**
+     * Clear previous results for the given instance to avoid duplicates
+     */
+    private void clearPreviousResults(KpiExecutionContext context) {
+        ModuleCode moduleCode = ModuleCode.valueOf(context.getConfiguration().getModuleCode().replace(".", "_"));
+        Long instanceModuleId = context.getInstanceModule().getId();
+        
+        try {
+            // Clear previous analytic data
+            genericKpiAnalyticDataService.deleteAllByInstanceModuleId(moduleCode, instanceModuleId);
+            
+            // Clear previous detail results  
+            genericKpiDetailResultService.deleteAllByInstanceModuleId(moduleCode, instanceModuleId);
+            
+            // Clear previous main results (find and delete by instance module)
+            List<KpiResultDTO> existingResults = genericKpiResultService.findByInstanceModuleId(moduleCode, instanceModuleId);
+            for (KpiResultDTO result : existingResults) {
+                genericKpiResultService.delete(result.getId());
+            }
+            
+            LOGGER.debug("Cleared previous results for module {} and instance module {}", moduleCode, instanceModuleId);
+            
+        } catch (Exception e) {
+            LOGGER.warn("Error clearing previous results for module {} and instance module {}: {}", 
+                    moduleCode, instanceModuleId, e.getMessage());
+            // Don't fail the whole process if cleanup fails
+        }
     }
 }

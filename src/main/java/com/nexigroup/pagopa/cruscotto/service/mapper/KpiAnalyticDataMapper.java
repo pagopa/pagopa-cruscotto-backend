@@ -38,6 +38,16 @@ public interface KpiAnalyticDataMapper extends EntityMapper<KpiAnalyticDataDTO, 
     @Mapping(target = "analysisPeriodEnd", ignore = true)
     KpiAnalyticData toEntity(KpiAnalyticDataDTO kpiAnalyticDataDTO);
 
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "createdDate", ignore = true)
+    @Mapping(target = "stationName", ignore = true)
+    @Mapping(target = "partnerFiscalCode", ignore = true)
+    @Mapping(target = "analysisPeriodStart", ignore = true)
+    @Mapping(target = "analysisPeriodEnd", ignore = true)
+    void partialUpdate(@MappingTarget KpiAnalyticData kpiAnalyticData, KpiAnalyticDataDTO kpiAnalyticDataDTO);
+
     default KpiAnalyticData fromId(Long id) {
         if (id == null) {
             return null;

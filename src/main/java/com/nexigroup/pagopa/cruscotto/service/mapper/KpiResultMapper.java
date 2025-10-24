@@ -48,6 +48,22 @@ public interface KpiResultMapper extends EntityMapper<KpiResultDTO, KpiResult> {
     @Mapping(target = "nonCompliantEntities", ignore = true)
     KpiResult toEntity(KpiResultDTO kpiResultDTO);
 
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "analysisEndDate", source = "analysisDate")
+    @Mapping(target = "additionalMetrics", source = "data")
+    @Mapping(target = "analysisStartDate", ignore = true)
+    @Mapping(target = "partnerFiscalCode", ignore = true)
+    @Mapping(target = "targetValue", ignore = true)
+    @Mapping(target = "actualValue", ignore = true)
+    @Mapping(target = "tolerance", ignore = true)
+    @Mapping(target = "outcomePercentage", ignore = true)
+    @Mapping(target = "calculationDate", ignore = true)
+    @Mapping(target = "totalEntities", ignore = true)
+    @Mapping(target = "compliantEntities", ignore = true)
+    @Mapping(target = "nonCompliantEntities", ignore = true)
+    void partialUpdate(@MappingTarget KpiResult entity, KpiResultDTO dto);
+
     default KpiResult fromId(Long id) {
         if (id == null) {
             return null;
