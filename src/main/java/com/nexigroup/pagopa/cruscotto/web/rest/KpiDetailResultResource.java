@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
+import com.nexigroup.pagopa.cruscotto.service.GenericKpiDetailResultService;
 import com.nexigroup.pagopa.cruscotto.service.KpiA1DetailResultService;
 import com.nexigroup.pagopa.cruscotto.service.KpiA2DetailResultService;
 import com.nexigroup.pagopa.cruscotto.service.KpiB1DetailResultService;
@@ -19,6 +21,7 @@ import com.nexigroup.pagopa.cruscotto.service.KpiB9DetailResultService;
 import com.nexigroup.pagopa.cruscotto.service.KpiB3DetailResultService;
 import com.nexigroup.pagopa.cruscotto.service.KpiB4DetailResultService;
 import com.nexigroup.pagopa.cruscotto.service.KpiB6DetailResultService;
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiDetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA1DetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA2DetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB1DetailResultDTO;
@@ -61,6 +64,8 @@ public class KpiDetailResultResource {
 
     private final KpiB6DetailResultService kpiB6DetailResultService;
 
+    private final GenericKpiDetailResultService genericKpiDetailResultService;
+
     
     public KpiDetailResultResource(
         KpiA1DetailResultService kpiA1DetailResultService,
@@ -70,7 +75,8 @@ public class KpiDetailResultResource {
         KpiB9DetailResultService kpiB9DetailResultService,
         KpiB3DetailResultService kpiB3DetailResultService,
         KpiB4DetailResultService kpiB4DetailResultService,
-        KpiB6DetailResultService kpiB6DetailResultService
+        KpiB6DetailResultService kpiB6DetailResultService,
+        GenericKpiDetailResultService genericKpiDetailResultService
     ) {
         this.kpiA1DetailResultService = kpiA1DetailResultService;
         this.kpiB1DetailResultService = kpiB1DetailResultService;
@@ -80,6 +86,7 @@ public class KpiDetailResultResource {
         this.kpiB3DetailResultService = kpiB3DetailResultService;
         this.kpiB4DetailResultService = kpiB4DetailResultService;
         this.kpiB6DetailResultService = kpiB6DetailResultService;
+        this.genericKpiDetailResultService = genericKpiDetailResultService;
     }
 
     /**
@@ -203,9 +210,9 @@ public class KpiDetailResultResource {
      */
     @GetMapping("kpi-detail-results/b6/module/{resultId}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.KPI_B6_DETAIL_RESULT_DETAIL + "\")")
-    public ResponseEntity<List<KpiB6DetailResultDTO>> getKpiB6DetailResults(@PathVariable Long resultId) {
+    public ResponseEntity<List<KpiDetailResultDTO>> getKpiB6DetailResults(@PathVariable Long resultId) {
         log.debug("REST request to get kpi detail results of kpiB6Result : {} of type b6", resultId);
-        List<KpiB6DetailResultDTO> kpiB6DetailResults = kpiB6DetailResultService.findByResultId(resultId);
+        List<KpiDetailResultDTO> kpiB6DetailResults = genericKpiDetailResultService.findByResultId(ModuleCode.B6, resultId);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(kpiB6DetailResults));
     }
 }
