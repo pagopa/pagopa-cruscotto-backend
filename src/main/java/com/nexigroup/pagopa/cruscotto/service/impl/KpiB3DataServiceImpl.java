@@ -180,6 +180,10 @@ public class KpiB3DataServiceImpl implements KpiB3DataService {
         
         LOGGER.info("Processing KPI B.3 for partner {} with {} stations", partnerFiscalCode, partnerStations.size());
         
+        // Get eligibility threshold from the result configuration
+        int eligibilityThreshold = kpiResult.getEligibilityThreshold() != null ? 
+                                 kpiResult.getEligibilityThreshold().intValue() : 0;
+        
         // Group stand-in data by month (aggregated across all stations of the partner)
         Map<YearMonth, Integer> standInByMonth = new HashMap<>();
         
@@ -227,13 +231,18 @@ public class KpiB3DataServiceImpl implements KpiB3DataService {
             monthlyDetailResult.setEvaluationStartDate(monthStart);
             monthlyDetailResult.setEvaluationEndDate(monthEnd);
             monthlyDetailResult.setTotalStandIn(monthlyStandInCount);
-            monthlyDetailResult.setOutcome(monthlyStandInCount == 0 ? OutcomeStatus.OK : OutcomeStatus.KO);
+            // Fixed bug: compare against eligibility threshold instead of just checking if zero
+            monthlyDetailResult.setOutcome(monthlyStandInCount <= eligibilityThreshold ? 
+                                         OutcomeStatus.OK : OutcomeStatus.KO);
             
             KpiB3DetailResult savedMonthlyResult = kpiB3DetailResultRepository.save(monthlyDetailResult);
             savedMonthlyResults.put(yearMonth, savedMonthlyResult);
             
-            LOGGER.info("Saved monthly result for partner {} in {}: {} stand-ins, outcome: {}", 
-                        partnerFiscalCode, yearMonth, monthlyStandInCount, monthlyStandInCount == 0 ? "OK" : "KO");
+            // Calculate outcome for logging
+            boolean monthlyOutcomeOK = monthlyStandInCount <= eligibilityThreshold;
+            LOGGER.info("Saved monthly result for partner {} in {}: {} stand-ins (threshold: {}), outcome: {}", 
+                        partnerFiscalCode, yearMonth, monthlyStandInCount, 
+                        eligibilityThreshold, monthlyOutcomeOK ? "OK" : "KO");
         }
         
         // Create total detail result (entire analysis period, partner level)
@@ -247,12 +256,15 @@ public class KpiB3DataServiceImpl implements KpiB3DataService {
         totalDetailResult.setEvaluationStartDate(instanceDTO.getAnalysisPeriodStartDate());
         totalDetailResult.setEvaluationEndDate(instanceDTO.getAnalysisPeriodEndDate());
         totalDetailResult.setTotalStandIn(totalStandInAllMonths);
-        totalDetailResult.setOutcome(totalStandInAllMonths == 0 ? OutcomeStatus.OK : OutcomeStatus.KO);
+        // Fixed bug: compare against eligibility threshold instead of just checking if zero
+        totalDetailResult.setOutcome(totalStandInAllMonths <= eligibilityThreshold ? 
+                                   OutcomeStatus.OK : OutcomeStatus.KO);
         
         KpiB3DetailResult savedTotalResult = kpiB3DetailResultRepository.save(totalDetailResult);
         
-        LOGGER.info("Saved total result for partner {}: {} stand-ins, outcome: {}", 
-                    partnerFiscalCode, totalStandInAllMonths, totalStandInAllMonths == 0 ? "OK" : "KO");
+        boolean totalOutcomeOK = totalStandInAllMonths <= eligibilityThreshold;
+        LOGGER.info("Saved total result for partner {}: {} stand-ins (threshold: {}), outcome: {}", 
+                    partnerFiscalCode, totalStandInAllMonths, eligibilityThreshold, totalOutcomeOK ? "OK" : "KO");
         
         LOGGER.info("Saved {} detail results (3 monthly + 1 total) for partner {} with {} stations", 
                    monthsInPeriod.size() + 1, partnerFiscalCode, partnerStations.size());
