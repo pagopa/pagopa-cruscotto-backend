@@ -20,7 +20,6 @@ import com.nexigroup.pagopa.cruscotto.service.KpiB2DetailResultService;
 import com.nexigroup.pagopa.cruscotto.service.KpiB9DetailResultService;
 import com.nexigroup.pagopa.cruscotto.service.KpiB3DetailResultService;
 import com.nexigroup.pagopa.cruscotto.service.KpiB4DetailResultService;
-import com.nexigroup.pagopa.cruscotto.service.KpiB6DetailResultService;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiDetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA1DetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA2DetailResultDTO;
@@ -29,7 +28,6 @@ import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2DetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB9DetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB3DetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB4DetailResultDTO;
-import com.nexigroup.pagopa.cruscotto.service.dto.KpiB6DetailResultDTO;
 
 import java.util.List;
 import java.util.Optional;
@@ -62,8 +60,6 @@ public class KpiDetailResultResource {
 
     private final KpiB4DetailResultService kpiB4DetailResultService;
 
-    private final KpiB6DetailResultService kpiB6DetailResultService;
-
     private final GenericKpiDetailResultService genericKpiDetailResultService;
 
     
@@ -75,7 +71,6 @@ public class KpiDetailResultResource {
         KpiB9DetailResultService kpiB9DetailResultService,
         KpiB3DetailResultService kpiB3DetailResultService,
         KpiB4DetailResultService kpiB4DetailResultService,
-        KpiB6DetailResultService kpiB6DetailResultService,
         GenericKpiDetailResultService genericKpiDetailResultService
     ) {
         this.kpiA1DetailResultService = kpiA1DetailResultService;
@@ -85,7 +80,6 @@ public class KpiDetailResultResource {
         this.kpiB9DetailResultService = kpiB9DetailResultService;
         this.kpiB3DetailResultService = kpiB3DetailResultService;
         this.kpiB4DetailResultService = kpiB4DetailResultService;
-        this.kpiB6DetailResultService = kpiB6DetailResultService;
         this.genericKpiDetailResultService = genericKpiDetailResultService;
     }
 
