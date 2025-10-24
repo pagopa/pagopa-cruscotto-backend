@@ -1,7 +1,8 @@
 package com.nexigroup.pagopa.cruscotto.kpi.b6.aggregation;
 
 import com.nexigroup.pagopa.cruscotto.kpi.framework.aggregation.DataAggregator;
-import com.nexigroup.pagopa.cruscotto.service.dto.StationDataDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.AnagStationDTO;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.StationStatus;
 import lombok.Data;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
  * Aggregates station data to calculate compliance metrics
  */
 @Component
-public class StationPaymentOptionsAggregator implements DataAggregator<StationDataDTO, StationPaymentOptionsAggregator.AggregationResult> {
+public class StationPaymentOptionsAggregator implements DataAggregator<AnagStationDTO, StationPaymentOptionsAggregator.AggregationResult> {
     
     @Data
     public static class AggregationResult {
@@ -34,23 +35,23 @@ public class StationPaymentOptionsAggregator implements DataAggregator<StationDa
     }
     
     @Override
-    public AggregationResult aggregate(List<StationDataDTO> data, LocalDate startDate, LocalDate endDate) {
+    public AggregationResult aggregate(List<AnagStationDTO> data, LocalDate startDate, LocalDate endDate) {
         // Filter only ACTIVE stations
-        List<StationDataDTO> activeStations = data.stream()
-                .filter(station -> "ACTIVE".equalsIgnoreCase(station.getStatus()))
+        List<AnagStationDTO> activeStations = data.stream()
+                .filter(station -> StationStatus.ATTIVA.equals(station.getStatus()))
                 .collect(Collectors.toList());
         
         int totalActive = activeStations.size();
         
         int withPaymentOptions = (int) activeStations.stream()
-                .filter(station -> Boolean.TRUE.equals(station.getPaymentOptionsEnabled()))
+                .filter(station -> Boolean.TRUE.equals(station.getPaymentOption()))
                 .count();
         
         return new AggregationResult(totalActive, withPaymentOptions);
     }
     
     @Override
-    public <K> Map<K, AggregationResult> aggregateByGroup(List<StationDataDTO> data, Function<StationDataDTO, K> groupingFunction) {
+    public <K> Map<K, AggregationResult> aggregateByGroup(List<AnagStationDTO> data, Function<AnagStationDTO, K> groupingFunction) {
         return data.stream()
                 .collect(Collectors.groupingBy(groupingFunction))
                 .entrySet()

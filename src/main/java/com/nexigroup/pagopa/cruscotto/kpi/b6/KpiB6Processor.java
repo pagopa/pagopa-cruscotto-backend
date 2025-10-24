@@ -38,7 +38,7 @@ public class KpiB6Processor extends AbstractKpiProcessor<KpiB6ResultDTO, KpiB6De
         
         // Get station data from context (should be loaded by the job)
         @SuppressWarnings("unchecked")
-        List<StationDataDTO> stationData = (List<StationDataDTO>) context.getAdditionalParameters()
+        List<AnagStationDTO> stationData = (List<AnagStationDTO>) context.getAdditionalParameters()
                 .getOrDefault("stationData", new ArrayList<>());
         
         // Aggregate overall statistics
@@ -68,7 +68,7 @@ public class KpiB6Processor extends AbstractKpiProcessor<KpiB6ResultDTO, KpiB6De
         logger.info("Processing KPI B.6 detail results");
         
         @SuppressWarnings("unchecked")
-        List<StationDataDTO> stationData = (List<StationDataDTO>) context.getAdditionalParameters()
+        List<AnagStationDTO> stationData = (List<AnagStationDTO>) context.getAdditionalParameters()
                 .getOrDefault("stationData", new ArrayList<>());
         
         List<KpiB6DetailResultDTO> detailResults = new ArrayList<>();
@@ -84,7 +84,7 @@ public class KpiB6Processor extends AbstractKpiProcessor<KpiB6ResultDTO, KpiB6De
         return detailResults;
     }
     
-    private List<KpiB6DetailResultDTO> processMonthlyResults(KpiExecutionContext context, KpiB6ResultDTO kpiResult, List<StationDataDTO> stationData) {
+    private List<KpiB6DetailResultDTO> processMonthlyResults(KpiExecutionContext context, KpiB6ResultDTO kpiResult, List<AnagStationDTO> stationData) {
         List<KpiB6DetailResultDTO> monthlyResults = new ArrayList<>();
         
         LocalDate current = context.getAnalysisStart().withDayOfMonth(1);
@@ -110,7 +110,7 @@ public class KpiB6Processor extends AbstractKpiProcessor<KpiB6ResultDTO, KpiB6De
         return monthlyResults;
     }
     
-    private KpiB6DetailResultDTO processTotalResult(KpiExecutionContext context, KpiB6ResultDTO kpiResult, List<StationDataDTO> stationData) {
+    private KpiB6DetailResultDTO processTotalResult(KpiExecutionContext context, KpiB6ResultDTO kpiResult, List<AnagStationDTO> stationData) {
         StationPaymentOptionsAggregator.AggregationResult totalResult = 
                 aggregator.aggregate(stationData, context.getAnalysisStart(), context.getAnalysisEnd());
         
@@ -159,13 +159,13 @@ public class KpiB6Processor extends AbstractKpiProcessor<KpiB6ResultDTO, KpiB6De
                 detailResult.getEvaluationStartDate(), detailResult.getEvaluationEndDate());
         
         @SuppressWarnings("unchecked")
-        List<StationDataDTO> stationData = (List<StationDataDTO>) context.getAdditionalParameters()
+        List<AnagStationDTO> stationData = (List<AnagStationDTO>) context.getAdditionalParameters()
                 .getOrDefault("stationData", new ArrayList<>());
         
         List<KpiB6AnalyticDataDTO> analyticDataList = new ArrayList<>();
         
-        for (StationDataDTO station : stationData) {
-            if (!"ACTIVE".equalsIgnoreCase(station.getStatus())) {
+        for (AnagStationDTO station : stationData) {
+            if (!com.nexigroup.pagopa.cruscotto.domain.enumeration.StationStatus.ATTIVA.equals(station.getStatus())) {
                 continue; // Skip inactive stations
             }
             
@@ -175,10 +175,10 @@ public class KpiB6Processor extends AbstractKpiProcessor<KpiB6ResultDTO, KpiB6De
             analyticData.setKpiB6DetailResultId(detailResult.getId());
             analyticData.setAnalysisDate(LocalDate.now());
             analyticData.setDataDate(detailResult.getEvaluationStartDate()); // For B.6, use evaluation start date
-            analyticData.setStationCode(station.getStationCode());
-            analyticData.setStationStatus(station.getStatus());
-            analyticData.setPaymentOptionsEnabled(station.getPaymentOptionsEnabled());
-            analyticData.setInstitutionFiscalCode(station.getInstitutionFiscalCode());
+            analyticData.setStationCode(station.getName()); // Station name is the code
+            analyticData.setStationStatus(station.getStatus().name());
+            analyticData.setPaymentOptionsEnabled(station.getPaymentOption());
+            analyticData.setInstitutionFiscalCode(station.getPartnerFiscalCode()); // Using partner fiscal code
             analyticData.setPartnerFiscalCode(station.getPartnerFiscalCode());
             
             analyticDataList.add(analyticData);

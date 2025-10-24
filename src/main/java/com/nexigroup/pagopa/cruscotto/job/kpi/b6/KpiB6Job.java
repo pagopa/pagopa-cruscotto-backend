@@ -7,7 +7,11 @@ import com.nexigroup.pagopa.cruscotto.kpi.b6.KpiB6Processor;
 import com.nexigroup.pagopa.cruscotto.kpi.framework.KpiExecutionContext;
 import com.nexigroup.pagopa.cruscotto.service.*;
 import com.nexigroup.pagopa.cruscotto.service.dto.*;
+import com.nexigroup.pagopa.cruscotto.service.filter.AnagStationFilter;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.StationStatus;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.quartz.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +43,7 @@ public class KpiB6Job extends QuartzJobBean {
     private final InstanceService instanceService;
     private final InstanceModuleService instanceModuleService;
     private final KpiConfigurationService kpiConfigurationService;
-    private final StationDataService stationDataService;
+    private final AnagStationService anagStationService;
     private final KpiB6Processor kpiB6Processor;
     private final KpiB6ResultService kpiB6ResultService;
     private final KpiB6DetailResultService kpiB6DetailResultService;
@@ -122,11 +126,17 @@ public class KpiB6Job extends QuartzJobBean {
         kpiB6AnalyticDataService.deleteAllByInstanceModuleId(instanceModuleDTO.getId());
 
         // Fetch station data for the partner
-        List<StationDataDTO> stationData = stationDataService.findActiveStationsForPartner(
-                instanceDTO.getPartnerFiscalCode(),
-                instanceDTO.getAnalysisPeriodStartDate(),
-                instanceDTO.getAnalysisPeriodEndDate()
-        );
+        AnagStationFilter filter = new AnagStationFilter();
+        filter.setShowNotActive(false); // Only active stations
+        // Note: We need to get partnerId from partnerFiscalCode, for now we'll filter by partnerFiscalCode
+        
+        Page<AnagStationDTO> stationPage = anagStationService.findAll(filter, PageRequest.of(0, Integer.MAX_VALUE));
+        
+        // Filter by partner fiscal code and only active stations
+        List<AnagStationDTO> stationData = stationPage.getContent().stream()
+                .filter(station -> instanceDTO.getPartnerFiscalCode().equals(station.getPartnerFiscalCode()))
+                .filter(station -> StationStatus.ATTIVA.equals(station.getStatus()))
+                .toList();
 
         LOGGER.info("Found {} stations for analysis", stationData.size());
 
