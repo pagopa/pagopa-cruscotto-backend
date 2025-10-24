@@ -76,6 +76,9 @@ class KpiB3JobTest {
     private com.nexigroup.pagopa.cruscotto.service.KpiB3DataService kpiB3DataService;
 
     @Mock
+    private com.nexigroup.pagopa.cruscotto.service.AnagPlannedShutdownService anagPlannedShutdownService;
+
+    @Mock
     private JobExecutionContext jobExecutionContext;
 
     @InjectMocks
@@ -158,8 +161,13 @@ class KpiB3JobTest {
         // Mock database repository to return empty list (no stand-in events = OK)
         when(pagopaNumeroStandinRepository.findByDateRange(any(), any()))
             .thenReturn(Collections.emptyList());
+        // Mock stations for the partner
+        com.nexigroup.pagopa.cruscotto.domain.AnagStation station = 
+            new com.nexigroup.pagopa.cruscotto.domain.AnagStation();
+        station.setName("12345678901_01");
+        
         when(anagStationRepository.findByAnagPartnerFiscalCode(anyString()))
-            .thenReturn(Collections.emptyList());
+            .thenReturn(Arrays.asList(station));
             
 
 
@@ -170,7 +178,7 @@ class KpiB3JobTest {
         verify(instanceService).findInstanceToCalculate(ModuleCode.B3, 10);
         verify(kpiConfigurationService).findKpiConfigurationByCode(ModuleCode.B3.code);
         verify(instanceService).updateInstanceStatusInProgress(instance.getId());
-        verify(instanceModuleService, times(3)).findOne(instance.getId(), kpiConfig.getModuleId());
+        verify(instanceModuleService, times(1)).findOne(instance.getId(), kpiConfig.getModuleId());
         verify(pagopaNumeroStandinRepository).findByDateRange(any(), any());
         verify(anagStationRepository).findByAnagPartnerFiscalCode(anyString());
         verify(kpiB3DataService).saveKpiB3Results(eq(instance), eq(instanceModule), eq(kpiConfig), any(), eq(OutcomeStatus.OK), any());
@@ -202,6 +210,84 @@ class KpiB3JobTest {
         verify(instanceService).findInstanceToCalculate(ModuleCode.B3, 10);
         verify(kpiConfigurationService).findKpiConfigurationByCode(ModuleCode.B3.code);
         // No instance module update should occur when configuration is not found
+    }
+
+    /**
+     * Test case for the bug fix: when stand-in events equal the threshold, 
+     * the outcome should be OK (not KO)
+     */
+    @Test
+    void testCalculateKpiB3Outcome_WhenEventsEqualThreshold_ShouldBeOK() throws Exception {
+        // Given - Configuration with threshold = 2
+        InstanceDTO instance = new InstanceDTO();
+        instance.setId(1L);
+        instance.setInstanceIdentification("TEST_INSTANCE_001");
+        instance.setPartnerFiscalCode("12345678901");
+        instance.setPartnerName("Test Partner");
+        instance.setPartnerId(100L);
+        instance.setAnalysisPeriodStartDate(LocalDate.of(2024, 1, 1));
+        instance.setAnalysisPeriodEndDate(LocalDate.of(2024, 1, 31));
+
+        InstanceModuleDTO instanceModule = new InstanceModuleDTO();
+        instanceModule.setId(10L);
+        instanceModule.setInstanceId(1L);
+
+        KpiConfigurationDTO kpiConfig = new KpiConfigurationDTO();
+        kpiConfig.setModuleId(100L);
+        kpiConfig.setEligibilityThreshold(2.0); // Set threshold to 2
+        kpiConfig.setExcludePlannedShutdown(true);  // Enable to use anagPlannedShutdownService mock
+        kpiConfig.setExcludeUnplannedShutdown(false);
+        kpiConfig.setEvaluationType(com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType.TOTALE);
+
+        // Mock stand-in data that has exactly 2 events (equal to threshold)
+        com.nexigroup.pagopa.cruscotto.domain.PagopaNumeroStandin standInEvent1 = 
+            new com.nexigroup.pagopa.cruscotto.domain.PagopaNumeroStandin();
+        standInEvent1.setStandInCount(1);
+        standInEvent1.setStationCode("12345678901_01");
+        standInEvent1.setIntervalStart(LocalDate.of(2024, 1, 15).atStartOfDay());
+        standInEvent1.setIntervalEnd(LocalDate.of(2024, 1, 15).atTime(0, 15));
+        
+        com.nexigroup.pagopa.cruscotto.domain.PagopaNumeroStandin standInEvent2 = 
+            new com.nexigroup.pagopa.cruscotto.domain.PagopaNumeroStandin();
+        standInEvent2.setStandInCount(1);
+        standInEvent2.setStationCode("12345678901_02");
+        standInEvent2.setIntervalStart(LocalDate.of(2024, 1, 20).atStartOfDay());
+        standInEvent2.setIntervalEnd(LocalDate.of(2024, 1, 20).atTime(0, 15));
+        // Total = 1 + 1 = 2 stand-in events (equals threshold of 2)
+
+        when(instanceService.findInstanceToCalculate(ModuleCode.B3, 10))
+            .thenReturn(Arrays.asList(instance));
+        when(kpiConfigurationService.findKpiConfigurationByCode(ModuleCode.B3.code))
+            .thenReturn(Optional.of(kpiConfig));
+        when(instanceModuleService.findOne(instance.getId(), kpiConfig.getModuleId()))
+            .thenReturn(Optional.of(instanceModule));
+        when(pagopaNumeroStandinRepository.findByDateRange(any(), any()))
+            .thenReturn(Arrays.asList(standInEvent1, standInEvent2));
+        
+        // Mock stations for the partner
+        com.nexigroup.pagopa.cruscotto.domain.AnagStation station1 = 
+            new com.nexigroup.pagopa.cruscotto.domain.AnagStation();
+        station1.setName("12345678901_01");
+        com.nexigroup.pagopa.cruscotto.domain.AnagStation station2 = 
+            new com.nexigroup.pagopa.cruscotto.domain.AnagStation();
+        station2.setName("12345678901_02");
+        
+        when(anagStationRepository.findByAnagPartnerFiscalCode(anyString()))
+            .thenReturn(Arrays.asList(station1, station2));
+        
+        // Mock no planned shutdowns
+        when(anagPlannedShutdownService.findAllByTypePlannedIntoPeriod(
+            any(), any(), any(), any()))
+            .thenReturn(Collections.emptyList());
+
+        // When
+        kpiB3Job.executeInternal(jobExecutionContext);
+
+        // Then - Verify that the outcome was set to OK (not KO) since events = threshold
+        verify(instanceModuleService).updateAutomaticOutcome(eq(10L), eq(OutcomeStatus.OK));
+        verify(kpiB3DataService).saveKpiB3Results(
+            eq(instance), eq(instanceModule), eq(kpiConfig), any(), eq(OutcomeStatus.OK), any()
+        );
     }
 
     @Test
