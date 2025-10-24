@@ -19,7 +19,6 @@ import com.nexigroup.pagopa.cruscotto.service.KpiB2AnalyticDataService;
 import com.nexigroup.pagopa.cruscotto.service.KpiB9AnalyticDataService;
 import com.nexigroup.pagopa.cruscotto.service.KpiB3AnalyticDataService;
 import com.nexigroup.pagopa.cruscotto.service.KpiB4AnalyticDataService;
-import com.nexigroup.pagopa.cruscotto.service.KpiB6AnalyticDataService;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA1AnalyticDataDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA2AnalyticDataDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB1AnalyticDataDTO;
@@ -27,7 +26,6 @@ import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2AnalyticDataDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB9AnalyticDataDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB3AnalyticDataDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB4AnalyticDataDTO;
-import com.nexigroup.pagopa.cruscotto.service.dto.KpiB6AnalyticDataDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiAnalyticDataDTO;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 
@@ -61,8 +59,6 @@ public class KpiAnalyticDataResource {
     private final KpiB3AnalyticDataService kpiB3AnalyticDataService;
 
     private final KpiB4AnalyticDataService kpiB4AnalyticDataService;
-
-    private final KpiB6AnalyticDataService kpiB6AnalyticDataService;
     
     private final GenericKpiAnalyticDataService genericKpiAnalyticDataService;
     
@@ -75,7 +71,6 @@ public class KpiAnalyticDataResource {
         KpiB9AnalyticDataService kpiB9AnalyticDataService,
         KpiB3AnalyticDataService kpiB3AnalyticDataService,
         KpiB4AnalyticDataService kpiB4AnalyticDataService,
-        KpiB6AnalyticDataService kpiB6AnalyticDataService,
         GenericKpiAnalyticDataService genericKpiAnalyticDataService
     ) {
         this.kpiA1AnalyticDataService = kpiA1AnalyticDataService;
@@ -85,7 +80,6 @@ public class KpiAnalyticDataResource {
         this.kpiB9AnalyticDataService = kpiB9AnalyticDataService;
         this.kpiB3AnalyticDataService = kpiB3AnalyticDataService;
         this.kpiB4AnalyticDataService = kpiB4AnalyticDataService;
-        this.kpiB6AnalyticDataService = kpiB6AnalyticDataService;
         this.genericKpiAnalyticDataService = genericKpiAnalyticDataService;
     }
 
