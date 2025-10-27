@@ -25,8 +25,9 @@ public class KpiResult extends AbstractAuditingEntity<Long> implements Serializa
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "co_id")
+    @SequenceGenerator(name = "SQCRUSC8_KPIRESULT", sequenceName = "SQCRUSC8_KPIRESULT", allocationSize = 1)
+    @GeneratedValue(generator = "SQCRUSC8_KPIRESULT", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @Enumerated(EnumType.STRING)

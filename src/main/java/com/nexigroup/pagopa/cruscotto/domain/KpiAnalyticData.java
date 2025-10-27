@@ -23,8 +23,9 @@ public class KpiAnalyticData extends AbstractAuditingEntity<Long> implements Ser
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "co_id")
+    @SequenceGenerator(name = "SQCRUSC8_KPIANALYTICDATA", sequenceName = "SQCRUSC8_KPIANALYTICDATA", allocationSize = 1)
+    @GeneratedValue(generator = "SQCRUSC8_KPIANALYTICDATA", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @Enumerated(EnumType.STRING)
