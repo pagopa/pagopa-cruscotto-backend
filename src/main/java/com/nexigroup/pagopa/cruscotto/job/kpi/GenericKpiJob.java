@@ -56,7 +56,7 @@ public class GenericKpiJob extends QuartzJobBean {
     public void executeInternal(@NonNull JobExecutionContext context) {
         JobDataMap dataMap = context.getJobDetail().getJobDataMap();
         String moduleCode = dataMap.getString("moduleCode");
-        boolean enabled = dataMap.getBooleanFromString("enabled");
+        boolean enabled = dataMap.getBooleanValue("enabled");
 
         LOGGER.info("Start calculate KPI {} - Generic Job", moduleCode);
 

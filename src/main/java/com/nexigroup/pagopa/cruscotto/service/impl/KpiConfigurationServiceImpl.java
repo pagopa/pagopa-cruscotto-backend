@@ -379,7 +379,7 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
     @Override
     public Optional<KpiConfigurationDTO> findByModuleCode(ModuleCode moduleCode) {
         LOGGER.debug("Request to find KpiConfiguration by ModuleCode: {}", moduleCode);
-        return kpiConfigurationRepository.findByModuleCode(moduleCode.name())
+        return kpiConfigurationRepository.findByModuleCode(moduleCode.code)
             .map(kpiConfigurationMapper::toDto);
     }
 }
