@@ -28,9 +28,11 @@ import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2DetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB9DetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB3DetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB4DetailResultDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiB6DetailResultDTO;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import tech.jhipster.web.util.ResponseUtil;
 
@@ -204,9 +206,12 @@ public class KpiDetailResultResource {
      */
     @GetMapping("kpi-detail-results/b6/module/{resultId}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.KPI_B6_DETAIL_RESULT_DETAIL + "\")")
-    public ResponseEntity<List<KpiDetailResultDTO>> getKpiB6DetailResults(@PathVariable Long resultId) {
+    public ResponseEntity<List<KpiB6DetailResultDTO>> getKpiB6DetailResults(@PathVariable Long resultId) {
         log.debug("REST request to get kpi detail results of kpiB6Result : {} of type b6", resultId);
-        List<KpiDetailResultDTO> kpiB6DetailResults = genericKpiDetailResultService.findByKpiResultId(ModuleCode.B6, resultId);
+        List<KpiDetailResultDTO> genericData = genericKpiDetailResultService.findByKpiResultId(ModuleCode.B6, resultId);
+        List<KpiB6DetailResultDTO> kpiB6DetailResults = genericData.stream()
+                .map(KpiB6DetailResultDTO::new)
+                .collect(Collectors.toList());
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(kpiB6DetailResults));
     }
 }

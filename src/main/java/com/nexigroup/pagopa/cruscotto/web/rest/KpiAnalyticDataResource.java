@@ -26,11 +26,13 @@ import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2AnalyticDataDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB9AnalyticDataDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB3AnalyticDataDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB4AnalyticDataDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiB6AnalyticDataDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiAnalyticDataDTO;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import tech.jhipster.web.util.ResponseUtil;
 
@@ -196,18 +198,21 @@ public class KpiAnalyticDataResource {
     }
 
     /**
-     * {@code GET  /kpi-analytic-data/b6/module/{detailResultId}} : Retrieves the KpiAnalyticDataDTOs
+     * {@code GET  /kpi-analytic-data/b6/module/{detailResultId}} : Retrieves the KpiB6AnalyticDataDTOs
      * associated with the specified "detailResultId" of instanceModule.
      *
      * @param detailResultId the identifier of the instanceModule for which the kpi analytic data of type B6 should be retrieved
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the body containing the list of KpiAnalyticDataDTOs,
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the body containing the list of KpiB6AnalyticDataDTOs,
      *         or with status {@code 404 (Not Found)} if no data is found for the provided id.
      */
     @GetMapping("kpi-analytic-data/b6/module/{detailResultId}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.KPI_B6_ANALITIC_DATA_DETAIL + "\")")
-    public ResponseEntity<List<KpiAnalyticDataDTO>> getKpiB6AnalyticDataResults(@PathVariable Long detailResultId) {
+    public ResponseEntity<List<KpiB6AnalyticDataDTO>> getKpiB6AnalyticDataResults(@PathVariable Long detailResultId) {
         log.debug("REST request to get kpi analytic data of instanceModule : {} of type b6", detailResultId);
-        List<KpiAnalyticDataDTO> kpiB6AnalyticData = genericKpiAnalyticDataService.findByDetailResultId(ModuleCode.B6, detailResultId);
+        List<KpiAnalyticDataDTO> genericData = genericKpiAnalyticDataService.findByDetailResultId(ModuleCode.B6, detailResultId);
+        List<KpiB6AnalyticDataDTO> kpiB6AnalyticData = genericData.stream()
+                .map(KpiB6AnalyticDataDTO::new)
+                .collect(Collectors.toList());
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(kpiB6AnalyticData));
     }
 }
