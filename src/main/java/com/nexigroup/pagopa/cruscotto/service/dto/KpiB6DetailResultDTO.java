@@ -38,7 +38,7 @@ public class KpiB6DetailResultDTO implements Serializable {
             this.instanceModuleId = genericDto.getInstanceModuleId();
             this.kpiB6ResultId = genericDto.getKpiResultId();
             this.analysisDate = genericDto.getAnalysisDate();
-            this.outcome = genericDto.getOutcome();
+            this.outcome = genericDto.getOutcome() != null ? genericDto.getOutcome().name() : null;
             
             // Parse JSON data field to extract B6-specific fields
             if (genericDto.getData() != null) {
