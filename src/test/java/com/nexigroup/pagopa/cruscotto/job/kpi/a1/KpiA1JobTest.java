@@ -38,6 +38,7 @@ import com.nexigroup.pagopa.cruscotto.service.AnagStationService;
 import com.nexigroup.pagopa.cruscotto.service.InstanceModuleService;
 import com.nexigroup.pagopa.cruscotto.service.InstanceService;
 import com.nexigroup.pagopa.cruscotto.service.KpiA1AnalyticDataService;
+import com.nexigroup.pagopa.cruscotto.service.KpiA1AnalyticDrillDownService;
 import com.nexigroup.pagopa.cruscotto.service.KpiA1DetailResultService;
 import com.nexigroup.pagopa.cruscotto.service.KpiA1ResultService;
 import com.nexigroup.pagopa.cruscotto.service.KpiConfigurationService;
@@ -88,6 +89,9 @@ class KpiA1JobTest {
 
     @Mock
     private KpiA1ResultService kpiA1ResultService;
+
+    @Mock
+    private KpiA1AnalyticDrillDownService kpiA1AnalyticDrillDownService;
 
     @Mock
     private Scheduler scheduler;
@@ -242,6 +246,11 @@ class KpiA1JobTest {
             // Given
             when(instanceModuleService.findOne(testInstance.getId(), testKpiConfiguration.getModuleId()))
                 .thenReturn(Optional.of(testInstanceModule));
+            
+            // Mock findByInstanceModuleId which is called before delete
+            when(kpiA1AnalyticDataService.findByInstanceModuleId(testInstanceModule.getId()))
+                .thenReturn(Collections.emptyList());
+            
             when(kpiA1AnalyticDataService.deleteAllByInstanceModule(testInstanceModule.getId())).thenReturn(1);
             when(kpiA1DetailResultService.deleteAllByInstanceModule(testInstanceModule.getId())).thenReturn(1);
             when(kpiA1ResultService.deleteAllByInstanceModule(testInstanceModule.getId())).thenReturn(1);
@@ -261,6 +270,7 @@ class KpiA1JobTest {
 
             // Then
             verify(instanceService).updateInstanceStatusInProgress(testInstance.getId());
+            verify(kpiA1AnalyticDataService).findByInstanceModuleId(testInstanceModule.getId());
             verify(kpiA1AnalyticDataService).deleteAllByInstanceModule(testInstanceModule.getId());
             verify(kpiA1DetailResultService).deleteAllByInstanceModule(testInstanceModule.getId());
             verify(kpiA1ResultService).deleteAllByInstanceModule(testInstanceModule.getId());
@@ -274,6 +284,11 @@ class KpiA1JobTest {
             // Given
             when(instanceModuleService.findOne(testInstance.getId(), testKpiConfiguration.getModuleId()))
                 .thenReturn(Optional.of(testInstanceModule));
+            
+            // Mock findByInstanceModuleId which is called before delete
+            when(kpiA1AnalyticDataService.findByInstanceModuleId(testInstanceModule.getId()))
+                .thenReturn(Collections.emptyList());
+            
             when(kpiA1AnalyticDataService.deleteAllByInstanceModule(testInstanceModule.getId())).thenReturn(1);
             when(kpiA1DetailResultService.deleteAllByInstanceModule(testInstanceModule.getId())).thenReturn(1);
             when(kpiA1ResultService.deleteAllByInstanceModule(testInstanceModule.getId())).thenReturn(1);
@@ -290,14 +305,14 @@ class KpiA1JobTest {
             when(anagStationService.findIdByNameOrCreate("STATION_001", testInstance.getPartnerId()))
                 .thenReturn(1L);
 
-            // Setup maintenance data
-            anagPlannedShutdownService.findAllByTypePlannedIntoPeriod(
+            // Setup maintenance data - mock returns empty list for maintenance
+            when(anagPlannedShutdownService.findAllByTypePlannedIntoPeriod(
                 eq(testInstance.getPartnerId()),
                 eq(1L),
                 eq(TypePlanned.PROGRAMMATO),
                 eq(testInstance.getAnalysisPeriodStartDate()),
                 eq(testInstance.getAnalysisPeriodEndDate())
-            );
+            )).thenReturn(Collections.emptyList());
 
             // Setup timeout data
             setupTimeoutDataMocks();
@@ -326,6 +341,11 @@ class KpiA1JobTest {
             
             when(instanceModuleService.findOne(testInstance.getId(), testKpiConfiguration.getModuleId()))
                 .thenReturn(Optional.of(testInstanceModule));
+            
+            // Mock findByInstanceModuleId which is called before delete
+            when(kpiA1AnalyticDataService.findByInstanceModuleId(testInstanceModule.getId()))
+                .thenReturn(Collections.emptyList());
+            
             when(kpiA1AnalyticDataService.deleteAllByInstanceModule(testInstanceModule.getId())).thenReturn(1);
             when(kpiA1DetailResultService.deleteAllByInstanceModule(testInstanceModule.getId())).thenReturn(1);
             when(kpiA1ResultService.deleteAllByInstanceModule(testInstanceModule.getId())).thenReturn(1);
@@ -356,6 +376,9 @@ class KpiA1JobTest {
             KpiA1ResultDTO savedResult = createTestKpiA1Result();
             when(kpiA1ResultService.save(any(KpiA1ResultDTO.class))).thenReturn(savedResult);
 
+            KpiA1DetailResultDTO savedDetailResult = createTestKpiA1DetailResult();
+            when(kpiA1DetailResultService.save(any(KpiA1DetailResultDTO.class))).thenReturn(savedDetailResult);
+
             // When
             kpiA1Job.executeInternal(jobExecutionContext);
 
@@ -374,6 +397,11 @@ class KpiA1JobTest {
             
             when(instanceModuleService.findOne(testInstance.getId(), testKpiConfiguration.getModuleId()))
                 .thenReturn(Optional.of(testInstanceModule));
+            
+            // Mock findByInstanceModuleId which is called before delete
+            when(kpiA1AnalyticDataService.findByInstanceModuleId(testInstanceModule.getId()))
+                .thenReturn(Collections.emptyList());
+            
             when(kpiA1AnalyticDataService.deleteAllByInstanceModule(testInstanceModule.getId())).thenReturn(1);
             when(kpiA1DetailResultService.deleteAllByInstanceModule(testInstanceModule.getId())).thenReturn(1);
             when(kpiA1ResultService.deleteAllByInstanceModule(testInstanceModule.getId())).thenReturn(1);
@@ -422,6 +450,11 @@ class KpiA1JobTest {
             
             when(instanceModuleService.findOne(testInstance.getId(), testKpiConfiguration.getModuleId()))
                 .thenReturn(Optional.of(testInstanceModule));
+            
+            // Mock findByInstanceModuleId which is called before delete
+            when(kpiA1AnalyticDataService.findByInstanceModuleId(testInstanceModule.getId()))
+                .thenReturn(Collections.emptyList());
+            
             when(kpiA1AnalyticDataService.deleteAllByInstanceModule(testInstanceModule.getId())).thenReturn(1);
             when(kpiA1DetailResultService.deleteAllByInstanceModule(testInstanceModule.getId())).thenReturn(1);
             when(kpiA1ResultService.deleteAllByInstanceModule(testInstanceModule.getId())).thenReturn(1);
@@ -437,9 +470,10 @@ class KpiA1JobTest {
             when(anagStationService.findIdByNameOrCreate("STATION_001", testInstance.getPartnerId()))
                 .thenReturn(1L);
 
-            		anagPlannedShutdownService.findAllByTypePlannedIntoPeriod(
+            // Mock planned shutdown service returns empty list
+            when(anagPlannedShutdownService.findAllByTypePlannedIntoPeriod(
                 anyLong(), anyLong(), any(TypePlanned.class), any(LocalDate.class), any(LocalDate.class)
-            );
+            )).thenReturn(Collections.emptyList());
 
             setupTimeoutDataMocks();
 
@@ -492,6 +526,7 @@ class KpiA1JobTest {
         dto.setInstanceId(testInstance.getId());
         dto.setInstanceModuleId(testInstanceModule.getId());
         dto.setAnalysisDate(LocalDate.now());
+        dto.setEvaluationStartDate(LocalDate.of(2023, 1, 1));
         dto.setEvaluationType(EvaluationType.TOTALE);
         dto.setOutcome(OutcomeStatus.OK);
         dto.setTotReq(1000L);
@@ -527,6 +562,7 @@ class KpiA1JobTest {
     private List<PagoPaRecordedTimeoutDTO> createTimeoutDataForDate() {
         PagoPaRecordedTimeoutDTO timeoutDTO = new PagoPaRecordedTimeoutDTO();
         timeoutDTO.setId(1L);
+        timeoutDTO.setStation("STATION_001");
         timeoutDTO.setTotReq(100L);
         timeoutDTO.setReqOk(95L);
         timeoutDTO.setReqTimeout(5L); // 5% timeout rate - below threshold
