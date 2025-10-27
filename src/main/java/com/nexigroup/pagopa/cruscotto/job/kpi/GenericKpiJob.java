@@ -71,11 +71,6 @@ public class GenericKpiJob extends QuartzJobBean {
                     .findByModuleCode(ModuleCode.valueOf(moduleCode.replace(".", "_")))
                     .orElseThrow(() -> new NullPointerException("KPI " + moduleCode + " configuration not found"));
 
-            if (!kpiConfiguration.isEnabled()) {
-                LOGGER.info("KPI {} is disabled in configuration. Exit...", moduleCode);
-                return;
-            }
-
             // Find all instances to calculate for this KPI (using the same method as KpiB6Job)
             List<InstanceDTO> instances = instanceService.findInstanceToCalculate(
                     ModuleCode.valueOf(moduleCode.replace(".", "_")),
