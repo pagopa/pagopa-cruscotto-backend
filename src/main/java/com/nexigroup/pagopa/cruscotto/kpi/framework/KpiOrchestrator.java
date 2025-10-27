@@ -124,7 +124,10 @@ public class KpiOrchestrator {
      * Clear previous results for the given instance to avoid duplicates
      */
     private void clearPreviousResults(KpiExecutionContext context) {
-        ModuleCode moduleCode = ModuleCode.valueOf(context.getConfiguration().getModuleCode().replace(".", "_"));
+        ModuleCode moduleCode = ModuleCode.fromCode(context.getConfiguration().getModuleCode());
+        if (moduleCode == null) {
+            throw new IllegalArgumentException("Invalid module code: " + context.getConfiguration().getModuleCode());
+        }
         Long instanceModuleId = context.getInstanceModule().getId();
         
         try {

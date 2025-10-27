@@ -32,6 +32,7 @@ public class KpiB6ConfigJob {
         JobDataMap jobDataMap = new JobDataMap();
         jobDataMap.put("moduleCode", "B6");
         jobDataMap.put("enabled", applicationProperties.getJob().getKpiB6Job().isEnabled());
+        jobDataMap.put("limit", applicationProperties.getJob().getKpiB6Job().getLimit());
         
         return JobBuilder.newJob(GenericKpiJob.class)
             .withIdentity(JobConstant.KPI_B6_JOB, "DEFAULT")

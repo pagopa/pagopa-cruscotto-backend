@@ -31,14 +31,4 @@ public interface KpiDetailResultRepository extends JpaRepository<KpiDetailResult
     @Modifying
     @Query("DELETE FROM KpiDetailResult k WHERE k.moduleCode = :moduleCode AND k.instanceModuleId = :instanceModuleId")
     void deleteAllByModuleCodeAndInstanceModuleId(@Param("moduleCode") ModuleCode moduleCode, @Param("instanceModuleId") Long instanceModuleId);
-
-    /**
-     * Find detail results by station code and module code.
-     */
-    List<KpiDetailResult> findAllByModuleCodeAndStationCode(ModuleCode moduleCode, String stationCode);
-
-    /**
-     * Find detail results by partner fiscal code and module code.
-     */
-    List<KpiDetailResult> findAllByModuleCodeAndPartnerFiscalCode(ModuleCode moduleCode, String partnerFiscalCode);
 }

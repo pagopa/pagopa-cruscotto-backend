@@ -41,10 +41,10 @@ public class KpiB6DetailResultDTO implements Serializable {
             this.outcome = genericDto.getOutcome() != null ? genericDto.getOutcome().name() : null;
             
             // Parse JSON data field to extract B6-specific fields
-            if (genericDto.getData() != null) {
+            if (genericDto.getAdditionalData() != null) {
                 try {
                     ObjectMapper mapper = new ObjectMapper();
-                    JsonNode dataNode = mapper.readTree(genericDto.getData());
+                    JsonNode dataNode = mapper.readTree(genericDto.getAdditionalData());
                     
                     if (dataNode.has("anagStationId")) {
                         this.anagStationId = dataNode.get("anagStationId").asLong();

@@ -38,20 +38,20 @@ public class KpiB6AnalyticDataDTO implements Serializable {
             this.kpiB6DetailResultId = genericDto.getKpiDetailResultId();
             this.analysisDate = genericDto.getAnalysisDate();
             
-            // Parse station code from string to integer if possible
-            if (genericDto.getStationCode() != null) {
-                try {
-                    this.stationCode = Integer.parseInt(genericDto.getStationCode());
-                } catch (NumberFormatException e) {
-                    this.stationCode = null;
-                }
-            }
-            
             // Parse JSON data field to extract B6-specific fields
-            if (genericDto.getData() != null) {
+            if (genericDto.getAnalyticData() != null) {
                 try {
                     ObjectMapper mapper = new ObjectMapper();
-                    JsonNode dataNode = mapper.readTree(genericDto.getData());
+                    JsonNode dataNode = mapper.readTree(genericDto.getAnalyticData());
+                    
+                    // Parse station code from JSON data
+                    if (dataNode.has("stationCode")) {
+                        try {
+                            this.stationCode = dataNode.get("stationCode").asInt();
+                        } catch (Exception e) {
+                            this.stationCode = null;
+                        }
+                    }
                     
                     if (dataNode.has("anagStationId")) {
                         this.anagStationId = dataNode.get("anagStationId").asLong();

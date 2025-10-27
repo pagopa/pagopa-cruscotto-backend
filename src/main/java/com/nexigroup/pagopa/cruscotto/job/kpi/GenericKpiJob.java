@@ -1,9 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.job.kpi;
 
-import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.StationStatus;
-import com.nexigroup.pagopa.cruscotto.job.config.JobConstant;
 import com.nexigroup.pagopa.cruscotto.kpi.framework.KpiExecutionContext;
 import com.nexigroup.pagopa.cruscotto.kpi.framework.KpiOrchestrator;
 import com.nexigroup.pagopa.cruscotto.service.*;
@@ -44,19 +42,18 @@ public class GenericKpiJob extends QuartzJobBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GenericKpiJob.class);
 
-    private final ApplicationProperties applicationProperties;
     private final InstanceService instanceService;
     private final InstanceModuleService instanceModuleService;
     private final KpiConfigurationService kpiConfigurationService;
     private final KpiOrchestrator kpiOrchestrator;
     private final AnagStationService anagStationService; // Added for B.6 data fetching
-    private final Scheduler scheduler;
 
     @Override
     public void executeInternal(@NonNull JobExecutionContext context) {
         JobDataMap dataMap = context.getJobDetail().getJobDataMap();
         String moduleCode = dataMap.getString("moduleCode");
         boolean enabled = dataMap.getBooleanValue("enabled");
+        int limit = dataMap.getInt("limit");
 
         LOGGER.info("Start calculate KPI {} - Generic Job", moduleCode);
 
@@ -74,7 +71,7 @@ public class GenericKpiJob extends QuartzJobBean {
             // Find all instances to calculate for this KPI (using the same method as KpiB6Job)
             List<InstanceDTO> instances = instanceService.findInstanceToCalculate(
                     ModuleCode.valueOf(moduleCode.replace(".", "_")),
-                    applicationProperties.getJob().getKpiB6Job().getLimit() // TODO: make this generic based on moduleCode
+                    limit
             );
 
             if (instances.isEmpty()) {

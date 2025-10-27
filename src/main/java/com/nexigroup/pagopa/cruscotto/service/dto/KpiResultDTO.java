@@ -1,6 +1,5 @@
 package com.nexigroup.pagopa.cruscotto.service.dto;
 
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.kpi.framework.KpiResult;
@@ -31,14 +30,12 @@ public class KpiResultDTO implements Serializable, KpiResult {
 
     private LocalDate analysisDate;
 
-    private EvaluationType evaluationType;
-
     private OutcomeStatus outcome;
 
     /**
      * JSON field containing KPI-specific data
      */
-    private String data;
+    private String additionalData;
 
     private String createdBy;
 
