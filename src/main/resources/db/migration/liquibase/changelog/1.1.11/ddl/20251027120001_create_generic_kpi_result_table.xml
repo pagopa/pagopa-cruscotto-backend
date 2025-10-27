@@ -35,6 +35,12 @@
       <column name="TE_DATA" type="TEXT">
         <constraints nullable="true"/>
       </column>
+      <column name="TE_CREATED_BY" type="varchar(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DT_CREATED_DATE" type="datetime"/>
+      <column name="TE_LAST_MODIFIED_BY" type="varchar(50)"/>
+      <column name="DT_LAST_MODIFIED_DATE" type="datetime"/>
     </createTable>
 
     <rollback>

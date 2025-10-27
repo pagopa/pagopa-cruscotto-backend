@@ -24,8 +24,9 @@ public class KpiDetailResult extends AbstractAuditingEntity<Long> implements Ser
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "co_id")
+    @SequenceGenerator(name = "SQCRUSC8_KPIDETAILRESULT", sequenceName = "SQCRUSC8_KPIDETAILRESULT", allocationSize = 1)
+    @GeneratedValue(generator = "SQCRUSC8_KPIDETAILRESULT", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @Enumerated(EnumType.STRING)
