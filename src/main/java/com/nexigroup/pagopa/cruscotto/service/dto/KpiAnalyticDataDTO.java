@@ -33,12 +33,10 @@ public class KpiAnalyticDataDTO implements Serializable, KpiAnalyticData {
 
     private LocalDate dataDate;
 
-    private String stationCode;
-
     /**
      * JSON field containing KPI-specific data
      */
-    private String data;
+    private String analyticData;
 
     private String createdBy;
 

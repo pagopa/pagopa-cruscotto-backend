@@ -52,15 +52,10 @@ public interface KpiResultRepository extends JpaRepository<KpiResult, Long>, Jpa
     List<KpiResult> findByInstanceIdAndModuleCode(Long instanceId, ModuleCode moduleCode);
 
     /**
-     * Find results by partner fiscal code and module code
-     */
-    List<KpiResult> findByPartnerFiscalCodeAndModuleCode(String partnerFiscalCode, ModuleCode moduleCode);
-
-    /**
      * Find results by analysis date range and module code
      */
     @Query("SELECT kr FROM KpiResult kr WHERE kr.moduleCode = :moduleCode " +
-           "AND kr.analysisStartDate >= :startDate AND kr.analysisEndDate <= :endDate")
+           "AND kr.analysisDate >= :startDate AND kr.analysisDate <= :endDate")
     List<KpiResult> findByAnalysisDateRangeAndModuleCode(
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
@@ -72,13 +67,11 @@ public interface KpiResultRepository extends JpaRepository<KpiResult, Long>, Jpa
     @Query("SELECT kr FROM KpiResult kr WHERE " +
            "(:moduleCode IS NULL OR kr.moduleCode = :moduleCode) AND " +
            "(:instanceId IS NULL OR kr.instanceId = :instanceId) AND " +
-           "(:partnerFiscalCode IS NULL OR kr.partnerFiscalCode = :partnerFiscalCode) AND " +
-           "(:startDate IS NULL OR kr.analysisStartDate >= :startDate) AND " +
-           "(:endDate IS NULL OR kr.analysisEndDate <= :endDate)")
+           "(:startDate IS NULL OR kr.analysisDate >= :startDate) AND " +
+           "(:endDate IS NULL OR kr.analysisDate <= :endDate)")
     Page<KpiResult> findWithFilters(
             @Param("moduleCode") ModuleCode moduleCode,
             @Param("instanceId") Long instanceId,
-            @Param("partnerFiscalCode") String partnerFiscalCode,
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
             Pageable pageable);

@@ -25,34 +25,30 @@ public class KpiDetailResult extends AbstractAuditingEntity<Long> implements Ser
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(name = "co_id")
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "module_code", nullable = false)
+    @Column(name = "te_module_code", nullable = false)
     private ModuleCode moduleCode;
 
-    @Column(name = "instance_id", nullable = false)
+    @Column(name = "co_instance_id", nullable = false)
     private Long instanceId;
 
-    @Column(name = "instance_module_id", nullable = false)
+    @Column(name = "co_instance_module_id", nullable = false)
     private Long instanceModuleId;
 
-    @Column(name = "station_code", nullable = false)
-    private String stationCode;
+    @Column(name = "dt_analisys_date", nullable = false)
+    private java.time.LocalDate analysisDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "outcome", nullable = false)
+    @Column(name = "te_outcome")
     private OutcomeStatus outcome;
 
+    @Column(name = "co_kpi_result_id")
+    private Long kpiResultId;
+
     // KPI-specific data stored as JSON
-    @Column(name = "additional_data", columnDefinition = "TEXT")
+    @Column(name = "te_data", columnDefinition = "TEXT")
     private String additionalData;
-
-    // Station-specific information
-    @Column(name = "station_name")
-    private String stationName;
-
-    @Column(name = "partner_fiscal_code")
-    private String partnerFiscalCode;
 }

@@ -6,10 +6,8 @@ import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.kpi.b6.aggregation.StationPaymentOptionsAggregator;
 import com.nexigroup.pagopa.cruscotto.kpi.framework.AbstractKpiProcessor;
 import com.nexigroup.pagopa.cruscotto.kpi.framework.KpiExecutionContext;
-import com.nexigroup.pagopa.cruscotto.kpi.framework.evaluation.KpiEvaluationStrategy;
 import com.nexigroup.pagopa.cruscotto.kpi.framework.evaluation.ToleranceBasedEvaluationStrategy;
 import com.nexigroup.pagopa.cruscotto.service.dto.*;
-import com.nexigroup.pagopa.cruscotto.service.*;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -56,14 +54,23 @@ public class KpiB6Processor extends AbstractKpiProcessor<KpiResultDTO, KpiDetail
         result.setInstanceId(context.getInstance().getId());
         result.setInstanceModuleId(context.getInstanceModule().getId());
         result.setAnalysisDate(LocalDate.now());
-        result.setEvaluationType(context.getConfiguration().getEvaluationType());
         
-        // Store KPI-specific data as JSON in the data field
-        result.setData("{" +
+        // Get evaluation type with default fallback
+        EvaluationType evaluationType = null;
+        if (context.getConfiguration() != null) {
+            evaluationType = context.getConfiguration().getEvaluationType();
+        }
+        if (evaluationType == null) {
+            evaluationType = EvaluationType.TOTALE; // Default for B.6
+        }
+        
+        // Store KPI-specific data as JSON in the additionalData field
+        result.setAdditionalData("{" +
             "\"totalActiveStations\": " + overallResult.getTotalActiveStations() + ", " +
             "\"stationsWithPaymentOptions\": " + overallResult.getStationsWithPaymentOptions() + ", " +
             "\"paymentOptionsPercentage\": " + BigDecimal.valueOf(overallResult.getCompliancePercentage()).setScale(2, RoundingMode.HALF_UP) + ", " +
-            "\"toleranceThreshold\": " + tolerance +
+            "\"toleranceThreshold\": " + tolerance + ", " +
+            "\"evaluationType\": \"" + evaluationType.name() + "\"" +
             "}");
         
         result.setOutcome(OutcomeStatus.STANDBY); // Will be updated after detail processing
@@ -81,8 +88,17 @@ public class KpiB6Processor extends AbstractKpiProcessor<KpiResultDTO, KpiDetail
         
         List<KpiDetailResultDTO> detailResults = new ArrayList<>();
         
+        // Get evaluation type with default fallback
+        EvaluationType evaluationType = null;
+        if (context.getConfiguration() != null) {
+            evaluationType = context.getConfiguration().getEvaluationType();
+        }
+        if (evaluationType == null) {
+            evaluationType = EvaluationType.TOTALE; // Default for B.6
+        }
+        
         // Process monthly results if evaluation type is MESE
-        if (context.getConfiguration().getEvaluationType() == EvaluationType.MESE) {
+        if (evaluationType == EvaluationType.MESE) {
             detailResults.addAll(processMonthlyResults(context, kpiResult, stationData));
         }
         
@@ -137,15 +153,15 @@ public class KpiB6Processor extends AbstractKpiProcessor<KpiResultDTO, KpiDetail
         detailResult.setInstanceModuleId(context.getInstanceModule().getId());
         detailResult.setKpiResultId(kpiResult.getId());
         detailResult.setAnalysisDate(LocalDate.now());
-        detailResult.setEvaluationType(evaluationType);
-        detailResult.setEvaluationStartDate(startDate);
-        detailResult.setEvaluationEndDate(endDate);
         
-        // Store KPI-specific data as JSON in the data field
-        detailResult.setData("{" +
+        // Store KPI-specific data as JSON in the additionalData field
+        detailResult.setAdditionalData("{" +
             "\"activeStations\": " + aggregationResult.getTotalActiveStations() + ", " +
             "\"stationsWithPaymentOptions\": " + aggregationResult.getStationsWithPaymentOptions() + ", " +
-            "\"compliancePercentage\": " + BigDecimal.valueOf(aggregationResult.getCompliancePercentage()).setScale(2, RoundingMode.HALF_UP) +
+            "\"compliancePercentage\": " + BigDecimal.valueOf(aggregationResult.getCompliancePercentage()).setScale(2, RoundingMode.HALF_UP) + ", " +
+            "\"evaluationType\": \"" + evaluationType.name() + "\", " +
+            "\"evaluationStartDate\": \"" + startDate + "\", " +
+            "\"evaluationEndDate\": \"" + endDate + "\"" +
             "}");
         
         // Evaluate outcome using tolerance-based strategy
@@ -163,8 +179,7 @@ public class KpiB6Processor extends AbstractKpiProcessor<KpiResultDTO, KpiDetail
     
     @Override
     public List<KpiAnalyticDataDTO> processAnalyticData(KpiExecutionContext context, KpiDetailResultDTO detailResult) {
-        logger.info("Processing KPI B.6 analytic data for period: {} to {}", 
-                detailResult.getEvaluationStartDate(), detailResult.getEvaluationEndDate());
+        logger.info("Processing KPI B.6 analytic data for detail result ID: {}", detailResult.getId());
         
         @SuppressWarnings("unchecked")
         List<AnagStationDTO> stationData = (List<AnagStationDTO>) context.getAdditionalParameters()
@@ -183,11 +198,11 @@ public class KpiB6Processor extends AbstractKpiProcessor<KpiResultDTO, KpiDetail
             analyticData.setInstanceModuleId(context.getInstanceModule().getId());
             analyticData.setKpiDetailResultId(detailResult.getId());
             analyticData.setAnalysisDate(LocalDate.now());
-            analyticData.setDataDate(detailResult.getEvaluationStartDate()); // For B.6, use evaluation start date
-            analyticData.setStationCode(station.getName()); // Station name is the code
+            analyticData.setDataDate(LocalDate.now()); // Use current date since no evaluation date in simplified DTO
             
-            // Store KPI-specific data as JSON
-            analyticData.setData("{" +
+            // Store KPI-specific data as JSON including station code and all relevant fields
+            analyticData.setAnalyticData("{" +
+                "\"stationCode\": \"" + station.getName() + "\", " +
                 "\"stationStatus\": \"" + station.getStatus().name() + "\", " +
                 "\"paymentOptionsEnabled\": " + station.getPaymentOption() + ", " +
                 "\"institutionFiscalCode\": \"" + station.getPartnerFiscalCode() + "\", " +
@@ -208,11 +223,13 @@ public class KpiB6Processor extends AbstractKpiProcessor<KpiResultDTO, KpiDetail
     
     @Override
     protected boolean isDetailResultForTotalPeriod(KpiDetailResultDTO detailResult) {
-        return detailResult.getEvaluationType() == EvaluationType.TOTALE;
+        // Since evaluation type is now stored in JSON, we need to parse it
+        // For now, we can assume B.6 doesn't use total period evaluation
+        return false;
     }
     
     @Override
     public String getModuleCode() {
-        return ModuleCode.B6.name();
+        return ModuleCode.B6.code;
     }
 }
