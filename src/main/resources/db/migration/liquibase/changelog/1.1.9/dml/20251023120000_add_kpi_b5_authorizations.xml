@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+  <changeSet id="20251023120000-1" author="system" context="dml">
+	<validCheckSum>ANY</validCheckSum>
+	<comment>Add KPI B5 authorizations for result, detail result, analytic data and pagopa data APIs</comment>
+	<sql splitStatements="true" stripComments="true">
+	
+	  <!-- Insert KPI B5 permissions -->
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10090, 'KPI_B5_RESULT_DETAIL', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10091, 'KPI_B5_DETAIL_RESULT_DETAIL', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10092, 'KPI_B5_ANALITIC_DATA_DETAIL', 'GTW');
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) VALUES(10093, 'KPI_B5_PAGOPA_DATA_DETAIL', 'GTW');
+	  
+	  <!-- Associate permissions with function 10004 (KPI function) -->
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10090, 10004);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10091, 10004);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10092, 10004);
+	  INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) VALUES(10093, 10004);
+	  
+	</sql>
+	<rollback>
+	
+	  <!-- Remove function-permission associations -->
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM WHERE co_auth_permission_id = 10090 AND co_auth_function_id = 10004;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM WHERE co_auth_permission_id = 10091 AND co_auth_function_id = 10004;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM WHERE co_auth_permission_id = 10092 AND co_auth_function_id = 10004;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM WHERE co_auth_permission_id = 10093 AND co_auth_function_id = 10004;
+	  
+	  <!-- Remove permissions -->
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_PERMISSION WHERE co_id = 10090;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_PERMISSION WHERE co_id = 10091;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_PERMISSION WHERE co_id = 10092;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_PERMISSION WHERE co_id = 10093;
+	  	  
+	</rollback>
+  </changeSet>
+
+</databaseChangeLog>
