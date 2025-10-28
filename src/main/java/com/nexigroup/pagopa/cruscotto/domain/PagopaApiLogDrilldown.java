@@ -25,13 +25,13 @@ import org.hibernate.annotations.DynamicUpdate;
 
 /**
  * A PagopaApiLogDrilldown.
- * 
+ *
  * Stores API log data for KPI B.4 drilldown analysis.
  * This table maintains a snapshot of PAGOPA_API_LOG data at the time of KPI B.4 analysis execution,
  * providing detailed breakdown of API requests by partner, station, and fiscal code.
  */
 @Entity
-@Table(name = "PAGOPA_API_LOG_DRILLDOWN")
+@Table(name = "API_LOG_DRILLDOWN")
 @Getter
 @Setter
 @DynamicUpdate
@@ -43,8 +43,8 @@ public class PagopaApiLogDrilldown implements Serializable {
 
     @Id
     @Column(name = "CO_ID")
-    @SequenceGenerator(name = "SQCRUSC8_PAGOPAAPILOGDRILL", sequenceName = "SQCRUSC8_PAGOPAAPILOGDRILL", allocationSize = 1)
-    @GeneratedValue(generator = "SQCRUSC8_PAGOPAAPILOGDRILL", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "SQCRUSC8_API_LOG_DRILL", sequenceName = "SQCRUSC8_API_LOG_DRILL", allocationSize = 1)
+    @GeneratedValue(generator = "SQCRUSC8_API_LOG_DRILL", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @JsonIgnore
@@ -66,10 +66,15 @@ public class PagopaApiLogDrilldown implements Serializable {
     private AnagStation station;
 
     @JsonIgnore
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CO_KPI_B4_ANALYTIC_DATA_ID", nullable = false)
+    @JoinColumn(name = "CO_KPI_B4_ANALYTIC_DATA_ID")
     private KpiB4AnalyticData kpiB4AnalyticData;
+
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "CO_KPI_B8_ANALYTIC_DATA_ID")
+    private KpiB8AnalyticData kpiB8AnalyticData;
+
 
     @NotNull
     @Column(name = "DT_ANALYSIS_DATE", nullable = false)

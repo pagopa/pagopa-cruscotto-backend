@@ -38,6 +38,8 @@ spring:
       write-durations-as-timestamps: false
   liquibase:
     contexts: test, ddl
+    parameters:
+      datetimeType: TIMESTAMP
   main:
     allow-bean-definition-overriding: true
   messages:
@@ -189,14 +191,22 @@ application:
       enabled: true
       cron: 0 0/2 0-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
       limit: 20
+    kpi-b5-job:
+      enabled: true
+      cron: 0 0/2 0-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
+      limit: 20
     kpi-b1-job:
       enabled: true
       cron: 0 0/2 08-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
       limit: 20
-    kpi-b6-job:
+    kpi-b8-job:
       enabled: true
       cron: 0 0/2 08-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
-      limit: 20  
+      limit: 20
+    kpi-c1-job:
+      enabled: false
+      cron: 0 0/2 08-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
+      limit: 20
     clear-log-job:
       cron: 0 0/20 05-6 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
       days: 7

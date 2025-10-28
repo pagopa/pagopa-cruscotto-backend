@@ -19,7 +19,7 @@ import java.util.Optional;
 
 /**
  * REST controller for managing KPI B.4 PagoPA Raw Data Drilldown.
- * Provides endpoint to retrieve historical API log data snapshots from pagopa_api_log_drilldown table
+ * Provides endpoint to retrieve historical API log data snapshots from api_log_drilldown table
  * as the final drilldown level in KPI B.4 analysis.
  */
 @RestController
@@ -45,9 +45,9 @@ public class KpiB4PagopaDataResource {
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.KPI_B4_ANALITIC_DATA_DETAIL + "\")")
     public ResponseEntity<List<PagopaAPILogDTO>> getkpib4ByAnalyticDataId(@PathVariable Long analyticDataId) {
         LOGGER.debug("REST request to get pagopa API log drilldown data for KPI B.4 analytic data ID: {}", analyticDataId);
-        
+
         List<PagopaAPILogDTO> pagopaData = pagopaApiLogDrilldownService.findByKpiB4AnalyticDataId(analyticDataId);
-        
+
         return ResponseUtil.wrapOrNotFound(
             Optional.ofNullable(pagopaData.isEmpty() ? null : pagopaData)
         );
