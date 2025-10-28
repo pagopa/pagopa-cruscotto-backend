@@ -1,6 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.service;
 
 import com.nexigroup.pagopa.cruscotto.domain.KpiConfiguration;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.service.bean.KpiConfigurationRequestBean;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiConfigurationDTO;
 import java.util.Optional;
@@ -18,6 +19,14 @@ public interface KpiConfigurationService {
      * @return an {@link Optional} containing the {@link KpiConfigurationDTO} if found, or an empty {@link Optional} if no configuration exists for the specified code
      */
     Optional<KpiConfigurationDTO> findKpiConfigurationByCode(String code);
+
+    /**
+     * Find KPI configuration by module code.
+     *
+     * @param moduleCode the module code
+     * @return the KPI configuration DTO if found
+     */
+    Optional<KpiConfigurationDTO> findByModuleCode(ModuleCode moduleCode);
 
     /**
      * Fetches all KPI configurations in a paginated format according to the provided pageable details.
