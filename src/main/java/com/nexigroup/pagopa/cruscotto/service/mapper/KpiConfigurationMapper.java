@@ -11,10 +11,12 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring", uses = { ModuleMapper.class })
 public interface KpiConfigurationMapper extends EntityMapper<KpiConfigurationDTO, KpiConfiguration> {
 
-    @Mapping(source = "moduleCode", target = "module")
+    @Mapping(source = "moduleId", target = "module")
     KpiConfiguration toEntity(KpiConfigurationDTO kpiConfigurationDTO);
 
-    @Mapping(source = "module.id", target = "moduleCode")
+    @Mapping(source = "module.id", target = "moduleId")
+    @Mapping(source = "module.code", target = "moduleCode")
+    @Mapping(source = "module.name", target = "moduleName")
     KpiConfigurationDTO toDto(KpiConfiguration kpiConfiguration);
 
     default KpiConfiguration fromId(Long id) {

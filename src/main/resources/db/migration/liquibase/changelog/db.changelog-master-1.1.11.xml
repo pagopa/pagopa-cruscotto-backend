@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+  <!-- Include previous version -->
+  <include file="db.changelog-master-1.1.10.xml" relativeToChangelogFile="true"/>
+
+  <!-- Drop existing generic KPI tables if they exist (for clean recreation) -->
+  <include file="1.1.11/ddl/20251027120000_drop_existing_generic_kpi_tables.xml" relativeToChangelogFile="true"/>
+
+  <!-- Create generic KPI result table -->
+  <include file="1.1.11/ddl/20251027120001_create_generic_kpi_result_table.xml" relativeToChangelogFile="true"/>
+
+  <!-- Create generic KPI detail result table -->
+  <include file="1.1.11/ddl/20251027120002_create_generic_kpi_detail_result_table.xml" relativeToChangelogFile="true"/>
+
+  <!-- Create generic KPI analytic data table -->
+  <include file="1.1.11/ddl/20251027120003_create_generic_kpi_analytic_data_table.xml" relativeToChangelogFile="true"/>
+
+  <!-- Add foreign key constraints for generic KPI tables -->
+  <include file="1.1.11/ddl/20251027120004_add_generic_kpi_foreign_keys.xml" relativeToChangelogFile="true"/>
+
+  <!-- Add KPI B6 authorizations -->
+  <include file="1.1.11/dml/20251028180000_add_kpi_b6_authorizations.xml" relativeToChangelogFile="true"/>
+
+</databaseChangeLog>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+  <!-- Drop existing generic KPI tables if they exist -->
+  <changeSet id="20251027120000-1" author="system" context="ddl">
+    <preConditions onFail="CONTINUE">
+      <tableExists tableName="KPI_ANALYTIC_DATA"/>
+    </preConditions>
+    <dropTable tableName="KPI_ANALYTIC_DATA" cascadeConstraints="true"/>
+  </changeSet>
+
+  <changeSet id="20251027120000-2" author="system" context="ddl">
+    <preConditions onFail="CONTINUE">
+      <tableExists tableName="KPI_DETAIL_RESULT"/>
+    </preConditions>
+    <dropTable tableName="KPI_DETAIL_RESULT" cascadeConstraints="true"/>
+  </changeSet>
+
+  <changeSet id="20251027120000-3" author="system" context="ddl">
+    <preConditions onFail="CONTINUE">
+      <tableExists tableName="KPI_RESULT"/>
+    </preConditions>
+    <dropTable tableName="KPI_RESULT" cascadeConstraints="true"/>
+  </changeSet>
+
+  <!-- Drop sequences if they exist -->
+  <changeSet id="20251027120000-4" author="system" context="ddl">
+    <preConditions onFail="CONTINUE">
+      <sequenceExists sequenceName="SQ${project_name}_KPIANALYTICDATA"/>
+    </preConditions>
+    <dropSequence sequenceName="SQ${project_name}_KPIANALYTICDATA"/>
+  </changeSet>
+
+  <changeSet id="20251027120000-5" author="system" context="ddl">
+    <preConditions onFail="CONTINUE">
+      <sequenceExists sequenceName="SQ${project_name}_KPIDETAILRESULT"/>
+    </preConditions>
+    <dropSequence sequenceName="SQ${project_name}_KPIDETAILRESULT"/>
+  </changeSet>
+
+  <changeSet id="20251027120000-6" author="system" context="ddl">
+    <preConditions onFail="CONTINUE">
+      <sequenceExists sequenceName="SQ${project_name}_KPIRESULT"/>
+    </preConditions>
+    <dropSequence sequenceName="SQ${project_name}_KPIRESULT"/>
+  </changeSet>
+
+</databaseChangeLog>

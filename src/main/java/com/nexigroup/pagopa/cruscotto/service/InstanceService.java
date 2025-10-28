@@ -42,4 +42,19 @@ public interface InstanceService {
     void updateExecuteStateAndLastAnalysis(Long id, Instant lastAnalysisDate, AnalysisOutcome lastAnalysisOutcome, String currentUser);
 
     void updateInstanceStatusInProgress(long id);
+
+    /**
+     * Find active instances for a specific module
+     */
+    List<InstanceDTO> findActiveInstancesForModule(Long moduleId);
+
+    /**
+     * Update instance status to completed
+     */
+    void updateInstanceStatusCompleted(Long id);
+
+    /**
+     * Update instance status to error
+     */
+    void updateInstanceStatusError(Long id);
 }
