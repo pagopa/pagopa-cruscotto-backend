@@ -215,4 +215,4 @@ jhipster:
     contact-email:
     license: unlicensed
     license-url:
-  security:
+  # security configuration can be added here

@@ -14,7 +14,7 @@ import org.springframework.stereotype.Repository;
  * Spring Data repository for the PagopaApiLogDrilldown entity.
  */
 @Repository
-public interface PagopaApiLogDrilldownRepository 
+public interface PagopaApiLogDrilldownRepository
     extends JpaRepository<PagopaApiLogDrilldown, Long>, JpaSpecificationExecutor<PagopaApiLogDrilldown> {
 
     /**
@@ -27,6 +27,18 @@ public interface PagopaApiLogDrilldownRepository
            "ORDER BY d.dataDate ASC, d.partnerFiscalCode ASC, d.stationCode ASC")
     List<PagopaApiLogDrilldown> findByKpiB4AnalyticDataId(@Param("analyticDataId") Long analyticDataId);
 
+
+    /**
+     * Find all drilldown records for a specific KPI B.8 analytic data ID
+     * @param analyticDataId the KPI B.8 analytic data ID
+     * @return list of drilldown records ordered by data date, partner fiscal code, station code
+     */
+    @Query("SELECT d FROM PagopaApiLogDrilldown d " +
+        "WHERE d.kpiB8AnalyticData.id = :analyticDataId " +
+        "ORDER BY d.dataDate ASC, d.partnerFiscalCode ASC, d.stationCode ASC")
+    List<PagopaApiLogDrilldown> findByKpiB8AnalyticDataId(@Param("analyticDataId") Long analyticDataId);
+
+
     /**
      * Find all drilldown records for a specific instance and analysis date
      * @param instanceId the instance ID
@@ -38,7 +50,7 @@ public interface PagopaApiLogDrilldownRepository
            "AND d.analysisDate = :analysisDate " +
            "ORDER BY d.dataDate ASC, d.partnerFiscalCode ASC")
     List<PagopaApiLogDrilldown> findByInstanceIdAndAnalysisDate(
-        @Param("instanceId") Long instanceId, 
+        @Param("instanceId") Long instanceId,
         @Param("analysisDate") LocalDate analysisDate);
 
     /**
@@ -54,8 +66,8 @@ public interface PagopaApiLogDrilldownRepository
            "AND d.dataDate = :dataDate " +
            "ORDER BY d.dataDate ASC, d.api ASC")
     List<PagopaApiLogDrilldown> findByInstanceIdAndStationIdAndDataDate(
-        @Param("instanceId") Long instanceId, 
-        @Param("stationId") Long stationId, 
+        @Param("instanceId") Long instanceId,
+        @Param("stationId") Long stationId,
         @Param("dataDate") LocalDate dataDate);
 
     /**
@@ -98,6 +110,6 @@ public interface PagopaApiLogDrilldownRepository
            "AND d.partnerFiscalCode = :partnerFiscalCode " +
            "ORDER BY d.dataDate ASC, d.stationCode ASC")
     List<PagopaApiLogDrilldown> findByKpiB4AnalyticDataIdAndPartnerFiscalCode(
-        @Param("analyticDataId") Long analyticDataId, 
+        @Param("analyticDataId") Long analyticDataId,
         @Param("partnerFiscalCode") String partnerFiscalCode);
 }

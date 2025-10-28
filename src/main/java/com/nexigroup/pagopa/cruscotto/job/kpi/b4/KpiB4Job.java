@@ -126,17 +126,42 @@ public class KpiB4Job extends QuartzJobBean {
         LOGGER.info("Processing instance module {} for KPI B.4", instanceModuleDTO.getId());
 
         try {
+            // Update instance status from "planned" to "in progress"
+            instanceService.updateInstanceStatusInProgress(instanceDTO.getId());
+
             // REQUISITO: Verifica prerequisiti - controllo presenza dati API log per il periodo
             if (!hasApiLogDataForPeriod(instanceDTO)) {
                 LOGGER.warn("SKIPPING KPI B.4 calculation for instance {} - No API log data for analysis period {} to {}", 
                            instanceDTO.getId(), 
                            instanceDTO.getAnalysisPeriodStartDate(),
                            instanceDTO.getAnalysisPeriodEndDate());
+                
+                // Anche se non ci sono dati, dobbiamo impostare outcome KO e triggare il state calculation
+                try {
+                    LocalDate analysisDate = calculateAnalysisDate(instanceDTO, instanceModuleDTO);
+                    OutcomeStatus noDataOutcome = kpiB4DataService.saveKpiB4Results(instanceDTO, instanceModuleDTO, 
+                                                                                   kpiConfigurationDTO, analysisDate, OutcomeStatus.KO);
+                    instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(), noDataOutcome);
+                    
+                    // Trigger calculateStateInstanceJob anche per il caso no-data
+                    JobDetail job = scheduler.getJobDetail(JobKey.jobKey(JobConstant.CALCULATE_STATE_INSTANCE_JOB, "DEFAULT"));
+                    Trigger trigger = TriggerBuilder.newTrigger()
+                        .usingJobData("instanceId", instanceDTO.getId())
+                        .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                            .withMisfireHandlingInstructionFireNow()
+                            .withRepeatCount(0))
+                        .forJob(job)
+                        .build();
+                    scheduler.scheduleJob(trigger);
+                    
+                    LOGGER.info("No data case: set outcome KO and triggered calculateStateInstanceJob for instance: {}", instanceDTO.getId());
+                    
+                } catch (Exception e) {
+                    LOGGER.error("Error handling no-data case for instance {}: {}", instanceDTO.getId(), e.getMessage(), e);
+                }
+                
                 return; // Non eseguire l'analisi se non ci sono dati
             }
-
-            // Update instance status from "planned" to "in progress"
-            instanceService.updateInstanceStatusInProgress(instanceDTO.getId());
 
             // Calcola la data di analisi basata sulla configurazione  
             LocalDate analysisDate = calculateAnalysisDate(instanceDTO, instanceModuleDTO);
@@ -160,23 +185,26 @@ public class KpiB4Job extends QuartzJobBean {
 
             LOGGER.info("Instance module {} updated with final outcome: {}", instanceModuleDTO.getId(), finalOutcome);
 
-            // Trigger calculateStateInstanceJob to update instance state
+            // Trigger calculateStateInstanceJob immediately after outcome update (like B1, B2 jobs)
             try {
                 JobDetail job = scheduler.getJobDetail(JobKey.jobKey(JobConstant.CALCULATE_STATE_INSTANCE_JOB, "DEFAULT"));
-
+                
                 Trigger trigger = TriggerBuilder.newTrigger()
                     .usingJobData("instanceId", instanceDTO.getId())
-                    .withSchedule(SimpleScheduleBuilder.simpleSchedule().withMisfireHandlingInstructionFireNow().withRepeatCount(0))
+                    .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                        .withMisfireHandlingInstructionFireNow()
+                        .withRepeatCount(0))
                     .forJob(job)
                     .build();
-
+                    
                 scheduler.scheduleJob(trigger);
-
+                
                 LOGGER.info("Triggered calculateStateInstanceJob for instance: {}", instanceDTO.getId());
-
+                
             } catch (Exception e) {
                 LOGGER.error("Error triggering calculateStateInstanceJob for instance {}: {}", 
                            instanceDTO.getId(), e.getMessage(), e);
+                // Non rethrow l'eccezione per non far fallire il job principale
             }
 
             LOGGER.info("KPI B.4 calculation completed for instance module {} with final outcome: {}", 
@@ -328,6 +356,12 @@ public class KpiB4Job extends QuartzJobBean {
             return OutcomeStatus.OK;
         }
     }
+
+    /**
+     * Triggers the calculateStateInstanceJob after KPI B.4 processing completion.
+     * This ensures the instance state is updated after all transactions are committed.
+     */
+
 
     /**
      * Schedules a job for a single instance calculation.

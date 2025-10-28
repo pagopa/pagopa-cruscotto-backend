@@ -21,12 +21,14 @@ public interface AnagPartnerMapper extends EntityMapper<AnagPartnerDTO, AnagPart
     @Mapping(target= "id", source = "partnerIdentification.id")
     @Mapping(target= "fiscalCode", source = "partnerIdentification.fiscalCode")
     @Mapping(target = "name", source = "partnerIdentification.name")
+    @Mapping(target = "institutionsCount", source = "associatedInstitutes")
     AnagPartner toEntity(AnagPartnerDTO anagPartnerDTO);
 
     @Mapping(target = "lastAnalysisDate", ignore = true)
     @Mapping(target = "partnerIdentification.id", source = "id")
     @Mapping(target = "partnerIdentification.fiscalCode", source = "fiscalCode")
     @Mapping(target = "partnerIdentification.name", source = "name")
+    @Mapping(target = "associatedInstitutes", source = "institutionsCount")
     AnagPartnerDTO toDto(AnagPartner anagPartner);
 
     default AnagPartner fromId(Long id) {

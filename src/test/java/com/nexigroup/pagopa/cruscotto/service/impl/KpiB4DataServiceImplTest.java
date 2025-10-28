@@ -1,5 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
+import com.nexigroup.pagopa.cruscotto.domain.Instance;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
@@ -7,6 +9,7 @@ import com.nexigroup.pagopa.cruscotto.repository.KpiB4DetailResultRepository;
 import com.nexigroup.pagopa.cruscotto.service.KpiB4Service;
 import com.nexigroup.pagopa.cruscotto.service.dto.InstanceDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.InstanceModuleDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiB4ResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiConfigurationDTO;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -16,9 +19,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class KpiB4DataServiceImplTest {
@@ -48,6 +56,20 @@ class KpiB4DataServiceImplTest {
         LocalDate analysisDate = LocalDate.now();
         OutcomeStatus outcome = OutcomeStatus.OK;
 
+        // Mock Instance entity
+        Instance instance = new Instance();
+        instance.setId(1L);
+        when(instanceRepository.findById(1L)).thenReturn(Optional.of(instance));
+
+        // Mock KpiB4Service
+        KpiB4ResultDTO kpiB4ResultDTO = new KpiB4ResultDTO();
+        kpiB4ResultDTO.setId(1L);
+        kpiB4ResultDTO.setOutcome(OutcomeStatus.OK);
+        when(kpiB4Service.executeKpiB4Calculation(any(Instance.class))).thenReturn(kpiB4ResultDTO);
+
+        // Mock detail result check for monthly evaluation
+        when(kpiB4DetailResultRepository.existsKoOutcomeByResultId(1L)).thenReturn(false);
+
         // When & Then
         OutcomeStatus result = assertDoesNotThrow(() -> 
             kpiB4DataService.saveKpiB4Results(instanceDTO, instanceModuleDTO, 
@@ -56,6 +78,7 @@ class KpiB4DataServiceImplTest {
         
         // Verify that a result is returned
         assertNotNull(result);
+        assertEquals(OutcomeStatus.OK, result);
     }
 
     private InstanceDTO createTestInstanceDTO() {
@@ -78,6 +101,7 @@ class KpiB4DataServiceImplTest {
         kpiConfigDTO.setId(1L);
         kpiConfigDTO.setModuleId(1L);
         kpiConfigDTO.setModuleCode(ModuleCode.B4.code);
+        kpiConfigDTO.setEvaluationType(EvaluationType.MESE);
         return kpiConfigDTO;
     }
 }

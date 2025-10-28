@@ -25,9 +25,9 @@ public class ApplicationProperties {
     private final Quartz quartz = new Quartz();
 
     private final PagoPaClient pagoPaClient = new PagoPaClient();
-    
+
     private final AuthGroup authGroup = new AuthGroup();
-    
+
 
     @Setter
     @Getter
@@ -71,7 +71,12 @@ public class ApplicationProperties {
 
         private KpiB4Job kpiB4Job = new KpiB4Job();
 
+        private KpiB5Job kpiB5Job = new KpiB5Job();
+
         private KpiB1Job kpiB1Job = new KpiB1Job();
+
+        private KpiB8Job kpiB8Job = new KpiB8Job();
+
 
         private KpiB6Job kpiB6Job = new KpiB6Job();
 
@@ -175,7 +180,29 @@ public class ApplicationProperties {
 
     @Getter
     @Setter
+    public static class KpiB5Job {
+
+        private boolean enabled = true;
+
+        private String cron;
+
+        private int limit;
+    }
+
+    @Getter
+    @Setter
     public static class KpiB1Job {
+
+        private boolean enabled = true;
+
+        private String cron;
+
+        private int limit;
+    }
+
+    @Getter
+    @Setter
+    public static class KpiB8Job {
 
         private boolean enabled = true;
 
@@ -242,7 +269,7 @@ public class ApplicationProperties {
             private String apiKeyValue;
         }
     }
-    
+
     @Setter
     @Getter
     public static class LoadStandInDataJob {
@@ -257,5 +284,5 @@ public class ApplicationProperties {
     public static class AuthGroup {
 
         private String superAdmin;
-    }    
+    }
 }
