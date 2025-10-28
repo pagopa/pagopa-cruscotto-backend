@@ -269,72 +269,122 @@ public class KpiB3DataServiceImpl implements KpiB3DataService {
         LOGGER.info("Saved {} detail results (3 monthly + 1 total) for partner {} with {} stations", 
                    monthsInPeriod.size() + 1, partnerFiscalCode, partnerStations.size());
         
-        // Save analytic data for all Stand-In events (linked to both monthly and total results)
+        // Save analytic data for all Stand-In events (aggregated by station)
         if (standInData != null && !standInData.isEmpty()) {
-            LOGGER.info("Creating analytic data for {} stand-in events", standInData.size());
+            LOGGER.info("Creating aggregated analytic data for {} stand-in events", standInData.size());
             
+            // Group Stand-In data by station for aggregation
+            Map<String, List<PagopaNumeroStandin>> standInByStation = new HashMap<>();
             for (PagopaNumeroStandin standIn : standInData) {
+                standInByStation.computeIfAbsent(standIn.getStationCode(), k -> new ArrayList<>()).add(standIn);
+            }
+            
+            LOGGER.info("Stand-In data grouped into {} unique stations for aggregation", standInByStation.size());
+            
+            for (Map.Entry<String, List<PagopaNumeroStandin>> stationEntry : standInByStation.entrySet()) {
+                String stationCode = stationEntry.getKey();
+                List<PagopaNumeroStandin> stationStandInData = stationEntry.getValue();
+                
                 // Find the station by station code
                 AnagStation station = partnerStations.stream()
-                    .filter(s -> s.getName().equals(standIn.getStationCode()))
+                    .filter(s -> s.getName().equals(stationCode))
                     .findFirst()
                     .orElse(null);
                 
                 if (station == null) {
-                    LOGGER.warn("Station not found for station code: {}", standIn.getStationCode());
+                    LOGGER.warn("Station not found for station code: {}", stationCode);
                     continue;
                 }
                 
-                // Determine which month this event belongs to
-                YearMonth eventMonth = YearMonth.from(standIn.getIntervalStart());
-                KpiB3DetailResult monthlyResult = savedMonthlyResults.get(eventMonth);
+                // Aggregate Stand-In data by month for this station
+                Map<YearMonth, AggregatedStandInData> monthlyAggregations = new HashMap<>();
+                int totalStationStandInCount = 0;
+                java.time.LocalDateTime latestEventTimestamp = null;
                 
-                // Create analytic data linked to the specific monthly result
-                if (monthlyResult != null) {
-                    KpiB3AnalyticData monthlyAnalyticData = new KpiB3AnalyticData();
-                    monthlyAnalyticData.setInstance(instance);
-                    monthlyAnalyticData.setInstanceModule(instanceModule);
-                    monthlyAnalyticData.setAnagStation(station);
-                    monthlyAnalyticData.setKpiB3DetailResult(monthlyResult);
-                    monthlyAnalyticData.setEventId(standIn.getId().toString());
-                    monthlyAnalyticData.setEventType(standIn.getEventType());
-                    monthlyAnalyticData.setEventTimestamp(standIn.getIntervalStart());
-                    monthlyAnalyticData.setStandInCount(standIn.getStandInCount());
+                for (PagopaNumeroStandin standIn : stationStandInData) {
+                    YearMonth eventMonth = YearMonth.from(standIn.getIntervalStart());
                     
-                    KpiB3AnalyticData savedMonthlyAnalyticData = kpiB3AnalyticDataRepository.save(monthlyAnalyticData);
-                    LOGGER.debug("Saved monthly analytic data with ID: {} for month: {}", 
-                               savedMonthlyAnalyticData.getId(), eventMonth);
+                    AggregatedStandInData monthlyAgg = monthlyAggregations.computeIfAbsent(eventMonth, 
+                        k -> new AggregatedStandInData());
+                    monthlyAgg.totalCount += standIn.getStandInCount();
+                    monthlyAgg.eventIds.add(standIn.getId().toString());
                     
-                    // Save drilldown snapshot for monthly analytic data
-                    pagopaNumeroStandinDrilldownService.saveStandInSnapshot(
-                        instance, instanceModule, station, savedMonthlyAnalyticData, 
-                        analysisDate, List.of(standIn)
-                    );
+                    java.time.LocalDateTime eventDateTime = standIn.getIntervalStart();
+                    if (monthlyAgg.latestTimestamp == null || 
+                        eventDateTime.isAfter(monthlyAgg.latestTimestamp)) {
+                        monthlyAgg.latestTimestamp = eventDateTime;
+                    }
+                    
+                    totalStationStandInCount += standIn.getStandInCount();
+                    
+                    if (latestEventTimestamp == null || eventDateTime.isAfter(latestEventTimestamp)) {
+                        latestEventTimestamp = eventDateTime;
+                    }
                 }
                 
-                // Also create analytic data linked to the total result
+                // Create monthly aggregated analytic data
+                for (Map.Entry<YearMonth, AggregatedStandInData> monthEntry : monthlyAggregations.entrySet()) {
+                    YearMonth eventMonth = monthEntry.getKey();
+                    AggregatedStandInData aggData = monthEntry.getValue();
+                    KpiB3DetailResult monthlyResult = savedMonthlyResults.get(eventMonth);
+                    
+                    if (monthlyResult != null) {
+                        KpiB3AnalyticData monthlyAnalyticData = new KpiB3AnalyticData();
+                        monthlyAnalyticData.setInstance(instance);
+                        monthlyAnalyticData.setInstanceModule(instanceModule);
+                        monthlyAnalyticData.setAnagStation(station);
+                        monthlyAnalyticData.setKpiB3DetailResult(monthlyResult);
+                        monthlyAnalyticData.setEventId(String.join(",", aggData.eventIds));
+                        monthlyAnalyticData.setEventType("ADD_TO_STANDIN");
+                        monthlyAnalyticData.setEventTimestamp(aggData.latestTimestamp);
+                        monthlyAnalyticData.setStandInCount(aggData.totalCount);
+                        
+                        KpiB3AnalyticData savedMonthlyAnalyticData = kpiB3AnalyticDataRepository.save(monthlyAnalyticData);
+                        LOGGER.debug("Saved aggregated monthly analytic data with ID: {} for station {} in month: {} (count: {})", 
+                                   savedMonthlyAnalyticData.getId(), stationCode, eventMonth, aggData.totalCount);
+                        
+                        // Save drilldown snapshot for monthly analytic data
+                        List<PagopaNumeroStandin> monthlyStandInForStation = stationStandInData.stream()
+                            .filter(s -> YearMonth.from(s.getIntervalStart()).equals(eventMonth))
+                            .collect(java.util.stream.Collectors.toList());
+                        
+                        pagopaNumeroStandinDrilldownService.saveStandInSnapshot(
+                            instance, instanceModule, station, savedMonthlyAnalyticData, 
+                            analysisDate, monthlyStandInForStation
+                        );
+                    }
+                }
+                
+                // Create total aggregated analytic data for this station
                 KpiB3AnalyticData totalAnalyticData = new KpiB3AnalyticData();
                 totalAnalyticData.setInstance(instance);
                 totalAnalyticData.setInstanceModule(instanceModule);
                 totalAnalyticData.setAnagStation(station);
                 totalAnalyticData.setKpiB3DetailResult(savedTotalResult);
-                totalAnalyticData.setEventId(standIn.getId().toString());
-                totalAnalyticData.setEventType(standIn.getEventType());
-                totalAnalyticData.setEventTimestamp(standIn.getIntervalStart());
-                totalAnalyticData.setStandInCount(standIn.getStandInCount());
+                
+                // Aggregate all event IDs for this station
+                List<String> allEventIds = stationStandInData.stream()
+                    .map(s -> s.getId().toString())
+                    .collect(java.util.stream.Collectors.toList());
+                totalAnalyticData.setEventId(String.join(",", allEventIds));
+                
+                totalAnalyticData.setEventType("ADD_TO_STANDIN");
+                totalAnalyticData.setEventTimestamp(latestEventTimestamp);
+                totalAnalyticData.setStandInCount(totalStationStandInCount);
                 
                 KpiB3AnalyticData savedTotalAnalyticData = kpiB3AnalyticDataRepository.save(totalAnalyticData);
-                LOGGER.debug("Saved total analytic data with ID: {}", savedTotalAnalyticData.getId());
+                LOGGER.debug("Saved aggregated total analytic data with ID: {} for station {} (count: {})", 
+                           savedTotalAnalyticData.getId(), stationCode, totalStationStandInCount);
                 
                 // Save drilldown snapshot for total analytic data
                 pagopaNumeroStandinDrilldownService.saveStandInSnapshot(
                     instance, instanceModule, station, savedTotalAnalyticData, 
-                    analysisDate, List.of(standIn)
+                    analysisDate, stationStandInData
                 );
             }
             
-            LOGGER.info("Successfully saved {} KPI B.3 analytic data records (both monthly and total)", 
-                       standInData.size() * 2);
+            LOGGER.info("Successfully saved {} aggregated KPI B.3 analytic data records for {} stations", 
+                       standInByStation.size() * 2, standInByStation.size());
         }
     }
     
@@ -432,5 +482,14 @@ public class KpiB3DataServiceImpl implements KpiB3DataService {
     @Transactional
     public void updateKpiB3ResultOutcome(Long resultId, OutcomeStatus outcome) {
         kpiB3ResultService.updateKpiB3ResultOutcome(resultId, outcome);
+    }
+    
+    /**
+     * Helper class to aggregate Stand-In data for a station within a specific month
+     */
+    private static class AggregatedStandInData {
+        int totalCount = 0;
+        java.util.List<String> eventIds = new java.util.ArrayList<>();
+        java.time.LocalDateTime latestTimestamp = null;
     }
 }
