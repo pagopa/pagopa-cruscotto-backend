@@ -7,6 +7,7 @@ public enum ModuleCode {
     B2("B.2"),
     B3("B.3"),
     B4("B.4"),
+    B5("B.5"),
     B8("B.8"),
     B9("B.9");
 
