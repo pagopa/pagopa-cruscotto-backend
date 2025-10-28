@@ -28,6 +28,7 @@ import static org.mockito.Mockito.*;
 @DisplayName("KpiA1DetailResultServiceImpl Tests")
 class KpiA1DetailResultServiceImplTest {
 
+    private AnagStationRepository anagStationRepository; // Added
     private InstanceRepository instanceRepository;
     private InstanceModuleRepository instanceModuleRepository;
     private KpiA1DetailResultRepository kpiA1DetailResultRepository;
@@ -38,6 +39,7 @@ class KpiA1DetailResultServiceImplTest {
 
     @BeforeEach
     void setUp() {
+        anagStationRepository = mock(AnagStationRepository.class); // Added
         instanceRepository = mock(InstanceRepository.class);
         instanceModuleRepository = mock(InstanceModuleRepository.class);
         kpiA1DetailResultRepository = mock(KpiA1DetailResultRepository.class);
@@ -45,6 +47,7 @@ class KpiA1DetailResultServiceImplTest {
         queryBuilder = mock(QueryBuilder.class);
 
         service = new KpiA1DetailResultServiceImpl(
+            anagStationRepository,      // Fixed constructor
             instanceRepository,
             instanceModuleRepository,
             kpiA1DetailResultRepository,
