@@ -26,6 +26,7 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -98,7 +99,7 @@ class KpiB4JobTest {
         kpiB4Job.executeInternal(jobExecutionContext);
 
         // Then
-        verify(instanceService).findInstanceToCalculate(ModuleCode.B4, 10);
+        verify(instanceService).findInstanceToCalculate(eq(ModuleCode.B4), eq(10));
         verify(kpiConfigurationService, never()).findKpiConfigurationByCode(anyString());
     }
 
@@ -115,8 +116,8 @@ class KpiB4JobTest {
         kpiB4Job.executeInternal(jobExecutionContext);
 
         // Then
-        verify(instanceService).findInstanceToCalculate(ModuleCode.B4, 10);
-        verify(kpiConfigurationService).findKpiConfigurationByCode(ModuleCode.B4.code);
+        verify(instanceService).findInstanceToCalculate(eq(ModuleCode.B4), eq(10));
+        verify(kpiConfigurationService).findKpiConfigurationByCode(eq(ModuleCode.B4.code));
         verify(instanceModuleService, never()).findOne(any(), any());
     }
 
@@ -137,9 +138,9 @@ class KpiB4JobTest {
         kpiB4Job.executeInternal(jobExecutionContext);
 
         // Then
-        verify(instanceService).findInstanceToCalculate(ModuleCode.B4, 10);
-        verify(kpiConfigurationService).findKpiConfigurationByCode(ModuleCode.B4.code);
-        verify(instanceModuleService).findOne(1L, kpiConfig.getModuleId());
+        verify(instanceService).findInstanceToCalculate(eq(ModuleCode.B4), eq(10));
+        verify(kpiConfigurationService).findKpiConfigurationByCode(eq(ModuleCode.B4.code));
+        verify(instanceModuleService).findOne(eq(1L), eq(kpiConfig.getModuleId()));
         verify(kpiB4DataService, never()).saveKpiB4Results(any(), any(), any(), any(), any());
     }
 
@@ -161,9 +162,9 @@ class KpiB4JobTest {
         kpiB4Job.executeInternal(jobExecutionContext);
 
         // Then
-        verify(instanceService).findInstanceToCalculate(ModuleCode.B4, 10);
-        verify(kpiConfigurationService).findKpiConfigurationByCode(ModuleCode.B4.code);
-        verify(instanceModuleService).findOne(1L, kpiConfig.getModuleId());
+        verify(instanceService).findInstanceToCalculate(eq(ModuleCode.B4), eq(10));
+        verify(kpiConfigurationService).findKpiConfigurationByCode(eq(ModuleCode.B4.code));
+        verify(instanceModuleService).findOne(eq(1L), eq(kpiConfig.getModuleId()));
         verify(kpiB4DataService).saveKpiB4Results(any(), any(), any(), any(), any());
     }
 
@@ -223,13 +224,13 @@ class KpiB4JobTest {
         kpiB4Job.executeInternal(jobExecutionContext);
 
         // Then
-        verify(instanceService).findInstanceToCalculate(ModuleCode.B4, 10);
-        verify(kpiConfigurationService).findKpiConfigurationByCode(ModuleCode.B4.code);
-        verify(instanceModuleService).findOne(1L, kpiConfig.getModuleId());
+        verify(instanceService).findInstanceToCalculate(eq(ModuleCode.B4), eq(10));
+        verify(kpiConfigurationService).findKpiConfigurationByCode(eq(ModuleCode.B4.code));
+        verify(instanceModuleService).findOne(eq(1L), eq(kpiConfig.getModuleId()));
         verify(pagopaApiLogRepository).existsDataInPeriod(any(), any());
-        verify(instanceService).updateInstanceStatusInProgress(1L);
+        verify(instanceService).updateInstanceStatusInProgress(eq(1L));
         verify(kpiB4DataService).saveKpiB4Results(any(), any(), any(), any(), any());
-        verify(instanceModuleService).updateAutomaticOutcome(1L, any());
+        verify(instanceModuleService).updateAutomaticOutcome(eq(1L), any());
     }
 
     private InstanceDTO createTestInstanceDTOWithPeriod() {

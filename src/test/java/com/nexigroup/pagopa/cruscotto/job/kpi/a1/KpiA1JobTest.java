@@ -1,4 +1,4 @@
-package com.nexigroup.pagopa.cruscotto.job.kpi.a1;
+ package com.nexigroup.pagopa.cruscotto.job.kpi.a1;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -305,15 +305,6 @@ class KpiA1JobTest {
             when(anagStationService.findIdByNameOrCreate("STATION_001", testInstance.getPartnerId()))
                 .thenReturn(1L);
 
-            // Setup maintenance data - mock returns empty list for maintenance
-            when(anagPlannedShutdownService.findAllByTypePlannedIntoPeriod(
-                eq(testInstance.getPartnerId()),
-                eq(1L),
-                eq(TypePlanned.PROGRAMMATO),
-                eq(testInstance.getAnalysisPeriodStartDate()),
-                eq(testInstance.getAnalysisPeriodEndDate())
-            )).thenReturn(Collections.emptyList());
-
             // Setup timeout data
             setupTimeoutDataMocks();
 
@@ -469,11 +460,6 @@ class KpiA1JobTest {
 
             when(anagStationService.findIdByNameOrCreate("STATION_001", testInstance.getPartnerId()))
                 .thenReturn(1L);
-
-            // Mock planned shutdown service returns empty list
-            when(anagPlannedShutdownService.findAllByTypePlannedIntoPeriod(
-                anyLong(), anyLong(), any(TypePlanned.class), any(LocalDate.class), any(LocalDate.class)
-            )).thenReturn(Collections.emptyList());
 
             setupTimeoutDataMocks();
 
