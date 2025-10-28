@@ -71,6 +71,8 @@ public class ApplicationProperties {
 
         private KpiB4Job kpiB4Job = new KpiB4Job();
 
+        private KpiB5Job kpiB5Job = new KpiB5Job();
+
         private KpiB1Job kpiB1Job = new KpiB1Job();
 
         private KpiB8Job kpiB8Job = new KpiB8Job();
@@ -166,6 +168,17 @@ public class ApplicationProperties {
     @Getter
     @Setter
     public static class KpiB4Job {
+
+        private boolean enabled = true;
+
+        private String cron;
+
+        private int limit;
+    }
+
+    @Getter
+    @Setter
+    public static class KpiB5Job {
 
         private boolean enabled = true;
 
