@@ -1,25 +1,20 @@
 package com.nexigroup.pagopa.cruscotto.job.kpi;
 
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.StationStatus;
 import com.nexigroup.pagopa.cruscotto.kpi.framework.KpiExecutionContext;
 import com.nexigroup.pagopa.cruscotto.kpi.framework.KpiOrchestrator;
 import com.nexigroup.pagopa.cruscotto.service.*;
 import com.nexigroup.pagopa.cruscotto.service.dto.*;
-import com.nexigroup.pagopa.cruscotto.service.filter.AnagStationFilter;
 import lombok.RequiredArgsConstructor;
 import org.quartz.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.lang.NonNull;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Generic KPI Job that can process any KPI based on configuration.
@@ -46,7 +41,6 @@ public class GenericKpiJob extends QuartzJobBean {
     private final InstanceModuleService instanceModuleService;
     private final KpiConfigurationService kpiConfigurationService;
     private final KpiOrchestrator kpiOrchestrator;
-    private final AnagStationService anagStationService; // Added for B.6 data fetching
 
     @Override
     public void executeInternal(@NonNull JobExecutionContext context) {
@@ -132,20 +126,11 @@ public class GenericKpiJob extends QuartzJobBean {
     }
 
     /**
-     * Create execution context with KPI-specific data loading
+     * Create execution context - kept generic, processors handle their own data loading
      */
     private KpiExecutionContext createExecutionContext(String moduleCode, InstanceDTO instance, 
                                                       InstanceModuleDTO instanceModule, 
                                                       KpiConfigurationDTO kpiConfiguration) {
-        Map<String, Object> additionalParams = new HashMap<>();
-        
-        // Load KPI-specific data based on module code
-        if ("B6".equals(moduleCode)) {
-            // Load station data for KPI B.6
-            additionalParams.put("stationData", loadStationDataForB6(instance));
-        }
-        // Add other KPI-specific data loading logic here as needed
-        
         return KpiExecutionContext.builder()
                 .instance(instance)
                 .instanceModule(instanceModule)
@@ -153,28 +138,7 @@ public class GenericKpiJob extends QuartzJobBean {
                 .analysisStart(instance.getAnalysisPeriodStartDate())
                 .analysisEnd(instance.getAnalysisPeriodEndDate())
                 .partnerFiscalCode(instance.getPartnerFiscalCode())
-                .additionalParameters(additionalParams)
+                .additionalParameters(new HashMap<>()) // Empty - processors load their own data
                 .build();
-    }
-
-    /**
-     * Load station data for KPI B.6
-     */
-    private List<AnagStationDTO> loadStationDataForB6(InstanceDTO instance) {
-        LOGGER.info("Loading station data for KPI B.6, partner: {}", instance.getPartnerFiscalCode());
-        
-        AnagStationFilter filter = new AnagStationFilter();
-        filter.setShowNotActive(false); // Only active stations
-        
-        Page<AnagStationDTO> stationPage = anagStationService.findAll(filter, PageRequest.of(0, Integer.MAX_VALUE));
-        
-        // Filter by partner fiscal code and only active stations
-        List<AnagStationDTO> stationData = stationPage.getContent().stream()
-                .filter(station -> instance.getPartnerFiscalCode().equals(station.getPartnerFiscalCode()))
-                .filter(station -> StationStatus.ATTIVA.equals(station.getStatus()))
-                .toList();
-
-        LOGGER.info("Found {} stations for analysis", stationData.size());
-        return stationData;
     }
 }

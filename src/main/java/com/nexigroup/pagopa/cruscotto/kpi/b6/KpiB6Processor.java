@@ -3,11 +3,16 @@ package com.nexigroup.pagopa.cruscotto.kpi.b6;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.StationStatus;
 import com.nexigroup.pagopa.cruscotto.kpi.b6.aggregation.StationPaymentOptionsAggregator;
 import com.nexigroup.pagopa.cruscotto.kpi.framework.AbstractKpiProcessor;
 import com.nexigroup.pagopa.cruscotto.kpi.framework.KpiExecutionContext;
 import com.nexigroup.pagopa.cruscotto.kpi.framework.evaluation.ToleranceBasedEvaluationStrategy;
+import com.nexigroup.pagopa.cruscotto.service.AnagStationService;
 import com.nexigroup.pagopa.cruscotto.service.dto.*;
+import com.nexigroup.pagopa.cruscotto.service.filter.AnagStationFilter;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -25,21 +30,22 @@ import java.util.List;
 public class KpiB6Processor extends AbstractKpiProcessor<KpiResultDTO, KpiDetailResultDTO, KpiAnalyticDataDTO> {
     
     private final StationPaymentOptionsAggregator aggregator;
+    private final AnagStationService anagStationService;
     
     public KpiB6Processor(StationPaymentOptionsAggregator aggregator, 
-                         ToleranceBasedEvaluationStrategy toleranceEvaluationStrategy) {
+                         ToleranceBasedEvaluationStrategy toleranceEvaluationStrategy,
+                         AnagStationService anagStationService) {
         super(toleranceEvaluationStrategy);
         this.aggregator = aggregator;
+        this.anagStationService = anagStationService;
     }
     
     @Override
     public KpiResultDTO processKpiResult(KpiExecutionContext context) {
         logger.info("Processing KPI B.6 result for partner: {}", context.getPartnerFiscalCode());
         
-        // Get station data from context (should be loaded by the job)
-        @SuppressWarnings("unchecked")
-        List<AnagStationDTO> stationData = (List<AnagStationDTO>) context.getAdditionalParameters()
-                .getOrDefault("stationData", new ArrayList<>());
+        // Load station data once and cache it in context for reuse
+        List<AnagStationDTO> stationData = getOrLoadStationData(context);
         
         // Aggregate overall statistics
         StationPaymentOptionsAggregator.AggregationResult overallResult = 
@@ -82,9 +88,8 @@ public class KpiB6Processor extends AbstractKpiProcessor<KpiResultDTO, KpiDetail
     public List<KpiDetailResultDTO> processDetailResults(KpiExecutionContext context, KpiResultDTO kpiResult) {
         logger.info("Processing KPI B.6 detail results");
         
-        @SuppressWarnings("unchecked")
-        List<AnagStationDTO> stationData = (List<AnagStationDTO>) context.getAdditionalParameters()
-                .getOrDefault("stationData", new ArrayList<>());
+        // Reuse cached station data from context
+        List<AnagStationDTO> stationData = getOrLoadStationData(context);
         
         List<KpiDetailResultDTO> detailResults = new ArrayList<>();
         
@@ -181,9 +186,8 @@ public class KpiB6Processor extends AbstractKpiProcessor<KpiResultDTO, KpiDetail
     public List<KpiAnalyticDataDTO> processAnalyticData(KpiExecutionContext context, KpiDetailResultDTO detailResult) {
         logger.info("Processing KPI B.6 analytic data for detail result ID: {}", detailResult.getId());
         
-        @SuppressWarnings("unchecked")
-        List<AnagStationDTO> stationData = (List<AnagStationDTO>) context.getAdditionalParameters()
-                .getOrDefault("stationData", new ArrayList<>());
+        // Reuse cached station data from context
+        List<AnagStationDTO> stationData = getOrLoadStationData(context);
         
         List<KpiAnalyticDataDTO> analyticDataList = new ArrayList<>();
         
@@ -231,5 +235,97 @@ public class KpiB6Processor extends AbstractKpiProcessor<KpiResultDTO, KpiDetail
     @Override
     public String getModuleCode() {
         return ModuleCode.B6.code;
+    }
+    
+    /**
+     * Get station data from context cache or load it if not cached
+     */
+    @SuppressWarnings("unchecked")
+    private List<AnagStationDTO> getOrLoadStationData(KpiExecutionContext context) {
+        // Check if station data is already cached in context
+        List<AnagStationDTO> cachedData = (List<AnagStationDTO>) context.getAdditionalParameters()
+                .get("stationData");
+        
+        if (cachedData != null) {
+            logger.debug("Using cached station data ({} stations)", cachedData.size());
+            return cachedData;
+        }
+        
+        // Load station data and cache it in context for future use
+        List<AnagStationDTO> stationData = loadStationData(context.getPartnerFiscalCode());
+        context.getAdditionalParameters().put("stationData", stationData);
+        
+        return stationData;
+    }
+    
+    /**
+     * Load station data for KPI B.6 processing with freshness validation
+     */
+    private List<AnagStationDTO> loadStationData(String partnerFiscalCode) {
+        logger.info("Loading station data for KPI B.6, partner: {}", partnerFiscalCode);
+        
+        AnagStationFilter filter = new AnagStationFilter();
+        filter.setShowNotActive(false); // Only active stations
+        
+        Page<AnagStationDTO> stationPage = anagStationService.findAll(filter, PageRequest.of(0, Integer.MAX_VALUE));
+        
+        // Filter by partner fiscal code and only active stations
+        List<AnagStationDTO> stationData = stationPage.getContent().stream()
+                .filter(station -> partnerFiscalCode.equals(station.getPartnerFiscalCode()))
+                .filter(station -> StationStatus.ATTIVA.equals(station.getStatus()))
+                .toList();
+
+        logger.info("Found {} stations for analysis", stationData.size());
+        
+        // Validate data freshness
+        validateDataFreshness(stationData);
+        
+        return stationData;
+    }
+    
+    /**
+     * Validate that station data is fresh (updated recently by LoadRegistryJob)
+     */
+    private void validateDataFreshness(List<AnagStationDTO> stationData) {
+        if (stationData.isEmpty()) {
+            logger.warn("No station data found - skipping freshness validation");
+            return;
+        }
+        
+        // Find the most recent lastModifiedDate in the station data
+        java.time.Instant mostRecentUpdate = stationData.stream()
+                .map(AnagStationDTO::getLastModifiedDate)
+                .filter(java.util.Objects::nonNull)
+                .max(java.time.Instant::compareTo)
+                .orElse(null);
+        
+        if (mostRecentUpdate == null) {
+            logger.warn("No lastModifiedDate found in station data - data freshness cannot be validated");
+            return;
+        }
+        
+        // Calculate how old the most recent data is
+        java.time.Duration dataAge = java.time.Duration.between(mostRecentUpdate, java.time.Instant.now());
+        
+        // LoadRegistryJob runs weekdays only (cron: 0 0/30 07-8 ? * MON,TUE,WED,THU,FRI *)
+        // It runs 4 times per weekday: 07:00, 07:30, 08:00, 08:30
+        // We expect data to be updated at least within the last 72 hours to account for:
+        // - Weekend gap (Friday 08:30 to Monday 07:00 = ~70.5 hours)
+        // - Some buffer time for processing delays
+        // - Time zone differences
+        long maxDataAgeHours = 72;
+        
+        if (dataAge.toHours() > maxDataAgeHours) {
+            String errorMessage = String.format(
+                "Station data is stale! Most recent update was %d hours ago (threshold: %d hours). " +
+                "Last update: %s, Current time: %s. LoadRegistryJob may not have run recently.",
+                dataAge.toHours(), maxDataAgeHours, mostRecentUpdate, java.time.Instant.now());
+            
+            logger.error(errorMessage);
+            throw new IllegalStateException(errorMessage);
+        } else {
+            logger.info("Station data is fresh - most recent update was {} hours ago (within {} hour threshold)", 
+                    dataAge.toHours(), maxDataAgeHours);
+        }
     }
 }
