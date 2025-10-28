@@ -7,15 +7,6 @@
   <!-- Include previous version -->
   <include file="db.changelog-master-1.1.8.xml" relativeToChangelogFile="true"/>
 
-  <!-- Create KPI B6 result table -->
-  <include file="1.1.11/ddl/20251023180000_added_entity_KpiB6Result.xml" relativeToChangelogFile="true"/>
-
-  <!-- Create KPI B6 detail result table -->
-  <include file="1.1.11/ddl/20251023180500_added_entity_KpiB6DetailResult.xml" relativeToChangelogFile="true"/>
-
-  <!-- Create KPI B6 analytic data table -->
-  <include file="1.1.11/ddl/20251023181000_added_entity_KpiB6AnalyticData.xml" relativeToChangelogFile="true"/>
-
   <!-- Drop existing generic KPI tables if they exist (for clean recreation) -->
   <include file="1.1.11/ddl/20251027120000_drop_existing_generic_kpi_tables.xml" relativeToChangelogFile="true"/>
 
