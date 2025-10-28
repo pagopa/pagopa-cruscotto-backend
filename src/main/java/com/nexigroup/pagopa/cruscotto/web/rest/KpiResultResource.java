@@ -61,26 +61,30 @@ public class KpiResultResource {
 
     private final KpiB4ResultService kpiB4ResultService;
 
-    public KpiResultResource(
-        KpiA1ResultService kpiA1ResultService,
-        KpiB1ResultService kpiB1ResultService,
-        KpiB2ResultService kpiB2ResultService,
-        KpiA2ResultService kpiA2ResultService,
-        KpiB9ResultService kpiB9ResultService,
-        KpiB3ResultService kpiB3ResultService,
-        KpiB4ResultService kpiB4ResultService,
-        KpiB8ResultService kpiB8ResultService
+    private final KpiB5ResultService kpiB5ResultService;
 
-        ) {
-        this.kpiA1ResultService = kpiA1ResultService;
-        this.kpiB1ResultService = kpiB1ResultService;
-        this.kpiB2ResultService = kpiB2ResultService;
-        this.kpiA2ResultService = kpiA2ResultService;
-        this.kpiB9ResultService = kpiB9ResultService;
-        this.kpiB3ResultService = kpiB3ResultService;
-        this.kpiB8ResultService = kpiB8ResultService;
-        this.kpiB4ResultService = kpiB4ResultService;
-    }
+    public KpiResultResource(
+            KpiA1ResultService kpiA1ResultService,
+            KpiB1ResultService kpiB1ResultService,
+            KpiB2ResultService kpiB2ResultService,
+            KpiA2ResultService kpiA2ResultService,
+            KpiB9ResultService kpiB9ResultService,
+            KpiB3ResultService kpiB3ResultService,
+            KpiB4ResultService kpiB4ResultService,
+            KpiB5ResultService kpiB5ResultService,
+            KpiB8ResultService kpiB8ResultService
+
+            ) {
+            this.kpiA1ResultService = kpiA1ResultService;
+            this.kpiB1ResultService = kpiB1ResultService;
+            this.kpiB2ResultService = kpiB2ResultService;
+            this.kpiA2ResultService = kpiA2ResultService;
+            this.kpiB9ResultService = kpiB9ResultService;
+            this.kpiB3ResultService = kpiB3ResultService;
+            this.kpiB8ResultService = kpiB8ResultService;
+            this.kpiB4ResultService = kpiB4ResultService;
+            this.kpiB5ResultService = kpiB5ResultService;
+        }
 
     /**
      * {@code GET  /kpi-results/a1/module/{moduleId}} : get the kpiA1ResultDTOs associated to the "id" instanceModule of type A1.
@@ -194,5 +198,19 @@ public class KpiResultResource {
         log.debug("REST request to get kpi results of instanceModule : {} of type b4", moduleId);
         List<KpiB4ResultDTO> kpiB4Results = kpiB4ResultService.findByInstanceModuleId(moduleId);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(kpiB4Results));
+    }
+
+    /**
+     * {@code GET  /kpi-results/b5/module/{moduleId}} : get the kpiB5ResultDTOs associated to the "id" instanceModule of type B5.
+     *
+     * @param moduleId the id of the instanceModuleDTO the kpi results to retrieve are associated to
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the KpiB5ResultDTOs, or with status {@code 404 (Not Found)}.
+     */
+    @GetMapping("kpi-results/b5/module/{moduleId}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.KPI_B5_RESULT_DETAIL + "\")")
+    public ResponseEntity<List<KpiB5ResultDTO>> getKpiB5Results(@PathVariable Long moduleId) {
+        log.debug("REST request to get kpi results of instanceModule : {} of type b5", moduleId);
+        List<KpiB5ResultDTO> kpiB5Results = kpiB5ResultService.findByInstanceModuleId(moduleId);
+        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(kpiB5Results));
     }
 }
