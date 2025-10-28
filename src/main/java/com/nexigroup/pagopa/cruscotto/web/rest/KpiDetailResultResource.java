@@ -67,8 +67,6 @@ public class KpiDetailResultResource {
 
     private final GenericKpiDetailResultService genericKpiDetailResultService;
 
-    private final GenericKpiDetailResultService genericKpiDetailResultService;
-
     private final KpiB5Service kpiB5Service;
 
     private final KpiB8DetailResultService kpiB8DetailResultService;
