@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+      http://www.liquibase.org/xml/ns/dbchangelog
+      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+  <!-- Sequence per Postgres / H2 -->
+  <changeSet id="20251029120001-1" author="system" context="ddl">
+    <createSequence sequenceName="SQ${project_name}_KPIC2ANALDATA" startValue="3000" cacheSize="20"/>
+  </changeSet>
+
+  <!-- Creazione tabella principale -->
+  <changeSet id="20251029120001-2" author="system" context="ddl">
+    <createTable tableName="KPI_C2_ANALYTIC_DATA">
+      <column name="CO_ID" type="BIGINT">
+        <constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_KPIC2ANALDATA"/>
+      </column>
+
+      <!-- Colonne esistenti -->
+      <column name="CO_INSTANCE_ID" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_INSTANCE_MODULE_ID" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DT_ANALISYS_DATE" type="DATE">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DT_DATA_DATE" type="DATE">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_KPI_C2_DETAIL_RESULT_ID" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+
+      <!-- ✅ Nuove colonne richieste -->
+      <column name="ID_ISTANZA" type="CHAR(35)">
+        <constraints nullable="false"/>
+      </column>
+
+      <column name="CO_NUM_INSTITUTION" type="int"/>
+      <column name="CO_NUM_INSTITUTION_SEND" type="int"/>
+      <column name="CO_PER_INSTITUTION_SEND" type="numeric(5,2)"/>
+      <column name="CO_NUM_PAYMENT" type="int"/>
+      <column name="CO_NUM_NOTIFICATION" type="int"/>
+      <column name="CO_PER_NOTIFICATION" type="numeri(5,2)"/>
+
+    </createTable>
+
+    <rollback>
+      DROP TABLE ${database.defaultSchemaName}.KPI_C2_ANALYTIC_DATA CASCADE CONSTRAINTS;
+    </rollback>
+  </changeSet>
+
+  <!-- Indici -->
+  <changeSet id="20251029120001-3" author="system" context="ddl">
+    <createIndex indexName="IX${project_name}_KPIC2ANALDATA_CO_INSTANCE_ID" tableName="KPI_C2_ANALYTIC_DATA">
+      <column name="CO_INSTANCE_ID"/>
+    </createIndex>
+
+    <createIndex indexName="IX${project_name}_KPIC2ANALDATA_CO_INSTANCE_MODULE_ID" tableName="KPI_C2_ANALYTIC_DATA">
+      <column name="CO_INSTANCE_MODULE_ID"/>
+    </createIndex>
+
+    <createIndex indexName="IX${project_name}_KPIC2ANALYTIC_DATA_CO_DETAIL_RESULT_ID" tableName="KPI_C2_ANALYTIC_DATA">
+      <column name="CO_KPI_C2_DETAIL_RESULT_ID"/>
+    </createIndex>
+
+    <createIndex indexName="IX${project_name}_KPIC2ANALYTIC_DATA_DT_ANALISYS_DATE" tableName="KPI_C2_ANALYTIC_DATA">
+      <column name="DT_ANALISYS_DATE"/>
+    </createIndex>
+
+    <!-- ✅ Nuovi indici per le colonne aggiunte -->
+    <createIndex indexName="IX${project_name}_KPIC2ANALYTIC_DATA_ID_ISTANZA" tableName="KPI_C2_ANALYTIC_DATA">
+      <column name="ID_ISTANZA"/>
+    </createIndex>
+
+    <createIndex indexName="IX${project_name}_KPIC2ANALYTIC_DATA_DT_DATA_DATE" tableName="KPI_C2_ANALYTIC_DATA">
+      <column name="DT_DATA_DATE"/>
+    </createIndex>
+
+    <rollback>
+      <dropIndex indexName="IX${project_name}_KPIC2ANALDATA_CO_INSTANCE_ID" tableName="KPI_C2_ANALYTIC_DATA"/>
+      <dropIndex indexName="IX${project_name}_KPIC2ANALDATA_CO_INSTANCE_MODULE_ID" tableName="KPI_C2_ANALYTIC_DATA"/>
+      <dropIndex indexName="IX${project_name}_KPIC2ANALYTIC_DATA_CO_DETAIL_RESULT_ID" tableName="KPI_C2_ANALYTIC_DATA"/>
+      <dropIndex indexName="IX${project_name}_KPIC2ANALYTIC_DATA_DT_ANALISYS_DATE" tableName="KPI_C2_ANALYTIC_DATA"/>
+      <dropIndex indexName="IX${project_name}_KPIC2ANALYTIC_DATA_ID_ISTANZA" tableName="KPI_C2_ANALYTIC_DATA"/>
+      <dropIndex indexName="IX${project_name}_KPIC2ANALYTIC_DATA_DT_DATA_DATE" tableName="KPI_C2_ANALYTIC_DATA"/>
+    </rollback>
+  </changeSet>
+
+</databaseChangeLog>
