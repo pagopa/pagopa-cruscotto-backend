@@ -1,6 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.job.kpi;
 
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
+import com.nexigroup.pagopa.cruscotto.job.config.JobConstant;
 import com.nexigroup.pagopa.cruscotto.kpi.framework.KpiExecutionContext;
 import com.nexigroup.pagopa.cruscotto.kpi.framework.KpiOrchestrator;
 import com.nexigroup.pagopa.cruscotto.service.*;
@@ -41,6 +42,7 @@ public class GenericKpiJob extends QuartzJobBean {
     private final InstanceModuleService instanceModuleService;
     private final KpiConfigurationService kpiConfigurationService;
     private final KpiOrchestrator kpiOrchestrator;
+    private final Scheduler scheduler;
 
     @Override
     public void executeInternal(@NonNull JobExecutionContext context) {
@@ -114,8 +116,9 @@ public class GenericKpiJob extends QuartzJobBean {
             // Delegate to orchestrator
             var outcome = kpiOrchestrator.processKpi(executionContext);
             
-            // Update instance status based on outcome
-            instanceService.updateInstanceStatusCompleted(instance.getId());
+            // Trigger state calculation job to determine final instance state
+            triggerStateCalculationJob(instance.getId());
+            
             LOGGER.info("Completed KPI {} for instance: {} with outcome: {}", 
                     moduleCode, instance.getId(), outcome);
 
@@ -140,5 +143,38 @@ public class GenericKpiJob extends QuartzJobBean {
                 .partnerFiscalCode(instance.getPartnerFiscalCode())
                 .additionalParameters(new HashMap<>()) // Empty - processors load their own data
                 .build();
+    }
+
+    /**
+     * Triggers the CalculateStateInstanceJob to update instance state after KPI processing.
+     * This allows the state machine to determine the final instance state based on all module outcomes.
+     * 
+     * @param instanceId The ID of the instance to calculate state for
+     */
+    private void triggerStateCalculationJob(Long instanceId) {
+        try {
+            LOGGER.info("Triggering state calculation job for instance: {}", instanceId);
+            
+            JobDetail job = scheduler.getJobDetail(JobKey.jobKey(JobConstant.CALCULATE_STATE_INSTANCE_JOB, "DEFAULT"));
+            if (job != null) {
+                Trigger trigger = TriggerBuilder.newTrigger()
+                        .usingJobData("instanceId", instanceId)
+                        .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                                .withMisfireHandlingInstructionFireNow()
+                                .withRepeatCount(0))
+                        .startNow()
+                        .build();
+                        
+                scheduler.scheduleJob(trigger);
+                LOGGER.info("Successfully triggered state calculation job for instance: {}", instanceId);
+            } else {
+                LOGGER.warn("CalculateStateInstanceJob not found in scheduler - instance state may not be updated");
+            }
+            
+        } catch (SchedulerException e) {
+            LOGGER.error("Failed to trigger state calculation job for instance {}: {}", instanceId, e.getMessage(), e);
+            // Don't fail the whole KPI process if state calculation trigger fails
+            // The KPI processing is still successful, just the instance state won't be automatically updated
+        }
     }
 }
