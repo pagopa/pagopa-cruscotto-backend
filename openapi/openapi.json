@@ -8,7 +8,7 @@
       "name": "unlicensed",
       "url": ""
     },
-    "version": "0.7.16"
+    "version": "0.7.41"
   },
   "servers": [
     {
@@ -3052,7 +3052,7 @@
               }
             }
           },
-           "4XX": {
+          "4XX": {
             "description": "Client error codes",
             "content": {
               "application/json": {
@@ -4324,7 +4324,7 @@
         ],
         "operationId": "getKpiB1AnalyticDataResults",
         "parameters": [
-           {
+          {
             "name": "detailResultId",
             "in": "path",
             "required": true,
@@ -4968,13 +4968,13 @@
       }
     },
     "/api/kpi-b1-pagopa-data/{analyticDataId}": {
-     "get": {
+      "get": {
         "tags": [
           "kpi-b1-pagopa-data-resource"
         ],
         "operationId": "getByAnalyticDataId",
         "parameters": [
-          { 
+          {
             "name": "analyticDataId",
             "in": "path",
             "description": "ID of the KPI B.1 analytic data",
@@ -11129,7 +11129,7 @@
             "type": "integer",
             "format": "int32"
           },
-          "institutionDifferencePercentage":{
+          "institutionDifferencePercentage": {
             "type": "number",
             "format": "double"
           },
@@ -11150,7 +11150,7 @@
             "type": "integer",
             "format": "int32"
           },
-          "transactionDifferencePercentage":{
+          "transactionDifferencePercentage": {
             "type": "number",
             "format": "double"
           },
@@ -11351,7 +11351,7 @@
             "type": "integer",
             "format": "int32"
           },
-          "percentageCP":{
+          "percentageCP": {
             "type": "number",
             "format": "double"
           },
@@ -11407,7 +11407,7 @@
             "type": "integer",
             "format": "int32"
           },
-          "percentageNoSpontaneous":{
+          "percentageNoSpontaneous": {
             "type": "number",
             "format": "double"
           },
@@ -11459,7 +11459,7 @@
             "type": "integer",
             "format": "int32"
           },
-          "percentageDifference":{
+          "percentageDifference": {
             "type": "number",
             "format": "double"
           },
@@ -11518,11 +11518,11 @@
             "type": "integer",
             "format": "int32"
           },
-          "koRequests":{
+          "koRequests": {
             "type": "integer",
             "format": "int32"
           },
-          "percentageKoRequests":{
+          "percentageKoRequests": {
             "type": "number",
             "format": "double"
           },
@@ -12079,7 +12079,7 @@
             "type": "string",
             "format": "date"
           },
-          "dataDate":{
+          "dataDate": {
             "type": "string",
             "format": "date"
           },
@@ -12129,7 +12129,7 @@
             "type": "string",
             "format": "date"
           },
-          "dataDate":{
+          "dataDate": {
             "type": "string",
             "format": "date"
           },
@@ -12141,7 +12141,7 @@
             "type": "integer",
             "format": "int32"
           },
-          "percentageNoSpontaneous":{
+          "percentageNoSpontaneous": {
             "type": "number",
             "format": "double"
           }
@@ -12595,7 +12595,7 @@
         }
       },
       "KpiB1AnalyticDrillDownDTO": {
-         "required": [
+        "required": [
           "id",
           "kpiB1AnalyticDataId",
           "partnerFiscalCode",
@@ -12706,7 +12706,7 @@
         }
       },
       "PagopaSpontaneiDTO": {
-         "required": [
+        "required": [
           "partnerFiscalCode",
           "stationCode",
           "fiscalCode",
@@ -12744,7 +12744,7 @@
             "maxLength": 255,
             "minLength": 0
           },
-          "spontaneousPayments":{
+          "spontaneousPayments": {
             "type": "string",
             "enum": [
               "ATTIVI",
