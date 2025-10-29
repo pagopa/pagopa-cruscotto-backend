@@ -1,4 +1,4 @@
-package com.nexigroup.pagopa.cruscotto.kpi.b6;
+package com.nexigroup.pagopa.cruscotto.service.kpi;
 
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
