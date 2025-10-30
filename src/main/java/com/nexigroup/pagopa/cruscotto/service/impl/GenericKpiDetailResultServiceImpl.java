@@ -121,8 +121,9 @@ public class GenericKpiDetailResultServiceImpl implements GenericKpiDetailResult
     @Override
     public List<KpiDetailResultDTO> findByKpiResultId(ModuleCode moduleCode, Long kpiResultId) {
         log.debug("Request to find KpiDetailResults for moduleCode {} and kpiResultId {}", moduleCode, kpiResultId);
-        // Since the entity doesn't have kpiResultId, we'll find by instanceModuleId instead
-        // This assumes the relationship is through the instance module
-        return findByInstanceModuleId(moduleCode, kpiResultId);
+        return kpiDetailResultRepository.findAllByModuleCodeAndKpiResultId(moduleCode, kpiResultId)
+                .stream()
+                .map(kpiDetailResultMapper::toDto)
+                .toList();
     }
 }
