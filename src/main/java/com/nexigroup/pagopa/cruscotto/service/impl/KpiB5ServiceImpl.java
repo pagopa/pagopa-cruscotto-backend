@@ -181,16 +181,22 @@ public class KpiB5ServiceImpl implements KpiB5Service {
             // 1. Elimina eventuali dati precedenti per questo instanceModuleId
             deleteAllByInstanceModuleId(instanceModuleId);
 
-            // 2. Recupera configurazione KPI B.5 per soglia e tolleranza
+            // 2. Recupera l'InstanceModule e il codice fiscale del partner
+            InstanceModule instanceModule = instanceModuleRepository.findById(instanceModuleId)
+                .orElseThrow(() -> new RuntimeException("InstanceModule not found with id: " + instanceModuleId));
+            String partnerFiscalCode = instanceModule.getInstance().getPartner().getFiscalCode();
+            log.debug("Processing KPI B.5 for partner with fiscal code: {}", partnerFiscalCode);
+
+            // 3. Recupera configurazione KPI B.5 per soglia e tolleranza
             KpiConfiguration configuration = kpiConfigurationRepository
                 .findByModuleCode(ModuleCode.B5.code)
                 .orElseThrow(() -> new RuntimeException("KPI B.5 configuration not found"));
 
-            // 3. Ottieni tutti i partner PagoPA
-            List<PagopaSpontaneous> allPartners = pagopaSpontaneousRepository.findAll();
-            log.debug("Found {} total partners", allPartners.size());
+            // 4. Ottieni solo le stazioni del partner specifico
+            List<PagopaSpontaneous> allPartners = pagopaSpontaneousRepository.findByCfPartner(partnerFiscalCode);
+            log.debug("Found {} stations for partner {}", allPartners.size(), partnerFiscalCode);
 
-            // 4. Calcola statistiche globali
+            // 5. Calcola statistiche per il partner specifico
             long partnersWithoutSpontaneous = allPartners.stream()
                 .filter(partner -> Boolean.FALSE.equals(partner.getSpontaneousPayment()))
                 .count();
@@ -202,7 +208,7 @@ public class KpiB5ServiceImpl implements KpiB5Service {
                     .divide(BigDecimal.valueOf(allPartners.size()), 2, RoundingMode.HALF_UP);
             }
 
-            // 5. Recupera soglie dalla configurazione
+            // 6. Recupera soglie dalla configurazione
             Double thresholdValue = configuration.getEligibilityThreshold(); // Soglia configurabile
             Double toleranceValue = configuration.getTolerance(); // Tolleranza configurabile
             
@@ -210,16 +216,16 @@ public class KpiB5ServiceImpl implements KpiB5Service {
             BigDecimal thresholdIndex = thresholdValue != null ? BigDecimal.valueOf(thresholdValue) : BigDecimal.ZERO;
             BigDecimal toleranceIndex = toleranceValue != null ? BigDecimal.valueOf(toleranceValue) : BigDecimal.ZERO;
             
-            // 6. Determina outcome: OK se %_senza_spontanei <= (soglia + tolleranza)
+            // 7. Determina outcome: OK se %_senza_spontanei <= (soglia + tolleranza)
             OutcomeStatus outcome = determineOutcomeWithThresholds(percentageWithoutSpontaneous, thresholdIndex, toleranceIndex);
             
-            log.debug("KPI B.5 calculation: partnersTotal={}, partnersWithoutSpontaneous={}, percentage={}%, threshold={}%, tolerance={}%, outcome={}", 
-                     allPartners.size(), partnersWithoutSpontaneous, percentageWithoutSpontaneous, thresholdValue, toleranceValue, outcome);
+            log.debug("KPI B.5 calculation for partner {}: stationsTotal={}, stationsWithoutSpontaneous={}, percentage={}%, threshold={}%, tolerance={}%, outcome={}", 
+                     partnerFiscalCode, allPartners.size(), partnersWithoutSpontaneous, percentageWithoutSpontaneous, thresholdValue, toleranceValue, outcome);
 
-            // 7. Crea risultato principale
+            // 8. Crea risultato principale
             KpiB5Result mainResult = createMainResult(instanceId, instanceModuleId, analysisDate, thresholdIndex, toleranceIndex, outcome);
 
-            // 8. Crea dettaglio aggregato
+            // 9. Crea dettaglio aggregato
             createDetailResult(mainResult, instanceId, instanceModuleId, allPartners, analysisDate);
 
             log.info("KPI B.5 calculation completed successfully for instanceModuleId: {} with outcome: {}", instanceModuleId, outcome);
