@@ -14,7 +14,7 @@
       newTableName="API_LOG_DRILLDOWN" />
 
     <!-- ✅ Rinomina constraint e indici via SQL -->
-    <sql>
+    <sql dbms="postgresql">
       -- Foreign keys
       ALTER TABLE API_LOG_DRILLDOWN RENAME CONSTRAINT FK_PAGOPA_API_LOG_DRILL_INSTANCE_ID TO FK_API_LOG_DRILL_INSTANCE_ID;
       ALTER TABLE API_LOG_DRILLDOWN RENAME CONSTRAINT FK_PAGOPA_API_LOG_DRILL_INSTANCE_MODULE_ID TO FK_API_LOG_DRILL_INSTANCE_MODULE_ID;
@@ -32,6 +32,19 @@
       ALTER SEQUENCE SQCRUSC8_PAGOPAAPILOGDRILL RENAME TO SQCRUSC8_API_LOG_DRILL;
     </sql>
 
+
+
   </changeSet>
 
+
+
+  <changeSet id="20251020130000-rename-table-constraints-indexes-2" author="system">
+
+    <sql dbms="h2">
+      DROP SEQUENCE IF EXISTS  SQCRUSC8_PAGOPAAPILOGDRILL;
+      CREATE SEQUENCE SQCRUSC8_API_LOG_DRILL
+      START WITH 1
+      INCREMENT BY 1;
+    </sql>
+  </changeSet>
 </databaseChangeLog>
