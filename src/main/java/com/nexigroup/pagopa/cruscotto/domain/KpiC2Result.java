@@ -1,6 +1,8 @@
 package com.nexigroup.pagopa.cruscotto.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -76,14 +78,14 @@ public class KpiC2Result implements Serializable {
     private Double tolerance;
 
     @NotNull
-    @Size(max = 50)
-    @Column(name = "TE_EVALUATION_TYPE", nullable = false, length = 50)
-    private String evaluationType;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "TE_EVALUATION_TYPE", nullable = false)
+    private EvaluationType evaluationType;
 
     @NotNull
-    @Size(max = 50)
-    @Column(name = "TE_OUTCOME", nullable = false, length = 50)
-    private String outcome;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "TE_OUTCOME", nullable = false)
+    private OutcomeStatus outcome;
 
     // === Metodi standard ===
     @Override

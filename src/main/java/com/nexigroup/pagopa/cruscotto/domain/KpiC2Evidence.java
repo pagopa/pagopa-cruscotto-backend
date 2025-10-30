@@ -83,6 +83,12 @@ public class KpiC2Evidence implements Serializable {
     @Column(name = "CO_PER_NOTIFICATION")
     private Double percentNotification;
 
+    @JsonIgnore
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "CO_KPI_C2_ANALYTIC_DATA_ID", nullable = false)
+    private KpiC2AnalyticData kpiC2AnalyticData;
+
     // === Metodi standard ===
 
     @Override
@@ -102,12 +108,15 @@ public class KpiC2Evidence implements Serializable {
         return "KpiC2Evidence{" +
             "id=" + id +
             ", instanceId=" + instanceId +
+            ", instance=" + instance +
             ", instanceModuleId=" + instanceModuleId +
+            ", instanceModule=" + instanceModule +
             ", analysisDate=" + analysisDate +
             ", partnerCf='" + partnerCf + '\'' +
             ", numPayment=" + numPayment +
             ", numNotification=" + numNotification +
             ", percentNotification=" + percentNotification +
+            ", kpiC2AnalyticData=" + kpiC2AnalyticData +
             '}';
     }
 }
