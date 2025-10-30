@@ -94,6 +94,10 @@ public class KpiOrchestrator {
             // Update instance module outcome
             instanceModuleService.updateAutomaticOutcome(context.getInstanceModule().getId(), finalOutcome);
             
+            // Update KPI result with final outcome
+            ((KpiResultDTO) savedKpiResult).setOutcome(finalOutcome);
+            genericKpiResultService.save((KpiResultDTO) savedKpiResult);
+            
             LOGGER.info("Successfully processed KPI {} with outcome: {}", moduleCode, finalOutcome);
             return finalOutcome;
             
