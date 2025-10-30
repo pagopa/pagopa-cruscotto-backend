@@ -491,4 +491,43 @@ public class InstanceServiceImpl implements InstanceService {
             .where(QInstance.instance.id.eq(id).and(QInstance.instance.status.eq(InstanceStatus.PIANIFICATA)))
             .execute();
     }
+
+    @Override
+    public void updateInstanceStatusError(Long id) {
+        LOGGER.debug("Request to update status of instance {} to {}", id, InstanceStatus.ERRORE);
+
+        JPAUpdateClause jpql = queryBuilder.updateQuery(QInstance.instance);
+
+        jpql
+            .set(QInstance.instance.status, InstanceStatus.ERRORE)
+            .where(QInstance.instance.id.eq(id))
+            .execute();
+    }
+
+    @Override
+    public void updateInstanceStatusCompleted(Long id) {
+        LOGGER.debug("Request to update status of instance {} to {}", id, InstanceStatus.ESEGUITA);
+
+        JPAUpdateClause jpql = queryBuilder.updateQuery(QInstance.instance);
+
+        jpql
+            .set(QInstance.instance.status, InstanceStatus.ESEGUITA)
+            .where(QInstance.instance.id.eq(id))
+            .execute();
+    }
+
+    @Override
+    public List<InstanceDTO> findActiveInstancesForModule(Long moduleId) {
+        LOGGER.debug("Request to find active instances for module: {}", moduleId);
+        
+        List<Instance> instances = instanceRepository.findAll().stream()
+            .filter(instance -> instance.getStatus().equals(InstanceStatus.PIANIFICATA))
+            .filter(instance -> instance.getInstanceModules().stream()
+                .anyMatch(im -> im.getModule().getId().equals(moduleId)))
+            .toList();
+                
+        return instances.stream()
+            .map(instanceMapper::toDto)
+            .toList();
+    }
 }
