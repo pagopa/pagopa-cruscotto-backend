@@ -41,7 +41,7 @@
   <changeSet id="20251020130000-rename-table-constraints-indexes-2" author="system">
 
     <sql dbms="h2">
-      DROP SEQUENCE IF EXISTS SQCRUSC8_API_LOG_DRILL;
+      DROP SEQUENCE IF EXISTS  SQCRUSC8_PAGOPAAPILOGDRILL;
       CREATE SEQUENCE SQCRUSC8_API_LOG_DRILL
       START WITH 1
       INCREMENT BY 1;
