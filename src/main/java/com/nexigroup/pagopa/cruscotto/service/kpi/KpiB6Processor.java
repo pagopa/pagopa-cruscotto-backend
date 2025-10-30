@@ -171,8 +171,9 @@ public class KpiB6Processor extends AbstractKpiProcessor<KpiResultDTO, KpiDetail
         
         // Evaluate outcome using tolerance-based strategy
         BigDecimal targetPercentage = BigDecimal.valueOf(100.0); // 100% compliance is the target
-        // Parse tolerance from kpiResult data JSON (simplified for now)
-        BigDecimal tolerance = BigDecimal.ZERO;
+        // Get tolerance from configuration
+        BigDecimal tolerance = context.getConfiguration().getTolerance() != null ? 
+                BigDecimal.valueOf(context.getConfiguration().getTolerance()) : BigDecimal.ZERO;
         BigDecimal actualPercentage = BigDecimal.valueOf(aggregationResult.getCompliancePercentage()).setScale(2, RoundingMode.HALF_UP);
         
         OutcomeStatus outcome = evaluationStrategy.evaluate(
