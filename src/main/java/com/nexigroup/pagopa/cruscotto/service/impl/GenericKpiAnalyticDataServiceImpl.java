@@ -122,16 +122,18 @@ public class GenericKpiAnalyticDataServiceImpl implements GenericKpiAnalyticData
     @Override
     public List<KpiAnalyticDataDTO> findByDetailResultId(ModuleCode moduleCode, Long detailResultId) {
         log.debug("Request to find KpiAnalyticData for moduleCode {} and detailResultId {}", moduleCode, detailResultId);
-        // Since the entity doesn't have detailResultId, we'll find by instanceModuleId instead
-        // This assumes the relationship is through the instance module
-        return findByInstanceModuleId(moduleCode, detailResultId);
+        return kpiAnalyticDataRepository.findAllByModuleCodeAndKpiDetailResultId(moduleCode, detailResultId)
+                .stream()
+                .map(kpiAnalyticDataMapper::toDto)
+                .toList();
     }
 
     @Override
     public List<KpiAnalyticDataDTO> findByDateRange(ModuleCode moduleCode, LocalDate startDate, LocalDate endDate) {
         log.debug("Request to find KpiAnalyticData for moduleCode {} between {} and {}", moduleCode, startDate, endDate);
-        // Since the entity doesn't have date fields for filtering, we'll return all for the module
-        // In a real implementation, you might want to add date fields to the entity
-        return findAll(moduleCode);
+        return kpiAnalyticDataRepository.findAllByModuleCodeAndDataDateBetween(moduleCode, startDate, endDate)
+                .stream()
+                .map(kpiAnalyticDataMapper::toDto)
+                .toList();
     }
 }
