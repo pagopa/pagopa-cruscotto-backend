@@ -58,13 +58,12 @@ public class KpiB6DetailResultDTO implements Serializable {
                     if (dataNode.has("stationsWithPaymentOptions")) {
                         this.stationsWithPaymentOptions = dataNode.get("stationsWithPaymentOptions").asInt();
                     }
+                    // Get difference from stored data
                     if (dataNode.has("difference")) {
                         this.difference = dataNode.get("difference").asInt();
                     }
-                    // Map compliancePercentage to percentageDifference for backward compatibility
-                    if (dataNode.has("compliancePercentage")) {
-                        this.percentageDifference = dataNode.get("compliancePercentage").asDouble();
-                    } else if (dataNode.has("percentageDifference")) {
+                    // Get percentageDifference from stored data
+                    if (dataNode.has("percentageDifference")) {
                         this.percentageDifference = dataNode.get("percentageDifference").asDouble();
                     }
                 } catch (Exception e) {
