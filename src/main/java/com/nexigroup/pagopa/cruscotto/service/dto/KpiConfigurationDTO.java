@@ -69,4 +69,10 @@ public class KpiConfigurationDTO implements Serializable {
     private Boolean configInstitutionTolerance;
 
     private Boolean configTransactionTolerance;
+
+    private Boolean enabled;
+
+    public Boolean isEnabled() {
+        return enabled != null ? enabled : false;
+    }
 }

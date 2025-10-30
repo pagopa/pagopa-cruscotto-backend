@@ -65,8 +65,21 @@ public interface PagopaApiLogRepository extends JpaRepository<PagopaApiLog, Pago
      * @param toDate the end date
      * @return the total GPD/ACA requests
      */
-    @Query("SELECT SUM(p.totReq) FROM PagopaApiLog p WHERE p.cfPartner = :cfPartner AND p.date BETWEEN :fromDate AND :toDate AND (p.api = 'GPD' OR p.api = 'ACA')")
+    @Query("SELECT SUM(p.totReq) FROM PagopaApiLog p WHERE p.cfPartner = :cfPartner AND p.date BETWEEN :fromDate AND :toDate AND (p.api = 'GPD' OR p.api = 'ACA') ")
     Long calculateTotalGpdAcaRequests(@Param("cfPartner") String cfPartner, @Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
+
+
+    /**
+     * Calculate aggregated GPD/ACA requests for a partner in a date range.
+     *
+     * @param cfPartner the partner CF
+     * @param fromDate the start date
+     * @param toDate the end date
+     * @return the total GPD/ACA requests
+     */
+    @Query("SELECT SUM(p.reqKo) FROM PagopaApiLog p WHERE p.cfPartner = :cfPartner AND p.date BETWEEN :fromDate AND :toDate AND (p.api = 'GPD' OR p.api = 'ACA') ")
+    Long calculateTotalGpdAcaRequestsKO(@Param("cfPartner") String cfPartner, @Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
+
 
     /**
      * Calculate aggregated paCreate requests for a partner in a date range.
@@ -100,6 +113,31 @@ public interface PagopaApiLogRepository extends JpaRepository<PagopaApiLog, Pago
         @Param("fromDate") LocalDate fromDate,
         @Param("toDate") LocalDate toDate
     );
+
+
+    /**
+     * Calculate daily aggregated data for analytic purposes.
+     *
+     * @param cfPartner the partner CF
+     * @param fromDate the start date
+     * @param toDate the end date
+     * @return the list of daily aggregated data
+     */
+    @Query("SELECT p.date, " +
+        "SUM(CASE WHEN (p.api = 'GPD' OR p.api = 'ACA') THEN p.totReq ELSE 0 END) as gpdTotal ," +
+        "SUM(CASE WHEN (p.api = 'GPD' OR p.api = 'ACA') THEN p.reqKo ELSE 0 END) as gpdAcaTotalKO " +
+        "FROM PagopaApiLog p " +
+        "WHERE p.cfPartner = :cfPartner " +
+        "AND p.date BETWEEN :fromDate AND :toDate " +
+        "GROUP BY p.date " +
+        "ORDER BY p.date ASC")
+    List<Object[]> calculateDailyAggregatedDataAndApiGPDOrAca(
+        @Param("cfPartner") String cfPartner,
+        @Param("fromDate") LocalDate fromDate,
+        @Param("toDate") LocalDate toDate
+    );
+
+
 
     /**
      * Calculate monthly aggregated data for monthly analysis.
@@ -144,6 +182,20 @@ public interface PagopaApiLogRepository extends JpaRepository<PagopaApiLog, Pago
     boolean existsDataInPeriod(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
 
     /**
+     * Check if any API usage data exists in the specified date range for any partner.
+     * This method is used to verify if pagopa_apilog table has data for the analysis period.
+     *
+     * @param fromDate the start date
+     * @param toDate the end date
+     * @return true if any data exists in the period
+     */
+    @Query("SELECT COUNT(p) > 0 FROM PagopaApiLog p " +
+        "WHERE p.date BETWEEN :fromDate AND :toDate " +
+        "AND (p.api = 'GPD' OR p.api = 'ACA') ")
+    boolean existsDataInPeriodAndApiInGPDOrACA(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
+
+
+    /**
      * Find distinct dates with paCreate usage for a partner in date range.
      *
      * @param cfPartner the partner CF
@@ -172,6 +224,25 @@ public interface PagopaApiLogRepository extends JpaRepository<PagopaApiLog, Pago
            "AND p.date = :date " +
            "ORDER BY p.station, p.api")
     List<Object[]> findDetailedApiLogByPartnerAndDate(
+        @Param("cfPartner") String cfPartner,
+        @Param("date") LocalDate date
+    );
+
+    /**
+     * Find detailed API log records for drilldown snapshot by partner and specific date.
+     * Returns all fields needed for populating the drilldown table.
+     *
+     * @param cfPartner the partner CF
+     * @param date the specific date
+     * @return the list of detailed API log data for drilldown
+     */
+    @Query("SELECT p.cfPartner, p.date, p.station, p.cfEnte, p.api, p.totReq, p.reqOk, p.reqKo " +
+        "FROM PagopaApiLog p " +
+        "WHERE p.cfPartner = :cfPartner " +
+        "AND p.date = :date " +
+        "AND (p.api = 'GPD' OR p.api = 'ACA') "+
+        "ORDER BY p.station, p.api")
+    List<Object[]> findDetailedApiLogByPartnerAndDateGPDAndACA(
         @Param("cfPartner") String cfPartner,
         @Param("date") LocalDate date
     );

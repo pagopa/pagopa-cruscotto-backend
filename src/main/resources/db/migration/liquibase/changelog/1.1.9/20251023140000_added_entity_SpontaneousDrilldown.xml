@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <!--
+        Added the SPONTANEOUS_DRILLDOWN table.
+        This table stores historical snapshots of pagopa_spontaneous data at analysis time for KPI B.5.
+    -->
+    <changeSet id="20251023140000-1" author="system">
+        <createTable tableName="SPONTANEOUS_DRILLDOWN">
+            <column name="CO_ID" type="bigint">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_spontaneous_drilldown"/>
+            </column>
+            <column name="CO_INSTANCE_ID" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CO_INSTANCE_MODULE_ID" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CO_KPI_B5_ANALYTIC_DATA_ID" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CO_PARTNER_ID" type="bigint"/>
+            <column name="TE_PARTNER_NAME" type="varchar(255)"/>
+            <column name="TE_PARTNER_FISCAL_CODE" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TE_STATION_CODE" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TE_FISCAL_CODE" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="FL_SPONTANEOUS_PAYMENT" type="boolean">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- Foreign key constraints -->
+    <changeSet id="20251023140000-2" author="system">
+        <addForeignKeyConstraint baseColumnNames="CO_INSTANCE_ID"
+                                 baseTableName="SPONTANEOUS_DRILLDOWN"
+                                 constraintName="fk_spontaneous_drilldown_instance_id"
+                                 referencedColumnNames="CO_ID"
+                                 referencedTableName="INSTANCE"/>
+    </changeSet>
+
+    <changeSet id="20251023140000-2a" author="system">
+        <addForeignKeyConstraint baseColumnNames="CO_INSTANCE_MODULE_ID"
+                                 baseTableName="SPONTANEOUS_DRILLDOWN"
+                                 constraintName="fk_spontaneous_drilldown_instance_module_id"
+                                 referencedColumnNames="CO_ID"
+                                 referencedTableName="INSTANCE_MODULE"/>
+    </changeSet>
+
+    <changeSet id="20251023140000-2b" author="system">
+        <addForeignKeyConstraint baseColumnNames="CO_KPI_B5_ANALYTIC_DATA_ID"
+                                 baseTableName="SPONTANEOUS_DRILLDOWN"
+                                 constraintName="fk_spontaneous_drilldown_kpi_b5_analytic_data_id"
+                                 referencedColumnNames="CO_ID"
+                                 referencedTableName="KPI_B5_ANALYTIC_DATA"/>
+    </changeSet>
+
+    <!-- Create sequence for the table -->
+    <changeSet id="20251023140000-3" author="system">
+        <createSequence sequenceName="SQCRUSC8_SPONTDD" startValue="1" incrementBy="1"/>
+    </changeSet>
+
+    <!-- Create indexes for better performance -->
+    <changeSet id="20251023140000-4" author="system">
+        <createIndex indexName="idx_spontaneous_drilldown_instance_module_id"
+                     tableName="SPONTANEOUS_DRILLDOWN">
+            <column name="CO_INSTANCE_MODULE_ID"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="20251023140000-5" author="system">
+        <createIndex indexName="idx_spontaneous_drilldown_kpi_b5_analytic_data_id"
+                     tableName="SPONTANEOUS_DRILLDOWN">
+            <column name="CO_KPI_B5_ANALYTIC_DATA_ID"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="20251023140000-6" author="system">
+        <createIndex indexName="idx_spontaneous_drilldown_partner_fiscal_code"
+                     tableName="SPONTANEOUS_DRILLDOWN">
+            <column name="TE_PARTNER_FISCAL_CODE"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

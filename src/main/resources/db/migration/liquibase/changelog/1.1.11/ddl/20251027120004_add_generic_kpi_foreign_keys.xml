@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+  <!-- Foreign Key: KPI_DETAIL_RESULT -> KPI_RESULT -->
+  <changeSet id="20251027120004-1" author="system" context="ddl">
+    <addForeignKeyConstraint baseTableName="KPI_DETAIL_RESULT"
+            baseColumnNames="CO_KPI_RESULT_ID"
+            constraintName="FK_KPI_DETAIL_RESULT_KPI_RESULT"
+            referencedTableName="KPI_RESULT"
+            referencedColumnNames="CO_ID"/>
+
+    <rollback>
+      <dropForeignKeyConstraint baseTableName="KPI_DETAIL_RESULT" constraintName="FK_KPI_DETAIL_RESULT_KPI_RESULT"/>
+    </rollback>
+  </changeSet>
+
+  <!-- Foreign Key: KPI_ANALYTIC_DATA -> KPI_DETAIL_RESULT -->
+  <changeSet id="20251027120004-2" author="system" context="ddl">
+    <addForeignKeyConstraint baseTableName="KPI_ANALYTIC_DATA"
+            baseColumnNames="CO_KPI_DETAIL_RESULT_ID"
+            constraintName="FK_KPI_ANALYTIC_DATA_KPI_DETAIL_RESULT"
+            referencedTableName="KPI_DETAIL_RESULT"
+            referencedColumnNames="CO_ID"/>
+
+    <rollback>
+      <dropForeignKeyConstraint baseTableName="KPI_ANALYTIC_DATA" constraintName="FK_KPI_ANALYTIC_DATA_KPI_DETAIL_RESULT"/>
+    </rollback>
+  </changeSet>
+
+</databaseChangeLog>
