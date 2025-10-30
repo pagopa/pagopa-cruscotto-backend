@@ -160,10 +160,16 @@ public class KpiB6Processor extends AbstractKpiProcessor<KpiResultDTO, KpiDetail
         detailResult.setAnalysisDate(LocalDate.now());
         
         // Store KPI-specific data as JSON in the additionalData field
+        int totalActiveStations = aggregationResult.getTotalActiveStations();
+        int stationsWithPaymentOptions = aggregationResult.getStationsWithPaymentOptions();
+        int difference = totalActiveStations - stationsWithPaymentOptions;
+        double percentageDifference = 100.0 - aggregationResult.getCompliancePercentage();
+        
         detailResult.setAdditionalData("{" +
-            "\"activeStations\": " + aggregationResult.getTotalActiveStations() + ", " +
-            "\"stationsWithPaymentOptions\": " + aggregationResult.getStationsWithPaymentOptions() + ", " +
-            "\"compliancePercentage\": " + BigDecimal.valueOf(aggregationResult.getCompliancePercentage()).setScale(2, RoundingMode.HALF_UP) + ", " +
+            "\"activeStations\": " + totalActiveStations + ", " +
+            "\"stationsWithPaymentOptions\": " + stationsWithPaymentOptions + ", " +
+            "\"difference\": " + difference + ", " +
+            "\"percentageDifference\": " + BigDecimal.valueOf(percentageDifference).setScale(2, RoundingMode.HALF_UP) + ", " +
             "\"evaluationType\": \"" + evaluationType.name() + "\", " +
             "\"evaluationStartDate\": \"" + startDate + "\", " +
             "\"evaluationEndDate\": \"" + endDate + "\"" +
