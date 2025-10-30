@@ -35,6 +35,10 @@
       <column name="CO_NUM_NOTIFICATION" type="int"/>
       <column name="CO_PER_NOTIFICATION" type="numeri(5,2)"/>
 
+      <column name="CO_KPI_C2_ANALYTIC_DATA_ID" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+
     </createTable>
 
     <rollback>
