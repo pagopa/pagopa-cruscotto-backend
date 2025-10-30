@@ -162,7 +162,7 @@ public class GenericKpiJob extends QuartzJobBean {
                         .withSchedule(SimpleScheduleBuilder.simpleSchedule()
                                 .withMisfireHandlingInstructionFireNow()
                                 .withRepeatCount(0))
-                        .startNow()
+                        .forJob(job)
                         .build();
                         
                 scheduler.scheduleJob(trigger);
