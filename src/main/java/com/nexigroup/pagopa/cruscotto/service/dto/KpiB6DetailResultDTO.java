@@ -49,7 +49,10 @@ public class KpiB6DetailResultDTO implements Serializable {
                     if (dataNode.has("anagStationId")) {
                         this.anagStationId = dataNode.get("anagStationId").asLong();
                     }
-                    if (dataNode.has("totalStations")) {
+                    // Map activeStations to totalStations for backward compatibility
+                    if (dataNode.has("activeStations")) {
+                        this.totalStations = dataNode.get("activeStations").asInt();
+                    } else if (dataNode.has("totalStations")) {
                         this.totalStations = dataNode.get("totalStations").asInt();
                     }
                     if (dataNode.has("stationsWithPaymentOptions")) {
@@ -58,7 +61,10 @@ public class KpiB6DetailResultDTO implements Serializable {
                     if (dataNode.has("difference")) {
                         this.difference = dataNode.get("difference").asInt();
                     }
-                    if (dataNode.has("percentageDifference")) {
+                    // Map compliancePercentage to percentageDifference for backward compatibility
+                    if (dataNode.has("compliancePercentage")) {
+                        this.percentageDifference = dataNode.get("compliancePercentage").asDouble();
+                    } else if (dataNode.has("percentageDifference")) {
                         this.percentageDifference = dataNode.get("percentageDifference").asDouble();
                     }
                 } catch (Exception e) {

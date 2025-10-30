@@ -44,10 +44,12 @@ public class KpiB6AnalyticDataDTO implements Serializable {
                     ObjectMapper mapper = new ObjectMapper();
                     JsonNode dataNode = mapper.readTree(genericDto.getAnalyticData());
                     
-                    // Parse station code from JSON data
+                    // Parse station code from JSON data - stored as string in new framework
                     if (dataNode.has("stationCode")) {
                         try {
-                            this.stationCode = dataNode.get("stationCode").asInt();
+                            // Try to parse as integer first, then as string
+                            String stationCodeStr = dataNode.get("stationCode").asText();
+                            this.stationCode = Integer.parseInt(stationCodeStr);
                         } catch (Exception e) {
                             this.stationCode = null;
                         }
@@ -62,7 +64,11 @@ public class KpiB6AnalyticDataDTO implements Serializable {
                     if (dataNode.has("eventType")) {
                         this.eventType = dataNode.get("eventType").asText();
                     }
-                    if (dataNode.has("paymentOption")) {
+                    // Map paymentOptionsEnabled (boolean) to paymentOption (string) for backward compatibility
+                    if (dataNode.has("paymentOptionsEnabled")) {
+                        boolean paymentEnabled = dataNode.get("paymentOptionsEnabled").asBoolean();
+                        this.paymentOption = paymentEnabled ? "SI" : "NO";
+                    } else if (dataNode.has("paymentOption")) {
                         this.paymentOption = dataNode.get("paymentOption").asText();
                     }
                 } catch (Exception e) {
