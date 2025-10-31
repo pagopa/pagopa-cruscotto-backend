@@ -87,13 +87,14 @@ public interface KpiB5Service {
     List<KpiB5AnalyticDataDTO> findAnalyticsByDetailResultId(Long detailResultId);
 
     /**
-     * Get PagoPA spontaneous data by analytic data ID.
+     * Get PagoPA spontaneous data by analytic data ID with optional filter.
      * This is the final drilldown showing the snapshot of pagopa_spontaneous data.
      *
      * @param analyticDataId the analytic data ID
+     * @param spontaneousPaymentsFilter the filter for spontaneous payments status (ATTIVI, NON_ATTIVI, ALL, or null for NON_ATTIVI by default)
      * @return the list of spontaneous data
      */
-    List<PagopaSpontaneiDTO> findDrillDownByAnalyticDataId(Long analyticDataId);
+    List<PagopaSpontaneiDTO> findDrillDownByAnalyticDataId(Long analyticDataId, String spontaneousPaymentsFilter);
 
     /**
      * Execute KPI B5 calculation for a specific instance.

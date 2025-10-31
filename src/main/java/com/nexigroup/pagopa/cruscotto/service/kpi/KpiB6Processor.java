@@ -234,9 +234,23 @@ public class KpiB6Processor extends AbstractKpiProcessor<KpiResultDTO, KpiDetail
     
     @Override
     protected boolean isDetailResultForTotalPeriod(KpiDetailResultDTO detailResult) {
-        // Since evaluation type is now stored in JSON, we need to parse it
-        // For now, we can assume B.6 doesn't use total period evaluation
-        return false;
+        // Parse the evaluation type from the JSON data to determine if this is a total period result
+        if (detailResult.getAdditionalData() != null) {
+            try {
+                com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                com.fasterxml.jackson.databind.JsonNode dataNode = mapper.readTree(detailResult.getAdditionalData());
+                
+                if (dataNode.has("evaluationType")) {
+                    String evaluationType = dataNode.get("evaluationType").asText();
+                    return "TOTALE".equals(evaluationType);
+                }
+            } catch (Exception e) {
+                logger.warn("Failed to parse evaluation type from additional data", e);
+            }
+        }
+        
+        // Default fallback: B.6 uses TOTALE as default, so assume true for total period
+        return true;
     }
     
     @Override
