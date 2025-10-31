@@ -132,7 +132,7 @@ class KpiB5ServiceImplSnapshotTest {
             .thenReturn(snapshots);
 
         // When
-        List<PagopaSpontaneiDTO> result = kpiB5Service.findDrillDownByAnalyticDataId(analyticDataId);
+        List<PagopaSpontaneiDTO> result = kpiB5Service.findDrillDownByAnalyticDataId(analyticDataId, null);
 
         // Then
         assertNotNull(result);
@@ -165,7 +165,7 @@ class KpiB5ServiceImplSnapshotTest {
             .thenReturn(Arrays.asList());
 
         // When
-        List<PagopaSpontaneiDTO> result = kpiB5Service.findDrillDownByAnalyticDataId(analyticDataId);
+        List<PagopaSpontaneiDTO> result = kpiB5Service.findDrillDownByAnalyticDataId(analyticDataId, null);
 
         // Then
         assertNotNull(result);

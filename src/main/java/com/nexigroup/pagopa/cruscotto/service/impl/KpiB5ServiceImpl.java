@@ -147,8 +147,8 @@ public class KpiB5ServiceImpl implements KpiB5Service {
 
     @Override
     @Transactional(readOnly = true)
-    public List<PagopaSpontaneiDTO> findDrillDownByAnalyticDataId(Long analyticDataId) {
-        log.debug("Request to get drill-down data by analyticDataId : {}", analyticDataId);
+    public List<PagopaSpontaneiDTO> findDrillDownByAnalyticDataId(Long analyticDataId, String spontaneousPaymentsFilter) {
+        log.debug("Request to get drill-down data by analyticDataId : {} with filter: {}", analyticDataId, spontaneousPaymentsFilter);
         
         // Use historical snapshot data from SpontaneousDrilldown table
         return spontaneousDrilldownRepository.findByKpiB5AnalyticDataId(analyticDataId)
@@ -168,6 +168,29 @@ public class KpiB5ServiceImpl implements KpiB5Service {
                 dto.setSpontaneousPayments(drillDown.getSpontaneousPayments().getValue());
                 
                 return dto;
+            })
+            .filter(dto -> {
+                // Apply filter based on spontaneousPaymentsFilter parameter
+                if (spontaneousPaymentsFilter == null || spontaneousPaymentsFilter.trim().isEmpty()) {
+                    // Default: show only NON_ATTIVI
+                    return "NON_ATTIVI".equals(dto.getSpontaneousPayments()) || "NON ATTIVI".equals(dto.getSpontaneousPayments());
+                }
+                
+                String filter = spontaneousPaymentsFilter.trim().toUpperCase();
+                switch (filter) {
+                    case "ATTIVI":
+                        return "ATTIVI".equals(dto.getSpontaneousPayments());
+                    case "NON_ATTIVI":
+                    case "NON ATTIVI":
+                        return "NON_ATTIVI".equals(dto.getSpontaneousPayments()) || "NON ATTIVI".equals(dto.getSpontaneousPayments());
+                    case "ALL":
+                    case "TUTTI":
+                        return true; // Show all records
+                    default:
+                        // Invalid filter: default to NON_ATTIVI
+                        log.warn("Invalid spontaneousPaymentsFilter: {}. Defaulting to NON_ATTIVI", spontaneousPaymentsFilter);
+                        return "NON_ATTIVI".equals(dto.getSpontaneousPayments()) || "NON ATTIVI".equals(dto.getSpontaneousPayments());
+                }
             })
             .toList();
     }
