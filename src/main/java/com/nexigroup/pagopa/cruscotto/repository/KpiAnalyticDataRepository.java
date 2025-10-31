@@ -27,6 +27,16 @@ public interface KpiAnalyticDataRepository extends JpaRepository<KpiAnalyticData
     List<KpiAnalyticData> findAllByModuleCodeAndInstanceModuleId(ModuleCode moduleCode, Long instanceModuleId);
 
     /**
+     * Find analytic data by module code and detail result id.
+     */
+    List<KpiAnalyticData> findAllByModuleCodeAndKpiDetailResultId(ModuleCode moduleCode, Long kpiDetailResultId);
+
+    /**
+     * Find analytic data by module code and data date range.
+     */
+    List<KpiAnalyticData> findAllByModuleCodeAndDataDateBetween(ModuleCode moduleCode, LocalDate startDate, LocalDate endDate);
+
+    /**
      * Delete all analytic data by module code and instance module id.
      */
     @Modifying
