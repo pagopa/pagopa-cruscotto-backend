@@ -258,6 +258,13 @@ public class KpiAnalyticDataResource {
         List<KpiAnalyticDataDTO> genericData = genericKpiAnalyticDataService.findByDetailResultId(ModuleCode.B6, detailResultId);
         List<KpiB6AnalyticDataDTO> kpiB6AnalyticData = genericData.stream()
                 .map(KpiB6AnalyticDataDTO::new)
+                .sorted((a, b) -> {
+                    // Sort by stationCode ascending, handling null values
+                    if (a.getStationCode() == null && b.getStationCode() == null) return 0;
+                    if (a.getStationCode() == null) return 1;  // nulls last
+                    if (b.getStationCode() == null) return -1; // nulls last
+                    return a.getStationCode().compareToIgnoreCase(b.getStationCode());
+                })
                 .collect(Collectors.toList());
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(kpiB6AnalyticData));
     }
