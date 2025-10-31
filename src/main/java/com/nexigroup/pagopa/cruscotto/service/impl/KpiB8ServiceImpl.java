@@ -329,8 +329,8 @@ public class KpiB8ServiceImpl implements KpiB8Service {
                 monthlyDetailResult.setEvaluationType(com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType.MESE);
                 monthlyDetailResult.setEvaluationStartDate(monthStart);
                 monthlyDetailResult.setEvaluationEndDate(monthEnd);
-                monthlyDetailResult.setReqKO(monthlyGpdCalls); // Totale GPD+ACA del mese
-                monthlyDetailResult.setTotReq(monthlyGpdKOCalls); // Totale CP del mese
+                monthlyDetailResult.setReqKO(monthlyGpdKOCalls); // Totale GPD+ACA del mese
+                monthlyDetailResult.setTotReq(monthlyGpdCalls); // Totale CP del mese
                 monthlyDetailResult.setPerKO(monthlyPercentageCp); // % CP del mese
                 monthlyDetailResult.setOutcome(calculateDetailResultOutcome(monthlyPercentageCp, kpiB8Result)); // Calcola outcome specifico per questo detail result
 
