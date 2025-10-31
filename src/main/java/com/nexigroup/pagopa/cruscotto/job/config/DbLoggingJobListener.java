@@ -5,7 +5,6 @@ import com.nexigroup.pagopa.cruscotto.service.QrtzLogTriggerExecutedService;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.time.Instant;
-import lombok.Getter;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.quartz.JobExecutionContext;

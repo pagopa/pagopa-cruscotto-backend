@@ -2,7 +2,6 @@ package com.nexigroup.pagopa.cruscotto.repository;
 
 import com.nexigroup.pagopa.cruscotto.domain.KpiB8AnalyticData;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

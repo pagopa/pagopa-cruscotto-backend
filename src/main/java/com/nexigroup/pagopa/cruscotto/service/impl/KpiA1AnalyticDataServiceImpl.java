@@ -1,23 +1,17 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
 import com.nexigroup.pagopa.cruscotto.domain.*;
-import com.nexigroup.pagopa.cruscotto.repository.*;
 import com.nexigroup.pagopa.cruscotto.repository.AnagStationRepository;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceModuleRepository;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
 import com.nexigroup.pagopa.cruscotto.repository.KpiA1AnalyticDataRepository;
 import com.nexigroup.pagopa.cruscotto.repository.KpiA1DetailResultRepository;
 import com.nexigroup.pagopa.cruscotto.service.KpiA1AnalyticDataService;
-import com.nexigroup.pagopa.cruscotto.service.KpiA1AnalyticDataService;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA1AnalyticDataDTO;
-import com.nexigroup.pagopa.cruscotto.service.dto.KpiA1AnalyticDataDTO;
-import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2AnalyticDataDTO;
-import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPQLQuery;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -2,9 +2,7 @@ package com.nexigroup.pagopa.cruscotto.service;
 
 import com.nexigroup.pagopa.cruscotto.service.dto.JobsDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.QrtzLogTriggerExecutedDTO;
-import com.nexigroup.pagopa.cruscotto.service.dto.TaxonomyDTO;
 import com.nexigroup.pagopa.cruscotto.service.filter.JobExecutionFilter;
-import com.nexigroup.pagopa.cruscotto.service.filter.TaxonomyFilter;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;

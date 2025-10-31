@@ -1,6 +1,5 @@
 package com.nexigroup.pagopa.cruscotto.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -15,7 +14,7 @@ import org.hibernate.annotations.DynamicUpdate;
 
 /**
  * A PagopaNumeroStandin.
- * 
+ *
  * Represents aggregated Stand-In events data loaded daily from PagoPA API.
  * Events are aggregated by 15-minute intervals and by station for performance optimization.
  */
