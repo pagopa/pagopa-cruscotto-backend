@@ -2,7 +2,6 @@ package com.nexigroup.pagopa.cruscotto.repository;
 
 import com.nexigroup.pagopa.cruscotto.domain.KpiB4AnalyticData;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -43,8 +42,8 @@ public interface KpiB4AnalyticDataRepository extends JpaRepository<KpiB4Analytic
      * @return the page of KpiB4AnalyticData
      */
     Page<KpiB4AnalyticData> findByInstanceIdAndAnalysisDateOrderByEvaluationDateDesc(
-        Long instanceId, 
-        LocalDate analysisDate, 
+        Long instanceId,
+        LocalDate analysisDate,
         Pageable pageable
     );
 
@@ -57,8 +56,8 @@ public interface KpiB4AnalyticDataRepository extends JpaRepository<KpiB4Analytic
      * @return the KpiB4AnalyticData
      */
     KpiB4AnalyticData findByInstanceIdAndAnalysisDateAndEvaluationDate(
-        Long instanceId, 
-        LocalDate analysisDate, 
+        Long instanceId,
+        LocalDate analysisDate,
         LocalDate evaluationDate
     );
 

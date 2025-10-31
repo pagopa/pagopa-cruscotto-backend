@@ -1,7 +1,6 @@
 package com.nexigroup.pagopa.cruscotto.repository;
 
 import com.nexigroup.pagopa.cruscotto.domain.KpiA1Result;
-import com.nexigroup.pagopa.cruscotto.domain.KpiA1Result;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
