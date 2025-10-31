@@ -22,7 +22,7 @@ public class KpiB6AnalyticDataDTO implements Serializable {
     private String eventId;
     private String eventType;
     private LocalDate analysisDate;
-    private Integer stationCode;
+    private String stationCode;
     private String paymentOption;
 
     public KpiB6AnalyticDataDTO() {}
@@ -46,13 +46,7 @@ public class KpiB6AnalyticDataDTO implements Serializable {
                     
                     // Parse station code from JSON data - stored as string in new framework
                     if (dataNode.has("stationCode")) {
-                        try {
-                            // Try to parse as integer first, then as string
-                            String stationCodeStr = dataNode.get("stationCode").asText();
-                            this.stationCode = Integer.parseInt(stationCodeStr);
-                        } catch (Exception e) {
-                            this.stationCode = null;
-                        }
+                        this.stationCode = dataNode.get("stationCode").asText();
                     }
                     
                     if (dataNode.has("anagStationId")) {
@@ -142,11 +136,11 @@ public class KpiB6AnalyticDataDTO implements Serializable {
         this.analysisDate = analysisDate;
     }
 
-    public Integer getStationCode() {
+    public String getStationCode() {
         return stationCode;
     }
 
-    public void setStationCode(Integer stationCode) {
+    public void setStationCode(String stationCode) {
         this.stationCode = stationCode;
     }
 
