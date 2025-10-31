@@ -131,30 +131,89 @@ class KpiB5ServiceImplSnapshotTest {
         when(spontaneousDrilldownRepository.findByKpiB5AnalyticDataId(analyticDataId))
             .thenReturn(snapshots);
 
-        // When
-        List<PagopaSpontaneiDTO> result = kpiB5Service.findDrillDownByAnalyticDataId(analyticDataId, null);
+        // When - Test with "ALL" filter to get all records
+        List<PagopaSpontaneiDTO> result = kpiB5Service.findDrillDownByAnalyticDataId(analyticDataId, "ALL");
 
         // Then
         assertNotNull(result);
         assertEquals(2, result.size());
 
-        PagopaSpontaneiDTO dto1 = result.get(0);
-        assertEquals(101L, dto1.getId());
-        assertEquals(analyticDataId, dto1.getKpiB5AnalyticDataId());
-        assertEquals(1L, dto1.getPartnerId());
-        assertEquals("12345678901", dto1.getPartnerFiscalCode());
-        assertEquals("STATION_001", dto1.getStationCode());
-        assertEquals("STATION_001", dto1.getFiscalCode());
-        assertEquals(SpontaneousPayments.ATTIVI.getValue(), dto1.getSpontaneousPayments());
+        // Find the ATTIVI record
+        PagopaSpontaneiDTO dtoAttivi = result.stream()
+            .filter(dto -> "ATTIVI".equals(dto.getSpontaneousPayments()))
+            .findFirst()
+            .orElseThrow(() -> new AssertionError("ATTIVI record not found"));
+        
+        assertEquals(101L, dtoAttivi.getId());
+        assertEquals(analyticDataId, dtoAttivi.getKpiB5AnalyticDataId());
+        assertEquals(1L, dtoAttivi.getPartnerId());
+        assertEquals("12345678901", dtoAttivi.getPartnerFiscalCode());
+        assertEquals("STATION_001", dtoAttivi.getStationCode());
+        assertEquals("STATION_001", dtoAttivi.getFiscalCode());
+        assertEquals(SpontaneousPayments.ATTIVI.getValue(), dtoAttivi.getSpontaneousPayments());
 
-        PagopaSpontaneiDTO dto2 = result.get(1);
-        assertEquals(102L, dto2.getId());
-        assertEquals(analyticDataId, dto2.getKpiB5AnalyticDataId());
-        assertEquals(2L, dto2.getPartnerId());
-        assertEquals("10987654321", dto2.getPartnerFiscalCode());
-        assertEquals("STATION_002", dto2.getStationCode());
-        assertEquals("STATION_002", dto2.getFiscalCode());
-        assertEquals(SpontaneousPayments.NON_ATTIVI.getValue(), dto2.getSpontaneousPayments());
+        // Find the NON_ATTIVI record
+        PagopaSpontaneiDTO dtoNonAttivi = result.stream()
+            .filter(dto -> "NON ATTIVI".equals(dto.getSpontaneousPayments()))
+            .findFirst()
+            .orElseThrow(() -> new AssertionError("NON ATTIVI record not found"));
+        
+        assertEquals(102L, dtoNonAttivi.getId());
+        assertEquals(analyticDataId, dtoNonAttivi.getKpiB5AnalyticDataId());
+        assertEquals(2L, dtoNonAttivi.getPartnerId());
+        assertEquals("10987654321", dtoNonAttivi.getPartnerFiscalCode());
+        assertEquals("STATION_002", dtoNonAttivi.getStationCode());
+        assertEquals("STATION_002", dtoNonAttivi.getFiscalCode());
+        assertEquals(SpontaneousPayments.NON_ATTIVI.getValue(), dtoNonAttivi.getSpontaneousPayments());
+    }
+
+    @Test
+    void testFindDrillDownByAnalyticDataId_DefaultFilter_ReturnsOnlyNonAttivi() {
+        // Given - Setup snapshot data with both ATTIVI and NON_ATTIVI
+        Long analyticDataId = 50L;
+
+        SpontaneousDrilldown snapshot1 = new SpontaneousDrilldown();
+        snapshot1.setId(101L);
+        snapshot1.setInstance(testInstance);
+        snapshot1.setInstanceModule(testInstanceModule);
+        snapshot1.setKpiB5AnalyticData(testAnalyticData);
+        snapshot1.setPartnerId(1L);
+        snapshot1.setPartnerFiscalCode("12345678901");
+        snapshot1.setStationCode("STATION_001");
+        snapshot1.setFiscalCode("STATION_001");
+        snapshot1.setSpontaneousPayment(true);  // ATTIVI
+
+        SpontaneousDrilldown snapshot2 = new SpontaneousDrilldown();
+        snapshot2.setId(102L);
+        snapshot2.setInstance(testInstance);
+        snapshot2.setInstanceModule(testInstanceModule);
+        snapshot2.setKpiB5AnalyticData(testAnalyticData);
+        snapshot2.setPartnerId(2L);
+        snapshot2.setPartnerFiscalCode("10987654321");
+        snapshot2.setStationCode("STATION_002");
+        snapshot2.setFiscalCode("STATION_002");
+        snapshot2.setSpontaneousPayment(false); // NON_ATTIVI
+
+        List<SpontaneousDrilldown> snapshots = Arrays.asList(snapshot1, snapshot2);
+
+        when(spontaneousDrilldownRepository.findByKpiB5AnalyticDataId(analyticDataId))
+            .thenReturn(snapshots);
+
+        // When - Test with null filter (should default to NON_ATTIVI only)
+        List<PagopaSpontaneiDTO> result = kpiB5Service.findDrillDownByAnalyticDataId(analyticDataId, null);
+
+        // Then - Should return only NON_ATTIVI record
+        assertNotNull(result);
+        assertEquals(1, result.size());
+
+        PagopaSpontaneiDTO dto = result.get(0);
+        assertEquals(102L, dto.getId());
+        assertEquals(analyticDataId, dto.getKpiB5AnalyticDataId());
+        assertEquals(2L, dto.getPartnerId());
+        assertEquals("10987654321", dto.getPartnerFiscalCode());
+        assertEquals("STATION_002", dto.getStationCode());
+        assertEquals("STATION_002", dto.getFiscalCode());
+        assertEquals(SpontaneousPayments.NON_ATTIVI.getValue(), dto.getSpontaneousPayments());
     }
 
     @Test
