@@ -300,7 +300,12 @@ public class KpiB5ServiceImpl implements KpiB5Service {
                 .divide(BigDecimal.valueOf(allPartners.size()), 2, RoundingMode.HALF_UP);
         }
 
-        OutcomeStatus detailOutcome = percentageNoSpontaneous.compareTo(BigDecimal.ZERO) == 0 ? OutcomeStatus.OK : OutcomeStatus.KO;
+        // Usa la stessa logica del risultato principale per determinare l'esito
+        OutcomeStatus detailOutcome = determineOutcomeWithThresholds(
+            percentageNoSpontaneous, 
+            mainResult.getThresholdIndex(), 
+            mainResult.getToleranceIndex()
+        );
 
         // Crea detail result
         KpiB5DetailResult detailResult = new KpiB5DetailResult();
