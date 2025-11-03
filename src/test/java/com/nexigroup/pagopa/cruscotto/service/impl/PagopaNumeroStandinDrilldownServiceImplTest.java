@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -140,4 +141,12 @@ class PagopaNumeroStandinDrilldownServiceImplTest {
         assertEquals(2, deleted);
         verify(repository, times(1)).deleteByInstanceModuleIdAndAnalysisDate(2L, date);
     }
+
+    @Test
+    void testSaveBatch_emptyList() {
+        int savedCount = service.saveBatch(new ArrayList<>());
+        assertEquals(0, savedCount);
+        verify(repository, never()).saveAll(anyList());
+    }
+
 }
