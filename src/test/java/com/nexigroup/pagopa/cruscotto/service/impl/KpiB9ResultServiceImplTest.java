@@ -135,4 +135,43 @@ class KpiB9ResultServiceImplTest {
         assertEquals(1L, dtos.get(0).getId());
     }
 
+    @Test
+    void testSaveThrowsWhenInstanceNotFound() {
+        // Arrange
+        KpiB9ResultDTO dto = new KpiB9ResultDTO();
+        dto.setInstanceId(1L);
+        dto.setInstanceModuleId(10L);
+
+        when(instanceRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            kpiB9ResultService.save(dto);
+        });
+
+        assertEquals("Instance not found", exception.getMessage());
+    }
+
+    @Test
+    void testSaveThrowsWhenInstanceModuleNotFound() {
+        // Arrange
+        KpiB9ResultDTO dto = new KpiB9ResultDTO();
+        dto.setInstanceId(1L);
+        dto.setInstanceModuleId(10L);
+
+        Instance instance = new Instance();
+        instance.setId(1L);
+
+        when(instanceRepository.findById(1L)).thenReturn(Optional.of(instance));
+        when(instanceModuleRepository.findById(10L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            kpiB9ResultService.save(dto);
+        });
+
+        assertEquals("InstanceModule not found", exception.getMessage());
+    }
+
+
 }

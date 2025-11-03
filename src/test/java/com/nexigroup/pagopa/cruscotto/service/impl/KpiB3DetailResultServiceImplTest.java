@@ -10,6 +10,7 @@ import com.nexigroup.pagopa.cruscotto.repository.InstanceModuleRepository;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
 import com.nexigroup.pagopa.cruscotto.repository.KpiB3DetailResultRepository;
 import com.nexigroup.pagopa.cruscotto.repository.KpiB3ResultRepository;
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiB1ResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB3DetailResultDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -145,4 +146,77 @@ class KpiB3DetailResultServiceImplTest {
         assertThat(dtos).hasSize(1);
         assertThat(dtos.get(0).getOutcome()).isEqualTo(OutcomeStatus.OK);
     }
+    @Test
+    void testSaveKpiB3DetailResult_instanceNotFound() {
+        KpiB3DetailResultDTO dto = new KpiB3DetailResultDTO();
+        dto.setInstanceId(1L);
+        dto.setInstanceModuleId(2L);
+
+        when(instanceRepository.findById(1L)).thenReturn(Optional.empty());
+
+        IllegalArgumentException exception = org.junit.jupiter.api.Assertions.assertThrows(
+            IllegalArgumentException.class,
+            () -> service.save(dto)
+        );
+
+        org.assertj.core.api.Assertions.assertThat(exception.getMessage()).isEqualTo("Instance not found");
+
+        verify(instanceRepository, times(1)).findById(1L);
+        verifyNoInteractions(instanceModuleRepository, kpiB3DetailResultRepository);
+    }
+
+    @Test
+    void testSaveKpiB3DetailResult_instanceModuleNotFound() {
+        Instance instance = new Instance();
+        instance.setId(1L);
+
+        KpiB3DetailResultDTO dto = new KpiB3DetailResultDTO();
+        dto.setInstanceId(1L);
+        dto.setInstanceModuleId(2L);
+
+        when(instanceRepository.findById(1L)).thenReturn(Optional.of(instance));
+        when(instanceModuleRepository.findById(2L)).thenReturn(Optional.empty());
+
+        IllegalArgumentException exception = org.junit.jupiter.api.Assertions.assertThrows(
+            IllegalArgumentException.class,
+            () -> service.save(dto)
+        );
+
+        org.assertj.core.api.Assertions.assertThat(exception.getMessage()).isEqualTo("InstanceModule not found");
+
+        verify(instanceRepository, times(1)).findById(1L);
+        verify(instanceModuleRepository, times(1)).findById(2L);
+        verifyNoInteractions(kpiB3DetailResultRepository);
+    }
+
+    @Test
+    void testSaveKpiB3DetailResult_kpiB3ResultNotFound() {
+        Instance instance = new Instance();
+        instance.setId(1L);
+
+        InstanceModule module = new InstanceModule();
+        module.setId(2L);
+
+        KpiB3DetailResultDTO dto = new KpiB3DetailResultDTO();
+        dto.setInstanceId(1L);
+        dto.setInstanceModuleId(2L);
+        dto.setKpiB3ResultId(99L);
+
+        when(instanceRepository.findById(1L)).thenReturn(Optional.of(instance));
+        when(instanceModuleRepository.findById(2L)).thenReturn(Optional.of(module));
+        when(kpiB3ResultRepository.findById(99L)).thenReturn(Optional.empty());
+
+        IllegalArgumentException exception = assertThrows(
+            IllegalArgumentException.class,
+            () -> service.save(dto)
+        );
+
+        org.assertj.core.api.Assertions.assertThat(exception.getMessage()).isEqualTo("KpiB3Result not found");
+
+        verify(instanceRepository, times(1)).findById(1L);
+        verify(instanceModuleRepository, times(1)).findById(2L);
+        verify(kpiB3ResultRepository, times(1)).findById(99L);
+        verifyNoInteractions(kpiB3DetailResultRepository);
+    }
+
 }

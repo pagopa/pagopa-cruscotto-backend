@@ -132,4 +132,47 @@ class KpiB1ResultServiceImplTest {
         assertThat(dtos).hasSize(1);
         assertThat(dtos.get(0).getId()).isEqualTo(100L);
     }
+
+    @Test
+    void testSaveKpiB1Result_instanceNotFound() {
+        KpiB1ResultDTO dto = new KpiB1ResultDTO();
+        dto.setInstanceId(1L);
+        dto.setInstanceModuleId(2L);
+
+        when(instanceRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // Verifica che l'eccezione sia lanciata
+        org.junit.jupiter.api.Assertions.assertThrows(
+            IllegalArgumentException.class,
+            () -> service.save(dto),
+            "Instance not found"
+        );
+
+        verify(instanceRepository, times(1)).findById(1L);
+        verifyNoInteractions(instanceModuleRepository, kpiB1ResultRepository);
+    }
+
+    @Test
+    void testSaveKpiB1Result_instanceModuleNotFound() {
+        Instance instance = new Instance();
+        instance.setId(1L);
+
+        KpiB1ResultDTO dto = new KpiB1ResultDTO();
+        dto.setInstanceId(1L);
+        dto.setInstanceModuleId(2L);
+
+        when(instanceRepository.findById(1L)).thenReturn(Optional.of(instance));
+        when(instanceModuleRepository.findById(2L)).thenReturn(Optional.empty());
+
+        org.junit.jupiter.api.Assertions.assertThrows(
+            IllegalArgumentException.class,
+            () -> service.save(dto),
+            "InstanceModule not found"
+        );
+
+        verify(instanceRepository, times(1)).findById(1L);
+        verify(instanceModuleRepository, times(1)).findById(2L);
+        verifyNoInteractions(kpiB1ResultRepository);
+    }
+
 }

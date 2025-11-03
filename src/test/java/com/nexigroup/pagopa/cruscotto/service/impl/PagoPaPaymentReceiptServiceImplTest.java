@@ -165,4 +165,34 @@ class PagoPaPaymentReceiptServiceImplTest {
         assertThat(page).isEmpty();
     }
 
+    @Test
+    @DisplayName("createPagoPaPaymentReceiptProjection: returns non-null projection")
+    void createPagoPaPaymentReceiptProjection_returnsProjection() throws Exception {
+        var method = PagoPaPaymentReceiptServiceImpl.class
+            .getDeclaredMethod("createPagoPaPaymentReceiptProjection");
+        method.setAccessible(true);
+
+        Object projection = method.invoke(service);
+        assertThat(projection).isNotNull();
+    }
+
+    @Test
+    @DisplayName("findAll: handles NullHandling in Sort orders")
+    void findAll_withNullHandlingInSort_works() {
+        JPAQuery<PagoPaPaymentReceiptDTO> dtoQuery = mock(JPAQuery.class);
+        lenient().doReturn(dtoQuery).when(receiptQuery).select(any(Expression.class));
+        lenient().doReturn(dtoQuery).when(dtoQuery).offset(anyLong());
+        lenient().doReturn(dtoQuery).when(dtoQuery).limit(anyLong());
+        lenient().doReturn(dtoQuery).when(dtoQuery).orderBy(any(OrderSpecifier.class));
+        lenient().doReturn(Collections.emptyList()).when(dtoQuery).fetch();
+
+        Pageable pageable = PageRequest.of(
+            0, 5,
+            Sort.by(new Sort.Order(Sort.Direction.ASC, "station", Sort.NullHandling.NULLS_LAST))
+        );
+
+        service.findAll(new PagoPaPaymentReceiptFilter(), pageable);
+    }
+
+
 }

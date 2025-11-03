@@ -130,4 +130,53 @@ class PagopaNumeroStandinServiceImplTest {
         assertNotNull(result);
         assertTrue(result.isEmpty());
     }
+
+    @Test
+    void testConvertToDTO_entityNull() {
+        PagopaNumeroStandinDTO dto = service.convertToDTO((PagopaNumeroStandin) null);
+        assertNull(dto);
+    }
+
+    @Test
+    void testConvertToDTO_entityWithAnalyticDataNulls() {
+        PagopaNumeroStandin entity = new PagopaNumeroStandin();
+        entity.setId(1L);
+
+        // AnalyticData null
+        PagopaNumeroStandinDTO dto1 = service.convertToDTO(entity, null);
+        assertNotNull(dto1);
+        assertEquals(entity.getId(), dto1.getId());
+
+        // AnagStation null
+        KpiB3AnalyticData analyticData1 = new KpiB3AnalyticData();
+        analyticData1.setAnagStation(null);
+        PagopaNumeroStandinDTO dto2 = service.convertToDTO(entity, analyticData1);
+        assertNotNull(dto2);
+
+        // AnagPartner null
+        KpiB3AnalyticData analyticData2 = new KpiB3AnalyticData();
+        analyticData2.setAnagStation(new AnagStation()); // no partner
+        PagopaNumeroStandinDTO dto3 = service.convertToDTO(entity, analyticData2);
+        assertNotNull(dto3);
+    }
+
+    @Test
+    void testFindByAnalyticDataId_eventIdNull() {
+        KpiB3AnalyticData analyticData = new KpiB3AnalyticData();
+        analyticData.setEventId(null);
+
+        when(kpiB3AnalyticDataRepository.findById(1L)).thenReturn(Optional.of(analyticData));
+
+        List<PagopaNumeroStandinDTO> result = service.findByAnalyticDataId(1L);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void testConvertToDTO_entityNullWithAnalyticData() {
+        KpiB3AnalyticData analyticData = new KpiB3AnalyticData();
+        PagopaNumeroStandinDTO dto = service.convertToDTO(null, analyticData);
+        assertNull(dto);
+    }
 }
