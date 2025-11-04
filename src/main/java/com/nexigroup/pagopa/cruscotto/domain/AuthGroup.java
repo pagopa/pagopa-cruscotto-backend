@@ -31,8 +31,6 @@ public class AuthGroup implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-   // public static final String SUPER_ADMIN = "NEXI";
-
     @Id
     @Column(name = "CO_ID")
     @SequenceGenerator(name = "SQCRUSC8_AUTHGROU", sequenceName = "SQCRUSC8_AUTHGROU", allocationSize = 1)
