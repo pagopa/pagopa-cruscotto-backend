@@ -1,6 +1,8 @@
 package com.nexigroup.pagopa.cruscotto.repository;
 
 import com.nexigroup.pagopa.cruscotto.domain.PagopaSend;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -54,4 +56,80 @@ public interface PagopaSendRepository extends JpaRepository<PagopaSend, Long>, J
      */
     @Query("SELECT COUNT(p) FROM PagopaSend p WHERE p.cfInstitution = :cfInstitution")
     long countByCfInstitution(@Param("cfInstitution") String cfInstitution);
+
+    @Query("""
+    SELECT COUNT(p.cfInstitution)
+    FROM PagopaSend p
+    WHERE (:cfPartner IS NULL OR :cfPartner = '' OR p.cfPartner = :cfPartner)
+      AND p.date BETWEEN :startDate AND :endDate
+    """)
+    Long calculateTotalNumberInsitution(        @Param("cfPartner") String cfPartner,
+                                                @Param("startDate") LocalDate startDate,
+                                                @Param("endDate") LocalDate endDate);
+
+    @Query("""
+    SELECT COUNT(DISTINCT p.cfInstitution)
+    FROM PagopaSend p
+    WHERE (:cfPartner IS NULL OR :cfPartner = '' OR p.cfPartner = :cfPartner)
+      AND p.date BETWEEN :startDate AND :endDate
+      AND p.paymentsNumber > 0
+    """)
+
+    Long calculateTotalNumberInstitutionSend(String partnerFiscalCode, LocalDate periodStart, LocalDate periodEnd);
+
+    @Query("""
+    SELECT COUNT(DISTINCT p.paymentsNumber)
+    FROM PagopaSend p
+    WHERE (:cfPartner IS NULL OR :cfPartner = '' OR p.cfPartner = :cfPartner)
+      AND p.date BETWEEN :startDate AND :endDate
+    """)
+    Long calculateTotalNumberPayment(String partnerFiscalCode, LocalDate monthStart, LocalDate monthEnd);
+
+    @Query("""
+    SELECT COUNT(DISTINCT p.notificationNumber)
+    FROM PagopaSend p
+    WHERE (:cfPartner IS NULL OR :cfPartner = '' OR p.cfPartner = :cfPartner)
+      AND p.date BETWEEN :startDate AND :endDate
+    """)
+    Long calculateTotalNumberNotification(String partnerFiscalCode, LocalDate monthStart, LocalDate monthEnd);
+
+    @Query("""
+    SELECT
+        DATE(p.date) AS day,
+        COUNT(DISTINCT p.cfInstitution) AS totalInstitutions,
+        COUNT(DISTINCT CASE WHEN p.paymentsNumber > 0 THEN p.cfInstitution END) AS institutionsWithPayments,
+        SUM(p.paymentsNumber) AS totalPayments,
+        SUM(p.notificationNumber) AS totalNotifications
+    FROM PagopaSend p
+    WHERE (:cfPartner IS NULL OR :cfPartner = '' OR p.cfPartner = :cfPartner)
+      AND p.date BETWEEN :fromDate AND :toDate
+    GROUP BY DATE(p.date)
+    ORDER BY DATE(p.date) ASC
+    """)
+    List<Object[]> calculateDailyAggregatedDataAndInstitutionAndNotification(
+        @Param("cfPartner") String cfPartner,
+        @Param("fromDate") LocalDate fromDate,
+        @Param("toDate") LocalDate toDate
+    );
+
+
+    /**
+     * Find detailed API log records for drilldown snapshot by partner and specific date.
+     * Returns all fields needed for populating the drilldown table.
+     *
+     * @param cfPartner the partner CF
+     * @param date the specific date
+     * @return the list of detailed API log data for drilldown
+     */
+    @Query("SELECT p.cfPartner, p.cfInstitution, p.date, p.paymentsNumber, p.notificationNumber " +
+        "FROM PagopaSend p " +
+        "WHERE (:cfPartner IS NULL OR :cfPartner = '' OR p.cfPartner = :cfPartner)" +
+        "AND p.date = :date " +
+        "ORDER BY p.cfInstitution")
+    List<Object[]> findDetailedPagopaSendByPartnerAndDate(
+        @Param("cfPartner") String cfPartner,
+        @Param("date") LocalDate date
+    );
+
+
 }

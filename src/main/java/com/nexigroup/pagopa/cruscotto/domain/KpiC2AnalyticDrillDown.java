@@ -22,13 +22,13 @@ import java.time.LocalDate;
  * con informazioni sui partner, pagamenti e notifiche.
  */
 @Entity
-@Table(name = "KPI_C2_EVIDENCE")
+@Table(name = "KPI_C2_ANALYTIC_DRILLDOWN")
 @Getter
 @Setter
 @DynamicUpdate
 @DynamicInsert
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class KpiC2Evidence implements Serializable {
+public class KpiC2AnalyticDrillDown implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -36,11 +36,11 @@ public class KpiC2Evidence implements Serializable {
     @Id
     @Column(name = "CO_ID")
     @SequenceGenerator(
-        name = "SQCRUSC8_KPIC2EVIDE",
-        sequenceName = "SQCRUSC8_KPIC2EVIDE",
+        name = "SQCRUSC8_KPIC2ANALDD",
+        sequenceName = "SQCRUSC8_KPIC2ANALDD",
         allocationSize = 1
     )
-    @GeneratedValue(generator = "SQCRUSC8_KPIC2EVIDE", strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(generator = "SQCRUSC8_KPIC2ANALDD", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     // === Relazioni e chiavi esterne ===
@@ -75,13 +75,13 @@ public class KpiC2Evidence implements Serializable {
     private String partnerCf;
 
     @Column(name = "CO_NUM_PAYMENT")
-    private Integer numPayment;
+    private Long numPayment;
 
     @Column(name = "CO_NUM_NOTIFICATION")
-    private Integer numNotification;
+    private Long numNotification;
 
     @Column(name = "CO_PER_NOTIFICATION")
-    private Double percentNotification;
+    private BigDecimal percentNotification;
 
     @JsonIgnore
     @NotNull
@@ -94,8 +94,8 @@ public class KpiC2Evidence implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof KpiC2Evidence)) return false;
-        return id != null && id.equals(((KpiC2Evidence) o).id);
+        if (!(o instanceof KpiC2AnalyticDrillDown)) return false;
+        return id != null && id.equals(((KpiC2AnalyticDrillDown) o).id);
     }
 
     @Override
@@ -105,7 +105,7 @@ public class KpiC2Evidence implements Serializable {
 
     @Override
     public String toString() {
-        return "KpiC2Evidence{" +
+        return "KpiC2AnalyticDrillDown{" +
             "id=" + id +
             ", instanceId=" + instanceId +
             ", instance=" + instance +

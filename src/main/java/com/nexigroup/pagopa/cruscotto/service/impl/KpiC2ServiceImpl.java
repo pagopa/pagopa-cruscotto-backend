@@ -13,22 +13,24 @@ import com.nexigroup.pagopa.cruscotto.service.dto.KpiC2AnalyticDataDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiC2DetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiC2ResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.mapper.KpiC2ResultMapper;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.time.LocalDateTime;
+
+import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Service implementation for managing KPI C2 calculations and results.
@@ -45,11 +47,11 @@ public class KpiC2ServiceImpl implements KpiC2Service {
     private final KpiConfigurationRepository kpiConfigurationRepository;
     private final InstanceRepository instanceRepository;
     private final ModuleRepository moduleRepository;
-    private final PagopaApiLogRepository pagopaApiLogRepository;
+    private final PagopaSendRepository pagopaSendRepository;
     private final AnagStationRepository anagStationRepository;
-    private final PagopaApiLogDrilldownRepository pagopaApiLogDrilldownRepository;
     private final InstanceModuleService instanceModuleService;
     private final KpiC2ResultMapper kpiC2ResultMapper;
+    private final KpiC2AnalyticDrillDownRepository kpiC2AnalyticDrillDownRepository;
 
     @Override
     public KpiC2ResultDTO executeKpiC2Calculation(Instance instance) {
@@ -118,14 +120,14 @@ public class KpiC2ServiceImpl implements KpiC2Service {
             createAndSaveDetailResults(savedResult, instance);
             createAndSaveAnalyticData(savedResult, instance);
 
-            log.info("KPI B.8 calculated for instance {}: {}% success rate (threshold: {}%), status: {} - Detail and analytic data saved",
+            log.info("KPI C.2 calculated for instance {}: {}% success rate (threshold: {}%), status: {} - Detail and analytic data saved",
                 instance.getId(), successPercentage, threshold, outcomeStatus);
 
             return kpiC2ResultMapper.toDto(savedResult);
 
         } catch (Exception e) {
-            log.error("Error calculating KPI B.8 for instance {}: {}", instance.getId(), e.getMessage(), e);
-            throw new RuntimeException("Failed to calculate KPI B.8", e);
+            log.error("Error calculating KPI C.2 for instance {}: {}", instance.getId(), e.getMessage(), e);
+            throw new RuntimeException("Failed to calculate KPI C.2", e);
         }
     }
 
@@ -172,7 +174,7 @@ public class KpiC2ServiceImpl implements KpiC2Service {
     @Transactional(readOnly = true)
     public List<KpiC2DetailResultDTO> getKpiC2DetailResults(String instanceId, LocalDateTime analysisDate) {
         log.debug("Finding KPI C2 detail results for instance {} and date {}", instanceId, analysisDate);
-        // For KPI B.8, details are typically aggregated by API type or time period
+        // For KPI C.2, details are typically aggregated by API type or time period
         // This would be implemented based on specific requirements for detailed breakdown
         return List.of();
     }
@@ -241,17 +243,17 @@ public class KpiC2ServiceImpl implements KpiC2Service {
 
     /**
      * Crea e salva i record KpiC2DetailResult con dati dettagliati per stazione.
-     * Questa tabella contiene il dettaglio dei risultati KPI B.8 per ogni stazione dell'ente.
+     * Questa tabella contiene il dettaglio dei risultati KPI C.2 per ogni stazione dell'ente.
      */
     private void createAndSaveDetailResults(KpiC2Result kpiC2Result, Instance instance) {
-        log.info("Creating KPI B.8 detail results for instance {} (partner-level aggregated)", instance.getId());
+        log.info("Creating KPI C.2 detail results for instance {} (partner-level aggregated)", instance.getId());
 
         try {
-            // Verifica che il partner abbia stazioni (necessario per calcolare il KPI B.8)
+            // Verifica che il partner abbia stazioni (necessario per calcolare il KPI C.2)
             List<AnagStation> stations = anagStationRepository.findByAnagPartnerFiscalCode(instance.getPartner().getFiscalCode());
 
             if (stations.isEmpty()) {
-                log.warn("SKIPPING KPI B.8 detail results for partner {} - No stations found. Cannot calculate KPI B.8 without stations.",
+                log.warn("SKIPPING KPI C.2 detail results for partner {} - No stations found. Cannot calculate KPI C.2 without stations.",
                     instance.getPartner().getFiscalCode());
                 return; // Salta il partner se non ha stazioni associate
             }
@@ -261,7 +263,7 @@ public class KpiC2ServiceImpl implements KpiC2Service {
             LocalDate periodEnd = instance.getAnalysisPeriodEndDate();
             String partnerFiscalCode = instance.getPartner().getFiscalCode();
 
-            // Ottieni la prima stazione per il campo obbligatorio (il KPI B.8 è a livello partner, non per singola stazione)
+            // Ottieni la prima stazione per il campo obbligatorio (il KPI C.2 è a livello partner, non per singola stazione)
             AnagStation primaryStation = stations.get(0);
 
             // Calcola tutti i mesi nel periodo di analisi
@@ -284,87 +286,126 @@ public class KpiC2ServiceImpl implements KpiC2Service {
 
 
                 // Calcola GPD e CP separatamente per questo mese
-                Long monthlyGpdCalls = pagopaApiLogRepository.calculateTotalGpdAcaRequests(partnerFiscalCode, monthStart, monthEnd);
-                Long monthlyGpdKOCalls = pagopaApiLogRepository.calculateTotalGpdAcaRequestsKO(partnerFiscalCode, monthStart, monthEnd);
+                Long numberTotalIntitution = pagopaSendRepository.calculateTotalNumberInsitution(partnerFiscalCode, monthStart, monthEnd);
+                Long numberTotalInstitutionSend = pagopaSendRepository.calculateTotalNumberInstitutionSend(partnerFiscalCode, monthStart, monthEnd);
+                Long totalNumberPayment = pagopaSendRepository.calculateTotalNumberPayment(partnerFiscalCode, monthStart, monthEnd);
+                Long totalNumberNotification = pagopaSendRepository.calculateTotalNumberNotification(partnerFiscalCode, monthStart, monthEnd);
 
-                if (monthlyGpdCalls == null) monthlyGpdCalls = 0L;
-                if (monthlyGpdKOCalls == null) monthlyGpdKOCalls = 0L;
+                if (numberTotalIntitution == null) numberTotalIntitution = 0L;
+                if (numberTotalInstitutionSend == null) numberTotalInstitutionSend = 0L;
 
-                totalApiCallsAllMonths += (monthlyGpdCalls + monthlyGpdKOCalls);
 
-                // Calcola percentuale CP per questo mese
-                BigDecimal monthlyPercentageCp = BigDecimal.ZERO;
-                if (monthlyGpdCalls > 0) {
-                    monthlyPercentageCp = new BigDecimal(monthlyGpdKOCalls)
-                        .multiply(new BigDecimal("100"))
-                        .divide(new BigDecimal(monthlyGpdCalls), 2, RoundingMode.HALF_UP);
-                }
+                // Calcola percentuale Institution per questo mese
+                BigDecimal monthlyPercentageInstitution = getPercentagePeriod(numberTotalIntitution, numberTotalInstitutionSend);
+
+                if (totalNumberPayment == null) totalNumberPayment = 0L;
+                if (totalNumberNotification == null) totalNumberNotification = 0L;
+                // Calcola percentuale notification Payment per questo mese
+                BigDecimal monthlyPercentageNotification = getPercentagePeriod(totalNumberPayment, totalNumberNotification);
+
 
                 // Crea record mensile (PARTNER LEVEL - aggregato per tutto il partner)
                 KpiC2DetailResult monthlyDetailResult = new KpiC2DetailResult();
                 monthlyDetailResult.setInstanceId(instance.getId());
                 monthlyDetailResult.setInstanceModuleId(kpiC2Result.getInstanceModule().getId());
-                monthlyDetailResult.setAnagStationId(primaryStation.getId()); // Campo obbligatorio, usa la prima stazione
                 monthlyDetailResult.setInstance(instance);
                 monthlyDetailResult.setInstanceModule(kpiC2Result.getInstanceModule());
-                monthlyDetailResult.setAnagStation(primaryStation);
                 monthlyDetailResult.setKpiC2Result(kpiC2Result);
                 monthlyDetailResult.setAnalysisDate(analysisDate);
                 monthlyDetailResult.setEvaluationType(EvaluationType.MESE);
                 monthlyDetailResult.setEvaluationStartDate(monthStart);
                 monthlyDetailResult.setEvaluationEndDate(monthEnd);
-                monthlyDetailResult.setReqKO(monthlyGpdCalls); // Totale GPD+ACA del mese
-                monthlyDetailResult.setTotReq(monthlyGpdKOCalls); // Totale CP del mese
-                monthlyDetailResult.setPerKO(monthlyPercentageCp); // % CP del mese
-                monthlyDetailResult.setOutcome(calculateDetailResultOutcome(monthlyPercentageCp, kpiC2Result)); // Calcola outcome specifico per questo detail result
+
+                monthlyDetailResult.setTotalInstitution(numberTotalIntitution);
+                monthlyDetailResult.setTotalInstitutionSend(numberTotalInstitutionSend);
+                monthlyDetailResult.setPercentInstitutionSend(monthlyPercentageInstitution);
+
+
+                monthlyDetailResult.setTotalPayment(totalNumberPayment);
+                monthlyDetailResult.setTotalNotification(totalNumberNotification);
+                monthlyDetailResult.setPercentEntiOk(monthlyPercentageNotification);
+
+
+                monthlyDetailResult.setOutcome(calculateDetailResultOutcome(monthlyPercentageInstitution, kpiC2Result)); // Calcola outcome specifico per questo detail result
 
                 kpiC2DetailResultRepository.save(monthlyDetailResult);
-                log.debug("Saved monthly KPI B.8 detail result for partner {} in {}: {} GPD, {} CP",
-                    partnerFiscalCode, yearMonth, monthlyGpdCalls, monthlyGpdKOCalls);
+                log.info("Created {} monthly + 1 total KPI C.2 detail results for partner {} " +
+                        "with numberTotalIntitution {} " +
+                        "with numberTotalInstitutionSend {} " +
+                        "with totalNumberPayment {} " +
+                        "with totalNumberNotification {} "
+                    ,
+                    monthsInPeriod.size(), partnerFiscalCode, numberTotalIntitution,numberTotalInstitutionSend, totalNumberPayment,totalNumberNotification  );
+
+
+                log.debug("Saved monthly KPI C.2 detail result for partner {} in {}: {} TOT INST, {} TOT INST SEND",
+                    partnerFiscalCode, yearMonth, numberTotalIntitution, numberTotalInstitutionSend);
             }
 
-            // Calcola totali per l'intero periodo
-            Long totalGpdCalls = pagopaApiLogRepository.calculateTotalGpdAcaRequests(partnerFiscalCode, periodStart, periodEnd);
-            Long totalGpdKOCalls = pagopaApiLogRepository.calculateTotalGpdAcaRequestsKO(partnerFiscalCode, periodStart, periodEnd);
 
-            if (totalGpdCalls == null) totalGpdCalls = 0L;
-            if (totalGpdKOCalls == null) totalGpdKOCalls = 0L;
+            Long numberTotalIntitution = pagopaSendRepository.calculateTotalNumberInsitution(partnerFiscalCode, periodStart, periodEnd);
+            Long numberTotalInstitutionSend = pagopaSendRepository.calculateTotalNumberInstitutionSend(partnerFiscalCode, periodStart, periodEnd);
+            Long totalNumberPayment = pagopaSendRepository.calculateTotalNumberPayment(partnerFiscalCode, periodStart, periodEnd);
+            Long totalNumberNotification = pagopaSendRepository.calculateTotalNumberNotification(partnerFiscalCode, periodStart, periodEnd);
 
-            // Calcola percentuale CP per l'intero periodo
-            BigDecimal totalPercentageCp = BigDecimal.ZERO;
-            if (totalGpdCalls > 0) {
-                totalPercentageCp = new BigDecimal(totalGpdKOCalls)
-                    .multiply(new BigDecimal("100"))
-                    .divide(new BigDecimal(totalGpdCalls), 2, RoundingMode.HALF_UP);
-            }
+            if (numberTotalIntitution == null) numberTotalIntitution = 0L;
+            if (numberTotalInstitutionSend == null) numberTotalInstitutionSend = 0L;
+
+
+            // Calcola percentuale Institution per questo mese
+            BigDecimal percentageInstitutionPeriod = getPercentagePeriod(numberTotalIntitution, numberTotalInstitutionSend);
+
+            if (totalNumberPayment == null) totalNumberPayment = 0L;
+            if (totalNumberNotification == null) totalNumberNotification = 0L;
+            // Calcola percentuale notification Payment per questo mese
+            BigDecimal percentageNotificationPeriod = getPercentagePeriod(totalNumberPayment, totalNumberNotification);
 
             // Crea record totale (intero periodo di analisi, livello partner)
             KpiC2DetailResult totalDetailResult = new KpiC2DetailResult();
             totalDetailResult.setInstanceId(instance.getId());
             totalDetailResult.setInstanceModuleId(kpiC2Result.getInstanceModule().getId());
-            totalDetailResult.setAnagStationId(primaryStation.getId()); // Campo obbligatorio, usa la prima stazione
             totalDetailResult.setInstance(instance);
             totalDetailResult.setInstanceModule(kpiC2Result.getInstanceModule());
-            totalDetailResult.setAnagStation(primaryStation);
             totalDetailResult.setKpiC2Result(kpiC2Result);
             totalDetailResult.setAnalysisDate(analysisDate);
-            totalDetailResult.setEvaluationType(EvaluationType.TOTALE);
+            totalDetailResult.setEvaluationType(com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType.TOTALE);
             totalDetailResult.setEvaluationStartDate(periodStart);
             totalDetailResult.setEvaluationEndDate(periodEnd);
-            totalDetailResult.setTotReq(totalGpdCalls); // Totale GPD+ACA dell'intero periodo
-            totalDetailResult.setReqKO(totalGpdKOCalls); // Totale CP dell'intero periodo
-            totalDetailResult.setPerKO(totalPercentageCp); // % CP dell'intero periodo
-            totalDetailResult.setOutcome(calculateDetailResultOutcome(totalPercentageCp, kpiC2Result)); // Calcola outcome specifico per questo detail result
+
+            totalDetailResult.setTotalInstitution(numberTotalIntitution);
+            totalDetailResult.setTotalInstitutionSend(numberTotalInstitutionSend);
+            totalDetailResult.setPercentInstitutionSend(percentageInstitutionPeriod);
+
+
+            totalDetailResult.setTotalPayment(totalNumberPayment);
+            totalDetailResult.setTotalNotification(totalNumberNotification);
+            totalDetailResult.setPercentEntiOk(percentageNotificationPeriod);
+            totalDetailResult.setOutcome(calculateDetailResultOutcome(percentageInstitutionPeriod, kpiC2Result)); // Calcola outcome specifico per questo detail result
 
             kpiC2DetailResultRepository.save(totalDetailResult);
 
-            log.info("Created {} monthly + 1 total KPI B.8 detail results for partner {} with {} total API calls",
-                monthsInPeriod.size(), partnerFiscalCode, totalApiCallsAllMonths);
+            log.info("Created {} monthly + 1 total KPI C.2 detail results for partner {} " +
+                    "with numberTotalIntitution {} " +
+                    "with numberTotalInstitutionSend {} " +
+                    "with totalNumberPayment {} " +
+                    "with totalNumberNotification {} "
+                ,
+                monthsInPeriod.size(), partnerFiscalCode, numberTotalIntitution,numberTotalInstitutionSend, totalNumberPayment,totalNumberNotification  );
 
         } catch (Exception e) {
-            log.error("Error creating KPI B.8 detail results for instance {}: {}", instance.getId(), e.getMessage(), e);
-            throw new RuntimeException("Failed to create KPI B.8 detail results", e);
+            log.error("Error creating KPI C.2 detail results for instance {}: {}", instance.getId(), e.getMessage(), e);
+            throw new RuntimeException("Failed to create KPI C.2 detail results", e);
         }
+    }
+
+    private static @NotNull BigDecimal getPercentagePeriod(Long totalNumberPayment, Long totalNumberNotification) {
+        BigDecimal percentageNotificationPeriod = BigDecimal.ZERO;
+        if (totalNumberPayment > 0) {
+            percentageNotificationPeriod = new BigDecimal(totalNumberNotification)
+                .multiply(new BigDecimal("100"))
+                .divide(new BigDecimal(totalNumberPayment), 2, RoundingMode.HALF_UP);
+        }
+        return percentageNotificationPeriod;
     }
 
     /**
@@ -372,7 +413,7 @@ public class KpiC2ServiceImpl implements KpiC2Service {
      * Questa tabella contiene l'andamento giornaliero delle chiamate API per l'analisi di drill-down.
      */
     private void createAndSaveAnalyticData(KpiC2Result kpiC2Result, Instance instance) {
-        log.info("Creating KPI B.8 analytic data for instance {}", instance.getId());
+        log.info("Creating KPI C.2 analytic data for instance {}", instance.getId());
 
         try {
             LocalDate periodStart = instance.getAnalysisPeriodStartDate();
@@ -383,7 +424,7 @@ public class KpiC2ServiceImpl implements KpiC2Service {
             List<KpiC2DetailResult> detailResults = kpiC2DetailResultRepository.findByKpiC2Result(kpiC2Result);
 
             if (detailResults.isEmpty()) {
-                log.warn("No detail results found for KPI B.8 result {}, cannot create analytic data", kpiC2Result.getId());
+                log.warn("No detail results found for KPI C.2 result {}, cannot create analytic data", kpiC2Result.getId());
                 return;
             }
 
@@ -404,7 +445,7 @@ public class KpiC2ServiceImpl implements KpiC2Service {
             KpiC2DetailResult fallbackDetailResult = totalDetailResult != null ? totalDetailResult : detailResults.get(0);
 
             // Ottieni i dati aggregati giornalieri dalla tabella pagopa_apilog
-            List<Object[]> dailyAggregatedData = pagopaApiLogRepository.calculateDailyAggregatedDataAndApiGPDOrAca(
+            List<Object[]> dailyAggregatedData = pagopaSendRepository.calculateDailyAggregatedDataAndInstitutionAndNotification(
                 partnerFiscalCode, periodStart, periodEnd);
 
             if (dailyAggregatedData.isEmpty()) {
@@ -415,12 +456,17 @@ public class KpiC2ServiceImpl implements KpiC2Service {
 
             for (Object[] dayData : dailyAggregatedData) {
                 LocalDate evaluationDate = (LocalDate) dayData[0];
-                Long gpdAcaTotal = (Long) dayData[1];
-                Long gpdAcaTotalKO = (Long) dayData[2];
+                Long totalInstitutions = (Long) dayData[1];
+                Long institutionsWithPayments = (Long) dayData[2];
+                Long totalPayments = (Long) dayData[1];
+                Long totalNotifications = (Long) dayData[2];
 
                 // Gestione valori null
-                if (gpdAcaTotal == null) gpdAcaTotal = 0L;
-                if (gpdAcaTotalKO == null) gpdAcaTotalKO = 0L;
+                if (totalInstitutions == null) totalInstitutions = 0L;
+                if (institutionsWithPayments == null) institutionsWithPayments = 0L;
+                if (totalPayments == null) totalPayments = 0L;
+                if (totalNotifications == null) totalNotifications = 0L;
+
 
                 // Trova il detail result corretto per questa data
                 KpiC2DetailResult appropriateDetailResult = findDetailResultForDate(evaluationDate, detailResultsByDate, fallbackDetailResult);
@@ -432,25 +478,33 @@ public class KpiC2ServiceImpl implements KpiC2Service {
                 dailyAnalyticData.setInstance(instance);
                 dailyAnalyticData.setAnalysisDate(kpiC2Result.getAnalysisDate());
                 dailyAnalyticData.setEvaluationDate(evaluationDate);
-                dailyAnalyticData.setTotReq(gpdAcaTotal); // Numero Request GPD del giorno
-                dailyAnalyticData.setReqKO(gpdAcaTotalKO); // Numero Request CP del giorno
+
+
+                dailyAnalyticData.setNumInstitution(totalInstitutions); // Numero Request GPD del giorno
+                dailyAnalyticData.setNumInstitutionSend(institutionsWithPayments);
+                dailyAnalyticData.setPerInstitutionSend(getPercentagePeriod(totalInstitutions, institutionsWithPayments));
+
+                dailyAnalyticData.setNumPayment(totalPayments);
+                dailyAnalyticData.setNumNotification(totalNotifications);
+                dailyAnalyticData.setPerNotification(getPercentagePeriod(totalPayments, totalNotifications));
+
                 dailyAnalyticData.setKpiC2DetailResult(appropriateDetailResult);
 
                 KpiC2AnalyticData savedAnalyticData = kpiC2AnalyticDataRepository.save(dailyAnalyticData);
 
-                log.debug("Saved KPI B.8 analytic data for date {} - GPD: {}, CP: {} (linked to detail result {})",
-                    evaluationDate, gpdAcaTotal, gpdAcaTotalKO, appropriateDetailResult.getId());
+                log.debug("Saved KPI C.2 analytic data for date {} - totalInstitutions: {}, institutionsWithPayments: {} , totalPayments {} , totalNotifications {} -  (linked to detail result {})",
+                    evaluationDate, totalInstitutions, institutionsWithPayments,totalPayments,totalNotifications,  appropriateDetailResult.getId());
 
                 // Popola la tabella drilldown con i dati API log dettagliati per questa data
                 populateDrilldownData(savedAnalyticData, instance, evaluationDate);
             }
 
-            log.info("Created {} days of KPI B.8 analytic data for instance {} with proper detail result associations",
+            log.info("Created {} days of KPI C.2 analytic data for instance {} with proper detail result associations",
                 dailyAggregatedData.size(), instance.getId());
 
         } catch (Exception e) {
-            log.error("Error creating KPI B.8 analytic data for instance {}: {}", instance.getId(), e.getMessage(), e);
-            throw new RuntimeException("Failed to create KPI B.8 analytic data", e);
+            log.error("Error creating KPI C.2 analytic data for instance {}: {}", instance.getId(), e.getMessage(), e);
+            throw new RuntimeException("Failed to create KPI C.2 analytic data", e);
         }
     }
 
@@ -495,14 +549,14 @@ public class KpiC2ServiceImpl implements KpiC2Service {
 
     /**
      * Popola la tabella drilldown PAGOPA_API_LOG_DRILLDOWN con i dati dettagliati delle API
-     * per preservare uno snapshot storico al momento dell'analisi KPI B.8.
+     * per preservare uno snapshot storico al momento dell'analisi KPI C.2.
      *
      * @param analyticData il record KpiC2AnalyticData salvato
      * @param instance l'istanza analizzata
      * @param evaluationDate la data di valutazione
      */
     private void populateDrilldownData(KpiC2AnalyticData analyticData, Instance instance, LocalDate evaluationDate) {
-        log.debug("Populating drilldown data for KPI B.8 analytic data {} on date {}",
+        log.debug("Populating drilldown data for KPI C.2 analytic data {} on date {}",
             analyticData.getId(), evaluationDate);
 
         try {
@@ -510,7 +564,7 @@ public class KpiC2ServiceImpl implements KpiC2Service {
 
             // Query dettagliata per ottenere i singoli record API log per la data specifica
             // Questo crea uno snapshot storico dei dati al momento dell'analisi
-            List<Object[]> detailedApiLogData = pagopaApiLogRepository.findDetailedApiLogByPartnerAndDateGPDAndACA(
+            List<Object[]> detailedApiLogData = pagopaSendRepository.findDetailedPagopaSendByPartnerAndDate(
                 partnerFiscalCode, evaluationDate);
 
             if (detailedApiLogData.isEmpty()) {
@@ -522,58 +576,44 @@ public class KpiC2ServiceImpl implements KpiC2Service {
                 // Estrazione dati dal result set basandosi sulla query del repository
                 // Format atteso: [CF_PARTNER, DATE, STATION, CF_ENTE, API, TOT_REQ, REQ_OK, REQ_KO]
                 String cfPartner = (String) logData[0];
-                LocalDate dataDate = (LocalDate) logData[1];
-                String stationCode = (String) logData[2];
-                String fiscalCode = (String) logData[3];
-                String api = (String) logData[4];
-                Integer totalRequests = ((Number) logData[5]).intValue();
-                Integer okRequests = ((Number) logData[6]).intValue();
-                Integer koRequests = ((Number) logData[7]).intValue();
+                String institution = (String) logData[1];
+                LocalDate date = (LocalDate) logData[2];
+
+                Long paymentsNumber =  ((Long) logData[3]).longValue();
+                Long notificationNumber = ((Long) logData[4]).longValue();
 
                 // Trova la stazione corrispondente al station code
-                AnagStation station = anagStationRepository.findOneByName(stationCode)
-                    .orElse(null);
 
-                if (station == null) {
-                    log.warn("Station not found for code: {}. Skipping drilldown record.", stationCode);
-                    continue;
-                }
-
-                // Crea l'entità drilldown direttamente per avere controllo completo sui riferimenti
-                PagopaApiLogDrilldown drilldownEntity = new PagopaApiLogDrilldown();
+// Crea l'entità drilldown direttamente per avere controllo completo sui riferimenti
+                KpiC2AnalyticDrillDown drilldownEntity = new KpiC2AnalyticDrillDown();
 
                 // Setta i riferimenti alle entità
                 drilldownEntity.setInstance(instance);
                 drilldownEntity.setInstanceModule(analyticData.getKpiC2DetailResult().getInstanceModule());
-                drilldownEntity.setStation(station);
                 drilldownEntity.setKpiC2AnalyticData(analyticData);
 
                 // Setta la data di analisi
                 drilldownEntity.setAnalysisDate(analyticData.getAnalysisDate());
 
                 // Setta i dati API log
-                drilldownEntity.setPartnerFiscalCode(cfPartner);
-                drilldownEntity.setDataDate(dataDate);
-                drilldownEntity.setStationCode(stationCode);
-                drilldownEntity.setFiscalCode(fiscalCode);
-                drilldownEntity.setApi(api);
-                drilldownEntity.setTotalRequests(totalRequests);
-                drilldownEntity.setOkRequests(okRequests);
-                drilldownEntity.setKoRequests(koRequests);
+                drilldownEntity.setPartnerCf(cfPartner);
+                drilldownEntity.setNumPayment(paymentsNumber);
+                drilldownEntity.setNumNotification(notificationNumber);
+                drilldownEntity.setPercentNotification(getPercentagePeriod(paymentsNumber, notificationNumber));
+
 
                 // Salva direttamente l'entità nel repository
-                pagopaApiLogDrilldownRepository.save(drilldownEntity);
+                kpiC2AnalyticDrillDownRepository.save(drilldownEntity);
 
-                log.trace("Saved drilldown record: {} {} {} {} {} (Total: {}, OK: {}, KO: {})",
-                    cfPartner, dataDate, stationCode, fiscalCode, api,
-                    totalRequests, okRequests, koRequests);
+                log.trace("Saved drilldown record: {} {} {} {} {} ",
+                    cfPartner, date, institution, paymentsNumber, notificationNumber);
             }
 
-            log.debug("Populated {} drilldown records for KPI B.8 analytic data {} on date {}",
+            log.debug("Populated {} drilldown records for KPI C.2 analytic data {} on date {}",
                 detailedApiLogData.size(), analyticData.getId(), evaluationDate);
 
         } catch (Exception e) {
-            log.error("Error populating drilldown data for KPI B.8 analytic data {} on date {}: {}",
+            log.error("Error populating drilldown data for KPI C.2 analytic data {} on date {}: {}",
                 analyticData.getId(), evaluationDate, e.getMessage(), e);
             // Non interrompere il flusso principale per errori nel drilldown
         }

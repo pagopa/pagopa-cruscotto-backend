@@ -1,6 +1,8 @@
 package com.nexigroup.pagopa.cruscotto.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -88,33 +90,35 @@ public class KpiC2DetailResult implements Serializable {
     // === Dati di valutazione ===
 
     @NotNull
-    @Size(max = 50)
-    @Column(name = "TE_EVALUATION_TYPE", nullable = false, length = 50)
-    private String evaluationType;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "TE_EVALUATION_TYPE", nullable = false)
+    private EvaluationType evaluationType;
 
-    @Size(max = 50)
-    @Column(name = "TE_OUTCOME", length = 50)
-    private String outcome;
+
 
     // === Dati di aggregazione KPI ===
 
     @Column(name = "CO_TOT_INSTITUTION")
-    private Integer totalInstitution;
+    private Long totalInstitution;
 
     @Column(name = "CO_TOT_INSTITUTION_SEND")
-    private Integer totalInstitutionSend;
+    private Long totalInstitutionSend;
 
     @Column(name = "CO_PER_INSTITUTION_SEND")
-    private Double percentInstitutionSend;
+    private BigDecimal percentInstitutionSend;
 
     @Column(name = "CO_TOT_PAYMENT")
-    private Integer totalPayment;
+    private Long totalPayment;
 
     @Column(name = "CO_TOT_NOTIFICATION")
-    private Integer totalNotification;
+    private Long totalNotification;
 
     @Column(name = "CO_PER_ENTI_OK")
-    private Double percentEntiOk;
+    private BigDecimal percentEntiOk;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "TE_OUTCOME")
+    private OutcomeStatus outcome;
 
     // === Metodi standard ===
 

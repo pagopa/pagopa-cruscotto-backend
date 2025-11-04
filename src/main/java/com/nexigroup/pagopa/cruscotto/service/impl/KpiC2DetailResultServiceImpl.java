@@ -64,15 +64,19 @@ public class KpiC2DetailResultServiceImpl implements KpiC2DetailResultService {
         dto.setId(kpiC2DetailResult.getId());
         dto.setInstanceId(kpiC2DetailResult.getInstanceId());
         dto.setInstanceModuleId(kpiC2DetailResult.getInstanceModuleId());
-        dto.setAnagStationId(kpiC2DetailResult.getAnagStationId());
+
         dto.setKpiC2ResultId(kpiC2DetailResult.getKpiC2Result().getId());
         dto.setAnalysisDate(kpiC2DetailResult.getAnalysisDate());
         dto.setEvaluationType(kpiC2DetailResult.getEvaluationType());
         dto.setEvaluationStartDate(kpiC2DetailResult.getEvaluationStartDate());
         dto.setEvaluationEndDate(kpiC2DetailResult.getEvaluationEndDate());
-        dto.setReqKO(kpiC2DetailResult.getReqKO());
-        dto.setTotReq(kpiC2DetailResult.getTotReq());
-        dto.setPerKO(kpiC2DetailResult.getPerKO());
+        dto.setTotalInstitution(kpiC2DetailResult.getTotalInstitution());
+        dto.setTotalInstitutionSend(kpiC2DetailResult.getTotalInstitutionSend());
+        dto.setPercentInstitutionSend(kpiC2DetailResult.getPercentInstitutionSend());
+
+        dto.setTotalPayment(kpiC2DetailResult.getTotalPayment());
+        dto.setTotalNotification(kpiC2DetailResult.getTotalNotification());
+        dto.setPercentEntiOk(kpiC2DetailResult.getPercentEntiOk());
         dto.setOutcome(kpiC2DetailResult.getOutcome());
         return dto;
     }

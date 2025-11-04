@@ -81,34 +81,31 @@ public class KpiC2AnalyticData implements Serializable {
     @Column(name = "DT_ANALISYS_DATE", nullable = false)
     private LocalDate analysisDate;
 
-    @NotNull
-    @Column(name = "DT_DATA_DATE", nullable = false)
-    private LocalDate dataDate;
 
+
+    @NotNull
+    @Column(name = "DT_EVALUATION_DATE", nullable = false)
+    private LocalDate evaluationDate;
     // === Dati specifici KPI ===
 
-    @NotNull
-    @Size(max = 35)
-    @Column(name = "ID_ISTANZA", nullable = false, length = 35)
-    private String idIstanza;
 
     @Column(name = "CO_NUM_INSTITUTION")
-    private Integer numInstitution;
+    private Long numInstitution;
 
     @Column(name = "CO_NUM_INSTITUTION_SEND")
-    private Integer numInstitutionSend;
+    private Long numInstitutionSend;
 
     @Column(name = "CO_PER_INSTITUTION_SEND")
-    private Double perInstitutionSend;
+    private BigDecimal perInstitutionSend;
 
     @Column(name = "CO_NUM_PAYMENT")
-    private Integer numPayment;
+    private Long numPayment;
 
     @Column(name = "CO_NUM_NOTIFICATION")
-    private Integer numNotification;
+    private long numNotification;
 
     @Column(name = "CO_PER_NOTIFICATION")
-    private Double perNotification;
+    private BigDecimal perNotification;
 
     // === Metodi standard ===
 
@@ -129,10 +126,13 @@ public class KpiC2AnalyticData implements Serializable {
         return "KpiC2AnalyticData{" +
             "id=" + id +
             ", instanceId=" + instanceId +
+            ", instance=" + instance +
             ", instanceModuleId=" + instanceModuleId +
+            ", instanceModule=" + instanceModule +
+            ", kpiC2DetailResultId=" + kpiC2DetailResultId +
+            ", kpiC2DetailResult=" + kpiC2DetailResult +
             ", analysisDate=" + analysisDate +
-            ", dataDate=" + dataDate +
-            ", idIstanza='" + idIstanza + '\'' +
+            ", evaluationDate=" + evaluationDate +
             ", numInstitution=" + numInstitution +
             ", numInstitutionSend=" + numInstitutionSend +
             ", perInstitutionSend=" + perInstitutionSend +

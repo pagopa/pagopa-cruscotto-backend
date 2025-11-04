@@ -1,11 +1,20 @@
 package com.nexigroup.pagopa.cruscotto.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.nexigroup.pagopa.cruscotto.domain.Instance;
+import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
+import com.nexigroup.pagopa.cruscotto.domain.KpiC2AnalyticData;
+import com.nexigroup.pagopa.cruscotto.domain.KpiC2DetailResult;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Objects;
 
 /**
  * A DTO for the {@link com.nexigroup.pagopa.cruscotto.domain.KpiC2AnalyticData} entity.
@@ -15,62 +24,62 @@ import java.time.LocalDate;
 @Setter
 public class KpiC2AnalyticDataDTO implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+    @NotNull
     private Long id;
 
+    // === Relazioni e chiavi esterne ===
     @NotNull
     private Long instanceId;
-
+    @NotNull
+    private Long instanceModuleId;
+    @NotNull
     private Long kpiC2DetailResultId;
-
     @NotNull
     private LocalDate analysisDate;
-
     @NotNull
-    @com.fasterxml.jackson.annotation.JsonProperty("dataDate")
     private LocalDate evaluationDate;
 
-    @com.fasterxml.jackson.annotation.JsonProperty("totalGPD")
-    private Long numRequestGpd;
+    // === Dati specifici KPI ===
 
-    @com.fasterxml.jackson.annotation.JsonProperty("totalCP")
-    private Long numRequestCp;
+    @NotNull
+    private Long numInstitution;
+    @NotNull
+    private Long numInstitutionSend;
+    @NotNull
+    private BigDecimal perInstitutionSend;
+
+    @NotNull
+    private Long numPayment;
+    @NotNull
+    private long numNotification;
+    @NotNull
+    private BigDecimal perNotification;
 
     // Additional fields for API output
+    @NotNull
     private String analysisDatePeriod;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof KpiC2AnalyticDataDTO)) {
-            return false;
-        }
 
-        KpiC2AnalyticDataDTO kpiC2AnalyticDataDTO = (KpiC2AnalyticDataDTO) o;
-        if (this.id == null) {
-            return false;
-        }
-        return this.id.equals(kpiC2AnalyticDataDTO.id);
-    }
 
-    @Override
-    public int hashCode() {
-        return this.id != null ? this.id.hashCode() : 0;
-    }
-
-    // prettier-ignore
     @Override
     public String toString() {
         return "KpiC2AnalyticDataDTO{" +
             "id=" + id +
             ", instanceId=" + instanceId +
+            ", instanceModuleId=" + instanceModuleId +
             ", kpiC2DetailResultId=" + kpiC2DetailResultId +
-            ", analysisDate='" + analysisDate + "'" +
-            ", evaluationDate='" + evaluationDate + "'" +
-            ", numRequestGpd=" + numRequestGpd +
-            ", numRequestCp=" + numRequestCp +
-            ", analysisDatePeriod='" + analysisDatePeriod + "'" +
-            "}";
+            ", analysisDate=" + analysisDate +
+            ", evaluationDate=" + evaluationDate +
+            ", numInstitution=" + numInstitution +
+            ", numInstitutionSend=" + numInstitutionSend +
+            ", perInstitutionSend=" + perInstitutionSend +
+            ", numPayment=" + numPayment +
+            ", numNotification=" + numNotification +
+            ", perNotification=" + perNotification +
+            ", analysisDatePeriod='" + analysisDatePeriod + '\'' +
+            '}';
     }
+
+
 }
