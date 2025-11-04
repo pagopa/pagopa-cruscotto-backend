@@ -3,6 +3,7 @@ package com.nexigroup.pagopa.cruscotto.service.impl;
 import com.nexigroup.pagopa.cruscotto.domain.Instance;
 import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
 import com.nexigroup.pagopa.cruscotto.domain.KpiA1Result;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceModuleRepository;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
@@ -73,9 +74,16 @@ class KpiA1ResultServiceImplTest {
         dto.setInstanceId(1L);
         dto.setInstanceModuleId(2L);
 
+        // Caso 1: Instance non trovata
         when(instanceRepository.findById(1L)).thenReturn(Optional.empty());
+        IllegalArgumentException ex1 = assertThrows(IllegalArgumentException.class, () -> service.save(dto));
+        assertEquals("Instance not found", ex1.getMessage());
 
-        assertThrows(IllegalArgumentException.class, () -> service.save(dto));
+        // Caso 2: Instance trovata ma Module non trovato
+        when(instanceRepository.findById(1L)).thenReturn(Optional.of(new Instance()));
+        when(instanceModuleRepository.findById(2L)).thenReturn(Optional.empty());
+        IllegalArgumentException ex2 = assertThrows(IllegalArgumentException.class, () -> service.save(dto));
+        assertEquals("InstanceModule not found", ex2.getMessage());
     }
 
     @Test

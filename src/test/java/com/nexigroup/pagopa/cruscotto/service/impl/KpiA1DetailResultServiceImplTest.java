@@ -135,4 +135,55 @@ class KpiA1DetailResultServiceImplTest {
         verify(query).fetch();
     }
 
+    @Test
+    void save_shouldThrow_whenInstanceNotFound() {
+        // Arrange
+        KpiA1DetailResultDTO dto = new KpiA1DetailResultDTO();
+        dto.setInstanceId(1L);
+
+        when(instanceRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,
+            () -> service.save(dto),
+            "Instance not found"
+        );
+    }
+
+    @Test
+    void save_shouldThrow_whenInstanceModuleNotFound() {
+        // Arrange
+        KpiA1DetailResultDTO dto = new KpiA1DetailResultDTO();
+        dto.setInstanceId(1L);
+        dto.setInstanceModuleId(2L);
+
+        when(instanceRepository.findById(1L)).thenReturn(Optional.of(new Instance()));
+        when(instanceModuleRepository.findById(2L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,
+            () -> service.save(dto),
+            "InstanceModule not found"
+        );
+    }
+
+    @Test
+    void save_shouldThrow_whenKpiA1ResultNotFound() {
+        // Arrange
+        KpiA1DetailResultDTO dto = new KpiA1DetailResultDTO();
+        dto.setInstanceId(1L);
+        dto.setInstanceModuleId(2L);
+        dto.setKpiA1ResultId(3L);
+
+        when(instanceRepository.findById(1L)).thenReturn(Optional.of(new Instance()));
+        when(instanceModuleRepository.findById(2L)).thenReturn(Optional.of(new InstanceModule()));
+        when(kpiA1ResultRepository.findById(3L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,
+            () -> service.save(dto),
+            "KpiA1Result not found"
+        );
+    }
+
 }

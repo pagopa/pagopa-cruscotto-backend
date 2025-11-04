@@ -1,10 +1,6 @@
 package com.nexigroup.pagopa.cruscotto.config;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.*;
-import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 
 //@Configuration
 public class LocaleConfiguration implements WebMvcConfigurer {
