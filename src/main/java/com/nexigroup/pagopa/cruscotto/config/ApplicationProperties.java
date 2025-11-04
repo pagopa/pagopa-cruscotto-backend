@@ -1,5 +1,6 @@
 package com.nexigroup.pagopa.cruscotto.config;
 
+import com.nexigroup.pagopa.cruscotto.job.kpi.c2.KpiC2Job;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -77,6 +78,7 @@ public class ApplicationProperties {
 
         private KpiB8Job kpiB8Job = new KpiB8Job();
 
+        private KpiC2Job kpiC2Job = new KpiC2Job();
 
         private KpiB6Job kpiB6Job = new KpiB6Job();
 
@@ -210,6 +212,18 @@ public class ApplicationProperties {
 
         private int limit;
     }
+
+    @Getter
+    @Setter
+    public static class KpiC2Job {
+
+        private boolean enabled = true;
+
+        private String cron;
+
+        private int limit;
+    }
+
 
     @Getter
     @Setter

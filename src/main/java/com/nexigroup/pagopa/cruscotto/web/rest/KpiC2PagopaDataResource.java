@@ -1,8 +1,8 @@
 package com.nexigroup.pagopa.cruscotto.web.rest;
 
 import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
-import com.nexigroup.pagopa.cruscotto.service.PagopaApiLogDrilldownService;
-import com.nexigroup.pagopa.cruscotto.service.dto.PagopaAPILogDTO;
+import com.nexigroup.pagopa.cruscotto.service.KpiC2AnalyticDrillDownService;
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiC2AnalyticDrillDownDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -27,10 +27,10 @@ public class KpiC2PagopaDataResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KpiC2PagopaDataResource.class);
 
-    private final PagopaApiLogDrilldownService pagopaApiLogDrilldownService;
+    private final KpiC2AnalyticDrillDownService kpiC2AnalyticDrillDownService;
 
-    public KpiC2PagopaDataResource(PagopaApiLogDrilldownService pagopaApiLogDrilldownService) {
-        this.pagopaApiLogDrilldownService = pagopaApiLogDrilldownService;
+    public KpiC2PagopaDataResource(KpiC2AnalyticDrillDownService kpiC2AnalyticDrillDownService) {
+        this.kpiC2AnalyticDrillDownService = kpiC2AnalyticDrillDownService;
     }
 
     /**
@@ -40,12 +40,12 @@ public class KpiC2PagopaDataResource {
      * @param analyticDataId the ID of the KpiB4AnalyticData record
      * @return the list of historical API log snapshot records wrapped in ResponseEntity, or 404 Not Found if none exist
      */
-    @GetMapping("kpi-C2-pagopa-data/{analyticDataId}")
+    @GetMapping("kpi-c2-pagopa-data/{analyticDataId}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.KPI_C2_ANALITIC_DATA_DETAIL + "\")")
-    public ResponseEntity<List<PagopaAPILogDTO>> getkpiC2ByAnalyticDataId(@PathVariable Long analyticDataId) {
+    public ResponseEntity<List<KpiC2AnalyticDrillDownDTO>> getkpiC2ByAnalyticDataId(@PathVariable Long analyticDataId) {
         LOGGER.debug("REST request to get pagopa API log drilldown data for KPI B.4 analytic data ID: {}", analyticDataId);
 
-        List<PagopaAPILogDTO> pagopaData = pagopaApiLogDrilldownService.findByKpiC2AnalyticDataId(analyticDataId);
+        List<KpiC2AnalyticDrillDownDTO> pagopaData = kpiC2AnalyticDrillDownService.findByKpiC2AnalyticDataId(analyticDataId);
 
         return ResponseUtil.wrapOrNotFound(
             Optional.ofNullable(pagopaData.isEmpty() ? null : pagopaData)

@@ -8,14 +8,14 @@
 
   <!-- Step 1: Create Sequence -->
   <changeSet id="20251029162500-1" author="system" context="ddl">
-    <createSequence sequenceName="SQ${project_name}_KPIC2EVIDE" startValue="3000" cacheSize="20"/>
+    <createSequence sequenceName="SQ${project_name}_KPIC2ANALDD" startValue="3000" cacheSize="20"/>
   </changeSet>
 
   <!-- Step 2: Create Table -->
   <changeSet id="20251029162500-2" author="system" context="ddl">
-    <createTable tableName="KPI_C2_EVIDENCE">
+    <createTable tableName="KPI_C2_ANALYTIC_DRILLDOWN">
       <column name="CO_ID" type="bigint">
-        <constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_KPIC2EVIDE"/>
+        <constraints primaryKey="true" nullable="false" primaryKeyName="PK${project_name}_KPIC2ANALDD"/>
       </column>
       <column name="CO_INSTANCE_ID" type="bigint">
         <constraints nullable="false"/>
@@ -42,19 +42,19 @@
     </createTable>
 
     <rollback>
-      DROP TABLE ${database.defaultSchemaName}.KPI_C2_EVIDENCE CASCADE CONSTRAINTS;
+      DROP TABLE ${database.defaultSchemaName}.KPI_C2_ANALYTIC_DRILLDOWN CASCADE CONSTRAINTS;
     </rollback>
   </changeSet>
 
   <!-- Step 3: Indexes -->
   <changeSet id="20251029162500-3" author="system" context="ddl">
-    <createIndex indexName="IX${project_name}_KPIC2EVIDE"
-                 tableName="KPI_C2_EVIDENCE">
+    <createIndex indexName="IX${project_name}_KPIC2ANALDD"
+                 tableName="KPI_C2_ANALYTIC_DRILLDOWN">
       <column name="CO_INSTANCE_MODULE_ID"/>
     </createIndex>
 
     <rollback>
-      <dropIndex indexName="IX${project_name}_KPIC2EVIDE" tableName="KPI_C2_EVIDENCE"/>
+      <dropIndex indexName="IX${project_name}_KPIC2ANALDD" tableName="KPI_C2_ANALYTIC_DRILLDOWN"/>
     </rollback>
   </changeSet>
 

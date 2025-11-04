@@ -1,5 +1,6 @@
 package com.nexigroup.pagopa.cruscotto.service.dto;
 
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -36,25 +37,13 @@ public class KpiC2ResultDTO implements Serializable {
     @NotNull
     private OutcomeStatus outcome;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof KpiC2ResultDTO)) {
-            return false;
-        }
-        return id != null && id.equals(((KpiC2ResultDTO) o).id);
-    }
+    @NotNull
+    private EvaluationType evaluationType;
 
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
-    }
 
     @Override
     public String toString() {
-        return "KpiB5ResultDTO{" +
+        return "KpiC2ResultDTO{" +
             "id=" + id +
             ", instanceId=" + instanceId +
             ", instanceModuleId=" + instanceModuleId +
@@ -62,6 +51,7 @@ public class KpiC2ResultDTO implements Serializable {
             ", eligibilityThreshold=" + eligibilityThreshold +
             ", tolerance=" + tolerance +
             ", outcome=" + outcome +
-            "}";
+            ", evaluationType=" + evaluationType +
+            '}';
     }
 }
