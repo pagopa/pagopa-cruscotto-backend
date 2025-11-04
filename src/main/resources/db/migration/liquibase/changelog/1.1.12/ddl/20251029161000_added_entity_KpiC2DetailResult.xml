@@ -42,7 +42,7 @@
       <column name="CO_PER_INSTITUTION_SEND" type="numeric(5,2)"/>
       <column name="CO_TOT_PAYMENT" type="int"/>
       <column name="CO_TOT_NOTIFICATION" type="int"/>
-      <column name="CO_PER_ENTI_OK" type="numeri(5,2)"/>
+      <column name="CO_PER_ENTI_OK" type="numeric(5,2)"/>
 
 
       <column name="TE_OUTCOME" type="varchar(50)"/>

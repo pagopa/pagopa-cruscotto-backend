@@ -81,8 +81,8 @@
   <!-- Foreign key from KPI_C2_ANALYTIC_DRILL_DOWN to KPI_C2_ANALYTIC_DATA -->
   <changeSet id="20251017145000-9" author="system" context="ddl">
     <addForeignKeyConstraint baseColumnNames="CO_KPI_C2_ANALYTIC_DATA_ID"
-                             baseTableName="KPI_C2_DRILLDOWN"
-                             constraintName="FK${project_name}_KPIC2DRILLDOWN_KPIC2ANALDATA"
+                             baseTableName="KPI_C2_ANALYTIC_DRILLDOWN"
+                             constraintName="FK${project_name}_KPIC2ANALDD_KPIC2ANALDATA"
                              referencedColumnNames="CO_ID"
                              referencedTableName="KPI_C2_ANALYTIC_DATA"/>
   </changeSet>

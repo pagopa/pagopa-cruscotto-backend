@@ -41,7 +41,7 @@
       <column name="CO_PER_INSTITUTION_SEND" type="numeric(5,2)"/>
       <column name="CO_NUM_PAYMENT" type="int"/>
       <column name="CO_NUM_NOTIFICATION" type="int"/>
-      <column name="CO_PER_NOTIFICATION" type="numeri(5,2)"/>
+      <column name="CO_PER_NOTIFICATION" type="numeric(5,2)"/>
 
     </createTable>
 
@@ -70,8 +70,8 @@
 
 
 
-    <createIndex indexName="IX${project_name}_KPIC2ANALYTIC_DATA_DT_DATA_DATE" tableName="KPI_C2_ANALYTIC_DATA">
-      <column name="DT_DATA_DATE"/>
+    <createIndex indexName="IX${project_name}_KPIC2ANALYTIC_DATA_DT_EVALUATION_DATE" tableName="KPI_C2_ANALYTIC_DATA">
+      <column name="DT_EVALUATION_DATE"/>
     </createIndex>
 
     <rollback>
@@ -79,7 +79,7 @@
       <dropIndex indexName="IX${project_name}_KPIC2ANALDATA_CO_INSTANCE_MODULE_ID" tableName="KPI_C2_ANALYTIC_DATA"/>
       <dropIndex indexName="IX${project_name}_KPIC2ANALYTIC_DATA_CO_DETAIL_RESULT_ID" tableName="KPI_C2_ANALYTIC_DATA"/>
       <dropIndex indexName="IX${project_name}_KPIC2ANALYTIC_DATA_DT_ANALISYS_DATE" tableName="KPI_C2_ANALYTIC_DATA"/>
-      <dropIndex indexName="IX${project_name}_KPIC2ANALYTIC_DATA_DT_DATA_DATE" tableName="KPI_C2_ANALYTIC_DATA"/>
+      <dropIndex indexName="IX${project_name}_KPIC2ANALYTIC_DATA_DT_EVALUATION_DATE" tableName="KPI_C2_ANALYTIC_DATA"/>
     </rollback>
   </changeSet>
 

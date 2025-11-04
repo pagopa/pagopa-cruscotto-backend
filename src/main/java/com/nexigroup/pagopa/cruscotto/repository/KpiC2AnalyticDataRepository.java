@@ -1,5 +1,6 @@
 package com.nexigroup.pagopa.cruscotto.repository;
 
+import com.nexigroup.pagopa.cruscotto.domain.KpiB8AnalyticData;
 import com.nexigroup.pagopa.cruscotto.domain.KpiC2AnalyticData;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -8,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -25,4 +27,9 @@ public interface KpiC2AnalyticDataRepository extends JpaRepository<KpiC2Analytic
 
     @Query("SELECT b FROM KpiC2AnalyticData b WHERE b.kpiC2DetailResult.id = :kpiC2DetailResultId")
     List<KpiC2AnalyticData> selectByKpiC2DetailResultId(@Param("kpiC2DetailResultId") Long kpiC2DetailResultId);
+
+
+    @Query("SELECT k FROM KpiC2AnalyticData k WHERE k.kpiC2DetailResult.id = :detailResultId ORDER BY k.evaluationDate DESC")
+    List<KpiC2AnalyticData> findAllByDetailResultIdOrderByEvaluationDateDesc(@Param("detailResultId") Long detailResultId);
+
 }

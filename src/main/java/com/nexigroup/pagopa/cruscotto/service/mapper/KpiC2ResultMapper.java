@@ -13,13 +13,9 @@ public interface KpiC2ResultMapper extends EntityMapper<KpiC2ResultDTO, KpiC2Res
 
     @Mapping(source = "instance.id", target = "instanceId")
     @Mapping(source = "instanceModule.id", target = "instanceModuleId")
-    @Mapping(source = "thresholdIndex", target = "eligibilityThreshold")
-    @Mapping(source = "toleranceIndex", target = "tolerance")
     KpiC2ResultDTO toDto(KpiC2Result entity);
 
     @Mapping(target = "instance", ignore = true)
     @Mapping(target = "instanceModule", ignore = true)
-    @Mapping(source = "eligibilityThreshold", target = "thresholdIndex")
-    @Mapping(source = "tolerance", target = "toleranceIndex")
     KpiC2Result toEntity(KpiC2ResultDTO dto);
 }
