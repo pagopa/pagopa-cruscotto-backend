@@ -131,4 +131,16 @@ class QrtzLogTriggerExecutedServiceImplTest {
         service.deleteById(1L);
         verify(repository).deleteById(1L);
     }
+
+    @Test
+    void testJobWasExecuted_NotFound() {
+        when(repository.findFirstByFireInstanceId("123")).thenReturn(Optional.empty());
+
+        Instant now = Instant.now();
+
+        Exception exception = assertThrows(IllegalArgumentException.class,
+            () -> service.jobWasExecuted("123", now, null));
+
+        assertTrue(exception.getMessage().contains("Quartz log trigger executed not found"));
+    }
 }

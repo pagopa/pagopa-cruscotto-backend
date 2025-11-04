@@ -1,9 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.service.dto;
 
 import com.nexigroup.pagopa.cruscotto.domain.Taxonomy;
-import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
