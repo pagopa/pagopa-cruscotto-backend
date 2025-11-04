@@ -5,11 +5,13 @@ import com.nexigroup.pagopa.cruscotto.domain.KpiC2AnalyticData;
 import com.nexigroup.pagopa.cruscotto.repository.*;
 import com.nexigroup.pagopa.cruscotto.service.KpiC2AnalyticDataService;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiC2AnalyticDataDTO;
+import jakarta.persistence.Column;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -78,8 +80,14 @@ public class KpiC2AnalyticDataServiceImpl implements KpiC2AnalyticDataService {
         dto.setInstanceId(kpiC2AnalyticData.getInstanceId());
         dto.setAnalysisDate(kpiC2AnalyticData.getAnalysisDate());
         dto.setEvaluationDate(kpiC2AnalyticData.getEvaluationDate());
-        dto.setTotReq(kpiC2AnalyticData.getTotReq());
-        dto.setReqKO(kpiC2AnalyticData.getReqKO());
+        dto.setNumInstitution(kpiC2AnalyticData.getNumInstitution());
+        dto.setNumInstitutionSend(kpiC2AnalyticData.getNumInstitutionSend());
+        dto.setPerInstitutionSend(kpiC2AnalyticData.getPerInstitutionSend());
+        dto.setNumPayment(kpiC2AnalyticData.getNumPayment());
+        dto.setNumNotification(kpiC2AnalyticData.getNumNotification());
+        dto.setPerNotification(kpiC2AnalyticData.getPerNotification());
+
+
         dto.setKpiC2DetailResultId(kpiC2AnalyticData.getKpiC2DetailResult().getId());
 
         // Additional fields from instance for API output

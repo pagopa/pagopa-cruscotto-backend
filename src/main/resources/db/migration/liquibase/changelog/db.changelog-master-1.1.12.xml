@@ -8,8 +8,9 @@
   <include file="db.changelog-master-1.1.11.xml" relativeToChangelogFile="true"/>
 
   <!-- Drop existing generic KPI tables if they exist (for clean recreation) -->
-  <include file="1.1.12/ddl/20251029120001_added_entity_KpiC1AnalyticData.xml" relativeToChangelogFile="true"/>
-  <include file="1.1.12/ddl/20251029161000_added_entity_KpiC1DetailResult.xml" relativeToChangelogFile="true"/>
-  <include file="1.1.12/ddl/20251029162500_added_entity_KpiC1Evidence.xml" relativeToChangelogFile="true"/>
-  <include file="1.1.12/ddl/20251029162500_added_entity_KpiC1Result.xml" relativeToChangelogFile="true"/>
+  <include file="1.1.12/ddl/20251029120001_added_entity_KpiC2AnalyticData.xml" relativeToChangelogFile="true"/>
+  <include file="1.1.12/ddl/20251029161000_added_entity_KpiC2DetailResult.xml" relativeToChangelogFile="true"/>
+  <include file="1.1.12/ddl/20251029162500_added_entity_KpiC2AnalyticDrillDown.xml" relativeToChangelogFile="true"/>
+  <include file="1.1.12/ddl/20251029162500_added_entity_KpiC2Result.xml" relativeToChangelogFile="true"/>
+  <include file="1.1.12/ddl/20251029175000_add_foreign_keys_kpi_C2.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

@@ -2,10 +2,8 @@ package com.nexigroup.pagopa.cruscotto.service.impl;
 
 import com.nexigroup.pagopa.cruscotto.domain.KpiC2AnalyticDrillDown;
 import com.nexigroup.pagopa.cruscotto.repository.KpiC2AnalyticDrillDownRepository;
-import com.nexigroup.pagopa.cruscotto.repository.kpiC2AnalyticDrillDownRepository;
 import com.nexigroup.pagopa.cruscotto.service.KpiC2AnalyticDrillDownService;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiC2AnalyticDrillDownDTO;
-import com.nexigroup.pagopa.cruscotto.service.mapper.KpiC2AnalyticDrillDownMapper;
 import com.nexigroup.pagopa.cruscotto.service.mapper.KpiC2DrillDownMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
