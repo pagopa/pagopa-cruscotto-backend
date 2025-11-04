@@ -20,7 +20,7 @@ class KpiB6AnalyticDataDTOTest {
         dto.setEventId("evt123");
         dto.setEventType("TYPE_A");
         dto.setAnalysisDate(LocalDate.of(2025, 10, 29));
-        dto.setStationCode(101);
+        dto.setStationCode("101");
         dto.setPaymentOption("CARD");
 
         assertEquals(1L, dto.getId());
