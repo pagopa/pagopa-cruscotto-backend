@@ -7,6 +7,7 @@ import com.nexigroup.pagopa.cruscotto.job.config.JobConstant;
 import com.nexigroup.pagopa.cruscotto.service.InstanceService;
 import com.nexigroup.pagopa.cruscotto.service.InstanceModuleService;
 import com.nexigroup.pagopa.cruscotto.service.KpiConfigurationService;
+import com.nexigroup.pagopa.cruscotto.service.KpiC1DataService;
 import com.nexigroup.pagopa.cruscotto.service.dto.InstanceDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.InstanceModuleDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiConfigurationDTO;
@@ -41,6 +42,7 @@ public class KpiC1Job extends QuartzJobBean {
     private final InstanceModuleService instanceModuleService;
     private final ApplicationProperties applicationProperties;
     private final KpiConfigurationService kpiConfigurationService;
+    private final KpiC1DataService kpiC1DataService;
     private final Scheduler scheduler;
 
     @Override
@@ -90,45 +92,55 @@ public class KpiC1Job extends QuartzJobBean {
                         // Calculate analysis date
                         LocalDate analysisDate = LocalDate.now();
 
-                        // Get configuration parameters
-                        Double eligibilityThreshold = kpiConfigurationDTO.getEligibilityThreshold() != null
-                            ? kpiConfigurationDTO.getEligibilityThreshold()
-                            : 0.0;
+                        // Execute KPI C.1 calculation using the dedicated service
+                        OutcomeStatus outcome = kpiC1DataService.executeKpiC1Calculation(
+                            instanceDTO,
+                            instanceModuleDTO,
+                            kpiConfigurationDTO,
+                            analysisDate
+                        );
                         
-                        Boolean excludePlannedShutdown = kpiConfigurationDTO.getExcludePlannedShutdown() != null
-                            ? kpiConfigurationDTO.getExcludePlannedShutdown()
-                            : false;
-                            
-                        Boolean excludeUnplannedShutdown = kpiConfigurationDTO.getExcludeUnplannedShutdown() != null
-                            ? kpiConfigurationDTO.getExcludeUnplannedShutdown()
-                            : false;
+                        LOGGER.info("KPI C.1 calculation completed for instance: {} with outcome: {}", 
+                                  instanceDTO.getInstanceIdentification(), outcome);
 
-                        // TODO: Implement KPI C.1 calculation logic here
-                        // This is where the specific business logic for KPI C.1 will be implemented
-                        
-                        LOGGER.info("KPI C.1 calculation completed for instance: {}", instanceDTO.getInstanceIdentification());
+                        // Update automatic outcome of instance module
+                        instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(), outcome);
+                        LOGGER.info("Instance module {} updated with outcome: {}", instanceModuleDTO.getId(), outcome);
 
-                        // Update instance status to completed
-                        instanceService.updateInstanceStatusCompleted(instanceDTO.getId());
+                        // Trigger calculateStateInstanceJob to update instance state
+                        try {
+                            JobDetail job = scheduler.getJobDetail(JobKey.jobKey(JobConstant.CALCULATE_STATE_INSTANCE_JOB, "DEFAULT"));
+
+                            Trigger trigger = TriggerBuilder.newTrigger()
+                                .usingJobData("instanceId", instanceDTO.getId())
+                                .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                                    .withMisfireHandlingInstructionFireNow()
+                                    .withRepeatCount(0))
+                                .forJob(job)
+                                .build();
+
+                            scheduler.scheduleJob(trigger);
+                            LOGGER.info("Successfully triggered calculateStateInstanceJob for instance: {}", instanceDTO.getId());
+                        } catch (Exception e) {
+                            LOGGER.error("Error triggering calculateStateInstanceJob for instance: {}", instanceDTO.getId(), e);
+                        }
 
                     } catch (Exception e) {
-                        LOGGER.error("Error processing instance {} for KPI C.1: {}", instanceDTO.getInstanceIdentification(), e.getMessage(), e);
-                        
-                        try {
-                            // Update instance status to error
-                            instanceService.updateInstanceStatusError(instanceDTO.getId());
-                        } catch (Exception updateError) {
-                            LOGGER.error("Failed to update instance status to error: {}", updateError.getMessage(), updateError);
-                        }
+                        LOGGER.error(
+                            "Exception during calculate kpi C.1 for instance {} - {}",
+                            instanceDTO.getInstanceIdentification(),
+                            instanceDTO.getPartnerName(),
+                            e
+                        );
                     }
                 });
             }
 
-        } catch (Exception e) {
-            LOGGER.error("Error in KPI C.1 job execution: {}", e.getMessage(), e);
+        } catch (Exception exception) {
+            LOGGER.error("Problem during calculate kpi C.1", exception);
         }
 
-        LOGGER.info("End calculate kpi C.1");
+        LOGGER.info("End");
     }
 
     /**

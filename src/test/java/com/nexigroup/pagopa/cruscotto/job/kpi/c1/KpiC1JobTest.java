@@ -2,10 +2,10 @@ package com.nexigroup.pagopa.cruscotto.job.kpi.c1;
 
 import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.service.InstanceModuleService;
 import com.nexigroup.pagopa.cruscotto.service.InstanceService;
 import com.nexigroup.pagopa.cruscotto.service.KpiConfigurationService;
+import com.nexigroup.pagopa.cruscotto.service.KpiC1DataService;
 import com.nexigroup.pagopa.cruscotto.service.dto.InstanceDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiConfigurationDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.InstanceModuleDTO;
@@ -44,6 +44,9 @@ class KpiC1JobTest {
 
     @Mock
     private KpiConfigurationService kpiConfigurationService;
+
+    @Mock
+    private KpiC1DataService kpiC1DataService;
 
     @Mock
     private Scheduler scheduler;
@@ -118,6 +121,7 @@ class KpiC1JobTest {
         verify(kpiConfigurationService).findKpiConfigurationByCode(ModuleCode.C1.code);
         verify(instanceService).updateInstanceStatusInProgress(instanceDTO.getId());
         verify(instanceModuleService).findOne(instanceDTO.getId(), kpiConfigurationDTO.getModuleId());
+        verify(kpiC1DataService).executeKpiC1Calculation(eq(instanceDTO), eq(instanceModuleDTO), eq(kpiConfigurationDTO), any(LocalDate.class));
         verify(instanceService).updateInstanceStatusCompleted(instanceDTO.getId());
     }
 

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+  <!-- Add KPI C.1 configuration and authorization permissions -->
+  <changeSet id="20251104170001-1" author="system" context="dml">
+    <comment>Add KPI C.1 configuration and authorization permissions</comment>
+
+    <sql dbms="postgresql">
+      <!-- Insert KPI C.1 configuration for module ID 12 -->
+      INSERT INTO ${database.defaultSchemaName}.KPI_CONFIGURATION (
+        CO_ID, CO_MODULE_ID, FL_EXCLUDE_PLANNED_SHUTDOWN, FL_EXCLUDE_UNPLANNED_SHUTDOWN,
+        CO_ELIGIBILITY_THRESHOLD, CO_TOLERANCE, CO_AVERAGE_TIME_LIMIT, TE_EVALUATION_TYPE,
+        CO_INSTITUTION_COUNT, CO_TRANSACTION_COUNT, CO_INSTITUTION_TOLERANCE, CO_TRANSACTION_TOLERANCE
+      )
+      VALUES (
+        nextval('${database.defaultSchemaName}.SQCRUSC8_KPICONF'), 
+        12, 
+        false, 
+        false,
+        50.0, 
+        5.0, 
+        24.0, 
+        'MESE', 
+        0, 
+        0, 
+        1.0, 
+        1.0
+      );
+
+      <!-- Add KPI C.1 permissions -->
+      INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) 
+      VALUES(10100, 'KPI_C1_RESULT_DETAIL', 'GTW') ON CONFLICT (co_id) DO NOTHING;
+      
+      INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) 
+      VALUES(10101, 'KPI_C1_DETAIL_RESULT_DETAIL', 'GTW') ON CONFLICT (co_id) DO NOTHING;
+      
+      INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) 
+      VALUES(10102, 'KPI_C1_ANALITIC_DATA_DETAIL', 'GTW') ON CONFLICT (co_id) DO NOTHING;
+      
+      INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo) 
+      VALUES(10103, 'KPI_C1_PAGOPA_DATA_DETAIL', 'GTW') ON CONFLICT (co_id) DO NOTHING;
+      
+      <!-- Associate permissions with KPI function (ID 10004) -->
+      INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) 
+      VALUES(10100, 10004) ON CONFLICT DO NOTHING;
+      
+      INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) 
+      VALUES(10101, 10004) ON CONFLICT DO NOTHING;
+      
+      INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) 
+      VALUES(10102, 10004) ON CONFLICT DO NOTHING;
+      
+      INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id) 
+      VALUES(10103, 10004) ON CONFLICT DO NOTHING;
+
+    </sql>
+
+    <rollback>
+      <!-- Remove KPI_CONFIGURATION for module ID 12 -->
+      DELETE FROM ${database.defaultSchemaName}.KPI_CONFIGURATION 
+      WHERE CO_MODULE_ID = 12;
+
+      <!-- Remove permission associations -->
+      DELETE FROM ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM 
+      WHERE co_auth_permission_id IN (10100, 10101, 10102, 10103);
+      
+      <!-- Remove permissions -->
+      DELETE FROM ${database.defaultSchemaName}.AUTH_PERMISSION 
+      WHERE co_id IN (10100, 10101, 10102, 10103);
+    </rollback>
+  </changeSet>
+
+</databaseChangeLog>
