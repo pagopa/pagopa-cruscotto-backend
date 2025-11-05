@@ -15,18 +15,21 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
 
+import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 
@@ -48,13 +51,14 @@ class PagoPaPaymentReceiptServiceImplTest {
 
     @BeforeEach
     void setup() {
-        // Lenient stubs to prevent unnecessary stubbing exceptions
         lenient().doReturn(queryFactory).when(queryBuilder).createQueryFactory();
         lenient().doReturn(receiptQuery).when(queryBuilder).createQuery();
 
         lenient().doReturn(receiptQuery).when(receiptQuery).from(any(EntityPath.class));
         lenient().doReturn(receiptQuery).when(receiptQuery).where(any(Predicate.class));
-        lenient().doReturn(receiptQuery).when(receiptQuery).select(any(Expression.class));
+        lenient().doReturn(receiptQuery).when(receiptQuery).select(
+            ArgumentMatchers.<Expression<PagoPaPaymentReceipt>>any()
+        );
         lenient().doReturn(receiptQuery).when(receiptQuery).orderBy(any(OrderSpecifier.class));
         lenient().doReturn(receiptQuery).when(receiptQuery).offset(anyLong());
         lenient().doReturn(receiptQuery).when(receiptQuery).limit(anyLong());
@@ -63,15 +67,15 @@ class PagoPaPaymentReceiptServiceImplTest {
     @Test
     @DisplayName("findAllStationIntoPeriodForPartner: returns grouped stations")
     void findAllStationIntoPeriodForPartner_returnsStations() {
+        @SuppressWarnings("unchecked")
         JPAQuery<String> stationQuery = mock(JPAQuery.class);
 
-        lenient().doReturn(stationQuery).when(queryFactory).select(any(Expression.class));
-
+        lenient().doReturn(stationQuery).when(queryFactory)
+            .select(ArgumentMatchers.<Expression<String>>any());
         lenient().doReturn(stationQuery).when(stationQuery).from(any(EntityPath.class));
         lenient().doReturn(stationQuery).when(stationQuery).where(any(Predicate.class));
         lenient().doReturn(stationQuery).when(stationQuery).groupBy(any(Expression.class));
         lenient().doReturn(stationQuery).when(stationQuery).orderBy(any(OrderSpecifier.class));
-
         lenient().doReturn(Arrays.asList("ST01", "ST02")).when(stationQuery).fetch();
 
         List<String> results = service.findAllStationIntoPeriodForPartner(
@@ -86,9 +90,10 @@ class PagoPaPaymentReceiptServiceImplTest {
     @Test
     @DisplayName("findAllRecordIntoDayForPartnerAndStation: returns DTOs")
     void findAllRecordIntoDayForPartnerAndStation_returnsDTOs() {
+        @SuppressWarnings("unchecked")
         JPAQuery<PagoPaPaymentReceiptDTO> dtoQuery = mock(JPAQuery.class);
-        lenient().doReturn(dtoQuery).when(queryFactory).select(any(Expression.class));
-
+        lenient().doReturn(dtoQuery).when(queryFactory)
+            .select(ArgumentMatchers.<Expression<PagoPaPaymentReceiptDTO>>any());
         lenient().doReturn(dtoQuery).when(dtoQuery).from(any(EntityPath.class));
         lenient().doReturn(dtoQuery).when(dtoQuery).where(any(Predicate.class));
         lenient().doReturn(dtoQuery).when(dtoQuery).orderBy(any(OrderSpecifier.class));
@@ -117,15 +122,18 @@ class PagoPaPaymentReceiptServiceImplTest {
         QPagoPaPaymentReceipt q = QPagoPaPaymentReceipt.pagoPaPaymentReceipt;
 
         // Mock count query
+        @SuppressWarnings("unchecked")
         JPAQuery<Long> countQuery = mock(JPAQuery.class);
         lenient().doReturn(countQuery).when(receiptQuery).select(q.id);
-        lenient().doReturn(Arrays.asList(1L)).when(countQuery).fetch();
+        lenient().doReturn(List.of(1L)).when(countQuery).fetch();
 
         // Mock DTO query
+        @SuppressWarnings("unchecked")
         JPAQuery<PagoPaPaymentReceiptDTO> dtoQuery = mock(JPAQuery.class);
-        lenient().doReturn(dtoQuery).when(receiptQuery).select(any(Expression.class));
-        lenient().doReturn(dtoQuery).when(dtoQuery).offset(anyLong());
-        lenient().doReturn(dtoQuery).when(dtoQuery).limit(anyLong());
+        lenient().doReturn(dtoQuery).when(receiptQuery)
+            .select(ArgumentMatchers.<Expression<PagoPaPaymentReceiptDTO>>any());
+        lenient().doReturn(dtoQuery).when(dtoQuery).offset(any(Long.class));
+        lenient().doReturn(dtoQuery).when(dtoQuery).limit(any(Long.class));
         lenient().doReturn(dtoQuery).when(dtoQuery).orderBy(any(OrderSpecifier.class));
 
         PagoPaPaymentReceiptDTO dto = new PagoPaPaymentReceiptDTO();
@@ -138,7 +146,6 @@ class PagoPaPaymentReceiptServiceImplTest {
         filter.setCfPartner("PX");
         filter.setStation("SX");
 
-        // ⬅️ now use descending sort to hit the other branch
         Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Order.desc("startDate")));
 
         Page<PagoPaPaymentReceiptDTO> page = service.findAll(filter, pageable);
@@ -148,15 +155,15 @@ class PagoPaPaymentReceiptServiceImplTest {
         assertThat(page.getContent().get(0).getId()).isEqualTo(200L);
     }
 
-
     @Test
     @DisplayName("findAll: no results returns empty Page")
     void findAll_withEmptyFilter_returnsEmptyPage() {
-        // Mock the query returned by select
+        @SuppressWarnings("unchecked")
         JPAQuery<PagoPaPaymentReceiptDTO> dtoQuery = mock(JPAQuery.class);
 
         lenient().doReturn(receiptQuery).when(receiptQuery).from(any(EntityPath.class));
-        lenient().doReturn(dtoQuery).when(receiptQuery).select(any(Expression.class));
+        lenient().doReturn(receiptQuery).when(receiptQuery)
+            .select(ArgumentMatchers.<Expression<PagoPaPaymentReceipt>>any());
         lenient().doReturn(Collections.emptyList()).when(dtoQuery).fetch();
 
         Page<PagoPaPaymentReceiptDTO> page =
@@ -167,7 +174,7 @@ class PagoPaPaymentReceiptServiceImplTest {
 
     @Test
     @DisplayName("createPagoPaPaymentReceiptProjection: returns non-null projection")
-    void createPagoPaPaymentReceiptProjection_returnsProjection() throws Exception {
+    void createPagoPaPaymentReceiptProjection_returnsProjection() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         var method = PagoPaPaymentReceiptServiceImpl.class
             .getDeclaredMethod("createPagoPaPaymentReceiptProjection");
         method.setAccessible(true);
@@ -179,8 +186,10 @@ class PagoPaPaymentReceiptServiceImplTest {
     @Test
     @DisplayName("findAll: handles NullHandling in Sort orders")
     void findAll_withNullHandlingInSort_works() {
+        @SuppressWarnings("unchecked")
         JPAQuery<PagoPaPaymentReceiptDTO> dtoQuery = mock(JPAQuery.class);
-        lenient().doReturn(dtoQuery).when(receiptQuery).select(any(Expression.class));
+        lenient().doReturn(dtoQuery).when(receiptQuery)
+            .select(ArgumentMatchers.<Expression<PagoPaPaymentReceiptDTO>>any());
         lenient().doReturn(dtoQuery).when(dtoQuery).offset(anyLong());
         lenient().doReturn(dtoQuery).when(dtoQuery).limit(anyLong());
         lenient().doReturn(dtoQuery).when(dtoQuery).orderBy(any(OrderSpecifier.class));
@@ -191,8 +200,8 @@ class PagoPaPaymentReceiptServiceImplTest {
             Sort.by(new Sort.Order(Sort.Direction.ASC, "station", Sort.NullHandling.NULLS_LAST))
         );
 
-        service.findAll(new PagoPaPaymentReceiptFilter(), pageable);
+        Page<PagoPaPaymentReceiptDTO> result = service.findAll(new PagoPaPaymentReceiptFilter(), pageable);
+
+        assertThat(result).isEmpty();
     }
-
-
 }

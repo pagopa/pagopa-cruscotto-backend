@@ -21,6 +21,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 @ExtendWith(MockitoExtension.class)
 class KpiB4DetailResultServiceImplTest {
@@ -56,7 +58,12 @@ class KpiB4DetailResultServiceImplTest {
 
         service.updateKpiB4DetailResultOutcome(id, status);
 
-        // Currently the method has no implementation, so just ensure no exceptions
+        // Verifica che il metodo del servizio possa essere eseguito senza eccezioni
+        assertThatCode(() -> service.updateKpiB4DetailResultOutcome(id, status))
+            .doesNotThrowAnyException();
+
+        // Assicura che non ci siano interazioni con il repository
+        verifyNoInteractions(kpiB4DetailResultRepository);
     }
 
     @Test
