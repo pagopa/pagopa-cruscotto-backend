@@ -77,7 +77,6 @@ public class KpiC2AnalyticDataServiceImpl implements KpiC2AnalyticDataService {
     private KpiC2AnalyticDataDTO convertToDTO(KpiC2AnalyticData kpiC2AnalyticData) {
         KpiC2AnalyticDataDTO dto = new KpiC2AnalyticDataDTO();
         dto.setId(kpiC2AnalyticData.getId());
-        dto.setInstanceId(kpiC2AnalyticData.getInstanceId());
         dto.setAnalysisDate(kpiC2AnalyticData.getAnalysisDate());
         dto.setEvaluationDate(kpiC2AnalyticData.getEvaluationDate());
         dto.setNumInstitution(kpiC2AnalyticData.getNumInstitution());

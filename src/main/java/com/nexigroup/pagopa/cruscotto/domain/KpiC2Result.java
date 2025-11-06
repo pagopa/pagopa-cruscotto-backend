@@ -45,23 +45,19 @@ public class KpiC2Result implements Serializable {
     @GeneratedValue(generator = "SQCRUSC8_KPIC2RESU", strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    // === Relazioni e chiavi esterne ===
-    @NotNull
-    @Column(name = "CO_INSTANCE_ID", nullable = false)
-    private Long instanceId;
+
 
     @JsonIgnore
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CO_INSTANCE_ID", nullable = false, insertable = false, updatable = false)
+    @JoinColumn(name = "CO_INSTANCE_ID", nullable = false)
     private Instance instance;
 
-    @NotNull
-    @Column(name = "CO_INSTANCE_MODULE_ID", nullable = false)
-    private Long instanceModuleId;
 
     @JsonIgnore
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CO_INSTANCE_MODULE_ID", nullable = false, insertable = false, updatable = false)
+    @JoinColumn(name = "CO_INSTANCE_MODULE_ID", nullable = false)
     private InstanceModule instanceModule;
 
     // === Dati principali ===
@@ -100,17 +96,27 @@ public class KpiC2Result implements Serializable {
         return 31;
     }
 
+
     @Override
     public String toString() {
-        return "KpiC2Result{" +
-            "id=" + id +
-            ", instanceId=" + instanceId +
-            ", instanceModuleId=" + instanceModuleId +
-            ", analysisDate=" + analysisDate +
-            ", eligibilityThreshold=" + eligibilityThreshold +
-            ", tolerance=" + tolerance +
-            ", evaluationType='" + evaluationType + '\'' +
-            ", outcome='" + outcome + '\'' +
-            '}';
+        return (
+            "KpiC2Result [id=" +
+                id +
+                ", instance=" +
+                instance +
+                ", instanceModule=" +
+                instanceModule +
+                ", analysisDate=" +
+                analysisDate +
+                ", eligibilityThreshold=" +
+                eligibilityThreshold +
+                ", tolerance=" +
+                tolerance +
+                ", evaluationType=" +
+                evaluationType +
+                ", outcome=" +
+                outcome +
+                "]"
+        );
     }
 }

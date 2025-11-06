@@ -45,22 +45,16 @@ public class KpiC2AnalyticDrillDown implements Serializable {
 
     // === Relazioni e chiavi esterne ===
 
-    @NotNull
-    @Column(name = "CO_INSTANCE_ID", nullable = false)
-    private Long instanceId;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CO_INSTANCE_ID", nullable = false, insertable = false, updatable = false)
+    @JoinColumn(name = "CO_INSTANCE_ID", nullable = false)
     private Instance instance;
 
-    @NotNull
-    @Column(name = "CO_INSTANCE_MODULE_ID", nullable = false)
-    private Long instanceModuleId;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CO_INSTANCE_MODULE_ID", nullable = false, insertable = false, updatable = false)
+    @JoinColumn(name = "CO_INSTANCE_MODULE_ID", nullable = false)
     private InstanceModule instanceModule;
 
     // === Dati principali ===
@@ -107,9 +101,7 @@ public class KpiC2AnalyticDrillDown implements Serializable {
     public String toString() {
         return "KpiC2AnalyticDrillDown{" +
             "id=" + id +
-            ", instanceId=" + instanceId +
             ", instance=" + instance +
-            ", instanceModuleId=" + instanceModuleId +
             ", instanceModule=" + instanceModule +
             ", analysisDate=" + analysisDate +
             ", partnerCf='" + partnerCf + '\'' +
