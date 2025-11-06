@@ -65,6 +65,51 @@ class KpiA1AnalyticDrillDownServiceImplTest {
     }
 
     @Test
+    @DisplayName("Should filter out rows with zero or null timeout requests")
+    void testFindByKpiA1AnalyticDataIdFiltersByTimeout() {
+        // Create test entities - some with timeout, some without
+        KpiA1AnalyticDrillDown entityWithTimeout = new KpiA1AnalyticDrillDown();
+        entityWithTimeout.setId(1L);
+        entityWithTimeout.setKpiA1AnalyticDataId(10L);
+        entityWithTimeout.setFromHour(Instant.ofEpochSecond(0));
+        entityWithTimeout.setToHour(Instant.ofEpochSecond(1));
+        entityWithTimeout.setTotalRequests(100L);
+        entityWithTimeout.setOkRequests(90L);
+        entityWithTimeout.setReqTimeout(10L); // Has timeout > 0
+        
+        KpiA1AnalyticDrillDown entityWithZeroTimeout = new KpiA1AnalyticDrillDown();
+        entityWithZeroTimeout.setId(2L);
+        entityWithZeroTimeout.setKpiA1AnalyticDataId(10L);
+        entityWithZeroTimeout.setFromHour(Instant.ofEpochSecond(1));
+        entityWithZeroTimeout.setToHour(Instant.ofEpochSecond(2));
+        entityWithZeroTimeout.setTotalRequests(50L);
+        entityWithZeroTimeout.setOkRequests(50L);
+        entityWithZeroTimeout.setReqTimeout(0L); // Zero timeout - should be filtered out
+        
+        KpiA1AnalyticDrillDown entityWithNullTimeout = new KpiA1AnalyticDrillDown();
+        entityWithNullTimeout.setId(3L);
+        entityWithNullTimeout.setKpiA1AnalyticDataId(10L);
+        entityWithNullTimeout.setFromHour(Instant.ofEpochSecond(2));
+        entityWithNullTimeout.setToHour(Instant.ofEpochSecond(3));
+        entityWithNullTimeout.setTotalRequests(30L);
+        entityWithNullTimeout.setOkRequests(30L);
+        entityWithNullTimeout.setReqTimeout(null); // Null timeout - should be filtered out
+
+        when(repository.findByKpiA1AnalyticDataIdOrderByFromHourAsc(10L))
+            .thenReturn(Arrays.asList(entityWithTimeout, entityWithZeroTimeout, entityWithNullTimeout));
+
+        List<KpiA1AnalyticDrillDownDTO> result = service.findByKpiA1AnalyticDataId(10L);
+
+        // Should only return the entity with timeout > 0
+        assertThat(result).hasSize(1);
+        KpiA1AnalyticDrillDownDTO dto = result.get(0);
+        assertThat(dto.getId()).isEqualTo(entityWithTimeout.getId());
+        assertThat(dto.getReqTimeout()).isEqualTo(10L);
+
+        verify(repository, times(1)).findByKpiA1AnalyticDataIdOrderByFromHourAsc(10L);
+    }
+
+    @Test
     void testSaveAll() {
         KpiA1AnalyticDrillDownDTO dto1 = new KpiA1AnalyticDrillDownDTO();
         dto1.setId(1L);
@@ -106,7 +151,7 @@ class KpiA1AnalyticDrillDownServiceImplTest {
         entity.setToHour(Instant.ofEpochSecond(3));
         entity.setTotalRequests(200L);
         entity.setOkRequests(180L);
-        entity.setReqTimeout(20L);
+        entity.setReqTimeout(20L); // Ensure this has timeout > 0 to pass the filter
 
         // Using private methods via reflection is an option, but normally tested via public methods
         // This ensures mapping is exercised via public API (as we did above)
