@@ -69,7 +69,13 @@ class KpiB5OutcomeTest {
             Arguments.of(15.0, 20.0, 5.0, OutcomeStatus.OK),  // 15% <= 25% ✓
             Arguments.of(25.0, 20.0, 5.0, OutcomeStatus.OK),  // 25% <= 25% ✓ (boundary)
             Arguments.of(25.1, 20.0, 5.0, OutcomeStatus.KO),  // 25.1% > 25% ✗
-            Arguments.of(30.0, 20.0, 5.0, OutcomeStatus.KO)   // 30% > 25% ✗
+            Arguments.of(30.0, 20.0, 5.0, OutcomeStatus.KO),  // 30% > 25% ✗
+            
+            // Bug fix case: 14.29% with 10% threshold + 10% tolerance
+            // % <= 20% should be OK, > 20% should be KO
+            Arguments.of(14.29, 10.0, 10.0, OutcomeStatus.OK), // 14.29% <= 20% ✓ (reported bug case)
+            Arguments.of(20.0, 10.0, 10.0, OutcomeStatus.OK),  // 20% <= 20% ✓ (boundary)
+            Arguments.of(20.1, 10.0, 10.0, OutcomeStatus.KO)   // 20.1% > 20% ✗
         );
     }
 
@@ -98,5 +104,29 @@ class KpiB5OutcomeTest {
         // This means: 
         // - If 7% or fewer partners are without spontaneous payments → OK
         // - If more than 7% of partners are without spontaneous payments → KO
+    }
+    
+    @Test
+    void testBugFixCase_14Point29PercentShouldBeOK() {
+        // This test specifically addresses the reported bug case
+        // API: /api/kpi-detail-results/b5/module/3320
+        // Scenario: 14.29% non-spontaneous payments with 10% threshold + 10% tolerance
+        
+        // Given
+        BigDecimal percentage = BigDecimal.valueOf(14.29);    // Actual percentage
+        BigDecimal threshold = BigDecimal.valueOf(10.0);      // Configured threshold
+        BigDecimal tolerance = BigDecimal.valueOf(10.0);      // Configured tolerance
+        
+        // When
+        OutcomeStatus result = determineOutcomeWithThresholds(percentage, threshold, tolerance);
+        
+        // Then
+        assertEquals(OutcomeStatus.OK, result, 
+            "14.29% should be OK because it's less than 20% (10% threshold + 10% tolerance)");
+        
+        // Additional verification
+        BigDecimal maxAllowed = threshold.add(tolerance); // 20%
+        assertTrue(percentage.compareTo(maxAllowed) <= 0, 
+            String.format("14.29%% should be <= 20%% (maxAllowed), but comparison failed"));
     }
 }
