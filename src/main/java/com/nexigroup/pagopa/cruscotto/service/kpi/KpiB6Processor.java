@@ -160,10 +160,16 @@ public class KpiB6Processor extends AbstractKpiProcessor<KpiResultDTO, KpiDetail
         detailResult.setAnalysisDate(LocalDate.now());
         
         // Store KPI-specific data as JSON in the additionalData field
+        int totalActiveStations = aggregationResult.getTotalActiveStations();
+        int stationsWithPaymentOptions = aggregationResult.getStationsWithPaymentOptions();
+        int difference = totalActiveStations - stationsWithPaymentOptions;
+        double percentageDifference = 100.0 - aggregationResult.getCompliancePercentage();
+        
         detailResult.setAdditionalData("{" +
-            "\"activeStations\": " + aggregationResult.getTotalActiveStations() + ", " +
-            "\"stationsWithPaymentOptions\": " + aggregationResult.getStationsWithPaymentOptions() + ", " +
-            "\"compliancePercentage\": " + BigDecimal.valueOf(aggregationResult.getCompliancePercentage()).setScale(2, RoundingMode.HALF_UP) + ", " +
+            "\"activeStations\": " + totalActiveStations + ", " +
+            "\"stationsWithPaymentOptions\": " + stationsWithPaymentOptions + ", " +
+            "\"difference\": " + difference + ", " +
+            "\"percentageDifference\": " + BigDecimal.valueOf(percentageDifference).setScale(2, RoundingMode.HALF_UP) + ", " +
             "\"evaluationType\": \"" + evaluationType.name() + "\", " +
             "\"evaluationStartDate\": \"" + startDate + "\", " +
             "\"evaluationEndDate\": \"" + endDate + "\"" +
@@ -171,8 +177,9 @@ public class KpiB6Processor extends AbstractKpiProcessor<KpiResultDTO, KpiDetail
         
         // Evaluate outcome using tolerance-based strategy
         BigDecimal targetPercentage = BigDecimal.valueOf(100.0); // 100% compliance is the target
-        // Parse tolerance from kpiResult data JSON (simplified for now)
-        BigDecimal tolerance = BigDecimal.ZERO;
+        // Get tolerance from configuration
+        BigDecimal tolerance = context.getConfiguration().getTolerance() != null ? 
+                BigDecimal.valueOf(context.getConfiguration().getTolerance()) : BigDecimal.ZERO;
         BigDecimal actualPercentage = BigDecimal.valueOf(aggregationResult.getCompliancePercentage()).setScale(2, RoundingMode.HALF_UP);
         
         OutcomeStatus outcome = evaluationStrategy.evaluate(
@@ -227,9 +234,23 @@ public class KpiB6Processor extends AbstractKpiProcessor<KpiResultDTO, KpiDetail
     
     @Override
     protected boolean isDetailResultForTotalPeriod(KpiDetailResultDTO detailResult) {
-        // Since evaluation type is now stored in JSON, we need to parse it
-        // For now, we can assume B.6 doesn't use total period evaluation
-        return false;
+        // Parse the evaluation type from the JSON data to determine if this is a total period result
+        if (detailResult.getAdditionalData() != null) {
+            try {
+                com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                com.fasterxml.jackson.databind.JsonNode dataNode = mapper.readTree(detailResult.getAdditionalData());
+                
+                if (dataNode.has("evaluationType")) {
+                    String evaluationType = dataNode.get("evaluationType").asText();
+                    return "TOTALE".equals(evaluationType);
+                }
+            } catch (Exception e) {
+                logger.warn("Failed to parse evaluation type from additional data", e);
+            }
+        }
+        
+        // Default fallback: B.6 uses TOTALE as default, so assume true for total period
+        return true;
     }
     
     @Override

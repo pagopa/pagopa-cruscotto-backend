@@ -26,6 +26,11 @@ public interface KpiDetailResultRepository extends JpaRepository<KpiDetailResult
     List<KpiDetailResult> findAllByModuleCodeAndInstanceModuleId(ModuleCode moduleCode, Long instanceModuleId);
 
     /**
+     * Find detail results by module code and KPI result id.
+     */
+    List<KpiDetailResult> findAllByModuleCodeAndKpiResultId(ModuleCode moduleCode, Long kpiResultId);
+
+    /**
      * Delete all detail results by module code and instance module id.
      */
     @Modifying

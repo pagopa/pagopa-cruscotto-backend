@@ -22,7 +22,7 @@ public class KpiB6AnalyticDataDTO implements Serializable {
     private String eventId;
     private String eventType;
     private LocalDate analysisDate;
-    private Integer stationCode;
+    private String stationCode;
     private String paymentOption;
 
     public KpiB6AnalyticDataDTO() {}
@@ -44,13 +44,9 @@ public class KpiB6AnalyticDataDTO implements Serializable {
                     ObjectMapper mapper = new ObjectMapper();
                     JsonNode dataNode = mapper.readTree(genericDto.getAnalyticData());
                     
-                    // Parse station code from JSON data
+                    // Parse station code from JSON data - stored as string in new framework
                     if (dataNode.has("stationCode")) {
-                        try {
-                            this.stationCode = dataNode.get("stationCode").asInt();
-                        } catch (Exception e) {
-                            this.stationCode = null;
-                        }
+                        this.stationCode = dataNode.get("stationCode").asText();
                     }
                     
                     if (dataNode.has("anagStationId")) {
@@ -62,7 +58,11 @@ public class KpiB6AnalyticDataDTO implements Serializable {
                     if (dataNode.has("eventType")) {
                         this.eventType = dataNode.get("eventType").asText();
                     }
-                    if (dataNode.has("paymentOption")) {
+                    // Map paymentOptionsEnabled (boolean) to paymentOption (string) for backward compatibility
+                    if (dataNode.has("paymentOptionsEnabled")) {
+                        boolean paymentEnabled = dataNode.get("paymentOptionsEnabled").asBoolean();
+                        this.paymentOption = paymentEnabled ? "SI" : "NO";
+                    } else if (dataNode.has("paymentOption")) {
                         this.paymentOption = dataNode.get("paymentOption").asText();
                     }
                 } catch (Exception e) {
@@ -136,11 +136,11 @@ public class KpiB6AnalyticDataDTO implements Serializable {
         this.analysisDate = analysisDate;
     }
 
-    public Integer getStationCode() {
+    public String getStationCode() {
         return stationCode;
     }
 
-    public void setStationCode(Integer stationCode) {
+    public void setStationCode(String stationCode) {
         this.stationCode = stationCode;
     }
 

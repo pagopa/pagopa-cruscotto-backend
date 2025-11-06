@@ -49,15 +49,20 @@ public class KpiB6DetailResultDTO implements Serializable {
                     if (dataNode.has("anagStationId")) {
                         this.anagStationId = dataNode.get("anagStationId").asLong();
                     }
-                    if (dataNode.has("totalStations")) {
+                    // Map activeStations to totalStations for backward compatibility
+                    if (dataNode.has("activeStations")) {
+                        this.totalStations = dataNode.get("activeStations").asInt();
+                    } else if (dataNode.has("totalStations")) {
                         this.totalStations = dataNode.get("totalStations").asInt();
                     }
                     if (dataNode.has("stationsWithPaymentOptions")) {
                         this.stationsWithPaymentOptions = dataNode.get("stationsWithPaymentOptions").asInt();
                     }
+                    // Get difference from stored data
                     if (dataNode.has("difference")) {
                         this.difference = dataNode.get("difference").asInt();
                     }
+                    // Get percentageDifference from stored data
                     if (dataNode.has("percentageDifference")) {
                         this.percentageDifference = dataNode.get("percentageDifference").asDouble();
                     }

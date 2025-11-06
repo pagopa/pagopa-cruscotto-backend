@@ -289,6 +289,7 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
                 throw new GenericServiceException(
                     String.format(
                         "Kpi configuration with id %s cannot be updated because the module %s has already a kpi configurations",
+                        kpiConfigurationToUpdate.getId(),
                         kpiConfigurationToUpdate.getModuleCode()
                     ),
                     "module",
