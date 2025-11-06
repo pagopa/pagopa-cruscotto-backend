@@ -5,13 +5,13 @@ import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.job.config.JobConstant;
 import com.nexigroup.pagopa.cruscotto.repository.PagopaApiLogRepository;
-import com.nexigroup.pagopa.cruscotto.service.InstanceModuleService;
-import com.nexigroup.pagopa.cruscotto.service.InstanceService;
-import com.nexigroup.pagopa.cruscotto.service.KpiC2DataService;
-import com.nexigroup.pagopa.cruscotto.service.KpiConfigurationService;
+import com.nexigroup.pagopa.cruscotto.repository.PagopaSendRepository;
+import com.nexigroup.pagopa.cruscotto.service.*;
+import com.nexigroup.pagopa.cruscotto.service.dto.AnagInstitutionDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.InstanceDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.InstanceModuleDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiConfigurationDTO;
+import com.nexigroup.pagopa.cruscotto.service.filter.AnagInstitutionFilter;
 import org.quartz.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +21,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -35,8 +37,9 @@ public class KpiC2Job extends QuartzJobBean {
     private final ApplicationProperties applicationProperties;
     private final KpiConfigurationService kpiConfigurationService;
     private final KpiC2DataService kpiC2DataService;
-    private final PagopaApiLogRepository pagopaApiLogRepository;
     private final Scheduler scheduler;
+    private final AnagInstitutionService anagInstitutionService;
+    private final PagopaSendRepository pagopaSendRepository;
 
     public KpiC2Job(
         InstanceService instanceService,
@@ -45,14 +48,15 @@ public class KpiC2Job extends QuartzJobBean {
         KpiConfigurationService kpiConfigurationService,
         KpiC2DataService kpiC2DataService,
         PagopaApiLogRepository pagopaApiLogRepository,
-        Scheduler scheduler) {
+        Scheduler scheduler, AnagInstitutionService anagInstitutionService, PagopaSendRepository pagopaSendRepository) {
         this.instanceService = instanceService;
         this.instanceModuleService = instanceModuleService;
         this.applicationProperties = applicationProperties;
         this.kpiConfigurationService = kpiConfigurationService;
         this.kpiC2DataService = kpiC2DataService;
-        this.pagopaApiLogRepository = pagopaApiLogRepository;
         this.scheduler = scheduler;
+        this.anagInstitutionService = anagInstitutionService;
+        this.pagopaSendRepository = pagopaSendRepository;
     }
 
     @Override
@@ -118,8 +122,14 @@ public class KpiC2Job extends QuartzJobBean {
         LOGGER.info("Processing instance module {} for KPI C.2", instanceModuleDTO.getId());
 
         try {
+            AnagInstitutionFilter filter = new AnagInstitutionFilter();
+            filter.setPartnerId(instanceDTO.getPartnerId());
+            List<AnagInstitutionDTO> inistutionListPartner = anagInstitutionService.findAllNoPaging(filter);
+            List<String> listInstitutionFiscalCode = inistutionListPartner.stream()
+                .map(anagInstitutionDTO -> anagInstitutionDTO.getInstitutionIdentification().getFiscalCode()).toList();
+
             // REQUISITO: Verifica prerequisiti - controllo presenza dati API log per il periodo
-            if (!hasApiLogDataForPeriod(instanceDTO)) {
+            if (!hasPagoPaSendDataForPeriod(instanceDTO,listInstitutionFiscalCode)) {
                 LOGGER.warn("SKIPPING KPI C.2 calculation for instance {} - No API log data for analysis period {} to {}",
                     instanceDTO.getId(),
                     instanceDTO.getAnalysisPeriodStartDate(),
@@ -138,7 +148,7 @@ public class KpiC2Job extends QuartzJobBean {
                 instanceDTO.getAnalysisPeriodStartDate(), instanceDTO.getAnalysisPeriodEndDate());
 
             // Implementazione logica KPI C.2 basata sull'analisi
-            OutcomeStatus outcome = calculateKpiC2Outcome(instanceDTO, kpiConfigurationDTO);
+            OutcomeStatus outcome = calculateKpiC2Outcome(instanceDTO, kpiConfigurationDTO, listInstitutionFiscalCode);
 
             LOGGER.info("KPI C.2 outcome for instance {}: {} (Partner: {})",
                 instanceDTO.getId(), outcome, instanceDTO.getPartnerFiscalCode());
@@ -205,33 +215,37 @@ public class KpiC2Job extends QuartzJobBean {
      * Verifica se esistono dati nella tabella pagopa_apilog per il periodo dell'istanza.
      * Se non esistono record per il periodo, l'analisi non deve essere effettuata.
      *
-     * @param instanceDTO l'istanza da analizzare
+     * @param instanceDTO               l'istanza da analizzare
+     * @param listInstitutionFiscalCode
      * @return true se esistono dati per il periodo, false altrimenti
      */
-    private boolean hasApiLogDataForPeriod(InstanceDTO instanceDTO) {
+    private boolean hasPagoPaSendDataForPeriod(InstanceDTO instanceDTO, List<String> listInstitutionFiscalCode) {
         LocalDate periodStart = instanceDTO.getAnalysisPeriodStartDate();
         LocalDate periodEnd = instanceDTO.getAnalysisPeriodEndDate();
-
+        // aaaaaa
         if (periodStart == null || periodEnd == null) {
             LOGGER.warn("Analysis period not defined for instance {}: start={}, end={}",
                 instanceDTO.getId(), periodStart, periodEnd);
             return false;
         }
 
-        boolean hasData = pagopaApiLogRepository.existsDataInPeriodAndApiInGPDOrACA(periodStart, periodEnd);
+        Long numberInstitutionSend = pagopaSendRepository.calculateTotalNumberInstitutionSend(null, listInstitutionFiscalCode, periodStart.atStartOfDay(), endOfDay(periodEnd));
+        Boolean hasData = numberInstitutionSend>0 ? true : false;
         LOGGER.info("API log data check for period {} to {}: {}",
             periodStart, periodEnd, hasData ? "DATA FOUND" : "NO DATA");
 
         return hasData;
     }
-
+    private LocalDateTime endOfDay(LocalDate date){
+        return LocalDateTime.of(date, LocalTime.MAX);
+    }
     /**
      * Calcola l'outcome del KPI C.2 basato sulla logica dell'analisi.
      * Considera il tipo di valutazione configurata:
      * - TOTALE: Verifica la percentuale di request "paCreate" rispetto a "GPD"/"ACA" sull'intero periodo
      * - MESE: Se almeno un mese ha esito KO nei detail results, l'esito complessivo è KO
      */
-    private OutcomeStatus calculateKpiC2Outcome(InstanceDTO instanceDTO, KpiConfigurationDTO kpiConfigurationDTO) {
+    private OutcomeStatus calculateKpiC2Outcome(InstanceDTO instanceDTO, KpiConfigurationDTO kpiConfigurationDTO, List<String> inistutionListPartner) {
         LOGGER.info("Calculating KPI C.2 outcome for instance {} partner {} with evaluation type: {}",
             instanceDTO.getId(), instanceDTO.getPartnerFiscalCode(), kpiConfigurationDTO.getEvaluationType());
 
@@ -244,7 +258,7 @@ public class KpiC2Job extends QuartzJobBean {
 
             // REQUISITO: Verifica prerequisiti - se non esistono dati nella tabella pagopa_apilog
             // per il periodo dell'istanza, l'analisi non deve essere effettuata
-            if (!hasApiLogDataForPeriod(instanceDTO)) {
+            if (!hasPagoPaSendDataForPeriod(instanceDTO,inistutionListPartner)) {
                 LOGGER.warn("SKIPPING KPI C.2 analysis for instance {} - No API log data found for period {} to {}",
                     instanceDTO.getId(), periodStart, periodEnd);
                 throw new RuntimeException("No API log data available for analysis period");
@@ -264,7 +278,7 @@ public class KpiC2Job extends QuartzJobBean {
             } else {
                 // Valutazione TOTALE: usa la logica sui dati complessivi del periodo
                 LOGGER.info("Using TOTAL evaluation type - calculating outcome on entire period");
-                return calculateTotalPeriodOutcome(partnerFiscalCode, periodStart, periodEnd, kpiConfigurationDTO);
+                return calculateTotalPeriodOutcome(partnerFiscalCode, periodStart, periodEnd, kpiConfigurationDTO, inistutionListPartner);
             }
 
         } catch (Exception e) {
@@ -278,23 +292,23 @@ public class KpiC2Job extends QuartzJobBean {
      * Calcola l'outcome basato sui dati del periodo totale.
      */
     private OutcomeStatus calculateTotalPeriodOutcome(String partnerFiscalCode, LocalDate periodStart,
-                                                      LocalDate periodEnd, KpiConfigurationDTO kpiConfigurationDTO) {
+                                                      LocalDate periodEnd, KpiConfigurationDTO kpiConfigurationDTO, List<String> inistutionListPartner) {
 
         // Query per contare le request dalla tabella pagopa_apilog usando il repository
-        Long totalGpdAcaRequests = pagopaApiLogRepository.calculateTotalGpdAcaRequests(partnerFiscalCode, periodStart, periodEnd);
-        Long totalKOGpdAcaRequests = pagopaApiLogRepository.calculateTotalGpdAcaRequestsKO(partnerFiscalCode, periodStart, periodEnd);
+        Long totalNumebrPayment = pagopaSendRepository.calculateTotalNumberInsitution(null,  inistutionListPartner);
+        Long totalKOGpdAcaRequests = pagopaSendRepository.calculateTotalNumberInstitutionSend(null, inistutionListPartner ,periodStart.atStartOfDay(), endOfDay(periodEnd));
 
         // Gestione valori null (nel caso non ci siano dati)
-        if (totalGpdAcaRequests == null) totalGpdAcaRequests = 0L;
+        if (totalNumebrPayment == null) totalNumebrPayment = 0L;
         if (totalKOGpdAcaRequests == null) totalKOGpdAcaRequests = 0L;
 
         LOGGER.info("API requests for partner {}: TOT  GPD/ACA={}, KO GPD/ACA={}",
-            partnerFiscalCode, totalGpdAcaRequests, totalKOGpdAcaRequests);
+            partnerFiscalCode, totalNumebrPayment, totalKOGpdAcaRequests);
 
         // Calcola la percentuale di paCreate rispetto al totale
         double paCreatePercentage = 0.0;
-        if (totalGpdAcaRequests > 0) {
-            paCreatePercentage = (totalKOGpdAcaRequests.doubleValue() / totalGpdAcaRequests.doubleValue()) * 100.0;
+        if (totalNumebrPayment > 0) {
+            paCreatePercentage = (totalKOGpdAcaRequests.doubleValue() / totalNumebrPayment.doubleValue()) * 100.0;
         }
 
         // Recupera soglia e tolleranza dalla configurazione

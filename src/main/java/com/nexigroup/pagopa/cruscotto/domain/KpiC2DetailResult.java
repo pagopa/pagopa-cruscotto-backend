@@ -65,12 +65,10 @@ public class KpiC2DetailResult implements Serializable {
     @JoinColumn(name = "CO_INSTANCE_MODULE_ID", nullable = false, insertable = false, updatable = false)
     private InstanceModule instanceModule;
 
-    @Column(name = "CO_KPI_C2_RESULT_ID")
-    private Long kpiC2ResultId;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CO_KPI_C2_RESULT_ID", insertable = false, updatable = false)
+    @JoinColumn(name = "CO_KPI_C2_RESULT_ID")
     private KpiC2Result kpiC2Result;
 
     // === Dati temporali ===
@@ -151,7 +149,6 @@ public class KpiC2DetailResult implements Serializable {
             ", totalNotification=" + totalNotification +
             ", percentEntiOk=" + percentEntiOk +
             ", outcome='" + outcome + '\'' +
-            ", kpiC2ResultId=" + kpiC2ResultId +
             '}';
     }
 }

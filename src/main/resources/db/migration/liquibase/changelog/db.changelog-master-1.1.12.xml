@@ -13,4 +13,9 @@
   <include file="1.1.12/ddl/20251029162500_added_entity_KpiC2AnalyticDrillDown.xml" relativeToChangelogFile="true"/>
   <include file="1.1.12/ddl/20251029162500_added_entity_KpiC2Result.xml" relativeToChangelogFile="true"/>
   <include file="1.1.12/ddl/20251029175000_add_foreign_keys_kpi_C2.xml" relativeToChangelogFile="true"/>
+
+  <include file="1.1.12/dml/20251105120000_added_kpi_c2_configuration.xml" relativeToChangelogFile="true"/>
+  <include file="1.1.12/dml/20251105120001_add_kpi_c2_authorizations.xml" relativeToChangelogFile="true"/>
+  <include file="1.1.12/dml/20251105120002_activate_kpi_c2_module.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>

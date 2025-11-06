@@ -46,33 +46,24 @@ public class KpiC2AnalyticData implements Serializable {
 
     // === Relazioni e chiavi esterne ===
 
-    @NotNull
-    @Column(name = "CO_INSTANCE_ID", nullable = false)
-    private Long instanceId;
 
     @JsonIgnore
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CO_INSTANCE_ID", nullable = false, insertable = false, updatable = false)
+    @JoinColumn(name = "CO_INSTANCE_ID", nullable = false)
     private Instance instance;
 
-    @NotNull
-    @Column(name = "CO_INSTANCE_MODULE_ID", nullable = false)
-    private Long instanceModuleId;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CO_INSTANCE_MODULE_ID", nullable = false, insertable = false, updatable = false)
+    @JoinColumn(name = "CO_INSTANCE_MODULE_ID", nullable = false)
     private InstanceModule instanceModule;
 
-    @NotNull
-    @Column(name = "CO_KPI_C2_DETAIL_RESULT_ID", nullable = false)
-    private Long kpiC2DetailResultId;
 
     @JsonIgnore
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CO_KPI_C2_DETAIL_RESULT_ID", nullable = false, insertable = false, updatable = false)
+    @JoinColumn(name = "CO_KPI_C2_DETAIL_RESULT_ID", nullable = false)
     private KpiC2DetailResult kpiC2DetailResult;
 
     // === Dati temporali ===
@@ -125,11 +116,8 @@ public class KpiC2AnalyticData implements Serializable {
     public String toString() {
         return "KpiC2AnalyticData{" +
             "id=" + id +
-            ", instanceId=" + instanceId +
             ", instance=" + instance +
-            ", instanceModuleId=" + instanceModuleId +
             ", instanceModule=" + instanceModule +
-            ", kpiC2DetailResultId=" + kpiC2DetailResultId +
             ", kpiC2DetailResult=" + kpiC2DetailResult +
             ", analysisDate=" + analysisDate +
             ", evaluationDate=" + evaluationDate +

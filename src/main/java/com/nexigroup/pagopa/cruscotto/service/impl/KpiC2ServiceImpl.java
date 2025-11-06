@@ -6,21 +6,19 @@ import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.repository.*;
+import com.nexigroup.pagopa.cruscotto.service.AnagInstitutionService;
 import com.nexigroup.pagopa.cruscotto.service.InstanceModuleService;
 import com.nexigroup.pagopa.cruscotto.service.KpiC2Service;
-import com.nexigroup.pagopa.cruscotto.service.dto.InstanceModuleDTO;
-import com.nexigroup.pagopa.cruscotto.service.dto.KpiC2AnalyticDataDTO;
-import com.nexigroup.pagopa.cruscotto.service.dto.KpiC2DetailResultDTO;
-import com.nexigroup.pagopa.cruscotto.service.dto.KpiC2ResultDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.*;
+import com.nexigroup.pagopa.cruscotto.service.filter.AnagInstitutionFilter;
 import com.nexigroup.pagopa.cruscotto.service.mapper.KpiC2ResultMapper;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDate;
-import java.time.YearMonth;
+import java.sql.Date;
+import java.time.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.time.LocalDateTime;
 
 import java.util.List;
 
@@ -52,6 +50,8 @@ public class KpiC2ServiceImpl implements KpiC2Service {
     private final InstanceModuleService instanceModuleService;
     private final KpiC2ResultMapper kpiC2ResultMapper;
     private final KpiC2AnalyticDrillDownRepository kpiC2AnalyticDrillDownRepository;
+    private final AnagInstitutionService anagInstitutionService;
+
 
     @Override
     public KpiC2ResultDTO executeKpiC2Calculation(Instance instance) {
@@ -117,8 +117,14 @@ public class KpiC2ServiceImpl implements KpiC2Service {
             KpiC2Result savedResult = kpiC2ResultRepository.save(result);
 
             // NUOVO: Popola anche le tabelle di dettaglio KpiC2DetailResult e KpiC2AnalyticData
-            createAndSaveDetailResults(savedResult, instance);
-            createAndSaveAnalyticData(savedResult, instance);
+            AnagInstitutionFilter filter = new AnagInstitutionFilter();
+            filter.setPartnerId(instance.getPartner().getId());
+            List<AnagInstitutionDTO> inistutionListPartner = anagInstitutionService.findAllNoPaging(filter);
+            List<String> listInstitutionFiscalCode = inistutionListPartner.stream()
+                .map(anagInstitutionDTO -> anagInstitutionDTO.getInstitutionIdentification().getFiscalCode()).toList();
+
+            createAndSaveDetailResults(savedResult, instance, listInstitutionFiscalCode);
+            createAndSaveAnalyticData(savedResult, instance, listInstitutionFiscalCode);
 
             log.info("KPI C.2 calculated for instance {}: {}% success rate (threshold: {}%), status: {} - Detail and analytic data saved",
                 instance.getId(), successPercentage, threshold, outcomeStatus);
@@ -245,7 +251,7 @@ public class KpiC2ServiceImpl implements KpiC2Service {
      * Crea e salva i record KpiC2DetailResult con dati dettagliati per stazione.
      * Questa tabella contiene il dettaglio dei risultati KPI C.2 per ogni stazione dell'ente.
      */
-    private void createAndSaveDetailResults(KpiC2Result kpiC2Result, Instance instance) {
+    private void createAndSaveDetailResults(KpiC2Result kpiC2Result, Instance instance, List<String> listInstitutionFiscalCode) {
         log.info("Creating KPI C.2 detail results for instance {} (partner-level aggregated)", instance.getId());
 
         try {
@@ -271,6 +277,11 @@ public class KpiC2ServiceImpl implements KpiC2Service {
 
             int totalApiCallsAllMonths = 0;
 
+
+
+            Long numberTotalIntitution = pagopaSendRepository.calculateTotalNumberInsitution(partnerFiscalCode, listInstitutionFiscalCode);
+
+
             // Calcola i dati per ogni mese
             for (YearMonth yearMonth : monthsInPeriod) {
                 LocalDate monthStart = yearMonth.atDay(1);
@@ -286,10 +297,9 @@ public class KpiC2ServiceImpl implements KpiC2Service {
 
 
                 // Calcola GPD e CP separatamente per questo mese
-                Long numberTotalIntitution = pagopaSendRepository.calculateTotalNumberInsitution(partnerFiscalCode, monthStart, monthEnd);
-                Long numberTotalInstitutionSend = pagopaSendRepository.calculateTotalNumberInstitutionSend(partnerFiscalCode, monthStart, monthEnd);
-                Long totalNumberPayment = pagopaSendRepository.calculateTotalNumberPayment(partnerFiscalCode, monthStart, monthEnd);
-                Long totalNumberNotification = pagopaSendRepository.calculateTotalNumberNotification(partnerFiscalCode, monthStart, monthEnd);
+                Long numberTotalInstitutionSend = pagopaSendRepository.calculateTotalNumberInstitutionSend(partnerFiscalCode,listInstitutionFiscalCode, monthStart.atStartOfDay(), endOfDay(monthEnd));
+                Long totalNumberPayment = pagopaSendRepository.calculateTotalNumberPayment(partnerFiscalCode, listInstitutionFiscalCode,monthStart.atStartOfDay(), endOfDay(monthEnd));
+                Long totalNumberNotification = pagopaSendRepository.calculateTotalNumberNotification(partnerFiscalCode, listInstitutionFiscalCode,monthStart.atStartOfDay(), endOfDay(monthEnd));
 
                 if (numberTotalIntitution == null) numberTotalIntitution = 0L;
                 if (numberTotalInstitutionSend == null) numberTotalInstitutionSend = 0L;
@@ -343,10 +353,10 @@ public class KpiC2ServiceImpl implements KpiC2Service {
             }
 
 
-            Long numberTotalIntitution = pagopaSendRepository.calculateTotalNumberInsitution(partnerFiscalCode, periodStart, periodEnd);
-            Long numberTotalInstitutionSend = pagopaSendRepository.calculateTotalNumberInstitutionSend(partnerFiscalCode, periodStart, periodEnd);
-            Long totalNumberPayment = pagopaSendRepository.calculateTotalNumberPayment(partnerFiscalCode, periodStart, periodEnd);
-            Long totalNumberNotification = pagopaSendRepository.calculateTotalNumberNotification(partnerFiscalCode, periodStart, periodEnd);
+
+            Long numberTotalInstitutionSend = pagopaSendRepository.calculateTotalNumberInstitutionSend(partnerFiscalCode,listInstitutionFiscalCode, periodStart.atStartOfDay(), endOfDay(periodEnd));
+            Long totalNumberPayment = pagopaSendRepository.calculateTotalNumberPayment(partnerFiscalCode, listInstitutionFiscalCode,periodStart.atStartOfDay(), endOfDay(periodEnd));
+            Long totalNumberNotification = pagopaSendRepository.calculateTotalNumberNotification(partnerFiscalCode, listInstitutionFiscalCode,periodStart.atStartOfDay(), endOfDay(periodEnd));
 
             if (numberTotalIntitution == null) numberTotalIntitution = 0L;
             if (numberTotalInstitutionSend == null) numberTotalInstitutionSend = 0L;
@@ -398,6 +408,12 @@ public class KpiC2ServiceImpl implements KpiC2Service {
         }
     }
 
+    private LocalDateTime endOfDay(LocalDate date){
+        return LocalDateTime.of(date, LocalTime.MAX);
+    }
+
+
+
     private static @NotNull BigDecimal getPercentagePeriod(Long totalNumberPayment, Long totalNumberNotification) {
         BigDecimal percentageNotificationPeriod = BigDecimal.ZERO;
         if (totalNumberPayment > 0) {
@@ -412,7 +428,7 @@ public class KpiC2ServiceImpl implements KpiC2Service {
      * Crea e salva i record KpiC2AnalyticData con dati analitici giornalieri delle API.
      * Questa tabella contiene l'andamento giornaliero delle chiamate API per l'analisi di drill-down.
      */
-    private void createAndSaveAnalyticData(KpiC2Result kpiC2Result, Instance instance) {
+    private void createAndSaveAnalyticData(KpiC2Result kpiC2Result, Instance instance, List<String> listInstitutionFiscalCode) {
         log.info("Creating KPI C.2 analytic data for instance {}", instance.getId());
 
         try {
@@ -446,7 +462,7 @@ public class KpiC2ServiceImpl implements KpiC2Service {
 
             // Ottieni i dati aggregati giornalieri dalla tabella pagopa_apilog
             List<Object[]> dailyAggregatedData = pagopaSendRepository.calculateDailyAggregatedDataAndInstitutionAndNotification(
-                partnerFiscalCode, periodStart, periodEnd);
+                partnerFiscalCode,listInstitutionFiscalCode, periodStart.atStartOfDay(), endOfDay(periodEnd));
 
             if (dailyAggregatedData.isEmpty()) {
                 log.warn("No daily aggregated data found for partner {} in period {} to {}",
@@ -455,11 +471,12 @@ public class KpiC2ServiceImpl implements KpiC2Service {
             }
 
             for (Object[] dayData : dailyAggregatedData) {
-                LocalDate evaluationDate = (LocalDate) dayData[0];
+                Date date = (Date) dayData[0];
+                LocalDate evaluationDate = date.toLocalDate();
                 Long totalInstitutions = (Long) dayData[1];
                 Long institutionsWithPayments = (Long) dayData[2];
-                Long totalPayments = (Long) dayData[1];
-                Long totalNotifications = (Long) dayData[2];
+                Long totalPayments = (Long) dayData[3];
+                Long totalNotifications = (Long) dayData[4];
 
                 // Gestione valori null
                 if (totalInstitutions == null) totalInstitutions = 0L;
@@ -474,11 +491,11 @@ public class KpiC2ServiceImpl implements KpiC2Service {
                 // Crea UN SOLO record per giornata con entrambi i valori GPD e CP
                 // (secondo l'analisi: "Numero Request GPD" e "Numero Request CP" per ogni giornata)
                 KpiC2AnalyticData dailyAnalyticData = new KpiC2AnalyticData();
-                dailyAnalyticData.setInstanceId(instance.getId());
                 dailyAnalyticData.setInstance(instance);
+                dailyAnalyticData.setInstanceModule(kpiC2Result.getInstanceModule());
                 dailyAnalyticData.setAnalysisDate(kpiC2Result.getAnalysisDate());
                 dailyAnalyticData.setEvaluationDate(evaluationDate);
-
+                dailyAnalyticData.setInstanceModule(kpiC2Result.getInstanceModule());
 
                 dailyAnalyticData.setNumInstitution(totalInstitutions); // Numero Request GPD del giorno
                 dailyAnalyticData.setNumInstitutionSend(institutionsWithPayments);
@@ -496,7 +513,7 @@ public class KpiC2ServiceImpl implements KpiC2Service {
                     evaluationDate, totalInstitutions, institutionsWithPayments,totalPayments,totalNotifications,  appropriateDetailResult.getId());
 
                 // Popola la tabella drilldown con i dati API log dettagliati per questa data
-                populateDrilldownData(savedAnalyticData, instance, evaluationDate);
+                populateDrilldownData(savedAnalyticData,listInstitutionFiscalCode, instance, evaluationDate);
             }
 
             log.info("Created {} days of KPI C.2 analytic data for instance {} with proper detail result associations",
@@ -555,7 +572,7 @@ public class KpiC2ServiceImpl implements KpiC2Service {
      * @param instance l'istanza analizzata
      * @param evaluationDate la data di valutazione
      */
-    private void populateDrilldownData(KpiC2AnalyticData analyticData, Instance instance, LocalDate evaluationDate) {
+    private void populateDrilldownData(KpiC2AnalyticData analyticData,List<String> listInstitutionFiscalCode, Instance instance, LocalDate evaluationDate) {
         log.debug("Populating drilldown data for KPI C.2 analytic data {} on date {}",
             analyticData.getId(), evaluationDate);
 
@@ -565,7 +582,7 @@ public class KpiC2ServiceImpl implements KpiC2Service {
             // Query dettagliata per ottenere i singoli record API log per la data specifica
             // Questo crea uno snapshot storico dei dati al momento dell'analisi
             List<Object[]> detailedApiLogData = pagopaSendRepository.findDetailedPagopaSendByPartnerAndDate(
-                partnerFiscalCode, evaluationDate);
+                partnerFiscalCode,listInstitutionFiscalCode, evaluationDate.atStartOfDay());
 
             if (detailedApiLogData.isEmpty()) {
                 log.debug("No detailed API log data found for partner {} on date {}", partnerFiscalCode, evaluationDate);
@@ -577,7 +594,7 @@ public class KpiC2ServiceImpl implements KpiC2Service {
                 // Format atteso: [CF_PARTNER, DATE, STATION, CF_ENTE, API, TOT_REQ, REQ_OK, REQ_KO]
                 String cfPartner = (String) logData[0];
                 String institution = (String) logData[1];
-                LocalDate date = (LocalDate) logData[2];
+                LocalDate date = ((LocalDateTime) logData[2]).toLocalDate();
 
                 Long paymentsNumber =  ((Long) logData[3]).longValue();
                 Long notificationNumber = ((Long) logData[4]).longValue();

@@ -61,37 +61,53 @@ public interface PagopaSendRepository extends JpaRepository<PagopaSend, Long>, J
     SELECT COUNT(p.cfInstitution)
     FROM PagopaSend p
     WHERE (:cfPartner IS NULL OR :cfPartner = '' OR p.cfPartner = :cfPartner)
-      AND p.date BETWEEN :startDate AND :endDate
+      AND (COALESCE(:listInstitutionFiscalCode, NULL) IS NULL OR p.cfInstitution IN :listInstitutionFiscalCode)
     """)
     Long calculateTotalNumberInsitution(        @Param("cfPartner") String cfPartner,
-                                                @Param("startDate") LocalDate startDate,
-                                                @Param("endDate") LocalDate endDate);
+                                                @Param("listInstitutionFiscalCode") List<String> listInstitutionFiscalCode);
 
     @Query("""
     SELECT COUNT(DISTINCT p.cfInstitution)
     FROM PagopaSend p
     WHERE (:cfPartner IS NULL OR :cfPartner = '' OR p.cfPartner = :cfPartner)
+      AND (COALESCE(:listInstitutionFiscalCode, NULL) IS NULL OR p.cfInstitution IN :listInstitutionFiscalCode)
       AND p.date BETWEEN :startDate AND :endDate
       AND p.paymentsNumber > 0
     """)
-
-    Long calculateTotalNumberInstitutionSend(String partnerFiscalCode, LocalDate periodStart, LocalDate periodEnd);
+    Long calculateTotalNumberInstitutionSend(
+        @Param("cfPartner") String cfPartner,
+        @Param("listInstitutionFiscalCode") List<String> listInstitutionFiscalCode,
+        @Param("startDate") LocalDateTime startDate,
+        @Param("endDate") LocalDateTime endDate
+    );
 
     @Query("""
     SELECT COUNT(DISTINCT p.paymentsNumber)
     FROM PagopaSend p
     WHERE (:cfPartner IS NULL OR :cfPartner = '' OR p.cfPartner = :cfPartner)
+      AND (COALESCE(:listInstitutionFiscalCode, NULL) IS NULL OR p.cfInstitution IN :listInstitutionFiscalCode)
       AND p.date BETWEEN :startDate AND :endDate
     """)
-    Long calculateTotalNumberPayment(String partnerFiscalCode, LocalDate monthStart, LocalDate monthEnd);
+    Long calculateTotalNumberPayment(
+        @Param("cfPartner") String cfPartner,
+        @Param("listInstitutionFiscalCode") List<String> listInstitutionFiscalCode,
+        @Param("startDate") LocalDateTime startDate,
+        @Param("endDate") LocalDateTime endDate
+    );
 
     @Query("""
     SELECT COUNT(DISTINCT p.notificationNumber)
     FROM PagopaSend p
     WHERE (:cfPartner IS NULL OR :cfPartner = '' OR p.cfPartner = :cfPartner)
+      AND (COALESCE(:listInstitutionFiscalCode, NULL) IS NULL OR p.cfInstitution IN :listInstitutionFiscalCode)
       AND p.date BETWEEN :startDate AND :endDate
     """)
-    Long calculateTotalNumberNotification(String partnerFiscalCode, LocalDate monthStart, LocalDate monthEnd);
+    Long calculateTotalNumberNotification(
+        @Param("cfPartner") String cfPartner,
+        @Param("listInstitutionFiscalCode") List<String> listInstitutionFiscalCode,
+        @Param("startDate") LocalDateTime startDate,
+        @Param("endDate") LocalDateTime endDate
+    );
 
     @Query("""
     SELECT
@@ -102,14 +118,16 @@ public interface PagopaSendRepository extends JpaRepository<PagopaSend, Long>, J
         SUM(p.notificationNumber) AS totalNotifications
     FROM PagopaSend p
     WHERE (:cfPartner IS NULL OR :cfPartner = '' OR p.cfPartner = :cfPartner)
+      AND (COALESCE(:listInstitutionFiscalCode, NULL) IS NULL OR p.cfInstitution IN :listInstitutionFiscalCode)
       AND p.date BETWEEN :fromDate AND :toDate
     GROUP BY DATE(p.date)
     ORDER BY DATE(p.date) ASC
     """)
     List<Object[]> calculateDailyAggregatedDataAndInstitutionAndNotification(
         @Param("cfPartner") String cfPartner,
-        @Param("fromDate") LocalDate fromDate,
-        @Param("toDate") LocalDate toDate
+        @Param("listInstitutionFiscalCode") List<String> listInstitutionFiscalCode,
+        @Param("fromDate") LocalDateTime fromDate,
+        @Param("toDate") LocalDateTime toDate
     );
 
 
@@ -121,14 +139,18 @@ public interface PagopaSendRepository extends JpaRepository<PagopaSend, Long>, J
      * @param date the specific date
      * @return the list of detailed API log data for drilldown
      */
-    @Query("SELECT p.cfPartner, p.cfInstitution, p.date, p.paymentsNumber, p.notificationNumber " +
-        "FROM PagopaSend p " +
-        "WHERE (:cfPartner IS NULL OR :cfPartner = '' OR p.cfPartner = :cfPartner)" +
-        "AND p.date = :date " +
-        "ORDER BY p.cfInstitution")
+    @Query("""
+    SELECT p.cfPartner, p.cfInstitution, p.date, p.paymentsNumber, p.notificationNumber
+    FROM PagopaSend p
+    WHERE (:cfPartner IS NULL OR :cfPartner = '' OR p.cfPartner = :cfPartner)
+      AND (COALESCE(:listInstitutionFiscalCode, NULL) IS NULL OR p.cfInstitution IN :listInstitutionFiscalCode)
+      AND p.date = :date
+    ORDER BY p.cfInstitution
+    """)
     List<Object[]> findDetailedPagopaSendByPartnerAndDate(
         @Param("cfPartner") String cfPartner,
-        @Param("date") LocalDate date
+        @Param("listInstitutionFiscalCode") List<String> listInstitutionFiscalCode,
+        @Param("date") LocalDateTime date
     );
 
 
