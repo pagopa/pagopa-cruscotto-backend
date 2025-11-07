@@ -252,6 +252,11 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
         if (module.getConfigTransactionTolerance()) {
             kpiConfiguration.setTransactionTolerance(kpiConfigurationToCreate.getTransactionTolerance());
         }
+
+        if (module.getConfigNotificationTolerance()) {
+            kpiConfiguration.setNotificationTolerance(kpiConfigurationToCreate.getNotificationTolerance());
+        }
+
         if (module.getConfigInstitutionCount()) {
             kpiConfiguration.setInstitutionCount(kpiConfigurationToCreate.getInstitutionCount());
         }
