@@ -79,8 +79,8 @@ public class KpiC2ResultServiceImpl implements KpiC2ResultService {
         kpiC2Result.setAnalysisDate(kpiC2ResultDTO.getAnalysisDate());
         //kpiC2Result.setExcludePlannedShutdown(kpiC2ResultDTO.getExcludePlannedShutdown());
         //kpiC2Result.setExcludeUnplannedShutdown(kpiC2ResultDTO.getExcludeUnplannedShutdown());
-        kpiC2Result.setEligibilityThreshold(kpiC2ResultDTO.getEligibilityThreshold());
-        kpiC2Result.setTolerance(kpiC2ResultDTO.getTolerance());
+        kpiC2Result.setInstitutionTolerance(kpiC2ResultDTO.getEligibilityThreshold());
+        kpiC2Result.setNotificationTolerance(kpiC2ResultDTO.getTolerance());
         kpiC2Result.setEvaluationType(kpiC2ResultDTO.getEvaluationType());
         kpiC2Result.setOutcome(kpiC2ResultDTO.getOutcome());
 
@@ -121,8 +121,8 @@ public class KpiC2ResultServiceImpl implements KpiC2ResultService {
         dto.setAnalysisDate(kpiC2Result.getAnalysisDate());
         //dto.setExcludePlannedShutdown(kpiC2Result.getExcludePlannedShutdown());
         //dto.setExcludeUnplannedShutdown(kpiC2Result.getExcludeUnplannedShutdown());
-        dto.setEligibilityThreshold(kpiC2Result.getEligibilityThreshold());
-        dto.setTolerance(kpiC2Result.getTolerance());
+        dto.setEligibilityThreshold(kpiC2Result.getInstitutionTolerance());
+        dto.setTolerance(kpiC2Result.getNotificationTolerance());
         dto.setEvaluationType(kpiC2Result.getEvaluationType());
         dto.setOutcome(kpiC2Result.getOutcome());
         return dto;

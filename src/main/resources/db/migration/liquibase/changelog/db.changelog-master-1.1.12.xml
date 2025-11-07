@@ -18,5 +18,5 @@
   <include file="1.1.12/dml/20251105120000_added_kpi_c2_configuration.xml" relativeToChangelogFile="true"/>
   <include file="1.1.12/dml/20251105120001_add_kpi_c2_authorizations.xml" relativeToChangelogFile="true"/>
   <include file="1.1.12/dml/20251105120002_activate_kpi_c2_module.xml" relativeToChangelogFile="true"/>
-
+  <include file="1.1.12/dml/20251107120002_activate_kpi_c2_tollerance_flag.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

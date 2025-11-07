@@ -12,6 +12,7 @@ import com.nexigroup.pagopa.cruscotto.service.dto.InstanceDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.InstanceModuleDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiConfigurationDTO;
 import com.nexigroup.pagopa.cruscotto.service.filter.AnagInstitutionFilter;
+import com.nexigroup.pagopa.cruscotto.service.impl.KpiC2ServiceImpl;
 import org.quartz.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,7 @@ import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -295,44 +297,41 @@ public class KpiC2Job extends QuartzJobBean {
                                                       LocalDate periodEnd, KpiConfigurationDTO kpiConfigurationDTO, List<String> inistutionListPartner) {
 
         // Query per contare le request dalla tabella pagopa_apilog usando il repository
-        Long totalNumebrPayment = pagopaSendRepository.calculateTotalNumberInsitution(null,  inistutionListPartner);
-        Long totalKOGpdAcaRequests = pagopaSendRepository.calculateTotalNumberInstitutionSend(null, inistutionListPartner ,periodStart.atStartOfDay(), endOfDay(periodEnd));
+        Long totalNumebrInstitution = pagopaSendRepository.calculateTotalNumberInsitution(null,  inistutionListPartner);
+        Long totalNumebrInstitutionSend = pagopaSendRepository.calculateTotalNumberInstitutionSend(null, inistutionListPartner ,periodStart.atStartOfDay(), endOfDay(periodEnd));
+        BigDecimal percentageInstitution = KpiC2ServiceImpl.getPercentagePeriodInstitution(totalNumebrInstitution, totalNumebrInstitutionSend);
+
+        Long totalNumberPayment = pagopaSendRepository.calculateTotalNumberPayment(partnerFiscalCode, inistutionListPartner,periodStart.atStartOfDay(), endOfDay(periodEnd));
+        Long totalNumberNotification = pagopaSendRepository.calculateTotalNumberNotification(partnerFiscalCode, inistutionListPartner,periodStart.atStartOfDay(), endOfDay(periodEnd));
+        BigDecimal percentageNotification = KpiC2ServiceImpl.getPercentagePeriodNotification(totalNumberPayment, totalNumberNotification);
 
         // Gestione valori null (nel caso non ci siano dati)
-        if (totalNumebrPayment == null) totalNumebrPayment = 0L;
-        if (totalKOGpdAcaRequests == null) totalKOGpdAcaRequests = 0L;
+        if (totalNumebrInstitution == null) totalNumebrInstitution = 0L;
+        if (totalNumebrInstitutionSend == null) totalNumebrInstitutionSend = 0L;
 
         LOGGER.info("API requests for partner {}: TOT  GPD/ACA={}, KO GPD/ACA={}",
-            partnerFiscalCode, totalNumebrPayment, totalKOGpdAcaRequests);
+            partnerFiscalCode, totalNumebrInstitution, totalNumebrInstitutionSend);
 
-        // Calcola la percentuale di paCreate rispetto al totale
-        double paCreatePercentage = 0.0;
-        if (totalNumebrPayment > 0) {
-            paCreatePercentage = (totalKOGpdAcaRequests.doubleValue() / totalNumebrPayment.doubleValue()) * 100.0;
-        }
 
         // Recupera soglia e tolleranza dalla configurazione
-        Double thresholdPercentage = kpiConfigurationDTO.getEligibilityThreshold();
-        Double tolerancePercentage = kpiConfigurationDTO.getTolerance();
+        Double institutionTolerance = kpiConfigurationDTO.getInstitutionTolerance() !=null ? kpiConfigurationDTO.getInstitutionTolerance().doubleValue():0.0;
+        Double notificationTolerance = kpiConfigurationDTO.getNotificationTolerance()!=null ? kpiConfigurationDTO.getNotificationTolerance().doubleValue():0.0;
 
-        if (thresholdPercentage == null) thresholdPercentage = 0.0;
-        if (tolerancePercentage == null) tolerancePercentage = 0.0;
+        BigDecimal toleranceInstitutionBD = BigDecimal.valueOf(institutionTolerance);
+        BigDecimal toleranceNotificationBD = BigDecimal.valueOf(notificationTolerance);
 
-        double maxAllowedPercentage = thresholdPercentage + tolerancePercentage;
+        // Se la percentuale CP è <= (soglia + tolleranza) → OK, altrimenti → KO
+        boolean isCompliantInstitution = percentageInstitution.compareTo(toleranceInstitutionBD) >= 0;
+        boolean isCompliantNotification = percentageNotification.compareTo(toleranceNotificationBD) >= 0;
 
-        LOGGER.info("KPI C.2 calculation: paCreate {}%, threshold {}%, tolerance {}%, max allowed {}%",
-            paCreatePercentage, thresholdPercentage, tolerancePercentage, maxAllowedPercentage);
+        OutcomeStatus outcome = isCompliantInstitution && isCompliantNotification ? OutcomeStatus.OK : OutcomeStatus.KO;
 
-        // Se la percentuale di paCreate supera la soglia + tolleranza, il KPI è KO
-        if (paCreatePercentage > maxAllowedPercentage) {
-            LOGGER.warn("KPI C.2 NON-COMPLIANT for partner {}: paCreate {}% exceeds max allowed {}%",
-                partnerFiscalCode, paCreatePercentage, maxAllowedPercentage);
-            return OutcomeStatus.KO;
-        } else {
-            LOGGER.info("KPI C.2 COMPLIANT for partner {}: paCreate {}% within allowed {}%",
-                partnerFiscalCode, paCreatePercentage, maxAllowedPercentage);
-            return OutcomeStatus.OK;
-        }
+        LOGGER.info("KPI C.2 calculation::  " +
+                "percentageInstitution={}%, percentageNotification={}%" +
+                ", toleranceInstitution={}%, toleranceNotification={}%, " +
+                "outcome={}",
+            percentageInstitution, percentageNotification, institutionTolerance, notificationTolerance, outcome);
+        return outcome;
     }
 
     /**
