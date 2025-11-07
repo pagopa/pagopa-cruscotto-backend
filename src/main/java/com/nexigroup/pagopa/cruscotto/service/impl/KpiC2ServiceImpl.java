@@ -109,8 +109,8 @@ public class KpiC2ServiceImpl implements KpiC2Service {
             result.setAnalysisDate(LocalDate.now());
             //result.setExcludePlannedShutdown(configuration.getExcludePlannedShutdown() != null ? configuration.getExcludePlannedShutdown() : false);
             //result.setExcludeUnplannedShutdown(configuration.getExcludeUnplannedShutdown() != null ? configuration.getExcludeUnplannedShutdown() : false);
-            result.setEligibilityThreshold(configuration.getEligibilityThreshold() != null ? configuration.getEligibilityThreshold() : 95.0);
-            result.setTolerance(configuration.getTolerance() != null ? configuration.getTolerance() : 5.0);
+            result.setInstitutionTolerance(configuration.getInstitutionTolerance() != null ? configuration.getInstitutionTolerance().doubleValue() : 0.0);
+            result.setNotificationTolerance(configuration.getNotificationTolerance() != null ? configuration.getNotificationTolerance().doubleValue() : 0.0);
             result.setEvaluationType(configuration.getEvaluationType() != null ? configuration.getEvaluationType() : EvaluationType.MESE);
             result.setOutcome(outcomeStatus);
 
@@ -306,12 +306,12 @@ public class KpiC2ServiceImpl implements KpiC2Service {
 
 
                 // Calcola percentuale Institution per questo mese
-                BigDecimal monthlyPercentageInstitution = getPercentagePeriod(numberTotalIntitution, numberTotalInstitutionSend);
+                BigDecimal monthlyPercentageInstitution = getPercentagePeriodInstitution(numberTotalIntitution, numberTotalInstitutionSend);
 
                 if (totalNumberPayment == null) totalNumberPayment = 0L;
                 if (totalNumberNotification == null) totalNumberNotification = 0L;
                 // Calcola percentuale notification Payment per questo mese
-                BigDecimal monthlyPercentageNotification = getPercentagePeriod(totalNumberPayment, totalNumberNotification);
+                BigDecimal monthlyPercentageNotification = getPercentagePeriodNotification(totalNumberPayment, totalNumberNotification);
 
 
                 // Crea record mensile (PARTNER LEVEL - aggregato per tutto il partner)
@@ -336,7 +336,7 @@ public class KpiC2ServiceImpl implements KpiC2Service {
                 monthlyDetailResult.setPercentEntiOk(monthlyPercentageNotification);
 
 
-                monthlyDetailResult.setOutcome(calculateDetailResultOutcome(monthlyPercentageInstitution, kpiC2Result)); // Calcola outcome specifico per questo detail result
+                monthlyDetailResult.setOutcome(calculateDetailResultOutcome(monthlyPercentageInstitution,monthlyPercentageNotification, kpiC2Result)); // Calcola outcome specifico per questo detail result
 
                 kpiC2DetailResultRepository.save(monthlyDetailResult);
                 log.info("Created {} monthly + 1 total KPI C.2 detail results for partner {} " +
@@ -363,12 +363,12 @@ public class KpiC2ServiceImpl implements KpiC2Service {
 
 
             // Calcola percentuale Institution per questo mese
-            BigDecimal percentageInstitutionPeriod = getPercentagePeriod(numberTotalIntitution, numberTotalInstitutionSend);
+            BigDecimal percentageInstitutionPeriod = getPercentagePeriodInstitution(numberTotalIntitution, numberTotalInstitutionSend);
 
             if (totalNumberPayment == null) totalNumberPayment = 0L;
             if (totalNumberNotification == null) totalNumberNotification = 0L;
             // Calcola percentuale notification Payment per questo mese
-            BigDecimal percentageNotificationPeriod = getPercentagePeriod(totalNumberPayment, totalNumberNotification);
+            BigDecimal percentageNotificationPeriod = getPercentagePeriodNotification(totalNumberPayment, totalNumberNotification);
 
             // Crea record totale (intero periodo di analisi, livello partner)
             KpiC2DetailResult totalDetailResult = new KpiC2DetailResult();
@@ -390,7 +390,7 @@ public class KpiC2ServiceImpl implements KpiC2Service {
             totalDetailResult.setTotalPayment(totalNumberPayment);
             totalDetailResult.setTotalNotification(totalNumberNotification);
             totalDetailResult.setPercentEntiOk(percentageNotificationPeriod);
-            totalDetailResult.setOutcome(calculateDetailResultOutcome(percentageInstitutionPeriod, kpiC2Result)); // Calcola outcome specifico per questo detail result
+            totalDetailResult.setOutcome(calculateDetailResultOutcome(percentageInstitutionPeriod, percentageNotificationPeriod, kpiC2Result)); // Calcola outcome specifico per questo detail result
 
             kpiC2DetailResultRepository.save(totalDetailResult);
 
@@ -414,15 +414,38 @@ public class KpiC2ServiceImpl implements KpiC2Service {
 
 
 
-    private static @NotNull BigDecimal getPercentagePeriod(Long totalNumberPayment, Long totalNumberNotification) {
+    public static @NotNull BigDecimal getPercentagePeriodInstitution(Long totalNumberIntitution, Long totalNumberInstitutionSend) {
+        BigDecimal percentageInstitutionPeriod = BigDecimal.ZERO;
+        BigDecimal percentageInstitutionPeriodMin = new BigDecimal("0.01").setScale(2, RoundingMode.UNNECESSARY);
+
+        if (totalNumberIntitution > 0) {
+            percentageInstitutionPeriod = new BigDecimal(totalNumberInstitutionSend)
+                .multiply(new BigDecimal("100"))
+                .divide(new BigDecimal(totalNumberIntitution), 2, RoundingMode.HALF_UP);
+            if (totalNumberInstitutionSend>0){
+                percentageInstitutionPeriod=percentageInstitutionPeriod.compareTo(percentageInstitutionPeriodMin)>0?
+                    percentageInstitutionPeriod:
+                    percentageInstitutionPeriodMin ;
+            }
+        }
+
+
+        return percentageInstitutionPeriod;
+    }
+
+    public static @NotNull BigDecimal getPercentagePeriodNotification(Long totalNumberPayment, Long totalNumberNotification) {
         BigDecimal percentageNotificationPeriod = BigDecimal.ZERO;
         if (totalNumberPayment > 0) {
             percentageNotificationPeriod = new BigDecimal(totalNumberNotification)
                 .multiply(new BigDecimal("100"))
                 .divide(new BigDecimal(totalNumberPayment), 2, RoundingMode.HALF_UP);
         }
-        return percentageNotificationPeriod;
+        BigDecimal maxPercentage = new BigDecimal("100.00").setScale(2, RoundingMode.UNNECESSARY);
+
+        return percentageNotificationPeriod.compareTo(maxPercentage)>0?maxPercentage: percentageNotificationPeriod;
     }
+
+
 
     /**
      * Crea e salva i record KpiC2AnalyticData con dati analitici giornalieri delle API.
@@ -499,11 +522,11 @@ public class KpiC2ServiceImpl implements KpiC2Service {
 
                 dailyAnalyticData.setNumInstitution(totalInstitutions); // Numero Request GPD del giorno
                 dailyAnalyticData.setNumInstitutionSend(institutionsWithPayments);
-                dailyAnalyticData.setPerInstitutionSend(getPercentagePeriod(totalInstitutions, institutionsWithPayments));
+                dailyAnalyticData.setPerInstitutionSend(getPercentagePeriodInstitution(totalInstitutions, institutionsWithPayments));
 
                 dailyAnalyticData.setNumPayment(totalPayments);
                 dailyAnalyticData.setNumNotification(totalNotifications);
-                dailyAnalyticData.setPerNotification(getPercentagePeriod(totalPayments, totalNotifications));
+                dailyAnalyticData.setPerNotification(getPercentagePeriodNotification(totalPayments, totalNotifications));
 
                 dailyAnalyticData.setKpiC2DetailResult(appropriateDetailResult);
 
@@ -616,7 +639,7 @@ public class KpiC2ServiceImpl implements KpiC2Service {
                 drilldownEntity.setPartnerCf(cfPartner);
                 drilldownEntity.setNumPayment(paymentsNumber);
                 drilldownEntity.setNumNotification(notificationNumber);
-                drilldownEntity.setPercentNotification(getPercentagePeriod(paymentsNumber, notificationNumber));
+                drilldownEntity.setPercentNotification(getPercentagePeriodNotification(paymentsNumber, notificationNumber));
 
 
                 // Salva direttamente l'entità nel repository
@@ -640,34 +663,39 @@ public class KpiC2ServiceImpl implements KpiC2Service {
      * Calcola l'outcome specifico per un KpiC2DetailResult basato sulla percentuale CP.
      * La logica è: se la percentuale CP è <= (soglia + tolleranza) allora OK, altrimenti KO.
      *
-     * @param percentageCp la percentuale CP del detail result
-     * @param kpiC2Result il result principale per ottenere soglia e tolleranza
+     * @param percentageInstitution  la percentuale CP del detail result
+     * @param percentageNotification
+     * @param kpiC2Result            il result principale per ottenere soglia e tolleranza
      * @return l'outcome specifico per questo detail result
      */
-    private OutcomeStatus calculateDetailResultOutcome(BigDecimal percentageCp, KpiC2Result kpiC2Result) {
-        if (percentageCp == null) {
+    private OutcomeStatus calculateDetailResultOutcome(BigDecimal percentageInstitution, BigDecimal percentageNotification, KpiC2Result kpiC2Result) {
+        if (percentageInstitution == null || percentageNotification ==null) {
             return OutcomeStatus.OK; // Se non ci sono dati, consideriamo OK
         }
 
         // Ottieni soglia e tolleranza dal result principale
-        Double thresholdValue = kpiC2Result.getEligibilityThreshold(); // Soglia (es. 0%)
-        Double toleranceValue = kpiC2Result.getTolerance(); // Tolleranza (es. 1%)
+        Double toleranceInstitution = kpiC2Result.getInstitutionTolerance(); // Soglia (es. 0%)
+        Double toleranceNotification = kpiC2Result.getNotificationTolerance(); // Tolleranza (es. 1%)
 
         // Valori di default se non configurati
-        if (thresholdValue == null) thresholdValue = 0.0; // Default soglia 0%
-        if (toleranceValue == null) toleranceValue = 1.0; // Default tolleranza 1%
+        if (toleranceInstitution == null) toleranceInstitution = 0.0; // Default soglia 0%
+        if (toleranceNotification == null) toleranceNotification = 0.0; // Default tolleranza 1%
 
         // Calcola il limite massimo consentito
-        BigDecimal threshold = BigDecimal.valueOf(thresholdValue);
-        BigDecimal tolerance = BigDecimal.valueOf(toleranceValue);
-        BigDecimal maxAllowed = threshold.add(tolerance);
+        BigDecimal toleranceInstitutionBD = BigDecimal.valueOf(toleranceInstitution);
+        BigDecimal toleranceNotificationBD = BigDecimal.valueOf(toleranceNotification);
 
         // Se la percentuale CP è <= (soglia + tolleranza) → OK, altrimenti → KO
-        boolean isCompliant = percentageCp.compareTo(maxAllowed) <= 0;
-        OutcomeStatus outcome = isCompliant ? OutcomeStatus.OK : OutcomeStatus.KO;
+        boolean isCompliantInstitution = percentageInstitution.compareTo(toleranceInstitutionBD) >= 0;
+        boolean isCompliantNotification = percentageNotification.compareTo(toleranceNotificationBD) >= 0;
 
-        log.debug("Detail result outcome calculation: CP={}%, threshold={}%, tolerance={}%, maxAllowed={}%, outcome={}",
-            percentageCp, thresholdValue, toleranceValue, maxAllowed, outcome);
+        OutcomeStatus outcome = isCompliantInstitution && isCompliantNotification ? OutcomeStatus.OK : OutcomeStatus.KO;
+
+        log.debug("Detail result outcome calculation:  " +
+                "percentageInstitution={}%, percentageNotification={}%" +
+                ", toleranceInstitution={}%, toleranceNotification={}%, " +
+                "outcome={}",
+            percentageInstitution, percentageNotification, toleranceInstitution, toleranceNotification, outcome);
 
         return outcome;
     }

@@ -5,7 +5,6 @@ import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Cache;
@@ -14,7 +13,6 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
@@ -66,12 +64,12 @@ public class KpiC2Result implements Serializable {
     private LocalDate analysisDate;
 
     @NotNull
-    @Column(name = "CO_ELIGIBILITY_THRESHOLD", nullable = false)
-    private Double eligibilityThreshold;
+    @Column(name = "CO_INSTITUTION_TOLLERANCE", nullable = false)
+    private Double institutionTolerance;
 
     @NotNull
-    @Column(name = "CO_TOLERANCE", nullable = false)
-    private Double tolerance;
+    @Column(name = "CO_NOTIFICATION_TOLERANCE", nullable = false)
+    private Double notificationTolerance;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -109,9 +107,9 @@ public class KpiC2Result implements Serializable {
                 ", analysisDate=" +
                 analysisDate +
                 ", eligibilityThreshold=" +
-                eligibilityThreshold +
+                institutionTolerance +
                 ", tolerance=" +
-                tolerance +
+                notificationTolerance +
                 ", evaluationType=" +
                 evaluationType +
                 ", outcome=" +

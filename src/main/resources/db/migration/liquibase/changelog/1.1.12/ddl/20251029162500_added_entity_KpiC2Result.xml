@@ -26,10 +26,10 @@
       <column name="DT_ANALISYS_DATE" type="date">
         <constraints nullable="false"/>
       </column>
-      <column name="CO_ELIGIBILITY_THRESHOLD" type="numeric(10,2)">
+      <column name="CO_INSTITUTION_TOLLERANCE" type="numeric(10,2)">
         <constraints nullable="false"/>
       </column>
-      <column name="CO_TOLERANCE" type="numeric(10,2)">
+      <column name="CO_NOTIFICATION_TOLERANCE" type="numeric(10,2)">
         <constraints nullable="false"/>
       </column>
       <column name="TE_EVALUATION_TYPE" type="varchar(50)">
