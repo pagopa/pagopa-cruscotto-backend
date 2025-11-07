@@ -25,14 +25,14 @@
 	<rollback>
 
 	  <!-- Remove function-permission associations -->
-	  DELETE FROM ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM WHERE co_auth_permission_id = 10086 AND co_auth_function_id = 10004;
-	  DELETE FROM ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM WHERE co_auth_permission_id = 10087 AND co_auth_function_id = 10004;
-	  DELETE FROM ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM WHERE co_auth_permission_id = 10088 AND co_auth_function_id = 10004;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM WHERE co_auth_permission_id = 10097 AND co_auth_function_id = 10004;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM WHERE co_auth_permission_id = 10098 AND co_auth_function_id = 10004;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM WHERE co_auth_permission_id = 10099 AND co_auth_function_id = 10004;
 
 	  <!-- Remove permissions -->
-	  DELETE FROM ${database.defaultSchemaName}.AUTH_PERMISSION WHERE co_id = 10086;
-	  DELETE FROM ${database.defaultSchemaName}.AUTH_PERMISSION WHERE co_id = 10087;
-	  DELETE FROM ${database.defaultSchemaName}.AUTH_PERMISSION WHERE co_id = 10088;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_PERMISSION WHERE co_id = 10097;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_PERMISSION WHERE co_id = 10098;
+	  DELETE FROM ${database.defaultSchemaName}.AUTH_PERMISSION WHERE co_id = 10099;
 
 	</rollback>
   </changeSet>
