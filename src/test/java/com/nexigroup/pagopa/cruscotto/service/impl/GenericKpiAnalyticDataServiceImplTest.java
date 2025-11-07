@@ -161,7 +161,7 @@ class GenericKpiAnalyticDataServiceImplTest {
 
     @Test
     void testFindByDetailResultId() {
-        when(repository.findAllByModuleCodeAndInstanceModuleId(ModuleCode.B4, 100L))
+        when(repository.findAllByModuleCodeAndKpiDetailResultId(eq(ModuleCode.B4), eq(100L)))
             .thenReturn(List.of(entity));
         when(mapper.toDto(entity)).thenReturn(dto);
 
@@ -172,10 +172,12 @@ class GenericKpiAnalyticDataServiceImplTest {
 
     @Test
     void testFindByDateRange() {
-        when(repository.findAllByModuleCode(ModuleCode.B4)).thenReturn(List.of(entity));
+        when(repository.findAllByModuleCodeAndDataDateBetween(eq(ModuleCode.B4), any(), any()))
+            .thenReturn(List.of(entity));
         when(mapper.toDto(entity)).thenReturn(dto);
 
-        List<KpiAnalyticDataDTO> result = service.findByDateRange(ModuleCode.B4, LocalDate.now(), LocalDate.now());
+        List<KpiAnalyticDataDTO> result =
+            service.findByDateRange(ModuleCode.B4, LocalDate.now(), LocalDate.now());
 
         assertThat(result).containsExactly(dto);
     }
