@@ -104,18 +104,11 @@ public interface KpiC1AnalyticDataRepository extends JpaRepository<KpiC1Analytic
             @Param("endDate") LocalDate endDate);
 
     /**
-     * Trova i dati analitici correlati a un KpiC1DetailResult specifico
+     * Trova i dati analitici correlati a un KpiC1DetailResult specifico.
+     * Ora che la FK CO_KPI_C1_DETAIL_RESULT_ID è sempre valorizzata, usiamo join diretto.
      */
-    // NOTE: Aggregated detail results use a synthetic CF_INSTITUTION value (e.g. 'AGGREGATED'),
-    // while analytic rows store the real CF codes. We purposely drop the cfInstitution join
-    // to allow drill-down retrieval for aggregated detail result IDs.
     @Query("SELECT ad FROM KpiC1AnalyticData ad " +
-           "WHERE EXISTS (SELECT 1 FROM KpiC1DetailResult dr " +
-           "              WHERE dr.id = :detailResultId " +
-           "              AND dr.instance.id = ad.instance.id " +
-           "              AND dr.instanceModule.id = ad.instanceModule.id " +
-           "              AND dr.referenceDate = ad.referenceDate " +
-           "              AND ad.data BETWEEN dr.evaluationStartDate AND dr.evaluationEndDate) " +
+           "WHERE ad.detailResult.id = :detailResultId " +
            "ORDER BY ad.cfInstitution, ad.data")
     List<KpiC1AnalyticData> findByDetailResultId(@Param("detailResultId") Long detailResultId);
 

@@ -20,6 +20,8 @@
     <include file="1.1.13/ddl/20251104180004_add_kpi_c1_tables.xml" relativeToChangelogFile="true"/>
     <!-- IO_DRILLDOWN table (DDL) -->
     <include file="1.1.13/ddl/20251110120000_add_io_drilldown_table.xml" relativeToChangelogFile="true"/>
+    <!-- Index on KPI_C1_ANALYTIC_DATA.CO_KPI_C1_DETAIL_RESULT_ID (DDL) -->
+    <include file="1.1.13/ddl/20251110160000_add_index_kpi_c1_analytic_data_detail_result.xml" relativeToChangelogFile="true"/>
 
     <!-- KPI C.1 configuration and authorizations (DML) -->
     <include file="1.1.13/dml/20251104170001_add_kpi_c1_data.xml" relativeToChangelogFile="true"/>
