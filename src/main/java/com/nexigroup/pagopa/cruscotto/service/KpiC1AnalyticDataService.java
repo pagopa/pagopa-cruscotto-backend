@@ -157,7 +157,7 @@ public class KpiC1AnalyticDataService {
             if (kpiC1DetailResultRepository != null) {
                 var optDetail = kpiC1DetailResultRepository.findById(detailResultId);
                 if (optDetail.isPresent()) {
-                    var dr = optDetail.get();
+                    var dr = optDetail.orElseThrow();
                     LocalDate start = dr.getEvaluationStartDate();
                     LocalDate end = dr.getEvaluationEndDate();
                     if (start != null && end != null) {
@@ -188,8 +188,8 @@ public class KpiC1AnalyticDataService {
         try {
             if (kpiC1DetailResultRepository != null) {
                 var opt = kpiC1DetailResultRepository.findById(detailResultId);
-                if (opt.isPresent() && opt.get().getConfiguredThreshold() != null) {
-                    double tolerance = opt.get().getConfiguredThreshold().doubleValue();
+                if (opt.isPresent() && opt.orElseThrow().getConfiguredThreshold() != null) {
+                    double tolerance = opt.orElseThrow().getConfiguredThreshold().doubleValue();
                     computedRequiredMessagePercentage = 100.0 - tolerance;
                     if (computedRequiredMessagePercentage < 0.0) computedRequiredMessagePercentage = 0.0;
                     if (computedRequiredMessagePercentage > 100.0) computedRequiredMessagePercentage = 100.0;
