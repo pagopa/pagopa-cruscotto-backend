@@ -6,6 +6,8 @@ import java.math.BigDecimal;
 import com.nexigroup.pagopa.cruscotto.repository.PagopaIORepository;
 import com.nexigroup.pagopa.cruscotto.domain.IoDrilldown;
 import com.nexigroup.pagopa.cruscotto.service.IoDrilldownService;
+import com.nexigroup.pagopa.cruscotto.domain.KpiC1DetailResult;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 
 import com.nexigroup.pagopa.cruscotto.service.KpiC1ResultService;
 import com.nexigroup.pagopa.cruscotto.service.KpiC1DetailResultService;
@@ -50,6 +52,8 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
     private final AnagPartnerService anagPartnerService;
     private final AnagInstitutionService anagInstitutionService;
     private final IoDrilldownService ioDrilldownService;
+    @jakarta.annotation.Resource
+    private com.nexigroup.pagopa.cruscotto.repository.KpiC1DetailResultRepository kpiC1DetailResultRepository;
 
     public KpiC1DataServiceImpl(
         PagopaIORepository pagopaIORepository,
@@ -583,11 +587,27 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
 
         List<IoDrilldown> negatives = new ArrayList<>();
 
+        // Pre-carichiamo i detail results (monthly + total) per collegare ogni riga analitica.
+        List<KpiC1DetailResult> detailResults = kpiC1DetailResultRepository != null
+            ? kpiC1DetailResultRepository.findByResultId(savedResult.getId())
+            : List.of();
+        List<KpiC1DetailResult> monthlyDetailResults = detailResults.stream()
+            .filter(dr -> dr.getEvaluationType() == EvaluationType.MESE)
+            .collect(Collectors.toList());
+        KpiC1DetailResult totalDetailResult = detailResults.stream()
+            .filter(dr -> dr.getEvaluationType() == EvaluationType.TOTALE)
+            .findFirst().orElse(null);
+
         ioDataList.forEach(ioData -> {
             com.nexigroup.pagopa.cruscotto.domain.KpiC1AnalyticData analyticData = new com.nexigroup.pagopa.cruscotto.domain.KpiC1AnalyticData(
                 instance, instanceModule, analysisDate, ioData.getData(),
                 ioData.getEnte(), ioData.getNumeroPosizioni().longValue(), ioData.getNumeroMessaggi().longValue()
             );
+            // Associa il dettaglio mensile che copre la data della riga (fallback al totale se non trovato)
+            KpiC1DetailResult matchedMonthly = monthlyDetailResults.stream()
+                .filter(dr -> !ioData.getData().isBefore(dr.getEvaluationStartDate()) && !ioData.getData().isAfter(dr.getEvaluationEndDate()))
+                .findFirst().orElse(null);
+            analyticData.setDetailResult(matchedMonthly != null ? matchedMonthly : totalDetailResult);
             com.nexigroup.pagopa.cruscotto.domain.KpiC1AnalyticData savedAnalytic = kpiC1AnalyticDataService.save(analyticData);
 
             // Negative evidence if NOT meeting threshold
@@ -609,7 +629,7 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
             LOGGER.info("No negative evidences for KPI C.1; io_drilldown remains empty for this execution.");
         }
 
-        LOGGER.debug("Saved {} analytic data records", ioDataList.size());
+        LOGGER.debug("Saved {} analytic data records (FK detailResult valorizzata)", ioDataList.size());
     }
 
     /**

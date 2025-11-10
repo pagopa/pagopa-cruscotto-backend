@@ -61,6 +61,14 @@ public class KpiC1AnalyticData extends AbstractAuditingEntity<Long> {
     @Column(name = "TE_CF_INSTITUTION", nullable = false, length = 50)
     private String cfInstitution;
 
+    // Link al dettaglio (KPI_C1_DETAIL_RESULT) per consentire drill-down diretto.
+    // La colonna esiste già nello schema (CO_KPI_C1_DETAIL_RESULT_ID) ma non era mappata.
+    // Non imponiamo NOT NULL a livello JPA per non rompere dati storici già inseriti null; nuova logica la popolerà sempre.
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "CO_KPI_C1_DETAIL_RESULT_ID")
+    private KpiC1DetailResult detailResult;
+
     @Column(name = "CO_POSITIONS_COUNT", nullable = false)
     private Long positionNumber = 0L;
 
