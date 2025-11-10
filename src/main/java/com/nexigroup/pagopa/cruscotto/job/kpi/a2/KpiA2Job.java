@@ -169,7 +169,6 @@ public class KpiA2Job extends QuartzJobBean {
                                             sumIncorrectPaymentsDaily =
                                                 sumIncorrectPaymentsDaily + pagoPaTaxonomyAggregatePositionDTO.getTotal();
                                                 // Save in map with key: partnerFiscalCode + '_' + date
-                                                //String taxonomyKey = instanceDTO.getPartnerFiscalCode() + "_" + date;
                                                 taxonomyAggregatePositionMap.computeIfAbsent(date, k -> new ArrayList<>()).add(pagoPaTaxonomyAggregatePositionDTO);
 
                                         }
@@ -221,8 +220,8 @@ public class KpiA2Job extends QuartzJobBean {
 
                                 kpiA2AnalyticDataService.save(kpiA2AnalyticData);
 
-                                
-                                
+
+
 
                                 // Map and save to new table
                                 List<KpiA2AnalyticIncorrectTaxonomyDataDTO> incorrectTaxonomyDataList = taxonomyAggregatePositionMap.entrySet().stream()

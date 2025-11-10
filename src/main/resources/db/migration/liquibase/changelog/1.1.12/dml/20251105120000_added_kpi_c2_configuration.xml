@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+  <changeSet id="20251105120000-1" author="system" context="dml">
+    <validCheckSum>ANY</validCheckSum>
+    <comment>Create KPI configuration for C.2 module - API Integration compliance</comment>
+    <sql splitStatements="true" stripComments="true">
+
+      INSERT INTO ${database.defaultSchemaName}.KPI_CONFIGURATION (
+        CO_ID,
+        CO_MODULE_ID,
+        FL_EXCLUDE_PLANNED_SHUTDOWN,
+        FL_EXCLUDE_UNPLANNED_SHUTDOWN,
+        CO_ELIGIBILITY_THRESHOLD,
+        CO_TOLERANCE,
+        CO_AVERAGE_TIME_LIMIT,
+        TE_EVALUATION_TYPE
+      )
+      SELECT
+        NEXTVAL('SQ${project_name}_KPICONF'),
+        m.CO_ID,
+        false,
+        false,
+        0.0,
+        0.0,
+        null,
+        'TOTALE'
+      FROM ${database.defaultSchemaName}.MODULE m
+      WHERE m.TE_CODE = 'C.2';
+
+    </sql>
+    <rollback>
+      DELETE FROM ${database.defaultSchemaName}.KPI_CONFIGURATION kc
+      WHERE kc.CO_MODULE_ID IN (
+        SELECT m.CO_ID
+        FROM ${database.defaultSchemaName}.MODULE m
+        WHERE m.TE_CODE = 'C.2'
+      );
+    </rollback>
+  </changeSet>
+
+</databaseChangeLog>

@@ -8,7 +8,7 @@
       "name": "unlicensed",
       "url": ""
     },
-    "version": "0.7.41"
+    "version": "0.7.53"
   },
   "servers": [
     {
@@ -4803,7 +4803,7 @@
         }
       }
     },
-     "/api/kpi-analytic-data/c2/module/{detailResultId}": {
+    "/api/kpi-analytic-data/c2/module/{detailResultId}": {
       "get": {
         "tags": [
           "kpi-analytic-data-resource"
@@ -11879,11 +11879,11 @@
             "type": "number",
             "format": "double"
           },
-          "totalPayments":{
+          "totalPayments": {
             "type": "integer",
             "format": "int32"
           },
-          "totalNotifications":{
+          "totalNotifications": {
             "type": "integer",
             "format": "int32"
           },
@@ -12532,11 +12532,11 @@
             "type": "number",
             "format": "double"
           },
-          "totalPayments":{
+          "totalPayments": {
             "type": "integer",
             "format": "int32"
           },
-          "totalNotifications":{
+          "totalNotifications": {
             "type": "integer",
             "format": "int32"
           },
@@ -12875,7 +12875,7 @@
         }
       },
       "KpiC1AnalyticDrillDownDTO": {
-         "required": [
+        "required": [
           "instanceId",
           "analysisDate",
           "dataDate",
@@ -12911,22 +12911,22 @@
             "maxLength": 255,
             "minLength": 0
           },
-          "positionsCount":{
+          "positionsCount": {
             "type": "integer",
             "format": "int32"
           },
-          "messagesCount":{
+          "messagesCount": {
             "type": "integer",
             "format": "int32"
           },
-          "percentageMessages":{
+          "percentageMessages": {
             "type": "number",
             "format": "double"
           }
         }
       },
       "KpiC2AnalyticDrillDownDTO": {
-         "required": [
+        "required": [
           "instanceId",
           "analysisDate",
           "dataDate",
@@ -12962,11 +12962,11 @@
             "maxLength": 255,
             "minLength": 0
           },
-          "totalPayments":{
+          "totalPayments": {
             "type": "integer",
             "format": "int32"
           },
-          "totalNotifications":{
+          "totalNotifications": {
             "type": "integer",
             "format": "int32"
           },

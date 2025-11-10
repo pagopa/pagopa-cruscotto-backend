@@ -167,13 +167,18 @@ class GenericKpiDetailResultServiceImplTest {
         ModuleCode moduleCode = ModuleCode.B4;
         Long kpiResultId = 3L;
 
-        // delegates to findByInstanceModuleId
-        when(kpiDetailResultRepository.findAllByModuleCodeAndInstanceModuleId(moduleCode, kpiResultId))
+        // Mock the correct repository method
+        when(kpiDetailResultRepository.findAllByModuleCodeAndKpiResultId(moduleCode, kpiResultId))
             .thenReturn(List.of(entity));
         when(kpiDetailResultMapper.toDto(entity)).thenReturn(dto);
 
+        // Call the service
         List<KpiDetailResultDTO> result = service.findByKpiResultId(moduleCode, kpiResultId);
 
+        // Assert the expected result
         assertThat(result).containsExactly(dto);
+
+        // Verify repository call
+        verify(kpiDetailResultRepository).findAllByModuleCodeAndKpiResultId(moduleCode, kpiResultId);
     }
 }

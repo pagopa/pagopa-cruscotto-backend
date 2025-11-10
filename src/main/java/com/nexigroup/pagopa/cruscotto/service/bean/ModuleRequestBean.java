@@ -62,4 +62,8 @@ public class ModuleRequestBean {
 
     @NotNull
     private Boolean configInstitutionTolerance;
+
+    @NotNull
+    private Boolean configNotificationTolerance;
+
 }
