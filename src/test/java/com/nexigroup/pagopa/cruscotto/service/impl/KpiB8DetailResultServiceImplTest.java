@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -50,7 +51,8 @@ class KpiB8DetailResultServiceImplTest {
         long id = 1L;
         OutcomeStatus status = OutcomeStatus.OK;
         service.updateKpiB8DetailResultOutcome(id, status);
-        // Method does not return anything yet, just ensure no exceptions
+        assertThatCode(() -> service.updateKpiB8DetailResultOutcome(id, status))
+            .doesNotThrowAnyException();
     }
 
     @Test

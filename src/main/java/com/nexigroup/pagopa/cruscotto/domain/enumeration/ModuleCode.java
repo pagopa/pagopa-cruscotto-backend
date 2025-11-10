@@ -11,7 +11,8 @@ public enum ModuleCode {
     B8("B.8"),
     B9("B.9"),
     B6("B.6"),
-    C1("C.1");
+    C1("C.1"),
+    C2("C.2");
 
     public final String code;
 
