@@ -4,6 +4,8 @@ package com.nexigroup.pagopa.cruscotto.service.impl;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import java.math.BigDecimal;
 import com.nexigroup.pagopa.cruscotto.repository.PagopaIORepository;
+import com.nexigroup.pagopa.cruscotto.domain.IoDrilldown;
+import com.nexigroup.pagopa.cruscotto.service.IoDrilldownService;
 
 import com.nexigroup.pagopa.cruscotto.service.KpiC1ResultService;
 import com.nexigroup.pagopa.cruscotto.service.KpiC1DetailResultService;
@@ -47,6 +49,7 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
     private final KpiC1AnalyticDataService kpiC1AnalyticDataService;
     private final AnagPartnerService anagPartnerService;
     private final AnagInstitutionService anagInstitutionService;
+    private final IoDrilldownService ioDrilldownService;
 
     public KpiC1DataServiceImpl(
         PagopaIORepository pagopaIORepository,
@@ -55,7 +58,8 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
         KpiC1DetailResultService kpiC1DetailResultService,
         KpiC1AnalyticDataService kpiC1AnalyticDataService,
         AnagPartnerService anagPartnerService,
-        AnagInstitutionService anagInstitutionService
+        AnagInstitutionService anagInstitutionService,
+        IoDrilldownService ioDrilldownService
     ) {
         this.pagopaIORepository = pagopaIORepository;
         this.pagopaIOMapper = pagopaIOMapper;
@@ -64,6 +68,7 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
         this.kpiC1AnalyticDataService = kpiC1AnalyticDataService;
         this.anagPartnerService = anagPartnerService;
         this.anagInstitutionService = anagInstitutionService;
+        this.ioDrilldownService = ioDrilldownService;
     }
 
     @Override
@@ -356,8 +361,9 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
                 LOGGER.info("No IO data found - creating empty analytic record for traceability");
                 saveEmptyAnalyticData(savedResult, instanceDTO, instanceModuleDTO, analysisDate);
             } else {
-                saveKpiC1AnalyticData(savedResult, instanceDTO, instanceModuleDTO, 
-                                    analysisDate, ioDataList);
+                // Save analytic data and negative evidences snapshot
+                saveKpiC1AnalyticDataAndNegativeEvidences(savedResult, instanceDTO, instanceModuleDTO,
+                    analysisDate, ioDataList, kpiConfigurationDTO);
             }
 
             LOGGER.info("KPI C.1 results saved successfully for instance: {}", instanceDTO.getInstanceIdentification());
@@ -558,29 +564,51 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
     /**
      * Save analytic data for traceability
      */
-    private void saveKpiC1AnalyticData(
+    private void saveKpiC1AnalyticDataAndNegativeEvidences(
         com.nexigroup.pagopa.cruscotto.domain.KpiC1Result savedResult,
         InstanceDTO instanceDTO,
         InstanceModuleDTO instanceModuleDTO,
         LocalDate analysisDate,
-        List<PagoPaIODTO> ioDataList
+        List<PagoPaIODTO> ioDataList,
+        KpiConfigurationDTO kpiConfigurationDTO
     ) {
-        ioDataList.forEach(ioData -> {
-            // Create Instance and InstanceModule references
-            com.nexigroup.pagopa.cruscotto.domain.Instance instance = new com.nexigroup.pagopa.cruscotto.domain.Instance();
-            instance.setId(instanceDTO.getId());
-            
-            com.nexigroup.pagopa.cruscotto.domain.InstanceModule instanceModule = new com.nexigroup.pagopa.cruscotto.domain.InstanceModule();
-            instanceModule.setId(instanceModuleDTO.getId());
+        com.nexigroup.pagopa.cruscotto.domain.Instance instance = new com.nexigroup.pagopa.cruscotto.domain.Instance();
+        instance.setId(instanceDTO.getId());
+        com.nexigroup.pagopa.cruscotto.domain.InstanceModule instanceModule = new com.nexigroup.pagopa.cruscotto.domain.InstanceModule();
+        instanceModule.setId(instanceModuleDTO.getId());
 
+    double configuredTolerance = kpiConfigurationDTO.getTolerance() != null ? kpiConfigurationDTO.getTolerance() : 0.0;
+    // Compute required message percentage clamped to [0,100] and keep it effectively final for lambda usage
+    final double requiredMessagePercentage = Math.min(100.0, Math.max(0.0, 100.0 - configuredTolerance));
+
+        List<IoDrilldown> negatives = new ArrayList<>();
+
+        ioDataList.forEach(ioData -> {
             com.nexigroup.pagopa.cruscotto.domain.KpiC1AnalyticData analyticData = new com.nexigroup.pagopa.cruscotto.domain.KpiC1AnalyticData(
                 instance, instanceModule, analysisDate, ioData.getData(),
                 ioData.getEnte(), ioData.getNumeroPosizioni().longValue(), ioData.getNumeroMessaggi().longValue()
             );
-            
-            kpiC1AnalyticDataService.save(analyticData);
+            com.nexigroup.pagopa.cruscotto.domain.KpiC1AnalyticData savedAnalytic = kpiC1AnalyticDataService.save(analyticData);
+
+            // Negative evidence if NOT meeting threshold
+            double percentage = ioData.getPercentualeMessaggi();
+            boolean meetsTolerance = percentage >= requiredMessagePercentage;
+            if (!meetsTolerance) {
+                IoDrilldown drill = new IoDrilldown(
+                    instance, instanceModule, savedAnalytic,
+                    analysisDate, ioData.getData(), ioData.getEnte(), ioData.getCfPartner(),
+                    ioData.getNumeroPosizioni().longValue(), ioData.getNumeroMessaggi().longValue(), percentage, meetsTolerance);
+                negatives.add(drill);
+            }
         });
-        
+
+        if (!negatives.isEmpty()) {
+            ioDrilldownService.saveAll(negatives);
+            LOGGER.info("Saved {} IO negative evidence drilldown rows", negatives.size());
+        } else {
+            LOGGER.info("No negative evidences for KPI C.1; io_drilldown remains empty for this execution.");
+        }
+
         LOGGER.debug("Saved {} analytic data records", ioDataList.size());
     }
 
