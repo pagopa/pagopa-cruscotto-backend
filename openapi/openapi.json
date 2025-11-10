@@ -8,7 +8,7 @@
       "name": "unlicensed",
       "url": ""
     },
-    "version": "0.7.54"
+    "version": "0.7.55"
   },
   "servers": [
     {
@@ -9160,72 +9160,72 @@
             "type": "string"
           },
           "partnerName": {
-      "IoDrilldownDTO": {
-        "required": [
-          "analyticDataId",
-          "instanceId",
-          "instanceModuleId",
-          "referenceDate",
-          "dataDate",
-          "cfInstitution",
-          "positionsCount",
-          "messagesCount",
-          "percentage",
-          "meetsTolerance"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "analyticDataId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "instanceId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "instanceModuleId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "referenceDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "dataDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "cfInstitution": {
-            "type": "string",
-            "maxLength": 255,
-            "minLength": 0
-          },
-          "cfPartner": {
-            "type": "string",
-            "maxLength": 255,
-            "minLength": 0
-          },
-          "positionsCount": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "messagesCount": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "percentage": {
-            "type": "number",
-            "format": "double"
-          },
-          "meetsTolerance": {
-            "type": "boolean"
-          }
-        }
-      },
+            "IoDrilldownDTO": {
+              "required": [
+                "analyticDataId",
+                "instanceId",
+                "instanceModuleId",
+                "referenceDate",
+                "dataDate",
+                "cfInstitution",
+                "positionsCount",
+                "messagesCount",
+                "percentage",
+                "meetsTolerance"
+              ],
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "analyticDataId": {
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "instanceId": {
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "instanceModuleId": {
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "referenceDate": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "dataDate": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "cfInstitution": {
+                  "type": "string",
+                  "maxLength": 255,
+                  "minLength": 0
+                },
+                "cfPartner": {
+                  "type": "string",
+                  "maxLength": 255,
+                  "minLength": 0
+                },
+                "positionsCount": {
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "messagesCount": {
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "percentage": {
+                  "type": "number",
+                  "format": "double"
+                },
+                "meetsTolerance": {
+                  "type": "boolean"
+                }
+              }
+            },
             "type": "string"
           },
           "stationId": {
