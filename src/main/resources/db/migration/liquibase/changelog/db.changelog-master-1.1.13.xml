@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <property name="autoIncrement" value="true"/>
+
+    <!-- Include previous version -->
+    <include file="db.changelog-master-1.1.11.xml" relativeToChangelogFile="true"/> <!-- TODO set 1.1.12-->
+
+    <!--
+        Added KPI C.1 (Invio notifiche tramite servizio IO) support.
+        This changelog includes all database changes for version 1.1.13.
+    -->
+
+    <!-- KPI C.1 tables (DDL) -->
+    <include file="1.1.13/ddl/20251104180004_add_kpi_c1_tables.xml" relativeToChangelogFile="true"/>
+    <!-- IO_DRILLDOWN table (DDL) -->
+    <include file="1.1.13/ddl/20251110120000_add_io_drilldown_table.xml" relativeToChangelogFile="true"/>
+    <!-- Index on KPI_C1_ANALYTIC_DATA.CO_KPI_C1_DETAIL_RESULT_ID (DDL) -->
+    <include file="1.1.13/ddl/20251110160000_add_index_kpi_c1_analytic_data_detail_result.xml" relativeToChangelogFile="true"/>
+
+    <!-- KPI C.1 configuration and authorizations (DML) -->
+    <include file="1.1.13/dml/20251104170001_add_kpi_c1_data.xml" relativeToChangelogFile="true"/>
+    <!-- IO_DRILLDOWN permissions (DML) -->
+    <include file="1.1.13/dml/20251110121000_add_io_drilldown_permissions.xml" relativeToChangelogFile="true"/>
+
+</databaseChangeLog>
