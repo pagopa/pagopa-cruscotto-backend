@@ -35,6 +35,7 @@ class KpiC1DataServiceImplTest {
     private KpiC1AnalyticDataService kpiC1AnalyticDataService;
     private AnagPartnerService anagPartnerService;
     private AnagInstitutionService anagInstitutionService;
+    private IoDrilldownService ioDrilldownService;
 
     @BeforeEach
     void setUp() {
@@ -45,6 +46,7 @@ class KpiC1DataServiceImplTest {
         kpiC1AnalyticDataService = Mockito.mock(KpiC1AnalyticDataService.class);
         anagPartnerService = Mockito.mock(AnagPartnerService.class);
         anagInstitutionService = Mockito.mock(AnagInstitutionService.class);
+        ioDrilldownService = Mockito.mock(IoDrilldownService.class);
         service = new KpiC1DataServiceImpl(
             pagopaIORepository,
             pagopaIOMapper,
@@ -52,7 +54,8 @@ class KpiC1DataServiceImplTest {
             kpiC1DetailResultService,
             kpiC1AnalyticDataService,
             anagPartnerService,
-            anagInstitutionService
+            anagInstitutionService,
+            ioDrilldownService
         );
     }
 
