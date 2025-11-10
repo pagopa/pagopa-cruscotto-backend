@@ -2,6 +2,7 @@ package com.nexigroup.pagopa.cruscotto.service.dto;
 
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,10 +30,10 @@ public class KpiC2ResultDTO implements Serializable {
     private LocalDate analysisDate;
 
     @NotNull
-    private Double eligibilityThreshold;
+    private Double institutionTolerance;
 
     @NotNull
-    private Double tolerance;
+    private Double notificationTolerance;
 
     @NotNull
     private OutcomeStatus outcome;
@@ -48,8 +49,8 @@ public class KpiC2ResultDTO implements Serializable {
             ", instanceId=" + instanceId +
             ", instanceModuleId=" + instanceModuleId +
             ", analysisDate=" + analysisDate +
-            ", eligibilityThreshold=" + eligibilityThreshold +
-            ", tolerance=" + tolerance +
+            ", institutionTolerance=" + institutionTolerance +
+            ", notificationTolerance=" + notificationTolerance +
             ", outcome=" + outcome +
             ", evaluationType=" + evaluationType +
             '}';
