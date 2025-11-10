@@ -2,6 +2,7 @@ package com.nexigroup.pagopa.cruscotto.service.impl;
 
 import java.util.List;
 
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,10 +37,10 @@ import com.querydsl.jpa.JPQLQuery;
 public class AnagInstitutionServiceImpl implements AnagInstitutionService {
 
 	private final Logger log = LoggerFactory.getLogger(AnagInstitutionServiceImpl.class);
-			
+
     @Autowired
     private AnagInstitutionRepository anagInstitutionRepository;
-    
+
     @Autowired
     private QueryBuilder queryBuilder;
 
@@ -69,19 +70,19 @@ public class AnagInstitutionServiceImpl implements AnagInstitutionService {
         }
         anagInstitutionRepository.saveAll(toSave);
     }
-    
+
     @Override
    	public Page<InstitutionIdentificationDTO> findAll(InstitutionFilter filter, Pageable pageable) {
 
    		log.debug("Request to get all Institutions by filter: {}", filter);
-   		
+
            BooleanBuilder builder = new BooleanBuilder();
 
            if (filter.getFiscalCode() != null) {
                builder.or(QAnagInstitution.anagInstitution.fiscalCode.likeIgnoreCase("%"+filter.getFiscalCode()+"%"));
                //predicate.or(QAnagPartner.anagPartner.name.likeIgnoreCase("%" + nameFilter + "%"));
            }
-           
+
            if (filter.getName() != null) {
            	builder.or(QAnagInstitution.anagInstitution.name.likeIgnoreCase("%"+filter.getName()+"%"));
            }
@@ -117,32 +118,71 @@ public class AnagInstitutionServiceImpl implements AnagInstitutionService {
            List<InstitutionIdentificationDTO> list = jpqlSelected.fetch();
 
            return new PageImpl<>(list, pageable, size);
-   		 
-   	}
 
-   	@Override
+   	}
+    @Override
+    public List<AnagInstitutionDTO> findAllNoPaging(AnagInstitutionFilter filter) {
+        log.debug("Request to get all Institutions by filter: {}", filter);
+
+        BooleanBuilder builder = createBuilder(filter);
+
+        JPQLQuery<AnagInstitution> jpql = queryBuilder.<AnagInstitution>createQuery()
+            .from(QAnagInstitution.anagInstitution)
+            .leftJoin(QAnagStationAnagInstitution.anagStationAnagInstitution).on(QAnagStationAnagInstitution.anagStationAnagInstitution.anagInstitution.eq(QAnagInstitution.anagInstitution))
+            .leftJoin(QAnagStation.anagStation).on(QAnagStationAnagInstitution.anagStationAnagInstitution.anagStation.eq(QAnagStation.anagStation))
+            .leftJoin(QAnagPartner.anagPartner).on(QAnagStation.anagStation.anagPartner.eq(QAnagPartner.anagPartner))
+            .where(builder);
+
+
+        JPQLQuery<AnagInstitutionDTO> jpqlSelected = jpql.select(
+            Projections.fields(
+                AnagInstitutionDTO.class,
+                Projections.fields(InstitutionIdentificationDTO.class,
+                    QAnagInstitution.anagInstitution.id.as("id"),
+                    QAnagInstitution.anagInstitution.name.as("name"),
+                    QAnagInstitution.anagInstitution.fiscalCode.as("fiscalCode")
+                ).as("institutionIdentification"),
+                QAnagStation.anagStation.name.as("stationName"),
+                QAnagPartner.anagPartner.name.as("partnerName"),
+                QAnagPartner.anagPartner.fiscalCode.as("partnerFiscalCode"),
+                QAnagInstitution.anagInstitution.enabled.as("enabled"),
+                QAnagStationAnagInstitution.anagStationAnagInstitution.aca.as("aca"),
+                QAnagStationAnagInstitution.anagStationAnagInstitution.standin.as("standIn")
+            )
+        );
+
+        List<AnagInstitutionDTO> list = jpqlSelected.fetch();
+        return list;
+    }
+
+    private static @NotNull BooleanBuilder createBuilder(AnagInstitutionFilter filter) {
+        BooleanBuilder builder = new BooleanBuilder();
+
+        if (filter.getInstitutionId() != null) {
+            builder.and(QAnagInstitution.anagInstitution.id.eq(filter.getInstitutionId()));
+        }
+
+        if (filter.getPartnerId() != null) {
+            builder.and(QAnagStation.anagStation.anagPartner.id.eq(filter.getPartnerId()));
+        }
+
+        if (filter.getStationId() != null) {
+            builder.and(QAnagStation.anagStation.id.eq(filter.getStationId()));
+        }
+
+        if (filter.getShowNotEnabled() == null ||  (filter.getShowNotEnabled() != null && !filter.getShowNotEnabled().booleanValue())) {
+            builder.and(QAnagInstitution.anagInstitution.enabled.eq(true));
+        }
+        return builder;
+    }
+
+    @Override
    	public Page<AnagInstitutionDTO> findAll(AnagInstitutionFilter filter, Pageable pageable) {
    		log.debug("Request to get all Institutions by filter: {}", filter);
-   		
-           BooleanBuilder builder = new BooleanBuilder();
 
-           if (filter.getInstitutionId() != null) {
-               builder.and(QAnagInstitution.anagInstitution.id.eq(filter.getInstitutionId()));
-           }
-           
-           if (filter.getPartnerId() != null) {
-           	builder.and(QAnagStation.anagStation.anagPartner.id.eq(filter.getPartnerId()));
-           }
-           
-           if (filter.getStationId() != null) {
-           	builder.and(QAnagStation.anagStation.id.eq(filter.getStationId()));
-           }
-           
-           if (filter.getShowNotEnabled() == null ||  (filter.getShowNotEnabled() != null && !filter.getShowNotEnabled().booleanValue())) {
-           	builder.and(QAnagInstitution.anagInstitution.enabled.eq(true));
-           }
+        BooleanBuilder builder = createBuilder(filter);
 
-           JPQLQuery<AnagInstitution> jpql = queryBuilder.<AnagInstitution>createQuery()
+        JPQLQuery<AnagInstitution> jpql = queryBuilder.<AnagInstitution>createQuery()
                .from(QAnagInstitution.anagInstitution)
                .leftJoin(QAnagStationAnagInstitution.anagStationAnagInstitution).on(QAnagStationAnagInstitution.anagStationAnagInstitution.anagInstitution.eq(QAnagInstitution.anagInstitution))
                .leftJoin(QAnagStation.anagStation).on(QAnagStationAnagInstitution.anagStationAnagInstitution.anagStation.eq(QAnagStation.anagStation))
@@ -167,7 +207,7 @@ public class AnagInstitutionServiceImpl implements AnagInstitutionService {
                		QAnagStationAnagInstitution.anagStationAnagInstitution.standin.as("standIn")
                )
            );
-           
+
 
            jpqlSelected.offset(pageable.getOffset());
            jpqlSelected.limit(pageable.getPageSize());
@@ -184,7 +224,7 @@ public class AnagInstitutionServiceImpl implements AnagInstitutionService {
                    );
                });
 
-           List<AnagInstitutionDTO> list = jpqlSelected.fetch();
+           List<AnagInstitutionDTO> list = findAllNoPaging(filter);
 
            return new PageImpl<>(list, pageable, size);
    	}
