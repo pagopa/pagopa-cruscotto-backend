@@ -9160,6 +9160,13 @@
             "type": "string"
           },
           "partnerName": {
+            "type": "string"
+          },
+          "stationName": {
+            "type": "string"
+          }
+        }
+      },
       "IoDrilldownDTO": {
         "required": [
           "analyticDataId",
@@ -9223,17 +9230,6 @@
           },
           "meetsTolerance": {
             "type": "boolean"
-          }
-        }
-      },
-            "type": "string"
-          },
-          "stationId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "stationName": {
-            "type": "string"
           }
         }
       },
