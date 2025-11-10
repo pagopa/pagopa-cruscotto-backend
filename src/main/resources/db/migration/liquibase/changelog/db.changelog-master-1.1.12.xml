@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+  <!-- Include previous version -->
+  <include file="db.changelog-master-1.1.11.xml" relativeToChangelogFile="true"/>
+
+  <!-- Drop existing generic KPI tables if they exist (for clean recreation) -->
+  <include file="1.1.12/ddl/20251029120001_added_entity_KpiC2AnalyticData.xml" relativeToChangelogFile="true"/>
+  <include file="1.1.12/ddl/20251029161000_added_entity_KpiC2DetailResult.xml" relativeToChangelogFile="true"/>
+  <include file="1.1.12/ddl/20251029162500_added_entity_KpiC2AnalyticDrillDown.xml" relativeToChangelogFile="true"/>
+  <include file="1.1.12/ddl/20251029162500_added_entity_KpiC2Result.xml" relativeToChangelogFile="true"/>
+  <include file="1.1.12/ddl/20251029175000_add_foreign_keys_kpi_C2.xml" relativeToChangelogFile="true"/>
+  <include file="1.1.12/ddl/20251107185000_add_tollerance_notification_kpi.xml" relativeToChangelogFile="true"/>
+
+  <include file="1.1.12/dml/20251105120000_added_kpi_c2_configuration.xml" relativeToChangelogFile="true"/>
+  <include file="1.1.12/dml/20251105120001_add_kpi_c2_authorizations.xml" relativeToChangelogFile="true"/>
+  <include file="1.1.12/dml/20251105120002_activate_kpi_c2_module.xml" relativeToChangelogFile="true"/>
+  <include file="1.1.12/dml/20251107120002_activate_kpi_c2_tollerance_flag.xml" relativeToChangelogFile="true"/>
+</databaseChangeLog>

@@ -36,4 +36,6 @@ public class KpiConfigurationRequestBean {
 
     private BigDecimal transactionTolerance;
 
+    private BigDecimal notificationTolerance;
+
 }

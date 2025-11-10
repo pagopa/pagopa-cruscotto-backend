@@ -28,28 +28,6 @@ public class SecurityConfiguration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SecurityConfiguration.class);
 
-    //    private final DomainUserDetailsService userDetailsService;
-    //
-    //    private final CorsFilter corsFilter;
-    //
-    //    private final TokenProvider tokenProvider;
-    //
-    //    private final JHipsterProperties jHipsterProperties;
-    //
-    //    private final AuthenticationSuccessHandler authenticationSuccessHandler;
-    //
-    //    private final AuthenticationFailureHandler authenticationFailureHandler;
-    //
-    //    private final GrantAuthoritiesLoad grantAuthoritiesLoad;
-    //
-    //    private final OAuth2AuthorizedClientRepository authorizedClientRepository;
-    //
-    //    private final PasswordEncoder passwordEncoder;
-    //
-    //    private final Environment env;
-    //
-    //    private final HandlerExceptionResolver handlerExceptionResolver;
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -99,24 +77,4 @@ public class SecurityConfiguration {
     MvcRequestMatcher.Builder mvc(HandlerMappingIntrospector introspector) {
         return new MvcRequestMatcher.Builder(introspector);
     }
-    //    public BearerTokenResolver bearerTokenResolver() {
-    //        return new BearerTokenResolver() {
-    //            @Override
-    //            public String resolve(HttpServletRequest request) {
-    //                LOGGER.debug("Resolve token for request {}", request.getRequestURI());
-    //                String token = null;
-    //                Cookie[] cookies = request.getCookies();
-    //                if (cookies != null) {
-    //                    Cookie cookie = Arrays.stream(cookies)
-    //                        .filter(c -> Constants.OIDC_ACCESS_TOKEN.equals(c.getName()))
-    //                        .findAny()
-    //                        .orElse(null);
-    //                    if (cookie != null) {
-    //                        token = cookie.getValue();
-    //                    }
-    //                }
-    //                return token;
-    //            }
-    //        };
-    //    }
 }

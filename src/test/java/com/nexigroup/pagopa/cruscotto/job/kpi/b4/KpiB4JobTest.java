@@ -55,7 +55,7 @@ class KpiB4JobTest {
 
     @Mock
     private JobExecutionContext jobExecutionContext;
-    
+
     @Mock
     private com.nexigroup.pagopa.cruscotto.repository.PagopaApiLogRepository pagopaApiLogRepository;
 
@@ -63,7 +63,6 @@ class KpiB4JobTest {
     private KpiB4Job kpiB4Job;
 
     private ApplicationProperties.KpiB4Job kpiB4JobConfig;
-    private ApplicationProperties.Job jobConfig;
 
     @BeforeEach
     void setUp() {
@@ -71,7 +70,7 @@ class KpiB4JobTest {
         kpiB4JobConfig.setEnabled(true);
         kpiB4JobConfig.setLimit(10);
 
-        jobConfig = new ApplicationProperties.Job();
+        ApplicationProperties.Job jobConfig = new ApplicationProperties.Job();
         jobConfig.setKpiB4Job(kpiB4JobConfig);
 
         lenient().when(applicationProperties.getJob()).thenReturn(jobConfig);
@@ -106,7 +105,7 @@ class KpiB4JobTest {
     @Test
     void executeInternal_whenKpiConfigurationNotFound_shouldExitEarly() throws Exception {
         // Given
-        List<InstanceDTO> instanceDTOs = Arrays.asList(createTestInstanceDTO());
+        List<InstanceDTO> instanceDTOs = List.of(createTestInstanceDTO());
         when(instanceService.findInstanceToCalculate(ModuleCode.B4, 10))
                 .thenReturn(instanceDTOs);
         when(kpiConfigurationService.findKpiConfigurationByCode(ModuleCode.B4.code))
@@ -124,7 +123,7 @@ class KpiB4JobTest {
     @Test
     void executeInternal_whenInstanceModulesNotFound_shouldContinue() throws Exception {
         // Given
-        List<InstanceDTO> instanceDTOs = Arrays.asList(createTestInstanceDTO());
+        List<InstanceDTO> instanceDTOs = List.of(createTestInstanceDTO());
         KpiConfigurationDTO kpiConfig = createTestKpiConfigurationDTO();
 
         when(instanceService.findInstanceToCalculate(ModuleCode.B4, 10))
@@ -147,9 +146,9 @@ class KpiB4JobTest {
     @Test
     void executeInternal_withValidData_shouldProcessSuccessfully() throws Exception {
         // Given
-        List<InstanceDTO> instanceDTOs = Arrays.asList(createTestInstanceDTO());
+        List<InstanceDTO> instanceDTOs = List.of(createTestInstanceDTO());
         KpiConfigurationDTO kpiConfig = createTestKpiConfigurationDTO();
-        List<InstanceModuleDTO> instanceModules = Arrays.asList(createTestInstanceModuleDTO());
+        List<InstanceModuleDTO> instanceModules = List.of(createTestInstanceModuleDTO());
 
         when(instanceService.findInstanceToCalculate(ModuleCode.B4, 10))
                 .thenReturn(instanceDTOs);
@@ -176,8 +175,13 @@ class KpiB4JobTest {
         // When
         kpiB4Job.scheduleJobForSingleInstance(instanceIdentification);
 
-        // Then - No exception should be thrown
-        // Il test verifica che il metodo non lanci eccezioni
+        // Then
+        // Verify that the scheduler was asked to schedule a job
+        try {
+            verify(scheduler).scheduleJob(any(), any());
+        } catch (Exception e) {
+            throw new AssertionError("Scheduler should be invoked without exceptions", e);
+        }
     }
 
     private InstanceDTO createTestInstanceDTO() {
@@ -206,7 +210,7 @@ class KpiB4JobTest {
     @Test
     void executeInternal_whenNoApiLogDataForPeriod_shouldCompleteSuccessfully() throws Exception {
         // Given
-        List<InstanceDTO> instanceDTOs = Arrays.asList(createTestInstanceDTOWithPeriod());
+        List<InstanceDTO> instanceDTOs = List.of(createTestInstanceDTOWithPeriod());
         KpiConfigurationDTO kpiConfig = createTestKpiConfigurationDTO();
         InstanceModuleDTO instanceModule = createTestInstanceModuleDTO();
 
@@ -216,7 +220,7 @@ class KpiB4JobTest {
                 .thenReturn(Optional.of(kpiConfig));
         when(instanceModuleService.findOne(1L, kpiConfig.getModuleId()))
                 .thenReturn(Optional.of(instanceModule));
-        
+
         // Mock no API log data for the period
         when(pagopaApiLogRepository.existsDataInPeriod(any(), any())).thenReturn(false);
 
