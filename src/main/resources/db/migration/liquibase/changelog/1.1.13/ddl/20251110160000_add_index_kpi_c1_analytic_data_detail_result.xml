@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+
+  <changeSet id="20251110160000" author="system">
+    <comment>
+      Add index on KPI_C1_ANALYTIC_DATA.CO_KPI_C1_DETAIL_RESULT_ID 
+      to improve query performance on findByDetailResultId lookup.
+    </comment>
+
+    <createIndex 
+      indexName="IDX_KPIC1ANALDATA_DETAILRES" 
+      tableName="KPI_C1_ANALYTIC_DATA" 
+      schemaName="${database.defaultSchemaName}">
+      <column name="CO_KPI_C1_DETAIL_RESULT_ID"/>
+    </createIndex>
+
+    <rollback>
+      <dropIndex 
+        indexName="IDX_KPIC1ANALDATA_DETAILRES" 
+        tableName="KPI_C1_ANALYTIC_DATA" 
+        schemaName="${database.defaultSchemaName}"/>
+    </rollback>
+  </changeSet>
+
+</databaseChangeLog>
