@@ -176,7 +176,7 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
             qKpiConfiguration.institutionCount.as(FIELD_INSTITUTION_COUNT),
             qKpiConfiguration.transactionTolerance.as(FIELD_TRANSACTION_TOLERANCE),
             qKpiConfiguration.institutionTolerance.as(FIELD_INSTITUTION_TOLERANCE),
-            qKpiConfiguration.institutionTolerance.as(FIELD_NOTIFICATION_TOLERANCE),
+            qKpiConfiguration.notificationTolerance.as(FIELD_NOTIFICATION_TOLERANCE),
             qModule.name.as(FIELD_MODULE_NAME),
             qModule.configExcludePlannedShutdown.as(FIELD_CONFIG_EXCLUDE_PLANNED_SHUTDOWN),
             qModule.configExcludeUnplannedShutdown.as(FIELD_CONFIG_EXCLUDE_UNPLANNED_SHUTDOWN),
