@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+  <!-- Foreign key from KPI_B5_RESULT to INSTANCE -->
+  <changeSet id="20251107185000-1" author="system" >
+    <addColumn tableName="KPI_CONFIGURATION">
+      <column name="CO_NOTIFICATION_TOLERANCE" type="decimal(19,2)">
+        <constraints nullable="true"/>
+      </column>
+    </addColumn>
+    <rollback>
+      ALTER TABLE ${database.defaultSchemaName}.KPI_B1_RESULT DROP COLUMN CO_NOTIFICATION_TOLERANCE;
+    </rollback>
+  </changeSet>
+
+  <changeSet id="20251107185000-2" author="system">
+    <addColumn tableName="MODULE">
+      <column name="FL_CONFIG_NOTIFICATION_TOLERANCE" type="BOOLEAN" defaultValueBoolean="false">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+    <rollback>
+      ALTER TABLE ${database.defaultSchemaName}.MODULE DROP COLUMN FL_CONFIG_NOTIFICATION_TOLERANCE;
+    </rollback>
+  </changeSet>
+
+</databaseChangeLog>

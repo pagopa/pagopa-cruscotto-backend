@@ -71,6 +71,8 @@ public class KpiDetailResultResource {
 
     private final KpiB8DetailResultService kpiB8DetailResultService;
 
+    private final KpiC2DetailResultService kpiC2DetailResultService;
+
 
     public KpiDetailResultResource(
         KpiA1DetailResultService kpiA1DetailResultService,
@@ -82,7 +84,8 @@ public class KpiDetailResultResource {
         KpiB4DetailResultService kpiB4DetailResultService,
         KpiB5Service kpiB5Service,
         KpiB8DetailResultService kpiB8DetailResultService,
-        GenericKpiDetailResultService genericKpiDetailResultService
+        GenericKpiDetailResultService genericKpiDetailResultService,
+        KpiC2DetailResultService kpiC2DetailResultService
     ) {
         this.kpiA1DetailResultService = kpiA1DetailResultService;
         this.kpiB1DetailResultService = kpiB1DetailResultService;
@@ -94,6 +97,7 @@ public class KpiDetailResultResource {
         this.kpiB5Service = kpiB5Service;
         this.kpiB8DetailResultService = kpiB8DetailResultService;
         this.genericKpiDetailResultService = genericKpiDetailResultService;
+        this.kpiC2DetailResultService = kpiC2DetailResultService;
     }
 
     /**
@@ -234,10 +238,28 @@ public class KpiDetailResultResource {
     @GetMapping("kpi-detail-results/b8/module/{resultId}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.KPI_B8_DETAIL_RESULT_DETAIL + "\")")
     public ResponseEntity<List<KpiB8DetailResultDTO>> getKpiB8DetailResults(@PathVariable Long resultId) {
-        log.debug("REST request to get kpi detail results of kpiB4Result : {} of type b8", resultId);
+        log.debug("REST request to get kpi detail results of kpiB8Result : {} of type b8", resultId);
         List<KpiB8DetailResultDTO> kpiB8DetailResults = kpiB8DetailResultService.findByResultId(resultId);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(kpiB8DetailResults));
     }
+
+    /**
+     * {@code GET  /kpi-detail-results/b4/module/{resultId}} : get the KpiB4DetailResultDTOs
+     * associated with the "resultId" of type B4.
+     *
+     * @param resultId the id of the kpiB4Result for which the KPI detail results are to be retrieved
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of KpiB4DetailResultDTOs in the body,
+     *         or with status {@code 404 (Not Found)} if no results are found
+     */
+    @GetMapping("kpi-detail-results/c2/module/{resultId}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.KPI_C2_DETAIL_RESULT_DETAIL + "\")")
+    public ResponseEntity<List<KpiC2DetailResultDTO>> getKpiC2DetailResults(@PathVariable Long resultId) {
+        log.debug("REST request to get kpi detail results of kpiC2Result : {} of type c2", resultId);
+        List<KpiC2DetailResultDTO> kpiC2DetailResults = kpiC2DetailResultService.findByResultId(resultId);
+        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(kpiC2DetailResults));
+    }
+
+
 
     /**
      * {@code GET  /kpi-detail-results/b6/module/{resultId}} : get the KpiB6DetailResultDTOs
