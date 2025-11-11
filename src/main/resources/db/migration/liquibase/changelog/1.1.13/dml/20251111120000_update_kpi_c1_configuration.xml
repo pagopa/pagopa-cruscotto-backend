@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+  <!-- Update KPI C.1 configuration to use correct tolerance columns -->
+  <changeSet id="20251111120000-1" author="system" context="dml">
+    <comment>Update KPI C.1 configuration: use CO_INSTITUTION_TOLERANCE and CO_NOTIFICATION_TOLERANCE instead of CO_ELIGIBILITY_THRESHOLD and CO_TOLERANCE</comment>
+
+    <sql dbms="postgresql">
+      <!-- Update KPI C.1 configuration for module ID 12 -->
+      <!-- 
+        CO_INSTITUTION_TOLERANCE = 50.0 (soglia enti: almeno il 50% degli enti devono essere compliant)
+        CO_NOTIFICATION_TOLERANCE = 100.0 (percentuale messaggi richiesta: 100% dei messaggi devono essere inviati)
+      -->
+      UPDATE ${database.defaultSchemaName}.KPI_CONFIGURATION 
+      SET 
+        CO_INSTITUTION_TOLERANCE = 50.0,
+        CO_NOTIFICATION_TOLERANCE = 100.0
+      WHERE CO_MODULE_ID = 12;
+    </sql>
+
+    <rollback>
+      <!-- Restore original values -->
+      UPDATE ${database.defaultSchemaName}.KPI_CONFIGURATION 
+      SET 
+        CO_INSTITUTION_TOLERANCE = 1.0,
+        CO_NOTIFICATION_TOLERANCE = NULL
+      WHERE CO_MODULE_ID = 12;
+    </rollback>
+  </changeSet>
+
+</databaseChangeLog>
