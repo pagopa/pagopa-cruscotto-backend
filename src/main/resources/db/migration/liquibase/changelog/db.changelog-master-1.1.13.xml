@@ -27,5 +27,7 @@
     <include file="1.1.13/dml/20251104170001_add_kpi_c1_data.xml" relativeToChangelogFile="true"/>
     <!-- IO_DRILLDOWN permissions (DML) -->
     <include file="1.1.13/dml/20251110121000_add_io_drilldown_permissions.xml" relativeToChangelogFile="true"/>
+    <!-- Update KPI C.1 configuration to use correct tolerance columns (DML) -->
+    <include file="1.1.13/dml/20251111120000_update_kpi_c1_configuration.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>
