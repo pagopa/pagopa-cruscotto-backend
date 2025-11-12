@@ -47,7 +47,7 @@ public class KpiB8Resource {
      * @return the ResponseEntity with status 200 (OK) and the list of KPI B8 results
      */
     @GetMapping("/results/{instanceId}")
-    @PreAuthorize("hasAuthority('KPI_B8_RESULT_READ')")
+    @PreAuthorize("hasAuthority('GTW.KPI_B8_RESULT_READ')")
     @Operation(summary = "Get KPI B8 results", description = "Get all KPI B8 calculation results for a specific instance")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "KPI B8 results retrieved successfully"),
@@ -70,7 +70,7 @@ public class KpiB8Resource {
      * @return the ResponseEntity with status 200 (OK) and the latest KPI B8 result
      */
     @GetMapping("/results/{instanceId}/latest")
-    @PreAuthorize("hasAuthority('KPI_B8_RESULT_READ')")
+    @PreAuthorize("hasAuthority('GTW.KPI_B8_RESULT_READ')")
     @Operation(summary = "Get latest KPI B8 result", description = "Get the most recent KPI B8 calculation result for a specific instance")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Latest KPI B8 result retrieved successfully"),
@@ -94,7 +94,7 @@ public class KpiB8Resource {
      * @return the ResponseEntity with status 200 (OK) and the list of detail results
      */
     @GetMapping("/detail-results/{instanceId}")
-    @PreAuthorize("hasAuthority('KPI_B8_DETAIL_RESULT_READ')")
+    @PreAuthorize("hasAuthority('GTW.KPI_B8_DETAIL_RESULT_READ')")
     @Operation(summary = "Get KPI B8 detail results", description = "Get detailed results (monthly/total) for a specific KPI B8 analysis")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "KPI B8 detail results retrieved successfully"),
@@ -122,7 +122,7 @@ public class KpiB8Resource {
      * @return the ResponseEntity with status 200 (OK) and the list of analytic data
      */
     @GetMapping("/analytic-data/{instanceId}")
-    @PreAuthorize("hasAuthority('KPI_B8_ANALYTIC_DATA_READ')")
+    @PreAuthorize("hasAuthority('GTW.KPI_B8_ANALYTIC_DATA_READ')")
     @Operation(summary = "Get KPI B8 analytic data", description = "Get granular analytic data for drill-down functionality")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "KPI B8 analytic data retrieved successfully"),
@@ -148,7 +148,7 @@ public class KpiB8Resource {
      * @return the ResponseEntity with status 200 (OK) and the recalculated result
      */
     @PostMapping("/recalculate/{instanceId}")
-    @PreAuthorize("hasAuthority('KPI_B8_RESULT_WRITE')")
+    @PreAuthorize("hasAuthority('GTW.KPI_B8_RESULT_WRITE')")
     @Operation(summary = "Recalculate KPI B8", description = "Force recalculation of KPI B8 for a specific instance")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "KPI B8 recalculated successfully"),
@@ -171,7 +171,7 @@ public class KpiB8Resource {
      * @return the ResponseEntity with status 204 (NO_CONTENT)
      */
     @DeleteMapping("/data/{instanceId}")
-    @PreAuthorize("hasAuthority('KPI_B8_RESULT_DELETE')")
+    @PreAuthorize("hasAuthority('GTW.KPI_B8_RESULT_DELETE')")
     @Operation(summary = "Delete KPI B8 data", description = "Delete all KPI B8 calculation data for a specific instance")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "KPI B8 data deleted successfully"),
@@ -194,7 +194,7 @@ public class KpiB8Resource {
      * @return the ResponseEntity with status 200 (OK) and boolean result
      */
     @GetMapping("/results/{instanceId}/exists")
-    @PreAuthorize("hasAuthority('KPI_B8_RESULT_READ')")
+    @PreAuthorize("hasAuthority('GTW.KPI_B8_RESULT_READ')")
     @Operation(summary = "Check KPI B8 calculation exists", description = "Check if a KPI B8 calculation exists for the specified instance and date")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Check completed successfully"),
