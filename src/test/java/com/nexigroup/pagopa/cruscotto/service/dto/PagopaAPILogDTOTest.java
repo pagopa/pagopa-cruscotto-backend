@@ -17,9 +17,7 @@ class PagopaAPILogDTOTest {
     @BeforeEach
     void setUp() {
         objectMapper = new ObjectMapper();
-        // Registriamo il modulo per Java 8 date/time
         objectMapper.registerModule(new JavaTimeModule());
-        // Serializzare le date come stringhe ISO, non come timestamp
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 
@@ -68,6 +66,64 @@ class PagopaAPILogDTOTest {
         assertEquals(100, dto.getTotReq());
         assertEquals(80, dto.getReqOk());
         assertEquals(20, dto.getReqKo());
+    }
+
+    @Test
+    void testNoArgsConstructorAndDefaultValues() {
+        PagopaAPILogDTO dto = new PagopaAPILogDTO();
+        assertNull(dto.getCfPartner());
+        assertNull(dto.getDate());
+        assertNull(dto.getStation());
+        assertNull(dto.getCfEnte());
+        assertNull(dto.getApi());
+        assertNull(dto.getTotReq());
+        assertNull(dto.getReqOk());
+        assertNull(dto.getReqKo());
+    }
+
+    @Test
+    void testEqualsAndHashCode() {
+        LocalDate date = LocalDate.of(2025, 10, 29);
+        PagopaAPILogDTO dto1 = new PagopaAPILogDTO("ABC123", date, "Station1", "ENTE456", "PAYMENT_API", 100, 80, 20);
+        PagopaAPILogDTO dto2 = new PagopaAPILogDTO("ABC123", date, "Station1", "ENTE456", "PAYMENT_API", 100, 80, 20);
+        PagopaAPILogDTO dto3 = new PagopaAPILogDTO("XYZ789", date, "Station2", "ENTE999", "OTHER_API", 200, 150, 50);
+
+        // Reflexive
+        assertEquals(dto1, dto1);
+        // Symmetric
+        assertEquals(dto1, dto2);
+        assertEquals(dto2, dto1);
+        // Transitive
+        PagopaAPILogDTO dto4 = new PagopaAPILogDTO("ABC123", date, "Station1", "ENTE456", "PAYMENT_API", 100, 80, 20);
+        assertEquals(dto1, dto2);
+        assertEquals(dto2, dto4);
+        assertEquals(dto1, dto4);
+        // Not equal
+        assertNotEquals(dto1, dto3);
+        // Not equal to null or other class
+        assertNotEquals(dto1, null);
+        assertNotEquals(dto1, "some string");
+
+        // HashCode consistency
+        assertEquals(dto1.hashCode(), dto2.hashCode());
+        assertNotEquals(dto1.hashCode(), dto3.hashCode());
+    }
+
+    @Test
+    void testToStringContainsFields() {
+        LocalDate date = LocalDate.of(2025, 10, 29);
+        PagopaAPILogDTO dto = new PagopaAPILogDTO("ABC123", date, "Station1", "ENTE456", "PAYMENT_API", 100, 80, 20);
+
+        String toString = dto.toString();
+
+        assertTrue(toString.contains("ABC123"));
+        assertTrue(toString.contains("2025-10-29"));
+        assertTrue(toString.contains("Station1"));
+        assertTrue(toString.contains("ENTE456"));
+        assertTrue(toString.contains("PAYMENT_API"));
+        assertTrue(toString.contains("100"));
+        assertTrue(toString.contains("80"));
+        assertTrue(toString.contains("20"));
     }
 
     @Test
@@ -121,5 +177,12 @@ class PagopaAPILogDTOTest {
         assertEquals(100, dto.getTotReq());
         assertEquals(80, dto.getReqOk());
         assertEquals(20, dto.getReqKo());
+    }
+
+    @Test
+    void testJsonSerializationWithNullValues() throws Exception {
+        PagopaAPILogDTO dto = new PagopaAPILogDTO();
+        String json = objectMapper.writeValueAsString(dto);
+        assertTrue(json.contains("{}") || json.contains("partnerFiscalCode"));
     }
 }
