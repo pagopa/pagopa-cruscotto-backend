@@ -60,8 +60,7 @@ public interface PagopaSendRepository extends JpaRepository<PagopaSend, Long>, J
     @Query("""
     SELECT COUNT(p.cfInstitution)
     FROM PagopaSend p
-    WHERE (:cfPartner IS NULL OR :cfPartner = '' OR p.cfPartner = :cfPartner)
-      AND (COALESCE(:listInstitutionFiscalCode, NULL) IS NULL OR p.cfInstitution IN :listInstitutionFiscalCode)
+    WHERE (COALESCE(:listInstitutionFiscalCode, NULL) IS NULL OR p.cfInstitution IN :listInstitutionFiscalCode)
     """)
     Long calculateTotalNumberInsitution(        @Param("cfPartner") String cfPartner,
                                                 @Param("listInstitutionFiscalCode") List<String> listInstitutionFiscalCode);
@@ -69,8 +68,7 @@ public interface PagopaSendRepository extends JpaRepository<PagopaSend, Long>, J
     @Query("""
     SELECT COUNT(DISTINCT p.cfInstitution)
     FROM PagopaSend p
-    WHERE (:cfPartner IS NULL OR :cfPartner = '' OR p.cfPartner = :cfPartner)
-      AND (COALESCE(:listInstitutionFiscalCode, NULL) IS NULL OR p.cfInstitution IN :listInstitutionFiscalCode)
+    WHERE  (COALESCE(:listInstitutionFiscalCode, NULL) IS NULL OR p.cfInstitution IN :listInstitutionFiscalCode)
       AND p.date BETWEEN :startDate AND :endDate
       AND p.paymentsNumber > 0
     """)
@@ -82,10 +80,9 @@ public interface PagopaSendRepository extends JpaRepository<PagopaSend, Long>, J
     );
 
     @Query("""
-    SELECT COUNT(DISTINCT p.paymentsNumber)
+    SELECT SUM(p.paymentsNumber)
     FROM PagopaSend p
-    WHERE (:cfPartner IS NULL OR :cfPartner = '' OR p.cfPartner = :cfPartner)
-      AND (COALESCE(:listInstitutionFiscalCode, NULL) IS NULL OR p.cfInstitution IN :listInstitutionFiscalCode)
+    WHERE (COALESCE(:listInstitutionFiscalCode, NULL) IS NULL OR p.cfInstitution IN :listInstitutionFiscalCode)
       AND p.date BETWEEN :startDate AND :endDate
     """)
     Long calculateTotalNumberPayment(
@@ -96,10 +93,9 @@ public interface PagopaSendRepository extends JpaRepository<PagopaSend, Long>, J
     );
 
     @Query("""
-    SELECT COUNT(DISTINCT p.notificationNumber)
+    SELECT SUM(DISTINCT p.notificationNumber)
     FROM PagopaSend p
-    WHERE (:cfPartner IS NULL OR :cfPartner = '' OR p.cfPartner = :cfPartner)
-      AND (COALESCE(:listInstitutionFiscalCode, NULL) IS NULL OR p.cfInstitution IN :listInstitutionFiscalCode)
+    WHERE (COALESCE(:listInstitutionFiscalCode, NULL) IS NULL OR p.cfInstitution IN :listInstitutionFiscalCode)
       AND p.date BETWEEN :startDate AND :endDate
     """)
     Long calculateTotalNumberNotification(
@@ -117,8 +113,7 @@ public interface PagopaSendRepository extends JpaRepository<PagopaSend, Long>, J
         SUM(p.paymentsNumber) AS totalPayments,
         SUM(p.notificationNumber) AS totalNotifications
     FROM PagopaSend p
-    WHERE (:cfPartner IS NULL OR :cfPartner = '' OR p.cfPartner = :cfPartner)
-      AND (COALESCE(:listInstitutionFiscalCode, NULL) IS NULL OR p.cfInstitution IN :listInstitutionFiscalCode)
+    WHERE (COALESCE(:listInstitutionFiscalCode, NULL) IS NULL OR p.cfInstitution IN :listInstitutionFiscalCode)
       AND p.date BETWEEN :fromDate AND :toDate
     GROUP BY DATE(p.date)
     ORDER BY DATE(p.date) ASC
@@ -142,8 +137,7 @@ public interface PagopaSendRepository extends JpaRepository<PagopaSend, Long>, J
     @Query("""
     SELECT p.cfPartner, p.cfInstitution, p.date, p.paymentsNumber, p.notificationNumber
     FROM PagopaSend p
-    WHERE (:cfPartner IS NULL OR :cfPartner = '' OR p.cfPartner = :cfPartner)
-      AND (COALESCE(:listInstitutionFiscalCode, NULL) IS NULL OR p.cfInstitution IN :listInstitutionFiscalCode)
+    WHERE (COALESCE(:listInstitutionFiscalCode, NULL) IS NULL OR p.cfInstitution IN :listInstitutionFiscalCode)
       AND p.date = :date
     ORDER BY p.cfInstitution
     """)

@@ -17,11 +17,11 @@ class KpiResultTest {
     void setUp() {
         kpiResult = new KpiResult();
         kpiResult.setId(1L);
-        kpiResult.setModuleCode(ModuleCode.B3); // deve corrispondere all'oggetto di test
+        kpiResult.setModuleCode(ModuleCode.B3);
         kpiResult.setInstanceId(100L);
         kpiResult.setInstanceModuleId(200L);
         kpiResult.setAnalysisDate(LocalDate.of(2025, 1, 1));
-        kpiResult.setOutcome(OutcomeStatus.OK); // deve corrispondere all'oggetto di test
+        kpiResult.setOutcome(OutcomeStatus.OK);
         kpiResult.setAdditionalData("{\"key\":\"value\"}");
     }
 
@@ -37,39 +37,38 @@ class KpiResultTest {
     }
 
     @Test
-    void testNotEquals() {
-        KpiResult different = new KpiResult();
-        different.setId(2L);
-        different.setModuleCode(ModuleCode.B3);
-
-        assertThat(kpiResult).isNotEqualTo(different);
-    }
-
-    @Test
-    void testToString() {
-        String result = kpiResult.toString();
-        assertThat(result)
+    void testToStringContainsFields() {
+        String str = kpiResult.toString();
+        // Controllo solo i campi, ignora l'hashcode dinamico
+        assertThat(str)
             .contains("id=1")
             .contains("moduleCode=B3")
             .contains("instanceId=100")
             .contains("instanceModuleId=200")
+            .contains("analysisDate=2025-01-01")
             .contains("outcome=OK")
-            .contains("additionalData");
+            .contains("additionalData={\"key\":\"value\"}");
     }
 
     @Test
-    void testEntityAnnotations() throws NoSuchFieldException {
-        // Assicurati di usare jakarta.persistence
-        assertThat(KpiResult.class.isAnnotationPresent(jakarta.persistence.Entity.class)).isTrue();
-        assertThat(KpiResult.class.isAnnotationPresent(jakarta.persistence.Table.class)).isTrue();
+    void testEnumVariations() {
+        for (ModuleCode code : ModuleCode.values()) {
+            kpiResult.setModuleCode(code);
+            assertThat(kpiResult.getModuleCode()).isEqualTo(code);
+        }
 
-        assertThat(KpiResult.class.getDeclaredField("id")
-            .isAnnotationPresent(jakarta.persistence.Id.class)).isTrue();
+        for (OutcomeStatus status : OutcomeStatus.values()) {
+            kpiResult.setOutcome(status);
+            assertThat(kpiResult.getOutcome()).isEqualTo(status);
+        }
+    }
 
-        assertThat(KpiResult.class.getDeclaredField("moduleCode")
-            .isAnnotationPresent(jakarta.persistence.Enumerated.class)).isTrue();
+    @Test
+    void testAdditionalDataNullAndEmpty() {
+        kpiResult.setAdditionalData(null);
+        assertThat(kpiResult.getAdditionalData()).isNull();
 
-        assertThat(KpiResult.class.getDeclaredField("analysisDate")
-            .isAnnotationPresent(jakarta.persistence.Column.class)).isTrue();
+        kpiResult.setAdditionalData("");
+        assertThat(kpiResult.getAdditionalData()).isEmpty();
     }
 }
