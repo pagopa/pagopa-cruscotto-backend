@@ -47,7 +47,7 @@ public class KpiC2Resource {
      * @return the ResponseEntity with status 200 (OK) and the list of KPI C2 results
      */
     @GetMapping("/results/{instanceId}")
-    @PreAuthorize("hasAuthority('KPI_C2_RESULT_READ')")
+    @PreAuthorize("hasAuthority('GTW.KPI_C2_RESULT_READ')")
     @Operation(summary = "Get KPI C2 results", description = "Get all KPI C2 calculation results for a specific instance")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "KPI C2 results retrieved successfully"),
@@ -70,7 +70,7 @@ public class KpiC2Resource {
      * @return the ResponseEntity with status 200 (OK) and the latest KPI C2 result
      */
     @GetMapping("/results/{instanceId}/latest")
-    @PreAuthorize("hasAuthority('KPI_C2_RESULT_READ')")
+    @PreAuthorize("hasAuthority('GTW.KPI_C2_RESULT_READ')")
     @Operation(summary = "Get latest KPI C2 result", description = "Get the most recent KPI C2 calculation result for a specific instance")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Latest KPI C2 result retrieved successfully"),
@@ -94,7 +94,7 @@ public class KpiC2Resource {
      * @return the ResponseEntity with status 200 (OK) and the list of detail results
      */
     @GetMapping("/detail-results/{instanceId}")
-    @PreAuthorize("hasAuthority('KPI_C2_DETAIL_RESULT_READ')")
+    @PreAuthorize("hasAuthority('GTW.KPI_C2_DETAIL_RESULT_READ')")
     @Operation(summary = "Get KPI C2 detail results", description = "Get detailed results (monthly/total) for a specific KPI C2 analysis")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "KPI C2 detail results retrieved successfully"),
@@ -122,7 +122,7 @@ public class KpiC2Resource {
      * @return the ResponseEntity with status 200 (OK) and the list of analytic data
      */
     @GetMapping("/analytic-data/{instanceId}")
-    @PreAuthorize("hasAuthority('KPI_C2_ANALYTIC_DATA_READ')")
+    @PreAuthorize("hasAuthority('GTW.KPI_C2_ANALYTIC_DATA_READ')")
     @Operation(summary = "Get KPI C2 analytic data", description = "Get granular analytic data for drill-down functionality")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "KPI C2 analytic data retrieved successfully"),
@@ -148,7 +148,7 @@ public class KpiC2Resource {
      * @return the ResponseEntity with status 200 (OK) and the recalculated result
      */
     @PostMapping("/recalculate/{instanceId}")
-    @PreAuthorize("hasAuthority('KPI_C2_RESULT_WRITE')")
+    @PreAuthorize("hasAuthority('GTW.KPI_C2_RESULT_WRITE')")
     @Operation(summary = "Recalculate KPI C2", description = "Force recalculation of KPI C2 for a specific instance")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "KPI C2 recalculated successfully"),
@@ -171,7 +171,7 @@ public class KpiC2Resource {
      * @return the ResponseEntity with status 204 (NO_CONTENT)
      */
     @DeleteMapping("/data/{instanceId}")
-    @PreAuthorize("hasAuthority('KPI_C2_RESULT_DELETE')")
+    @PreAuthorize("hasAuthority('GTW.KPI_C2_RESULT_DELETE')")
     @Operation(summary = "Delete KPI C2 data", description = "Delete all KPI C2 calculation data for a specific instance")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "KPI C2 data deleted successfully"),
@@ -194,7 +194,7 @@ public class KpiC2Resource {
      * @return the ResponseEntity with status 200 (OK) and boolean result
      */
     @GetMapping("/results/{instanceId}/exists")
-    @PreAuthorize("hasAuthority('KPI_C2_RESULT_READ')")
+    @PreAuthorize("hasAuthority('GTW.KPI_C2_RESULT_READ')")
     @Operation(summary = "Check KPI C2 calculation exists", description = "Check if a KPI C2 calculation exists for the specified instance and date")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Check completed successfully"),

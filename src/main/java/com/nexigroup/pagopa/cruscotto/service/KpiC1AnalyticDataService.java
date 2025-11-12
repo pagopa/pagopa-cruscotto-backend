@@ -12,6 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.stream.Collectors;
 
 /**
@@ -175,54 +178,42 @@ public class KpiC1AnalyticDataService {
         if (rows.isEmpty()) {
             return List.of();
         }
-
-        // Per calcolare institutionCount e koInstitutionCount dobbiamo conoscere la soglia di compliance.
-        // Recuperiamo il detail result per ottenere la soglia configurata (percentageCompliantInstitutions non serve qui).
-        // Poiché non abbiamo un repository qui, riusiamo la reference date e instance/module dalle prime righe.
-    // Prima riga disponibile (non utilizzata direttamente: manteniamo solo per eventuale estensione futura)
-
-        // Tentiamo di inferire la soglia dai detail results aggregati salvati (AGGREGATED) se disponibile.
-        // In assenza di accesso diretto al detail service qui, calcoleremo i KO sul principio business: required = 100 - tolerance.
-        // Non avendo la tolerance sul singolo analytic row, la lasciamo a 100 (nessun margine) come fallback.
-        double computedRequiredMessagePercentage = 100.0; // Fallback conservativo.
+        // Recupero diretto della soglia configurata dal dettaglio (già espressa come percentuale richiesta di invio messaggi)
+        double requiredMessagePercentage = 100.0; // fallback se non reperibile
         try {
             if (kpiC1DetailResultRepository != null) {
                 var opt = kpiC1DetailResultRepository.findById(detailResultId);
-                if (opt.isPresent() && opt.orElseThrow().getConfiguredThreshold() != null) {
-                    double tolerance = opt.orElseThrow().getConfiguredThreshold().doubleValue();
+                if (opt.isPresent() && opt.get().getConfiguredThreshold() != null) {
+                    double tolerance = opt.get().getConfiguredThreshold().doubleValue();
                     computedRequiredMessagePercentage = 100.0 - tolerance;
                     if (computedRequiredMessagePercentage < 0.0) computedRequiredMessagePercentage = 0.0;
                     if (computedRequiredMessagePercentage > 100.0) computedRequiredMessagePercentage = 100.0;
                 }
             }
         } catch (Exception ex) {
-            log.debug("Unable to derive tolerance from detailResultId {}: {}", detailResultId, ex.getMessage());
+            log.warn("Unable to read configuredThreshold for detailResultId {}: {}", detailResultId, ex.getMessage());
         }
-        final double requiredMessagePercentage = computedRequiredMessagePercentage;
+        log.debug("Required message percentage={} for detailResultId={}", requiredMessagePercentage, detailResultId);
 
-        // Calcolo per giorno: percentuale = messageNumber/positionNumber (regole speciali 0 -> 0% o 100%).
-        // Raggruppiamo per ente per contare gli enti KO almeno in un giorno.
-        Map<String, Boolean> entityCompliant = rows.stream().collect(Collectors.groupingBy(KpiC1AnalyticData::getCfInstitution,
-            Collectors.collectingAndThen(Collectors.toList(), list -> {
-                long sumPositions = list.stream().mapToLong(KpiC1AnalyticData::getPositionNumber).sum();
-                long sumMessages = list.stream().mapToLong(KpiC1AnalyticData::getMessageNumber).sum();
-                double pct;
-                if (sumPositions == 0) {
-                    pct = (sumMessages > 0) ? 100.0 : 0.0;
-                } else {
-                    pct = (double) sumMessages / (double) sumPositions * 100.0;
-                }
-                return pct >= requiredMessagePercentage; // confronto con soglia derivata da tolerance
-            })));
+        // Calcoliamo per ogni data quante istituzioni hanno almeno una riga e quante sono KO (percentuale giornaliera < soglia)
+            Map<LocalDate, Set<String>> institutionsByDate = new HashMap<>();
+            Map<LocalDate, Set<String>> koInstitutionsByDate = new HashMap<>();
+        for (KpiC1AnalyticData r : rows) {
+                institutionsByDate.computeIfAbsent(r.getData(), d -> new HashSet<>()).add(r.getCfInstitution());
+                if (Boolean.FALSE.equals(r.getMeetsTolerance())) {
+                    koInstitutionsByDate.computeIfAbsent(r.getData(), d -> new HashSet<>()).add(r.getCfInstitution());
+            }
+        }
 
-        int totalInstitutions = entityCompliant.size();
-        int koInstitutions = (int) entityCompliant.values().stream().filter(b -> !b).count();
-
-        return rows.stream().map(kpiC1AnalyticDataMapper::toDto)
+        return rows.stream()
+            .map(kpiC1AnalyticDataMapper::toDto)
             .peek(dto -> {
                 dto.setKpiC1DetailResultId(detailResultId);
-                dto.setInstitutionCount(totalInstitutions);
-                dto.setKoInstitutionCount(koInstitutions);
+                    LocalDate day = dto.getDataDate();
+                    int instCount = institutionsByDate.getOrDefault(day, java.util.Collections.emptySet()).size();
+                    int koCount = koInstitutionsByDate.getOrDefault(day, java.util.Collections.emptySet()).size();
+                dto.setInstitutionCount(instCount);
+                dto.setKoInstitutionCount(koCount);
             })
             .collect(Collectors.toList());
     }
