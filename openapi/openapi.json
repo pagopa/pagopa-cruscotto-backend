@@ -11001,9 +11001,9 @@
       "KpiC2ResultDTO": {
         "required": [
           "analysisDate",
-          "eligibilityThreshold",
+          "institutionTolerance",
           "tolerance",
-          "evaluationType",
+          "notificationTolerance",
           "instanceId",
           "instanceModuleId",
           "outcome"

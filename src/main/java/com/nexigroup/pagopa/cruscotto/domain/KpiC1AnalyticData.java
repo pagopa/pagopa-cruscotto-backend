@@ -75,6 +75,16 @@ public class KpiC1AnalyticData extends AbstractAuditingEntity<Long> {
     @Column(name = "CO_MESSAGES_COUNT", nullable = false)
     private Long messageNumber = 0L;
 
+    @Column(name = "CO_PERCENTAGE")
+    private Double percentage;
+
+    @Column(name = "FL_MEETS_TOLERANCE")
+    private Boolean meetsTolerance;
+
+    @Size(max = 50)
+    @Column(name = "TE_CF_PARTNER", length = 50)
+    private String cfPartner;
+
     /**
      * Default constructor
      */
@@ -126,8 +136,11 @@ public class KpiC1AnalyticData extends AbstractAuditingEntity<Long> {
                 ", referenceDate=" + referenceDate +
                 ", data=" + data +
                 ", cfInstitution='" + cfInstitution + '\'' +
+                ", cfPartner='" + cfPartner + '\'' +
                 ", positionNumber=" + positionNumber +
                 ", messageNumber=" + messageNumber +
+                ", percentage=" + percentage +
+                ", meetsTolerance=" + meetsTolerance +
                 "}";
     }
 }
