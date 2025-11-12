@@ -28,10 +28,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * REST controller for managing KPI B.4 "Zero Incident" calculations and results.
- * 
+ *
  * Provides endpoints for:
  * - Retrieving KPI B4 calculation results
- * - Accessing detail results (monthly/total analysis)  
+ * - Accessing detail results (monthly/total analysis)
  * - Drill-down into analytic data
  * - Managing KPI B4 calculations
  */
@@ -52,7 +52,7 @@ public class KpiB4Resource {
      * @return the ResponseEntity with status 200 (OK) and the list of KPI B4 results
      */
     @GetMapping("/results/{instanceId}")
-    @PreAuthorize("hasAuthority('KPI_B4_RESULT_READ')")
+    @PreAuthorize("hasAuthority('GTW.KPI_B4_RESULT_READ')")
     @Operation(summary = "Get KPI B4 results", description = "Get all KPI B4 calculation results for a specific instance")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "KPI B4 results retrieved successfully"),
@@ -75,7 +75,7 @@ public class KpiB4Resource {
      * @return the ResponseEntity with status 200 (OK) and the latest KPI B4 result
      */
     @GetMapping("/results/{instanceId}/latest")
-    @PreAuthorize("hasAuthority('KPI_B4_RESULT_READ')")
+    @PreAuthorize("hasAuthority('GTW.KPI_B4_RESULT_READ')")
     @Operation(summary = "Get latest KPI B4 result", description = "Get the most recent KPI B4 calculation result for a specific instance")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Latest KPI B4 result retrieved successfully"),
@@ -99,7 +99,7 @@ public class KpiB4Resource {
      * @return the ResponseEntity with status 200 (OK) and the list of detail results
      */
     @GetMapping("/detail-results/{instanceId}")
-    @PreAuthorize("hasAuthority('KPI_B4_DETAIL_RESULT_READ')")
+    @PreAuthorize("hasAuthority('GTW.KPI_B4_DETAIL_RESULT_READ')")
     @Operation(summary = "Get KPI B4 detail results", description = "Get detailed results (monthly/total) for a specific KPI B4 analysis")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "KPI B4 detail results retrieved successfully"),
@@ -109,7 +109,7 @@ public class KpiB4Resource {
     })
     public ResponseEntity<Page<KpiB4DetailResultDTO>> getKpiB4DetailResults(
         @Parameter(description = "Instance ID", required = true) @PathVariable String instanceId,
-        @Parameter(description = "Analysis date (ISO format)", required = true) 
+        @Parameter(description = "Analysis date (ISO format)", required = true)
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime analysisDate,
         @Parameter(description = "Pagination parameters") Pageable pageable
     ) {
@@ -127,7 +127,7 @@ public class KpiB4Resource {
      * @return the ResponseEntity with status 200 (OK) and the list of analytic data
      */
     @GetMapping("/analytic-data/{instanceId}")
-    @PreAuthorize("hasAuthority('KPI_B4_ANALYTIC_DATA_READ')")
+    @PreAuthorize("hasAuthority('GTW.KPI_B4_ANALYTIC_DATA_READ')")
     @Operation(summary = "Get KPI B4 analytic data", description = "Get granular analytic data for drill-down functionality")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "KPI B4 analytic data retrieved successfully"),
@@ -137,7 +137,7 @@ public class KpiB4Resource {
     })
     public ResponseEntity<Page<KpiB4AnalyticDataDTO>> getKpiB4AnalyticData(
         @Parameter(description = "Instance ID", required = true) @PathVariable String instanceId,
-        @Parameter(description = "Analysis date (ISO format)", required = true) 
+        @Parameter(description = "Analysis date (ISO format)", required = true)
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime analysisDate,
         @Parameter(description = "Pagination parameters") Pageable pageable
     ) {
@@ -153,7 +153,7 @@ public class KpiB4Resource {
      * @return the ResponseEntity with status 200 (OK) and the recalculated result
      */
     @PostMapping("/recalculate/{instanceId}")
-    @PreAuthorize("hasAuthority('KPI_B4_RESULT_WRITE')")
+    @PreAuthorize("hasAuthority('GTW.KPI_B4_RESULT_WRITE')")
     @Operation(summary = "Recalculate KPI B4", description = "Force recalculation of KPI B4 for a specific instance")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "KPI B4 recalculated successfully"),
@@ -176,7 +176,7 @@ public class KpiB4Resource {
      * @return the ResponseEntity with status 204 (NO_CONTENT)
      */
     @DeleteMapping("/data/{instanceId}")
-    @PreAuthorize("hasAuthority('KPI_B4_RESULT_DELETE')")
+    @PreAuthorize("hasAuthority('GTW.KPI_B4_RESULT_DELETE')")
     @Operation(summary = "Delete KPI B4 data", description = "Delete all KPI B4 calculation data for a specific instance")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "KPI B4 data deleted successfully"),
@@ -199,7 +199,7 @@ public class KpiB4Resource {
      * @return the ResponseEntity with status 200 (OK) and boolean result
      */
     @GetMapping("/results/{instanceId}/exists")
-    @PreAuthorize("hasAuthority('KPI_B4_RESULT_READ')")
+    @PreAuthorize("hasAuthority('GTW.KPI_B4_RESULT_READ')")
     @Operation(summary = "Check KPI B4 calculation exists", description = "Check if a KPI B4 calculation exists for the specified instance and date")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Check completed successfully"),
@@ -208,7 +208,7 @@ public class KpiB4Resource {
     })
     public ResponseEntity<Boolean> existsKpiB4Calculation(
         @Parameter(description = "Instance ID", required = true) @PathVariable String instanceId,
-        @Parameter(description = "Analysis date (ISO format)", required = true) 
+        @Parameter(description = "Analysis date (ISO format)", required = true)
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime analysisDate
     ) {
         log.debug("REST request to check if KPI B4 calculation exists for instance: {} and date: {}", instanceId, analysisDate);
