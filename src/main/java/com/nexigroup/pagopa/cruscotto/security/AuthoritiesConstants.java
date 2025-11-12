@@ -174,26 +174,41 @@ public final class AuthoritiesConstants {
     public static final String KPI_B4_DETAIL_RESULT_DETAIL = "GTW.KPI_B4_DETAIL_RESULT_DETAIL";
 
     public static final String KPI_B4_ANALITIC_DATA_DETAIL = "GTW.KPI_B4_ANALITIC_DATA_DETAIL";
-    
+
     public static final String KPI_B6_RESULT_DETAIL = "GTW.KPI_B6_RESULT_DETAIL";
-    
+
     public static final String KPI_B6_DETAIL_RESULT_DETAIL = "GTW.KPI_B6_DETAIL_RESULT_DETAIL";
-    
+
     public static final String KPI_B6_ANALITIC_DATA_DETAIL = "GTW.KPI_B6_ANALITIC_DATA_DETAIL";
-    
+
     public static final String KPI_B5_RESULT_DETAIL = "GTW.KPI_B5_RESULT_DETAIL";
-    
+
     public static final String KPI_B5_DETAIL_RESULT_DETAIL = "GTW.KPI_B5_DETAIL_RESULT_DETAIL";
-    
+
     public static final String KPI_B5_ANALITIC_DATA_DETAIL = "GTW.KPI_B5_ANALITIC_DATA_DETAIL";
-    
+
     public static final String KPI_B5_PAGOPA_DATA_DETAIL = "GTW.KPI_B5_PAGOPA_DATA_DETAIL";
+    
+    public static final String KPI_C1_RESULT_DETAIL = "GTW.KPI_C1_RESULT_DETAIL";
+    
+    public static final String KPI_C1_DETAIL_RESULT_DETAIL = "GTW.KPI_C1_DETAIL_RESULT_DETAIL";
+    
+    public static final String KPI_C1_ANALITIC_DATA_DETAIL = "GTW.KPI_C1_ANALITIC_DATA_DETAIL";
+    
+    public static final String KPI_C1_PAGOPA_DATA_DETAIL = "GTW.KPI_C1_PAGOPA_DATA_DETAIL";
+    public static final String KPI_C1_IO_DRILLDOWN_DETAIL = "GTW.KPI_C1_IO_DRILLDOWN_DETAIL";
 
     public static final String KPI_B8_RESULT_DETAIL = "GTW.KPI_B8_RESULT_DETAIL";
 
     public static final String KPI_B8_DETAIL_RESULT_DETAIL = "GTW.KPI_B8_DETAIL_RESULT_DETAIL";
 
     public static final String KPI_B8_ANALITIC_DATA_DETAIL = "GTW.KPI_B8_ANALITIC_DATA_DETAIL";
+
+    public static final String KPI_C2_RESULT_DETAIL = "GTW.KPI_C2_RESULT_DETAIL";
+
+    public static final String KPI_C2_DETAIL_RESULT_DETAIL = "GTW.KPI_C2_DETAIL_RESULT_DETAIL";
+
+    public static final String KPI_C2_ANALITIC_DATA_DETAIL = "GTW.KPI_C2_ANALITIC_DATA_DETAIL";
 
 
     public static final String KPI_CONFIGURATION_LIST = "GTW.KPI_CONFIGURATION_LIST";

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+  <changeSet id="20251110121000-1" author="system" context="dml">
+    <comment>Add authorization permission for IO_DRILLDOWN access</comment>
+    <sql dbms="postgresql">
+      INSERT INTO ${database.defaultSchemaName}.AUTH_PERMISSION (co_id, te_nome, te_modulo)
+      VALUES (10104, 'KPI_C1_IO_DRILLDOWN_DETAIL', 'GTW') ON CONFLICT (co_id) DO NOTHING;
+
+      INSERT INTO ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM (co_auth_permission_id, co_auth_function_id)
+      VALUES (10104, 10004) ON CONFLICT DO NOTHING;
+    </sql>
+    <rollback>
+      DELETE FROM ${database.defaultSchemaName}.AUTH_FUN_AUTH_PERM WHERE co_auth_permission_id = 10104;
+      DELETE FROM ${database.defaultSchemaName}.AUTH_PERMISSION WHERE co_id = 10104;
+    </rollback>
+  </changeSet>
+</databaseChangeLog>

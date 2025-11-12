@@ -112,6 +112,11 @@ public class Module extends AbstractAuditingEntity<Long> implements Serializable
     @Column(name = "FL_CONFIG_TRANSACTION_TOLERANCE", nullable = false)
     private Boolean configTransactionTolerance;
 
+    @NotNull
+    @Column(name = "FL_CONFIG_NOTIFICATION_TOLERANCE", nullable = false)
+    private Boolean configNotificationTolerance;
+
+
     @Column(name = "FL_DELETED", nullable = false)
     private boolean deleted;
 

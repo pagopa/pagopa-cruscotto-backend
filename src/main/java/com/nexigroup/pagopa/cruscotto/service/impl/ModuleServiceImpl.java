@@ -299,7 +299,9 @@ public class ModuleServiceImpl implements ModuleService {
             QModule.module.configTransactionCount.as("configTransactionCount"),
             QModule.module.configTransactionTolerance.as("configTransactionTolerance"),
             QModule.module.configInstitutionCount.as("configInstitutionCount"),
-            QModule.module.configInstitutionTolerance.as("configInstitutionTolerance")
+            QModule.module.configInstitutionTolerance.as("configInstitutionTolerance"),
+            QModule.module.configNotificationTolerance.as("configNotificationTolerance")
+
         );
     }
 }
