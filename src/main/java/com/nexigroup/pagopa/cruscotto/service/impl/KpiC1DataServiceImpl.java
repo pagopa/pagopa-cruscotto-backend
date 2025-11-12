@@ -576,7 +576,11 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
     double requiredMessagePercentage = kpiConfigurationDTO.getNotificationTolerance() != null 
         ? kpiConfigurationDTO.getNotificationTolerance().doubleValue() : 100.0;
 
-        List<IoDrilldown> negatives = new ArrayList<>();
+    // Collezioneremo evidenze negative a livello di GIORNO: una giornata è negativa se
+    // almeno un ente è in KO (percentuale < soglia). In tal caso salviamo una riga drilldown
+    // per TUTTI gli enti di quel giorno (sia KO che OK) per poter effettuare confronti completi.
+    List<IoDrilldown> negatives = new ArrayList<>();
+    Map<LocalDate, List<com.nexigroup.pagopa.cruscotto.domain.KpiC1AnalyticData>> analyticsByDate = new HashMap<>();
 
         // Pre-carichiamo i detail results (monthly + total) per collegare ogni riga analitica.
         List<KpiC1DetailResult> detailResults = kpiC1DetailResultRepository != null
@@ -594,16 +598,15 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
                 instance, instanceModule, analysisDate, ioData.getData(),
                 ioData.getEnte(), ioData.getNumeroPosizioni().longValue(), ioData.getNumeroMessaggi().longValue()
             );
-            
-            // Calculate percentage and tolerance for this daily record
+
+            // Calcolo percentuale giornaliera
             double percentage = ioData.getPercentualeMessaggi();
             boolean meetsTolerance = percentage >= requiredMessagePercentage;
-            
-            // Set additional fields
+
             analyticData.setPercentage(percentage);
             analyticData.setMeetsTolerance(meetsTolerance);
             analyticData.setCfPartner(ioData.getCfPartner());
-            
+
             // Associa il dettaglio mensile che copre la data della riga (fallback al totale se non trovato)
             KpiC1DetailResult matchedMonthly = monthlyDetailResults.stream()
                 .filter(dr -> !ioData.getData().isBefore(dr.getEvaluationStartDate()) && !ioData.getData().isAfter(dr.getEvaluationEndDate()))
@@ -611,21 +614,39 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
             analyticData.setDetailResult(matchedMonthly != null ? matchedMonthly : totalDetailResult);
             com.nexigroup.pagopa.cruscotto.domain.KpiC1AnalyticData savedAnalytic = kpiC1AnalyticDataService.save(analyticData);
 
-            // Negative evidence if NOT meeting threshold
-            if (!meetsTolerance) {
-                IoDrilldown drill = new IoDrilldown(
-                    instance, instanceModule, savedAnalytic,
-                    analysisDate, ioData.getData(), ioData.getEnte(), ioData.getCfPartner(),
-                    ioData.getNumeroPosizioni().longValue(), ioData.getNumeroMessaggi().longValue(), percentage, meetsTolerance);
-                negatives.add(drill);
+            // Raggruppa per data per valutazione successiva (giorno negativo se almeno un KO)
+            analyticsByDate.computeIfAbsent(savedAnalytic.getData(), d -> new ArrayList<>()).add(savedAnalytic);
+        });
+
+        // Creazione evidenze negative: per ogni data con almeno un ente KO, salviamo tutte le righe
+        analyticsByDate.forEach((day, list) -> {
+            boolean dayHasKo = list.stream().anyMatch(ad -> Boolean.FALSE.equals(ad.getMeetsTolerance()));
+            if (dayHasKo) {
+                list.forEach(ad -> {
+                    IoDrilldown drill = new IoDrilldown(
+                        instance,
+                        instanceModule,
+                        ad,
+                        analysisDate,
+                        day,
+                        ad.getCfInstitution(),
+                        ad.getCfPartner(),
+                        ad.getPositionNumber(),
+                        ad.getMessageNumber(),
+                        ad.getPercentage(),
+                        ad.getMeetsTolerance()
+                    );
+                    negatives.add(drill);
+                });
+                LOGGER.debug("Giorno {} marcato come evidenza negativa ({} righe, {} KO)", day, list.size(), list.stream().filter(ad -> Boolean.FALSE.equals(ad.getMeetsTolerance())).count());
             }
         });
 
         if (!negatives.isEmpty()) {
             ioDrilldownService.saveAll(negatives);
-            LOGGER.info("Saved {} IO negative evidence drilldown rows", negatives.size());
+            LOGGER.info("Saved {} IO negative evidence drilldown rows (giorni con almeno un ente KO)", negatives.size());
         } else {
-            LOGGER.info("No negative evidences for KPI C.1; io_drilldown remains empty for this execution.");
+            LOGGER.info("Nessuna evidenza negativa (nessun giorno con enti KO) per questa esecuzione KPI C.1.");
         }
 
         LOGGER.debug("Saved {} analytic data records (FK detailResult valorizzata)", ioDataList.size());
