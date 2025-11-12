@@ -183,11 +183,11 @@ public class KpiC1AnalyticDataService {
         try {
             if (kpiC1DetailResultRepository != null) {
                 var opt = kpiC1DetailResultRepository.findById(detailResultId);
-                if (opt.isPresent() && opt.get().getConfiguredThreshold() != null) {
-                    double tolerance = opt.get().getConfiguredThreshold().doubleValue();
-                    computedRequiredMessagePercentage = 100.0 - tolerance;
-                    if (computedRequiredMessagePercentage < 0.0) computedRequiredMessagePercentage = 0.0;
-                    if (computedRequiredMessagePercentage > 100.0) computedRequiredMessagePercentage = 100.0;
+                if (opt.isPresent()) {
+                    var dr = opt.orElseThrow();
+                    if (dr.getConfiguredThreshold() != null) {
+                        requiredMessagePercentage = dr.getConfiguredThreshold().doubleValue(); // uso diretto
+                    }
                 }
             }
         } catch (Exception ex) {
