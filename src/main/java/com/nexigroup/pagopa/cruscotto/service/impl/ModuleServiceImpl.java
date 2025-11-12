@@ -193,7 +193,7 @@ public class ModuleServiceImpl implements ModuleService {
                         "Module cannot be cannot be created. The code %s is already assigned to an existing module",
                         moduleToCreate.getCode()
                     ),
-                    "module",
+                    MODULE,
                     "module.cannotBeCreated"
                 );
             });
@@ -243,7 +243,7 @@ public class ModuleServiceImpl implements ModuleService {
                 if (!module.getCode().equals(moduleToUpdate.getCode())) {
                     throw new GenericServiceException(
                         String.format("Module cannot be cannot be updated. The module code %s cannot be modified", module.getCode()),
-                        "module",
+                        MODULE,
                         "module.cannotBeUpdated"
                     );
                 }

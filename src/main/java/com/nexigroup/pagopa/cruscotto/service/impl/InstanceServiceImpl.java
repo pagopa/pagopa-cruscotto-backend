@@ -76,6 +76,12 @@ public class InstanceServiceImpl implements InstanceService {
 
     private static final String CURRENT_USER_LOGIN_NOT_FOUND = "Current user login not found";
 
+    private static final String INSTANCE_ID_NOT_EXISTS = "Instance with id %s not exist";
+
+    private static final String INSTANCE_NOT_EXISTS = "instance.notExists";
+
+    private static final String REQUEST_UPDATE_STATUS_INSTANCE = "Request to update status of instance {} to {}";
+
     static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private final InstanceRepository instanceRepository;
@@ -156,17 +162,17 @@ public class InstanceServiceImpl implements InstanceService {
             Projections.fields(
                 InstanceDTO.class,
                 QInstance.instance.id.as("id"),
-                QInstance.instance.instanceIdentification.as("instanceIdentification"),
-                QAnagPartner.anagPartner.id.as("partnerId"),
-                QAnagPartner.anagPartner.name.as("partnerName"),
-                QAnagPartner.anagPartner.fiscalCode.as("partnerFiscalCode"),
-                QInstance.instance.applicationDate.as("applicationDate"),
-                QInstance.instance.predictedDateAnalysis.as("predictedDateAnalysis"),
+                QInstance.instance.instanceIdentification.as(INSTANCE_IDENTIFICATION_FIELD),
+                QAnagPartner.anagPartner.id.as(PARTNER_ID_FIELD),
+                QAnagPartner.anagPartner.name.as(PARTNER_NAME_FIELD),
+                QAnagPartner.anagPartner.fiscalCode.as(PARTNER_FISCAL_CODE_FIELD),
+                QInstance.instance.applicationDate.as(APPLICATION_DATE_FIELD),
+                QInstance.instance.predictedDateAnalysis.as(PREDICTED_DATE_ANALYSIS_FIELD),
                 QInstance.instance.assignedUser.id.as("assignedUserId"),
                 QInstance.instance.assignedUser.firstName.as("assignedFirstName"),
                 QInstance.instance.assignedUser.lastName.as("assignedLastName"),
-                QInstance.instance.analysisPeriodStartDate.as("analysisPeriodStartDate"),
-                QInstance.instance.analysisPeriodEndDate.as("analysisPeriodEndDate"),
+                QInstance.instance.analysisPeriodStartDate.as(ANALYSIS_PERIOD_START_DATE_FIELD),
+                QInstance.instance.analysisPeriodEndDate.as(ANALYSIS_PERIOD_END_DATE_FIELD),
                 QInstance.instance.status.as("status"),
                 QInstance.instance.lastAnalysisDate.as("lastAnalysisDate"),
                 QInstance.instance.lastAnalysisOutcome.as("lastAnalysisOutcome"),
@@ -178,7 +184,7 @@ public class InstanceServiceImpl implements InstanceService {
         jpqlSelected.limit(pageable.getPageSize());
 
         pageable
-            .getSortOr(Sort.by(Sort.Direction.ASC, "predictedDateAnalysis"))
+            .getSortOr(Sort.by(Sort.Direction.ASC, PREDICTED_DATE_ANALYSIS_FIELD))
             .forEach(order -> {
                 jpqlSelected.orderBy(
                     new OrderSpecifier<>(
@@ -326,9 +332,9 @@ public class InstanceServiceImpl implements InstanceService {
             .map(instanceMapper::toDto)
             .orElseThrow(() ->
                 new GenericServiceException(
-                    String.format("Instance with id %s not exist", instanceToUpdate.getId()),
+                    String.format(INSTANCE_ID_NOT_EXISTS, instanceToUpdate.getId()),
                     INSTANCE,
-                    "instance.notExists"
+                    INSTANCE_NOT_EXISTS
                 )
             );
     }
@@ -362,7 +368,7 @@ public class InstanceServiceImpl implements InstanceService {
             })
             .map(instanceMapper::toDto)
             .orElseThrow(() ->
-                new GenericServiceException(String.format("Instance with id %s not exist", id), INSTANCE, "instance.notExists")
+                new GenericServiceException(String.format(INSTANCE_ID_NOT_EXISTS, id), INSTANCE, INSTANCE_NOT_EXISTS)
             );
     }
 
@@ -383,7 +389,7 @@ public class InstanceServiceImpl implements InstanceService {
             )
             .select(buildInstanceProjection(QInstance.instance))
             .limit(limit)
-            .orderBy(new OrderSpecifier<>(Order.ASC, Expressions.stringPath("applicationDate")));
+            .orderBy(new OrderSpecifier<>(Order.ASC, Expressions.stringPath(APPLICATION_DATE_FIELD)));
 
         return jpql.fetch();
     }
@@ -424,7 +430,7 @@ public class InstanceServiceImpl implements InstanceService {
             })
             .map(instanceMapper::toDto)
             .orElseThrow(() ->
-                new GenericServiceException(String.format("Instance with id %s not exist", id), INSTANCE, "instance.notExists")
+                new GenericServiceException(String.format(INSTANCE_ID_NOT_EXISTS, id), INSTANCE, INSTANCE_NOT_EXISTS)
             );
     }
 
@@ -469,7 +475,7 @@ public class InstanceServiceImpl implements InstanceService {
         JPAUpdateClause jpql = queryBuilder.updateQuery(QInstance.instance);
 
         Instant now = Instant.now();
-        
+
         jpql
             .set(QInstance.instance.status, InstanceStatus.ESEGUITA)
             .set(QInstance.instance.lastAnalysisDate, lastAnalysisDate)
@@ -482,7 +488,7 @@ public class InstanceServiceImpl implements InstanceService {
 
     @Override
     public void updateInstanceStatusInProgress(long id) {
-        LOGGER.debug("Request to update status of instance {} to {}", id, InstanceStatus.IN_ESECUZIONE);
+        LOGGER.debug(REQUEST_UPDATE_STATUS_INSTANCE, id, InstanceStatus.IN_ESECUZIONE);
 
         JPAUpdateClause jpql = queryBuilder.updateQuery(QInstance.instance);
 
@@ -494,7 +500,7 @@ public class InstanceServiceImpl implements InstanceService {
 
     @Override
     public void updateInstanceStatusError(Long id) {
-        LOGGER.debug("Request to update status of instance {} to {}", id, InstanceStatus.ERRORE);
+        LOGGER.debug(REQUEST_UPDATE_STATUS_INSTANCE, id, InstanceStatus.ERRORE);
 
         JPAUpdateClause jpql = queryBuilder.updateQuery(QInstance.instance);
 
@@ -506,7 +512,7 @@ public class InstanceServiceImpl implements InstanceService {
 
     @Override
     public void updateInstanceStatusCompleted(Long id) {
-        LOGGER.debug("Request to update status of instance {} to {}", id, InstanceStatus.ESEGUITA);
+        LOGGER.debug(REQUEST_UPDATE_STATUS_INSTANCE, id, InstanceStatus.ESEGUITA);
 
         JPAUpdateClause jpql = queryBuilder.updateQuery(QInstance.instance);
 
@@ -519,13 +525,13 @@ public class InstanceServiceImpl implements InstanceService {
     @Override
     public List<InstanceDTO> findActiveInstancesForModule(Long moduleId) {
         LOGGER.debug("Request to find active instances for module: {}", moduleId);
-        
+
         List<Instance> instances = instanceRepository.findAll().stream()
             .filter(instance -> instance.getStatus().equals(InstanceStatus.PIANIFICATA))
             .filter(instance -> instance.getInstanceModules().stream()
                 .anyMatch(im -> im.getModule().getId().equals(moduleId)))
             .toList();
-                
+
         return instances.stream()
             .map(instanceMapper::toDto)
             .toList();

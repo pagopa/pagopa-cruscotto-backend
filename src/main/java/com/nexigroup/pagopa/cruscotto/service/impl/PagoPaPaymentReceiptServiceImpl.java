@@ -13,7 +13,7 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
 import java.util.List;
 
 import com.querydsl.jpa.JPQLQuery;
@@ -62,8 +62,8 @@ public class PagoPaPaymentReceiptServiceImpl implements PagoPaPaymentReceiptServ
             .where(
                 qPagoPaPaymentReceipt.cfPartner
                     .eq(fiscalCodePartner)
-                    .and(qPagoPaPaymentReceipt.startDate.goe(startDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
-                    .and(qPagoPaPaymentReceipt.endDate.loe(endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
+                    .and(qPagoPaPaymentReceipt.startDate.goe(startDateTime.atZone(ZoneId.systemDefault()).toInstant()))
+                    .and(qPagoPaPaymentReceipt.endDate.loe(endDateTime.atZone(ZoneId.systemDefault()).toInstant()))
             )
             .groupBy(qPagoPaPaymentReceipt.station)
             .orderBy(qPagoPaPaymentReceipt.station.asc())
@@ -102,8 +102,8 @@ public class PagoPaPaymentReceiptServiceImpl implements PagoPaPaymentReceiptServ
                 qPagoPaPaymentReceipt.cfPartner
                     .eq(fiscalCodePartner)
                     .and(qPagoPaPaymentReceipt.station.eq(station))
-                    .and(qPagoPaPaymentReceipt.startDate.goe(startDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
-                    .and(qPagoPaPaymentReceipt.startDate.lt(endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
+                    .and(qPagoPaPaymentReceipt.startDate.goe(startDateTime.atZone(ZoneId.systemDefault()).toInstant()))
+                    .and(qPagoPaPaymentReceipt.startDate.lt(endDateTime.atZone(ZoneId.systemDefault()).toInstant()))
             )
             .orderBy(new OrderSpecifier<>(Order.ASC, Expressions.stringPath("startDate")))
             .fetch();
