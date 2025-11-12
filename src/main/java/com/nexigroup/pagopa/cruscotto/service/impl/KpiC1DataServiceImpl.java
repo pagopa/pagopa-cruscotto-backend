@@ -87,22 +87,13 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
             LOGGER.info("Starting KPI C.1 calculation for instance: {}", instanceDTO.getInstanceIdentification());
 
             // Get configuration parameters
-            double entityThreshold = kpiConfigurationDTO.getEligibilityThreshold() != null 
-                ? kpiConfigurationDTO.getEligibilityThreshold() : 50.0; // percentage of compliant entities required
-            double configuredTolerance = kpiConfigurationDTO.getTolerance() != null 
-                ? kpiConfigurationDTO.getTolerance() : 0.0; // tolerance margin below 100% message coverage
+            double entityThreshold = kpiConfigurationDTO.getInstitutionTolerance() != null 
+                ? kpiConfigurationDTO.getInstitutionTolerance().doubleValue() : 50.0; // percentage of compliant entities required
+            double requiredMessagePercentage = kpiConfigurationDTO.getNotificationTolerance() != null 
+                ? kpiConfigurationDTO.getNotificationTolerance().doubleValue() : 100.0; // required message coverage percentage
 
-            // Business spec: tolerance expresses how much BELOW 100% an entity may fall and still be OK.
-            // Effective required message percentage = 100 - configuredTolerance
-            double requiredMessagePercentage = 100.0 - configuredTolerance;
-            if (requiredMessagePercentage < 0.0) {
-                requiredMessagePercentage = 0.0; // clamp
-            } else if (requiredMessagePercentage > 100.0) {
-                requiredMessagePercentage = 100.0; // clamp
-            }
-
-            LOGGER.info("KPI C.1 configuration - Entity threshold (OK entities %): {}%, Configured tolerance: {}%, Required message %: {}%", 
-                       entityThreshold, configuredTolerance, requiredMessagePercentage);
+            LOGGER.info("KPI C.1 configuration - Entity threshold (OK entities %): {}%, Required message %: {}%", 
+                       entityThreshold, requiredMessagePercentage);
 
             // Retrieve partner and its institutions
             AnagPartnerDTO partnerDTO = anagPartnerService.findOneByFiscalCode(instanceDTO.getPartnerFiscalCode())
@@ -208,29 +199,34 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
             String ente = entry.getKey();
             List<PagoPaIODTO> entityData = entry.getValue();
 
-            // Aggregate monthly totals for the entity (spec: ratio must hold over the period, not necessarily per day)
-            long sumPositions = entityData.stream()
-                .filter(d -> d.getNumeroPosizioni() != null)
-                .mapToLong(d -> d.getNumeroPosizioni().longValue())
-                .sum();
-            long sumMessages = entityData.stream()
-                .filter(d -> d.getNumeroMessaggi() != null)
-                .mapToLong(d -> d.getNumeroMessaggi().longValue())
-                .sum();
-
-            double percentage;
-            if (sumPositions == 0) {
-                // Spec: absence of data should not create negative evidence; if messages also 0 => 0%, else 100%
-                percentage = (sumMessages > 0) ? 100.0 : 0.0;
-            } else {
-                percentage = (double) sumMessages / (double) sumPositions * 100.0;
+            // Calculate AVERAGE of daily percentages (as per spec documentation)
+            // For each day: percentage = (messages / positions) * 100
+            // Then average all daily percentages
+            double sumPercentages = 0.0;
+            int dayCount = 0;
+            
+            for (PagoPaIODTO data : entityData) {
+                long positions = data.getNumeroPosizioni() != null ? data.getNumeroPosizioni().longValue() : 0L;
+                long messages = data.getNumeroMessaggi() != null ? data.getNumeroMessaggi().longValue() : 0L;
+                
+                double dailyPercentage;
+                if (positions == 0) {
+                    // Spec: if positions=0 and messages>0 => 100%, if both=0 => 0%
+                    dailyPercentage = (messages > 0) ? 100.0 : 0.0;
+                } else {
+                    dailyPercentage = ((double) messages / (double) positions) * 100.0;
+                }
+                
+                sumPercentages += dailyPercentage;
+                dayCount++;
             }
-
+            
+            double percentage = dayCount > 0 ? sumPercentages / dayCount : 0.0;
             boolean isCompliant = percentage >= requiredMessagePercentage;
             entityCompliance.put(ente, isCompliant);
 
-            LOGGER.debug("Entity {} aggregated compliance: {} (positions={}, messages={}, percentage={}) requiredMessage%={}", 
-                ente, isCompliant, sumPositions, sumMessages, String.format("%.2f", percentage), requiredMessagePercentage);
+            LOGGER.debug("Entity {} aggregated compliance: {} (days={}, avgPercentage={}%, required={}%)", 
+                ente, isCompliant, dayCount, String.format("%.2f", percentage), requiredMessagePercentage);
         }
 
         return entityCompliance;
@@ -320,7 +316,8 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
                 .count();
             
             long numeroEntiComplianti = ioDataList.stream()
-                .filter(data -> data.meetsToleranceThreshold(kpiConfigurationDTO.getTolerance()))
+                .filter(data -> data.meetsToleranceThreshold(kpiConfigurationDTO.getNotificationTolerance() != null 
+                    ? kpiConfigurationDTO.getNotificationTolerance().doubleValue() : 0.0))
                 .map(PagoPaIODTO::getEnte)
                 .distinct()
                 .count();
@@ -353,7 +350,8 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
             if (ioDataList.isEmpty()) {
                 LOGGER.info("No IO data found - creating empty detail records for traceability");
                 saveEmptyDetailResults(savedResult, instanceDTO, instanceModuleDTO, 
-                                     analysisDate, kpiConfigurationDTO.getTolerance());
+                                     analysisDate, kpiConfigurationDTO.getNotificationTolerance() != null 
+                                     ? kpiConfigurationDTO.getNotificationTolerance().doubleValue() : 0.0);
             } else {
                 // Pass full configuration to detail saving so thresholds can be recomputed locally
                 saveKpiC1DetailResults(savedResult, instanceDTO, instanceModuleDTO,
@@ -407,8 +405,8 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
         instanceModule.setId(instanceModuleDTO.getId());
 
         // Create KpiC1Result
-        BigDecimal sogliaConfigurata = kpiConfigurationDTO.getEligibilityThreshold() != null 
-            ? BigDecimal.valueOf(kpiConfigurationDTO.getEligibilityThreshold())
+        BigDecimal sogliaConfigurata = kpiConfigurationDTO.getInstitutionTolerance() != null 
+            ? kpiConfigurationDTO.getInstitutionTolerance()
             : null;
             
         com.nexigroup.pagopa.cruscotto.domain.KpiC1Result kpiC1Result = new com.nexigroup.pagopa.cruscotto.domain.KpiC1Result(
@@ -443,16 +441,10 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
         instanceModule.setId(instanceModuleDTO.getId());
 
         // Recompute thresholds locally (avoid referencing variables from outer scope)
-        double entityThreshold = kpiConfigurationDTO.getEligibilityThreshold() != null
-            ? kpiConfigurationDTO.getEligibilityThreshold() : 50.0; // default 50%
-        double configuredTolerance = kpiConfigurationDTO.getTolerance() != null
-            ? kpiConfigurationDTO.getTolerance() : 0.0; // default 0 margin
-        double requiredMessagePercentage = 100.0 - configuredTolerance;
-        if (requiredMessagePercentage < 0.0) {
-            requiredMessagePercentage = 0.0;
-        } else if (requiredMessagePercentage > 100.0) {
-            requiredMessagePercentage = 100.0;
-        }
+        double entityThreshold = kpiConfigurationDTO.getInstitutionTolerance() != null
+            ? kpiConfigurationDTO.getInstitutionTolerance().doubleValue() : 50.0; // default 50%
+        double requiredMessagePercentage = kpiConfigurationDTO.getNotificationTolerance() != null
+            ? kpiConfigurationDTO.getNotificationTolerance().doubleValue() : 100.0; // default 100%
 
         // Get all months in the analysis period
         List<YearMonth> monthsInPeriod = getMonthsInPeriod(instanceDTO.getAnalysisPeriodStartDate(), 
@@ -496,7 +488,7 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
                     "AGGREGATED", // No specific institution - this is aggregated
                     compliancePercentage >= entityThreshold ? OutcomeStatus.OK : OutcomeStatus.KO,
                     compliancePercentage >= entityThreshold,
-                    java.math.BigDecimal.valueOf(configuredTolerance),
+                    java.math.BigDecimal.valueOf(requiredMessagePercentage),
                     savedResult
                 );
 
@@ -529,7 +521,7 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
                 "AGGREGATED", // No specific institution - this is aggregated
                 totalCompliancePercentage >= entityThreshold ? OutcomeStatus.OK : OutcomeStatus.KO,
                 totalCompliancePercentage >= entityThreshold,
-                java.math.BigDecimal.valueOf(configuredTolerance),
+                java.math.BigDecimal.valueOf(requiredMessagePercentage),
                 savedResult
             );
 
@@ -581,11 +573,14 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
         com.nexigroup.pagopa.cruscotto.domain.InstanceModule instanceModule = new com.nexigroup.pagopa.cruscotto.domain.InstanceModule();
         instanceModule.setId(instanceModuleDTO.getId());
 
-    double configuredTolerance = kpiConfigurationDTO.getTolerance() != null ? kpiConfigurationDTO.getTolerance() : 0.0;
-    // Compute required message percentage clamped to [0,100] and keep it effectively final for lambda usage
-    final double requiredMessagePercentage = Math.min(100.0, Math.max(0.0, 100.0 - configuredTolerance));
+    double requiredMessagePercentage = kpiConfigurationDTO.getNotificationTolerance() != null 
+        ? kpiConfigurationDTO.getNotificationTolerance().doubleValue() : 100.0;
 
-        List<IoDrilldown> negatives = new ArrayList<>();
+    // Collezioneremo evidenze negative a livello di GIORNO: una giornata è negativa se
+    // almeno un ente è in KO (percentuale < soglia). In tal caso salviamo una riga drilldown
+    // per TUTTI gli enti di quel giorno (sia KO che OK) per poter effettuare confronti completi.
+    List<IoDrilldown> negatives = new ArrayList<>();
+    Map<LocalDate, List<com.nexigroup.pagopa.cruscotto.domain.KpiC1AnalyticData>> analyticsByDate = new HashMap<>();
 
         // Pre-carichiamo i detail results (monthly + total) per collegare ogni riga analitica.
         List<KpiC1DetailResult> detailResults = kpiC1DetailResultRepository != null
@@ -603,6 +598,15 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
                 instance, instanceModule, analysisDate, ioData.getData(),
                 ioData.getEnte(), ioData.getNumeroPosizioni().longValue(), ioData.getNumeroMessaggi().longValue()
             );
+
+            // Calcolo percentuale giornaliera
+            double percentage = ioData.getPercentualeMessaggi();
+            boolean meetsTolerance = percentage >= requiredMessagePercentage;
+
+            analyticData.setPercentage(percentage);
+            analyticData.setMeetsTolerance(meetsTolerance);
+            analyticData.setCfPartner(ioData.getCfPartner());
+
             // Associa il dettaglio mensile che copre la data della riga (fallback al totale se non trovato)
             KpiC1DetailResult matchedMonthly = monthlyDetailResults.stream()
                 .filter(dr -> !ioData.getData().isBefore(dr.getEvaluationStartDate()) && !ioData.getData().isAfter(dr.getEvaluationEndDate()))
@@ -610,23 +614,39 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
             analyticData.setDetailResult(matchedMonthly != null ? matchedMonthly : totalDetailResult);
             com.nexigroup.pagopa.cruscotto.domain.KpiC1AnalyticData savedAnalytic = kpiC1AnalyticDataService.save(analyticData);
 
-            // Negative evidence if NOT meeting threshold
-            double percentage = ioData.getPercentualeMessaggi();
-            boolean meetsTolerance = percentage >= requiredMessagePercentage;
-            if (!meetsTolerance) {
-                IoDrilldown drill = new IoDrilldown(
-                    instance, instanceModule, savedAnalytic,
-                    analysisDate, ioData.getData(), ioData.getEnte(), ioData.getCfPartner(),
-                    ioData.getNumeroPosizioni().longValue(), ioData.getNumeroMessaggi().longValue(), percentage, meetsTolerance);
-                negatives.add(drill);
+            // Raggruppa per data per valutazione successiva (giorno negativo se almeno un KO)
+            analyticsByDate.computeIfAbsent(savedAnalytic.getData(), d -> new ArrayList<>()).add(savedAnalytic);
+        });
+
+        // Creazione evidenze negative: per ogni data con almeno un ente KO, salviamo tutte le righe
+        analyticsByDate.forEach((day, list) -> {
+            boolean dayHasKo = list.stream().anyMatch(ad -> Boolean.FALSE.equals(ad.getMeetsTolerance()));
+            if (dayHasKo) {
+                list.forEach(ad -> {
+                    IoDrilldown drill = new IoDrilldown(
+                        instance,
+                        instanceModule,
+                        ad,
+                        analysisDate,
+                        day,
+                        ad.getCfInstitution(),
+                        ad.getCfPartner(),
+                        ad.getPositionNumber(),
+                        ad.getMessageNumber(),
+                        ad.getPercentage(),
+                        ad.getMeetsTolerance()
+                    );
+                    negatives.add(drill);
+                });
+                LOGGER.debug("Giorno {} marcato come evidenza negativa ({} righe, {} KO)", day, list.size(), list.stream().filter(ad -> Boolean.FALSE.equals(ad.getMeetsTolerance())).count());
             }
         });
 
         if (!negatives.isEmpty()) {
             ioDrilldownService.saveAll(negatives);
-            LOGGER.info("Saved {} IO negative evidence drilldown rows", negatives.size());
+            LOGGER.info("Saved {} IO negative evidence drilldown rows (giorni con almeno un ente KO)", negatives.size());
         } else {
-            LOGGER.info("No negative evidences for KPI C.1; io_drilldown remains empty for this execution.");
+            LOGGER.info("Nessuna evidenza negativa (nessun giorno con enti KO) per questa esecuzione KPI C.1.");
         }
 
         LOGGER.debug("Saved {} analytic data records (FK detailResult valorizzata)", ioDataList.size());

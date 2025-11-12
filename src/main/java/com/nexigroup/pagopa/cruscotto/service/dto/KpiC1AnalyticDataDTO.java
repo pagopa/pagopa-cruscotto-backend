@@ -20,6 +20,9 @@ public class KpiC1AnalyticDataDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @NotNull
+    private Long id;
+
     /**
      * Instance ID
      */
