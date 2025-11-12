@@ -11,6 +11,7 @@ import org.mapstruct.*;
 @Mapper(componentModel = "spring", uses = {})
 public interface KpiC1AnalyticDataMapper extends EntityMapper<KpiC1AnalyticDataDTO, KpiC1AnalyticData> {
 
+    @Mapping(target = "id", source = "id")
     @Mapping(target = "instanceId", source = "instance.id")
     @Mapping(target = "instanceModuleId", source = "instanceModule.id")
     @Mapping(target = "stationId", source = "cfInstitution")
