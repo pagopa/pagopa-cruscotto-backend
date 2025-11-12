@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+  <changeSet id="20251104180004-1" author="system" context="ddl">
+    <comment>Create KPI C.1 tables</comment>
+
+    <!-- Create KPI_C1_RESULT table -->
+    <createTable tableName="KPI_C1_RESULT" schemaName="${database.defaultSchemaName}">
+      <column name="CO_ID" type="BIGINT">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="CO_ID_INSTANCE" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_ID_INSTANCE_MODULE" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DT_REFERENCE_DATE" type="DATE">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TE_OUTCOME" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="FL_COMPLIANT" type="BOOLEAN"/>
+      <column name="CO_NUMERO_ENTI_COMPLIANTI" type="BIGINT" defaultValue="0">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_NUMERO_ENTI_TOTALI" type="BIGINT" defaultValue="0">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_PERCENTUALE_COMPLIANCE" type="DECIMAL(5,2)"/>
+      <column name="CO_NUMERO_POSIZIONI_TOTALI" type="BIGINT" defaultValue="0">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_NUMERO_MESSAGGI_INVIATI" type="BIGINT" defaultValue="0">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_PERCENTUALE_INVIO_GLOBALE" type="DECIMAL(5,2)"/>
+      <column name="CO_SOGLIA_CONFIGURATA" type="DECIMAL(5,2)"/>
+      <column name="TE_CREATED_BY" type="VARCHAR(50)" defaultValue="system">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DT_CREATED_DATE" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TE_LAST_MODIFIED_BY" type="VARCHAR(50)"/>
+      <column name="DT_LAST_MODIFIED_DATE" type="TIMESTAMP"/>
+    </createTable>
+
+    <!-- Create KPI_C1_DETAIL_RESULT table -->
+    <createTable tableName="KPI_C1_DETAIL_RESULT" schemaName="${database.defaultSchemaName}">
+      <column name="CO_ID" type="BIGINT">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="CO_INSTANCE_ID" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_INSTANCE_MODULE_ID" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_KPI_C1_RESULT_ID" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DT_REFERENCE_DATE" type="DATE">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TE_CF_INSTITUTION" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TE_OUTCOME" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="FL_COMPLIANT" type="BOOLEAN"/>
+      <column name="TE_EVALUATION_TYPE" type="VARCHAR(50)"/>
+      <column name="DT_EVALUATION_START_DATE" type="DATE"/>
+      <column name="DT_EVALUATION_END_DATE" type="DATE"/>
+      <column name="CO_TOTAL_INSTITUTIONS" type="BIGINT" defaultValue="0">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_COMPLIANT_INSTITUTIONS" type="BIGINT" defaultValue="0">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_PERCENTAGE_COMPLIANT_INSTITUTIONS" type="DECIMAL(5,2)"/>
+      <column name="CO_TOTAL_POSITIONS" type="BIGINT" defaultValue="0">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_SENT_MESSAGES" type="BIGINT" defaultValue="0">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_SENDING_PERCENTAGE" type="DECIMAL(5,2)"/>
+      <column name="CO_CONFIGURED_THRESHOLD" type="DECIMAL(5,2)"/>
+      <column name="TE_CREATED_BY" type="VARCHAR(50)" defaultValue="system">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DT_CREATED_DATE" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TE_LAST_MODIFIED_BY" type="VARCHAR(50)"/>
+      <column name="DT_LAST_MODIFIED_DATE" type="TIMESTAMP"/>
+    </createTable>
+
+    <!-- Create KPI_C1_ANALYTIC_DATA table -->
+    <createTable tableName="KPI_C1_ANALYTIC_DATA" schemaName="${database.defaultSchemaName}">
+      <column name="CO_ID" type="BIGINT">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="CO_INSTANCE_ID" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_INSTANCE_MODULE_ID" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TE_CF_INSTITUTION" type="VARCHAR(35)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_KPI_C1_DETAIL_RESULT_ID" type="BIGINT"/>
+      <column name="DT_REFERENCE_DATE" type="DATE">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DT_DATA_DATE" type="DATE">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CO_POSITIONS_COUNT" type="BIGINT"/>
+      <column name="CO_MESSAGES_COUNT" type="BIGINT"/>
+      <column name="CO_PERCENTAGE" type="DECIMAL(10,2)"/>
+      <column name="FL_MEETS_TOLERANCE" type="BOOLEAN"/>
+      <column name="TE_CF_PARTNER" type="VARCHAR(35)"/>
+      <column name="TE_CREATED_BY" type="VARCHAR(50)" defaultValue="system">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DT_CREATED_DATE" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TE_LAST_MODIFIED_BY" type="VARCHAR(50)"/>
+      <column name="DT_LAST_MODIFIED_DATE" type="TIMESTAMP"/>
+    </createTable>
+
+    <!-- Create sequences for KPI C.1 tables -->
+    <createSequence sequenceName="SQCRUSC8_KPIC1RESULT" schemaName="${database.defaultSchemaName}" startValue="1" incrementBy="1"/>
+    <createSequence sequenceName="SQCRUSC8_KPIC1DETARESU" schemaName="${database.defaultSchemaName}" startValue="1" incrementBy="1"/>
+    <createSequence sequenceName="SQCRUSC8_KPIC1ANALDATA" schemaName="${database.defaultSchemaName}" startValue="1" incrementBy="1"/>
+
+    <!-- Add foreign key constraints -->
+    <addForeignKeyConstraint 
+      baseTableName="KPI_C1_RESULT" 
+      baseColumnNames="CO_ID_INSTANCE" 
+      referencedTableName="INSTANCE" 
+      referencedColumnNames="CO_ID" 
+      constraintName="FK_KPI_C1_RESULT_INSTANCE"/>
+      
+    <addForeignKeyConstraint 
+      baseTableName="KPI_C1_RESULT" 
+      baseColumnNames="CO_ID_INSTANCE_MODULE" 
+      referencedTableName="INSTANCE_MODULE" 
+      referencedColumnNames="CO_ID" 
+      constraintName="FK_KPI_C1_RESULT_INSTANCE_MODULE"/>
+
+    <addForeignKeyConstraint 
+      baseTableName="KPI_C1_DETAIL_RESULT" 
+      baseColumnNames="CO_INSTANCE_ID" 
+      referencedTableName="INSTANCE" 
+      referencedColumnNames="CO_ID" 
+      constraintName="FK_KPI_C1_DETAIL_RESULT_INSTANCE"/>
+      
+    <addForeignKeyConstraint 
+      baseTableName="KPI_C1_DETAIL_RESULT" 
+      baseColumnNames="CO_INSTANCE_MODULE_ID" 
+      referencedTableName="INSTANCE_MODULE" 
+      referencedColumnNames="CO_ID" 
+      constraintName="FK_KPI_C1_DETAIL_RESULT_INSTANCE_MODULE"/>
+
+    <addForeignKeyConstraint 
+      baseTableName="KPI_C1_DETAIL_RESULT" 
+      baseColumnNames="CO_KPI_C1_RESULT_ID" 
+      referencedTableName="KPI_C1_RESULT" 
+      referencedColumnNames="CO_ID" 
+      constraintName="FK_KPI_C1_DETAIL_RESULT_KPI_C1_RESULT"/>
+
+    <!-- Foreign key constraints per KPI_C1_ANALYTIC_DATA -->
+    <addForeignKeyConstraint 
+      baseTableName="KPI_C1_ANALYTIC_DATA" 
+      baseColumnNames="CO_INSTANCE_ID" 
+      referencedTableName="INSTANCE" 
+      referencedColumnNames="CO_ID" 
+      constraintName="FK_KPI_C1_ANALYTIC_DATA_INSTANCE"/>
+      
+    <addForeignKeyConstraint 
+      baseTableName="KPI_C1_ANALYTIC_DATA" 
+      baseColumnNames="CO_INSTANCE_MODULE_ID" 
+      referencedTableName="INSTANCE_MODULE" 
+      referencedColumnNames="CO_ID" 
+      constraintName="FK_KPI_C1_ANALYTIC_DATA_INSTANCE_MODULE"/>
+
+    <rollback>
+      <!-- Drop foreign key constraints -->
+      <dropForeignKeyConstraint baseTableName="KPI_C1_RESULT" constraintName="FK_KPI_C1_RESULT_INSTANCE"/>
+      <dropForeignKeyConstraint baseTableName="KPI_C1_RESULT" constraintName="FK_KPI_C1_RESULT_INSTANCE_MODULE"/>
+      <dropForeignKeyConstraint baseTableName="KPI_C1_DETAIL_RESULT" constraintName="FK_KPI_C1_DETAIL_RESULT_INSTANCE"/>
+      <dropForeignKeyConstraint baseTableName="KPI_C1_DETAIL_RESULT" constraintName="FK_KPI_C1_DETAIL_RESULT_INSTANCE_MODULE"/>
+      <dropForeignKeyConstraint baseTableName="KPI_C1_ANALYTIC_DATA" constraintName="FK_KPI_C1_ANALYTIC_DATA_INSTANCE"/>
+      <dropForeignKeyConstraint baseTableName="KPI_C1_ANALYTIC_DATA" constraintName="FK_KPI_C1_ANALYTIC_DATA_INSTANCE_MODULE"/>
+      
+      <!-- Drop sequences -->
+      <dropSequence sequenceName="SQCRUSC8_KPIC1RESULT" schemaName="${database.defaultSchemaName}"/>
+      <dropSequence sequenceName="SQCRUSC8_KPIC1DETARESU" schemaName="${database.defaultSchemaName}"/>
+      <dropSequence sequenceName="SQCRUSC8_KPIC1ANALDATA" schemaName="${database.defaultSchemaName}"/>
+      
+      <!-- Drop tables -->
+      <dropTable tableName="KPI_C1_ANALYTIC_DATA" schemaName="${database.defaultSchemaName}"/>
+      <dropTable tableName="KPI_C1_DETAIL_RESULT" schemaName="${database.defaultSchemaName}"/>
+      <dropTable tableName="KPI_C1_RESULT" schemaName="${database.defaultSchemaName}"/>
+    </rollback>
+  </changeSet>
+
+</databaseChangeLog>
