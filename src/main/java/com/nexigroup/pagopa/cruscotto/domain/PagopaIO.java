@@ -121,7 +121,7 @@ public class PagopaIO implements Serializable {
             ", date='" + getDate() + "'" +
             ", positionNumber=" + getPositionNumber() +
             ", messageNumber=" + getMessageNumber() +
-            ", percentuale=" + String.format("%.2f%%", getPercentualeMessaggi()) +
+            ", percentuale=" + String.format(java.util.Locale.US, "%.2f%%", getPercentualeMessaggi()) +
             "}";
     }
 }

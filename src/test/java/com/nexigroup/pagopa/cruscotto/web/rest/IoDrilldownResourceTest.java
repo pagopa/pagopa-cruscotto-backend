@@ -56,7 +56,10 @@ class IoDrilldownResourceTest {
     @DisplayName("GET returns 404 when no data")
     void testGetByAnalyticDataNotFound() {
         Mockito.when(service.findByAnalyticDataId(99L)).thenReturn(List.of());
-        ResponseEntity<List<com.nexigroup.pagopa.cruscotto.service.dto.IoDrilldownDTO>> response = resource.getByAnalyticData(99L);
-        assertThat(response.getStatusCode().is4xxClientError()).isTrue();
+        org.springframework.web.server.ResponseStatusException ex = org.junit.jupiter.api.Assertions.assertThrows(
+            org.springframework.web.server.ResponseStatusException.class,
+            () -> resource.getByAnalyticData(99L)
+        );
+        assertThat(ex.getStatusCode().value()).isEqualTo(404);
     }
 }
