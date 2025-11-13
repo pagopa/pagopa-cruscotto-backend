@@ -217,6 +217,7 @@ public class ModuleServiceImpl implements ModuleService {
         module.setConfigTransactionTolerance(moduleToCreate.getConfigTransactionTolerance());
         module.setConfigInstitutionCount(moduleToCreate.getConfigInstitutionCount());
         module.setConfigInstitutionTolerance(moduleToCreate.getConfigInstitutionTolerance());
+        module.setConfigNotificationTolerance(moduleToCreate.getConfigNotificationTolerance());
 
         module = moduleRepository.save(module);
 
@@ -264,6 +265,7 @@ public class ModuleServiceImpl implements ModuleService {
                 module.setConfigTransactionTolerance(moduleToUpdate.getConfigTransactionTolerance());
                 module.setConfigInstitutionCount(moduleToUpdate.getConfigInstitutionCount());
                 module.setConfigInstitutionTolerance(moduleToUpdate.getConfigInstitutionTolerance());
+                module.setConfigNotificationTolerance(moduleToUpdate.getConfigNotificationTolerance());
                 moduleRepository.save(module);
 
                 log.info("Updating of module with identification {} by user {}", module.getId(), loginUtenteLoggato);
