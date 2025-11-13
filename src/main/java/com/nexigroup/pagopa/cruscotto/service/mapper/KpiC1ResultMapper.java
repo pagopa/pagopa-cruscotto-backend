@@ -16,7 +16,7 @@ public interface KpiC1ResultMapper extends EntityMapper<KpiC1ResultDTO, KpiC1Res
     @Mapping(target = "instanceModuleId", source = "instanceModule.id")
     @Mapping(target = "analysisDate", source = "referenceDate")
     @Mapping(target = "eligibilityThreshold", source = "configuredThreshold")
-    @Mapping(target = "tolerance", constant = "0.0") // TODO: mappare dal campo corretto se disponibile
+    @Mapping(target = "tolerance", ignore = true) // Sarà valorizzato dal service usando notificationTolerance della configurazione
     @Mapping(target = "evaluationType", constant = "MESE") // TODO: mappare dal campo corretto se disponibile
     @Mapping(target = "outcome", source = "outcome")
     KpiC1ResultDTO toDto(KpiC1Result kpiC1Result);
