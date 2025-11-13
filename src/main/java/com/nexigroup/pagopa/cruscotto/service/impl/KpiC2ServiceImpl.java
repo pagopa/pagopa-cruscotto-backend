@@ -121,7 +121,9 @@ public class KpiC2ServiceImpl implements KpiC2Service {
             filter.setPartnerId(instance.getPartner().getId());
             List<AnagInstitutionDTO> inistutionListPartner = anagInstitutionService.findAllNoPaging(filter);
             List<String> listInstitutionFiscalCode = inistutionListPartner.stream()
-                .map(anagInstitutionDTO -> anagInstitutionDTO.getInstitutionIdentification().getFiscalCode()).toList();
+                .map(anagInstitutionDTO -> anagInstitutionDTO.getInstitutionIdentification().getFiscalCode())
+                .distinct() // <-- rimuove i duplicati
+                .toList();
 
             createAndSaveDetailResults(savedResult, instance, listInstitutionFiscalCode);
             createAndSaveAnalyticData(savedResult, instance, listInstitutionFiscalCode);
@@ -279,7 +281,8 @@ public class KpiC2ServiceImpl implements KpiC2Service {
 
 
 
-            Long numberTotalIntitution = pagopaSendRepository.calculateTotalNumberInsitution(partnerFiscalCode, listInstitutionFiscalCode);
+            Long numberTotalIntitution = listInstitutionFiscalCode!=null ? listInstitutionFiscalCode.size():0l;
+            //pagopaSendRepository.calculateTotalNumberInsitution(partnerFiscalCode, listInstitutionFiscalCode);
 
 
             // Calcola i dati per ogni mese
