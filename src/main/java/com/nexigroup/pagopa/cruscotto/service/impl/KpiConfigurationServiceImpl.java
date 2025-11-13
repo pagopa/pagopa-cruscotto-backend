@@ -355,7 +355,7 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
             .orElseThrow(() ->
                 new GenericServiceException(
                     String.format("kpiConfiguration with id %s not exist", kpiConfigurationToUpdate.getId()),
-                    "kpiConfiguration",
+                    KPI_CONFIGURATION,
                     "kpiConfiguration.notExists"
                 )
             );

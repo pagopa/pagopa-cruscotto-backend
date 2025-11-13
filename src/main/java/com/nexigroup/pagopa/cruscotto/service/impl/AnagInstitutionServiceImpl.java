@@ -36,6 +36,9 @@ import com.querydsl.jpa.JPQLQuery;
 @Service
 public class AnagInstitutionServiceImpl implements AnagInstitutionService {
 
+    private static final String REQUEST_GET_ALL_INSTITUTIONS = "Request to get all Institutions by filter: {}";
+    private static final String FISCAL_CODE = "fiscalCode";
+
 	private final Logger log = LoggerFactory.getLogger(AnagInstitutionServiceImpl.class);
 
     @Autowired
@@ -74,7 +77,7 @@ public class AnagInstitutionServiceImpl implements AnagInstitutionService {
     @Override
    	public Page<InstitutionIdentificationDTO> findAll(InstitutionFilter filter, Pageable pageable) {
 
-   		log.debug("Request to get all Institutions by filter: {}", filter);
+   		log.debug(REQUEST_GET_ALL_INSTITUTIONS, filter);
 
            BooleanBuilder builder = new BooleanBuilder();
 
@@ -95,7 +98,7 @@ public class AnagInstitutionServiceImpl implements AnagInstitutionService {
                Projections.fields(
                		InstitutionIdentificationDTO.class,
                	QAnagInstitution.anagInstitution.id.as("id"),
-               	QAnagInstitution.anagInstitution.fiscalCode.as("fiscalCode"),
+               	QAnagInstitution.anagInstitution.fiscalCode.as(FISCAL_CODE),
                	QAnagInstitution.anagInstitution.name.as("name")
                )
            );
@@ -122,7 +125,7 @@ public class AnagInstitutionServiceImpl implements AnagInstitutionService {
    	}
     @Override
     public List<AnagInstitutionDTO> findAllNoPaging(AnagInstitutionFilter filter) {
-        log.debug("Request to get all Institutions by filter: {}", filter);
+        log.debug(REQUEST_GET_ALL_INSTITUTIONS, filter);
 
         BooleanBuilder builder = createBuilder(filter);
 
@@ -140,7 +143,7 @@ public class AnagInstitutionServiceImpl implements AnagInstitutionService {
                 Projections.fields(InstitutionIdentificationDTO.class,
                     QAnagInstitution.anagInstitution.id.as("id"),
                     QAnagInstitution.anagInstitution.name.as("name"),
-                    QAnagInstitution.anagInstitution.fiscalCode.as("fiscalCode")
+                    QAnagInstitution.anagInstitution.fiscalCode.as(FISCAL_CODE)
                 ).as("institutionIdentification"),
                 QAnagStation.anagStation.name.as("stationName"),
                 QAnagPartner.anagPartner.name.as("partnerName"),
@@ -178,7 +181,7 @@ public class AnagInstitutionServiceImpl implements AnagInstitutionService {
 
     @Override
    	public Page<AnagInstitutionDTO> findAll(AnagInstitutionFilter filter, Pageable pageable) {
-   		log.debug("Request to get all Institutions by filter: {}", filter);
+   		log.debug(REQUEST_GET_ALL_INSTITUTIONS, filter);
 
         BooleanBuilder builder = createBuilder(filter);
 
@@ -197,7 +200,7 @@ public class AnagInstitutionServiceImpl implements AnagInstitutionService {
                		Projections.fields(InstitutionIdentificationDTO.class,
                				QAnagInstitution.anagInstitution.id.as("id"),
                				QAnagInstitution.anagInstitution.name.as("name"),
-               				QAnagInstitution.anagInstitution.fiscalCode.as("fiscalCode")
+               				QAnagInstitution.anagInstitution.fiscalCode.as(FISCAL_CODE)
                				).as("institutionIdentification"),
                		QAnagStation.anagStation.name.as("stationName"),
                		QAnagPartner.anagPartner.name.as("partnerName"),
