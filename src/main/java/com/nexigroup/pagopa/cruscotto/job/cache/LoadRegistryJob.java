@@ -246,12 +246,12 @@ public class LoadRegistryJob extends QuartzJobBean {
                         stationDTOS.add(stationDTO);
                     } else {
                         LOGGER.error("Invalid station {}", stationDTO);
-                        violations.forEach(violation -> LOGGER.error("{}: {}", violation.getPropertyPath(), violation.getMessage()));
+                        violations.forEach(violation -> LOGGER.error(LOG_VALIDATION_ERROR_PATTERN, violation.getPropertyPath(), violation.getMessage()));
                     }
                 }
             }
 
-            LOGGER.info("After validation {} records will be saved", stationDTOS.size());
+            LOGGER.info(LOG_AFTER_VALIDATION_PATTERN, stationDTOS.size());
 
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
