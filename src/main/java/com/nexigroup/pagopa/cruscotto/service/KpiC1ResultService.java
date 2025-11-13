@@ -1,7 +1,10 @@
 package com.nexigroup.pagopa.cruscotto.service;
 
 import com.nexigroup.pagopa.cruscotto.domain.KpiC1Result;
+import com.nexigroup.pagopa.cruscotto.domain.KpiConfiguration;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.repository.KpiC1ResultRepository;
+import com.nexigroup.pagopa.cruscotto.repository.KpiConfigurationRepository;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiC1ResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.mapper.KpiC1ResultMapper;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +28,7 @@ public class KpiC1ResultService {
 
     private final KpiC1ResultRepository kpiC1ResultRepository;
     private final KpiC1ResultMapper kpiC1ResultMapper;
+    private final KpiConfigurationRepository kpiConfigurationRepository;
 
     /**
      * Salva un risultato KPI C.1
@@ -124,7 +128,33 @@ public class KpiC1ResultService {
         log.debug("Finding KpiC1Results DTOs for instanceModuleId: {}", instanceModuleId);
         return kpiC1ResultRepository.findByInstanceModuleId(instanceModuleId)
             .stream()
-            .map(kpiC1ResultMapper::toDto)
+            .map(result -> {
+                KpiC1ResultDTO dto = kpiC1ResultMapper.toDto(result);
+                try {
+                    if (result.getInstanceModule() != null && result.getInstanceModule().getModule() != null) {
+                        KpiConfiguration configuration = kpiConfigurationRepository
+                            .findByModule(result.getInstanceModule().getModule())
+                            .orElse(null);
+                        if (configuration != null) {
+                            // tolerance = notificationTolerance (default 0 if null)
+                            dto.setTolerance(configuration.getNotificationTolerance() != null ? configuration.getNotificationTolerance() : java.math.BigDecimal.ZERO);
+                            // evaluationType (default MESE if null)
+                            dto.setEvaluationType(configuration.getEvaluationType() != null ? configuration.getEvaluationType() : EvaluationType.MESE);
+                        } else {
+                            dto.setTolerance(java.math.BigDecimal.ZERO);
+                            dto.setEvaluationType(EvaluationType.MESE);
+                        }
+                    } else {
+                        dto.setTolerance(java.math.BigDecimal.ZERO);
+                        dto.setEvaluationType(EvaluationType.MESE);
+                    }
+                } catch (Exception e) {
+                    log.warn("Unable to enrich KpiC1ResultDTO with configuration for instanceModuleId {}: {}", instanceModuleId, e.getMessage());
+                    if (dto.getTolerance() == null) dto.setTolerance(java.math.BigDecimal.ZERO);
+                    if (dto.getEvaluationType() == null) dto.setEvaluationType(EvaluationType.MESE);
+                }
+                return dto;
+            })
             .collect(Collectors.toList());
     }
 
