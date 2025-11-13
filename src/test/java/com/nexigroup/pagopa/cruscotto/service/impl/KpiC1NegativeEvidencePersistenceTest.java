@@ -45,6 +45,16 @@ class KpiC1NegativeEvidencePersistenceTest {
         KpiC1DataService kpiC1DataService = Mockito.mock(KpiC1DataService.class);
         service = new KpiC1DataServiceImpl(pagopaIORepository, pagopaIOMapper, kpiC1ResultService,
             kpiC1DetailResultService, kpiC1AnalyticDataService, anagPartnerService, anagInstitutionService, ioDrilldownService, kpiC1DataService);
+
+        // Stub the self-proxy retrieval method to delegate to the real service implementation logic
+        // so executeKpiC1Calculation gets a non-null IO data list.
+        when(kpiC1DataService.retrieveIODataForPartner(anyString(), anyList(), any(LocalDate.class), any(LocalDate.class)))
+            .thenAnswer(inv -> service.retrieveIODataForPartner(
+                inv.getArgument(0),
+                inv.getArgument(1),
+                inv.getArgument(2),
+                inv.getArgument(3)
+            ));
     }
 
     private PagoPaIODTO dto(String ente, LocalDate date, int pos, int msg, String cfPartner) {
