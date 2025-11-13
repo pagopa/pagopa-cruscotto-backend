@@ -38,6 +38,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
+
 @Service
 @Transactional
 public class KpiC1DataServiceImpl implements KpiC1DataService {
@@ -53,6 +57,7 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
     private final AnagPartnerService anagPartnerService;
     private final AnagInstitutionService anagInstitutionService;
     private final IoDrilldownService ioDrilldownService;
+    private final KpiC1DataService kpiC1DataService;
     @jakarta.annotation.Resource
     private com.nexigroup.pagopa.cruscotto.repository.KpiC1DetailResultRepository kpiC1DetailResultRepository;
 
@@ -64,7 +69,8 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
         KpiC1AnalyticDataService kpiC1AnalyticDataService,
         AnagPartnerService anagPartnerService,
         AnagInstitutionService anagInstitutionService,
-        IoDrilldownService ioDrilldownService
+        IoDrilldownService ioDrilldownService,
+        @Lazy KpiC1DataService kpiC1DataService
     ) {
         this.pagopaIORepository = pagopaIORepository;
         this.pagopaIOMapper = pagopaIOMapper;
@@ -74,6 +80,7 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
         this.anagPartnerService = anagPartnerService;
         this.anagInstitutionService = anagInstitutionService;
         this.ioDrilldownService = ioDrilldownService;
+        this.kpiC1DataService = kpiC1DataService;
     }
 
     @Override
@@ -105,7 +112,7 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
                        instanceDTO.getPartnerFiscalCode(), entiList);
 
             // Retrieve IO data using double access logic
-            List<PagoPaIODTO> ioDataList = retrieveIODataForPartner(
+            List<PagoPaIODTO> ioDataList = kpiC1DataService.retrieveIODataForPartner(
                 instanceDTO.getPartnerFiscalCode(),
                 entiList,
                 instanceDTO.getAnalysisPeriodStartDate(),
