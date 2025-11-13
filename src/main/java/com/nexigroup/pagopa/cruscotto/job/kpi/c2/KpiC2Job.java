@@ -128,7 +128,9 @@ public class KpiC2Job extends QuartzJobBean {
             filter.setPartnerId(instanceDTO.getPartnerId());
             List<AnagInstitutionDTO> inistutionListPartner = anagInstitutionService.findAllNoPaging(filter);
             List<String> listInstitutionFiscalCode = inistutionListPartner.stream()
-                .map(anagInstitutionDTO -> anagInstitutionDTO.getInstitutionIdentification().getFiscalCode()).toList();
+                .map(anagInstitutionDTO -> anagInstitutionDTO.getInstitutionIdentification().getFiscalCode())
+                .distinct() // <-- rimuove i duplicati
+                .toList();
 
             // REQUISITO: Verifica prerequisiti - controllo presenza dati API log per il periodo
             if (!hasPagoPaSendDataForPeriod(instanceDTO,listInstitutionFiscalCode)) {
@@ -297,7 +299,7 @@ public class KpiC2Job extends QuartzJobBean {
                                                       LocalDate periodEnd, KpiConfigurationDTO kpiConfigurationDTO, List<String> inistutionListPartner) {
 
         // Query per contare le request dalla tabella pagopa_apilog usando il repository
-        Long totalNumebrInstitution = pagopaSendRepository.calculateTotalNumberInsitution(null,  inistutionListPartner);
+        Long totalNumebrInstitution = inistutionListPartner != null ? inistutionListPartner.size() : 0L;//pagopaSendRepository.calculateTotalNumberInsitution(null,  inistutionListPartner);
         Long totalNumebrInstitutionSend = pagopaSendRepository.calculateTotalNumberInstitutionSend(null, inistutionListPartner ,periodStart.atStartOfDay(), endOfDay(periodEnd));
         BigDecimal percentageInstitution = KpiC2ServiceImpl.getPercentagePeriodInstitution(totalNumebrInstitution, totalNumebrInstitutionSend);
 
