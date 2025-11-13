@@ -7,9 +7,6 @@
   <!-- Include previous version -->
   <include file="db.changelog-master-1.1.10.xml" relativeToChangelogFile="true"/>
 
-  <!-- Drop existing generic KPI tables if they exist (for clean recreation) -->
-  <include file="1.1.11/ddl/20251027120000_drop_existing_generic_kpi_tables.xml" relativeToChangelogFile="true"/>
-
   <!-- Create generic KPI result table -->
   <include file="1.1.11/ddl/20251027120001_create_generic_kpi_result_table.xml" relativeToChangelogFile="true"/>
 
