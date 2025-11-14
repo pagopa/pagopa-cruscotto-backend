@@ -65,8 +65,8 @@ public class KpiC2AnalyticDrillDown implements Serializable {
 
     @NotNull
     @Size(max = 255)
-    @Column(name = "CF_PARTNER", nullable = false, length = 255)
-    private String partnerCf;
+    @Column(name = "CF_INSTITUTION", nullable = false, length = 255)
+    private String institutionCf;
 
     @Column(name = "CO_NUM_PAYMENT")
     private Long numPayment;
@@ -104,7 +104,7 @@ public class KpiC2AnalyticDrillDown implements Serializable {
             ", instance=" + instance +
             ", instanceModule=" + instanceModule +
             ", analysisDate=" + analysisDate +
-            ", partnerCf='" + partnerCf + '\'' +
+            ", institutionCf='" + institutionCf + '\'' +
             ", numPayment=" + numPayment +
             ", numNotification=" + numNotification +
             ", percentNotification=" + percentNotification +
