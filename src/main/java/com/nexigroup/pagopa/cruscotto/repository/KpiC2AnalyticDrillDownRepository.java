@@ -27,8 +27,6 @@ public interface KpiC2AnalyticDrillDownRepository extends JpaRepository<KpiC2Ana
     @Query("SELECT b FROM KpiC2AnalyticDrillDown b WHERE b.kpiC2AnalyticData.id = :kpiC2AnalyticDataId")
     List<KpiC2AnalyticDrillDown> selectByKpiC2AnalyticDataId(@Param("kpiC2AnalyticDataId") Long kpiC2AnalyticDataId);
 
-    @Query("SELECT b FROM KpiC2AnalyticDrillDown b WHERE b.partnerCf = :partnerFiscalCode")
-    List<KpiC2AnalyticDrillDown> selectByPartnerFiscalCode(@Param("partnerFiscalCode") String partnerFiscalCode);
 
     @Modifying
     @Query("DELETE FROM KpiC2AnalyticDrillDown d WHERE d.instanceModule.id = :instanceModuleId AND d.analysisDate = :analysisDate")
