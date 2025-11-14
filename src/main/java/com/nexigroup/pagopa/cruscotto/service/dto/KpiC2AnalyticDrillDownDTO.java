@@ -1,18 +1,9 @@
 package com.nexigroup.pagopa.cruscotto.service.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.nexigroup.pagopa.cruscotto.domain.Instance;
-import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
 import com.nexigroup.pagopa.cruscotto.domain.KpiC2AnalyticData;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -42,7 +33,7 @@ public class KpiC2AnalyticDrillDownDTO implements Serializable {
     @NotNull
     private LocalDate analysisDate;
 
-    private String partnerCf;
+    private String institutionCf;
 
     @NotNull
     private Long numPayment;
@@ -70,7 +61,7 @@ public class KpiC2AnalyticDrillDownDTO implements Serializable {
             ", instanceId=" + instanceId +
             ", instanceModuleId=" + instanceModuleId +
             ", analysisDate=" + analysisDate +
-            ", partnerCf='" + partnerCf + '\'' +
+            ", institutionCf='" + institutionCf + '\'' +
             ", numPayment=" + numPayment +
             ", numNotification=" + numNotification +
             ", percentNotification=" + percentNotification +
