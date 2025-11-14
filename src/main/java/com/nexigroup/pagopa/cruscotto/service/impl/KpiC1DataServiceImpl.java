@@ -38,8 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
 
 @Service
@@ -124,7 +122,7 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
                            instanceDTO.getPartnerFiscalCode());
 
                 // Save results with OK outcome
-                saveKpiC1Results(instanceDTO, instanceModuleDTO, kpiConfigurationDTO,
+                kpiC1DataService.saveKpiC1Results(instanceDTO, instanceModuleDTO, kpiConfigurationDTO,
                                analysisDate, OutcomeStatus.OK, ioDataList, new HashMap<>(), true);
                 return OutcomeStatus.OK;
             }
@@ -146,7 +144,7 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
             LOGGER.info("KPI C.1 calculation completed. Final outcome: {}", finalOutcome);
 
             // Save all results
-            saveKpiC1Results(instanceDTO, instanceModuleDTO, kpiConfigurationDTO,
+            kpiC1DataService.saveKpiC1Results(instanceDTO, instanceModuleDTO, kpiConfigurationDTO,
                            analysisDate, finalOutcome, ioDataList, monthlyCompliance, totalCompliance);
 
             return finalOutcome;
