@@ -55,6 +55,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class KpiB4ServiceImpl implements KpiB4Service {
 
+    private static final String INSTANCE_NOT_FOUND = "Instance not found: ";
+
     private final KpiB4ResultRepository kpiB4ResultRepository;
     private final KpiB4DetailResultRepository kpiB4DetailResultRepository;
     private final KpiB4AnalyticDataRepository kpiB4AnalyticDataRepository;
@@ -151,7 +153,7 @@ public class KpiB4ServiceImpl implements KpiB4Service {
         log.debug("Finding KPI B4 results for instance: {}", instanceId);
         Long instanceIdLong = Long.valueOf(instanceId);
         Instance instance = instanceRepository.findById(instanceIdLong)
-            .orElseThrow(() -> new RuntimeException("Instance not found: " + instanceId));
+            .orElseThrow(() -> new RuntimeException(INSTANCE_NOT_FOUND + instanceId));
 
         return kpiB4ResultRepository.findByInstanceOrderByAnalysisDateDesc(instance)
             .stream()
@@ -165,7 +167,7 @@ public class KpiB4ServiceImpl implements KpiB4Service {
         log.debug("Finding KPI B4 results for instance {} with pagination", instanceId);
         Long instanceIdLong = Long.valueOf(instanceId);
         Instance instance = instanceRepository.findById(instanceIdLong)
-            .orElseThrow(() -> new RuntimeException("Instance not found: " + instanceId));
+            .orElseThrow(() -> new RuntimeException(INSTANCE_NOT_FOUND + instanceId));
 
         return kpiB4ResultRepository.findByInstanceOrderByAnalysisDateDesc(instance, pageable)
             .map(kpiB4ResultMapper::toDto);
@@ -177,7 +179,7 @@ public class KpiB4ServiceImpl implements KpiB4Service {
         log.debug("Finding KPI B4 result for instance {} and date {}", instanceId, analysisDate);
         Long instanceIdLong = Long.valueOf(instanceId);
         Instance instance = instanceRepository.findById(instanceIdLong)
-            .orElseThrow(() -> new RuntimeException("Instance not found: " + instanceId));
+            .orElseThrow(() -> new RuntimeException(INSTANCE_NOT_FOUND + instanceId));
 
         LocalDate localDate = analysisDate.toLocalDate();
         KpiB4Result result = kpiB4ResultRepository.findByInstanceAndAnalysisDate(instance, localDate);
@@ -223,7 +225,7 @@ public class KpiB4ServiceImpl implements KpiB4Service {
         log.info("Deleting KPI B4 data for instance: {}", instanceId);
         Long instanceIdLong = Long.valueOf(instanceId);
         Instance instance = instanceRepository.findById(instanceIdLong)
-            .orElseThrow(() -> new RuntimeException("Instance not found: " + instanceId));
+            .orElseThrow(() -> new RuntimeException(INSTANCE_NOT_FOUND + instanceId));
 
         kpiB4ResultRepository.deleteByInstance(instance);
         log.info("Deleted KPI B4 results for instance {}", instanceId);
@@ -235,7 +237,7 @@ public class KpiB4ServiceImpl implements KpiB4Service {
         log.debug("Checking if KPI B4 calculation exists for instance {} and date {}", instanceId, analysisDate);
         Long instanceIdLong = Long.valueOf(instanceId);
         Instance instance = instanceRepository.findById(instanceIdLong)
-            .orElseThrow(() -> new RuntimeException("Instance not found: " + instanceId));
+            .orElseThrow(() -> new RuntimeException(INSTANCE_NOT_FOUND + instanceId));
 
         LocalDate localDate = analysisDate.toLocalDate();
         return kpiB4ResultRepository.existsByInstanceAndAnalysisDate(instance, localDate);
@@ -246,7 +248,7 @@ public class KpiB4ServiceImpl implements KpiB4Service {
         log.info("Recalculating KPI B4 for instance: {}", instanceId);
         Long instanceIdLong = Long.valueOf(instanceId);
         Instance instance = instanceRepository.findById(instanceIdLong)
-            .orElseThrow(() -> new RuntimeException("Instance not found: " + instanceId));
+            .orElseThrow(() -> new RuntimeException(INSTANCE_NOT_FOUND + instanceId));
 
         // Delete existing results first
         kpiB4ResultRepository.deleteByInstance(instance);

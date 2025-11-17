@@ -5,6 +5,8 @@ import tech.jhipster.web.util.HeaderUtil;
 
 public class HeaderJobUtil {
 
+    private static final String JOB_NAME = "A Job ";
+
     /**
      * <p>createJobPauseAlert.</p>
      *
@@ -17,7 +19,7 @@ public class HeaderJobUtil {
     public static HttpHeaders createJobPauseAlert(String applicationName, boolean enableTranslation, String jobName, String param) {
         String message = enableTranslation
             ? applicationName + "." + jobName + ".pause"
-            : "A Job " + jobName + " is updated with identifier " + param;
+            : JOB_NAME + jobName + " is updated with identifier " + param;
         return tech.jhipster.web.util.HeaderUtil.createAlert(applicationName, message, param);
     }
 
@@ -33,7 +35,7 @@ public class HeaderJobUtil {
     public static HttpHeaders createJobResumeAlert(String applicationName, boolean enableTranslation, String jobName, String param) {
         String message = enableTranslation
             ? applicationName + "." + jobName + ".resume"
-            : "A Job " + jobName + " is resumed with identifier " + param;
+            : JOB_NAME + jobName + " is resumed with identifier " + param;
         return HeaderUtil.createAlert(applicationName, message, param);
     }
 
@@ -49,7 +51,7 @@ public class HeaderJobUtil {
     public static HttpHeaders createJobStopAlert(String applicationName, boolean enableTranslation, String jobName, String param) {
         String message = enableTranslation
             ? applicationName + "." + jobName + ".stop"
-            : "A Job " + jobName + " is stopped with identifier " + param;
+            : JOB_NAME + jobName + " is stopped with identifier " + param;
         return HeaderUtil.createAlert(applicationName, message, param);
     }
 
@@ -65,7 +67,7 @@ public class HeaderJobUtil {
     public static HttpHeaders createJobStartAlert(String applicationName, boolean enableTranslation, String jobName, String param) {
         String message = enableTranslation
             ? applicationName + "." + jobName + ".start"
-            : "A Job " + jobName + " is started with identifier " + param;
+            : JOB_NAME + jobName + " is started with identifier " + param;
         return HeaderUtil.createAlert(applicationName, message, param);
     }
 
@@ -81,7 +83,7 @@ public class HeaderJobUtil {
     public static HttpHeaders createJobUpdateAlert(String applicationName, boolean enableTranslation, String jobName, String param) {
         String message = enableTranslation
             ? applicationName + "." + jobName + ".update"
-            : "A Job " + jobName + " is started with identifier " + param;
+            : JOB_NAME + jobName + " is started with identifier " + param;
         return HeaderUtil.createAlert(applicationName, message, param);
     }
 }
