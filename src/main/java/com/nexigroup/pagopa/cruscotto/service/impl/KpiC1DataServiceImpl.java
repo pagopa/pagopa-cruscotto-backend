@@ -470,7 +470,7 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
 
         // Get all months in the analysis period
         List<YearMonth> monthsInPeriod = getMonthsInPeriod(instanceDTO.getAnalysisPeriodStartDate(),
-                                                           instanceDTO.getAnalysisPeriodEndDate());
+            instanceDTO.getAnalysisPeriodEndDate());
 
         // Group IO data by month
         Map<YearMonth, List<PagoPaIODTO>> dataByMonth = ioDataList.stream()
@@ -498,9 +498,7 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
             long compliantEntities = monthlyEntityCompliance.values().stream()
                 .filter(Boolean::booleanValue)
                 .count();
-            long totalEntities = monthlyEntityCompliance.size();
-            double compliancePercentage = totalEntities > 0
-                ? (double) compliantEntities / totalEntities * 100.0 : 100.0;
+            long totalEntitiesWithData = monthlyEntityCompliance.size();
 
             // Use total partner institutions count (not just those with data) - following KPI C2 pattern
             double compliancePercentage = totalInstitutionsCount > 0
@@ -523,30 +521,24 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
             long totalPositions = monthData.stream().mapToLong(PagoPaIODTO::getNumeroPosizioni).sum();
             long totalMessages = monthData.stream().mapToLong(PagoPaIODTO::getNumeroMessaggi).sum();
             monthlyDetailResult.updateDetails(totalPositions, totalMessages);
-            monthlyDetailResult.updateInstitutions(totalEntities, compliantEntities);
 
             // Use total partner institutions (not entities with data) - following KPI C2 pattern
             monthlyDetailResult.updateInstitutions(totalInstitutionsCount, compliantEntities);
 
             kpiC1DetailResultService.save(monthlyDetailResult);
             LOGGER.info("Saved monthly result for {}: {} institutions ({} compliant, {}%), outcome: {}",
-                        yearMonth, totalEntities, compliantEntities, String.format("%.2f", compliancePercentage),
-            LOGGER.info("Saved monthly result for {}: {} institutions ({} compliant, {}%), outcome: {}",
-                        yearMonth, totalInstitutionsCount, compliantEntities, String.format("%.2f", compliancePercentage),
-                        monthlyDetailResult.getOutcome());
+                yearMonth, totalInstitutionsCount, compliantEntities, String.format("%.2f", compliancePercentage),
+                monthlyDetailResult.getOutcome());
         }
 
-    // Create total detail result (entire analysis period)
-    // Only entities with data are evaluated for compliance
-    Map<String, Boolean> totalEntityCompliance = calculateEntityCompliance(ioDataList, requiredMessagePercentage);
+        // Create total detail result (entire analysis period)
+        // Only entities with data are evaluated for compliance
+        Map<String, Boolean> totalEntityCompliance = calculateEntityCompliance(ioDataList, requiredMessagePercentage);
         long totalCompliantEntities = totalEntityCompliance.values().stream()
             .filter(Boolean::booleanValue)
             .count();
-        long totalEntities = totalEntityCompliance.size();
-        double totalCompliancePercentage = totalEntities > 0
-            ? (double) totalCompliantEntities / totalEntities * 100.0 : 100.0;
+        long totalEntitiesWithData = totalEntityCompliance.size();
 
-        com.nexigroup.pagopa.cruscotto.domain.KpiC1DetailResult totalDetailResult =
         // Use total partner institutions count (not just those with data) - following KPI C2 pattern
         double totalCompliancePercentage = totalInstitutionsCount > 0
             ? (double) totalCompliantEntities / totalInstitutionsCount * 100.0 : 100.0;
@@ -567,20 +559,17 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
         long totalPositions = ioDataList.stream().mapToLong(PagoPaIODTO::getNumeroPosizioni).sum();
         long totalMessages = ioDataList.stream().mapToLong(PagoPaIODTO::getNumeroMessaggi).sum();
         totalDetailResult.updateDetails(totalPositions, totalMessages);
-        totalDetailResult.updateInstitutions(totalEntities, totalCompliantEntities);
 
         // Use total partner institutions (not entities with data) - following KPI C2 pattern
         totalDetailResult.updateInstitutions(totalInstitutionsCount, totalCompliantEntities);
 
         kpiC1DetailResultService.save(totalDetailResult);
         LOGGER.info("Saved total result: {} institutions ({} compliant, {}%), outcome: {}",
-                    totalEntities, totalCompliantEntities, String.format("%.2f", totalCompliancePercentage),
-        LOGGER.info("Saved total result: {} institutions ({} compliant, {}%), outcome: {}",
-                    totalInstitutionsCount, totalCompliantEntities, String.format("%.2f", totalCompliancePercentage),
-                    totalDetailResult.getOutcome());
+            totalInstitutionsCount, totalCompliantEntities, String.format("%.2f", totalCompliancePercentage),
+            totalDetailResult.getOutcome());
 
         LOGGER.info("Saved {} detail results ({} monthly + 1 total)",
-                   monthsInPeriod.size() + 1, monthsInPeriod.size());
+            monthsInPeriod.size() + 1, monthsInPeriod.size());
     }
 
     /**
