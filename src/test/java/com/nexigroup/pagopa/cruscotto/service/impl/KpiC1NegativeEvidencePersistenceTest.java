@@ -42,35 +42,8 @@ class KpiC1NegativeEvidencePersistenceTest {
         anagPartnerService = Mockito.mock(AnagPartnerService.class);
         anagInstitutionService = Mockito.mock(AnagInstitutionService.class);
         ioDrilldownService = Mockito.mock(IoDrilldownService.class);
-        KpiC1DataService kpiC1DataService = Mockito.mock(KpiC1DataService.class);
         service = new KpiC1DataServiceImpl(pagopaIORepository, pagopaIOMapper, kpiC1ResultService,
-            kpiC1DetailResultService, kpiC1AnalyticDataService, anagPartnerService, anagInstitutionService, ioDrilldownService, kpiC1DataService);
-
-        // Stub the self-proxy retrieval method to delegate to the real service implementation logic
-        // so executeKpiC1Calculation gets a non-null IO data list.
-        when(kpiC1DataService.retrieveIODataForPartner(anyString(), anyList(), any(LocalDate.class), any(LocalDate.class)))
-            .thenAnswer(inv -> service.retrieveIODataForPartner(
-                inv.getArgument(0),
-                inv.getArgument(1),
-                inv.getArgument(2),
-                inv.getArgument(3)
-            ));
-
-        doAnswer(invocation -> {
-            service.saveKpiC1Results(
-                invocation.getArgument(0),
-                invocation.getArgument(1),
-                invocation.getArgument(2),
-                invocation.getArgument(3),
-                invocation.getArgument(4),
-                invocation.getArgument(5),
-                invocation.getArgument(6),
-                invocation.getArgument(7)
-            );
-            return null;
-        }).when(kpiC1DataService).saveKpiC1Results(
-            any(), any(), any(), any(), any(), any(), any(), anyBoolean()
-        );
+            kpiC1DetailResultService, kpiC1AnalyticDataService, anagPartnerService, anagInstitutionService, ioDrilldownService);
     }
 
     private PagoPaIODTO dto(String ente, LocalDate date, int pos, int msg, String cfPartner) {

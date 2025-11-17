@@ -38,14 +38,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.springframework.context.annotation.Lazy;
-
 @Service
 @Transactional
 public class KpiC1DataServiceImpl implements KpiC1DataService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KpiC1DataServiceImpl.class);
-    private static final String NO_DATA_FOUND = "NO_DATA_FOUND";
 
     private final PagopaIORepository pagopaIORepository;
     private final PagopaIOMapper pagopaIOMapper;
@@ -55,7 +52,6 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
     private final AnagPartnerService anagPartnerService;
     private final AnagInstitutionService anagInstitutionService;
     private final IoDrilldownService ioDrilldownService;
-    private final KpiC1DataService kpiC1DataService;
     @jakarta.annotation.Resource
     private com.nexigroup.pagopa.cruscotto.repository.KpiC1DetailResultRepository kpiC1DetailResultRepository;
 
@@ -67,8 +63,7 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
         KpiC1AnalyticDataService kpiC1AnalyticDataService,
         AnagPartnerService anagPartnerService,
         AnagInstitutionService anagInstitutionService,
-        IoDrilldownService ioDrilldownService,
-        @Lazy KpiC1DataService kpiC1DataService
+        IoDrilldownService ioDrilldownService
     ) {
         this.pagopaIORepository = pagopaIORepository;
         this.pagopaIOMapper = pagopaIOMapper;
@@ -78,11 +73,9 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
         this.anagPartnerService = anagPartnerService;
         this.anagInstitutionService = anagInstitutionService;
         this.ioDrilldownService = ioDrilldownService;
-        this.kpiC1DataService = kpiC1DataService;
     }
 
     @Override
-    @Transactional
     public OutcomeStatus executeKpiC1Calculation(
         InstanceDTO instanceDTO,
         InstanceModuleDTO instanceModuleDTO,
@@ -110,7 +103,7 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
                        instanceDTO.getPartnerFiscalCode(), entiList);
 
             // Retrieve IO data using double access logic
-            List<PagoPaIODTO> ioDataList = kpiC1DataService.retrieveIODataForPartner(
+            List<PagoPaIODTO> ioDataList = retrieveIODataForPartner(
                 instanceDTO.getPartnerFiscalCode(),
                 entiList,
                 instanceDTO.getAnalysisPeriodStartDate(),
@@ -122,7 +115,7 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
                            instanceDTO.getPartnerFiscalCode());
 
                 // Save results with OK outcome
-                kpiC1DataService.saveKpiC1Results(instanceDTO, instanceModuleDTO, kpiConfigurationDTO,
+                saveKpiC1Results(instanceDTO, instanceModuleDTO, kpiConfigurationDTO,
                                analysisDate, OutcomeStatus.OK, ioDataList, new HashMap<>(), true);
                 return OutcomeStatus.OK;
             }
@@ -144,7 +137,7 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
             LOGGER.info("KPI C.1 calculation completed. Final outcome: {}", finalOutcome);
 
             // Save all results
-            kpiC1DataService.saveKpiC1Results(instanceDTO, instanceModuleDTO, kpiConfigurationDTO,
+            saveKpiC1Results(instanceDTO, instanceModuleDTO, kpiConfigurationDTO,
                            analysisDate, finalOutcome, ioDataList, monthlyCompliance, totalCompliance);
 
             return finalOutcome;
@@ -429,7 +422,7 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
 
     /**
      * Save detail results - one per month (MESE) and one total (TOTALE)
-     * Following the same pattern as KpiB3 and KpiC2
+     * Following the same pattern as KpiB3
      */
     private void saveKpiC1DetailResults(
         com.nexigroup.pagopa.cruscotto.domain.KpiC1Result savedResult,
@@ -452,25 +445,9 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
         double requiredMessagePercentage = kpiConfigurationDTO.getNotificationTolerance() != null
             ? kpiConfigurationDTO.getNotificationTolerance().doubleValue() : 100.0; // default 100%
 
-        // Following KPI C2 pattern: retrieve ALL partner institutions (not just those with IO data)
-        // This ensures totalInstitutions reflects all institutions managed by the partner
-        AnagPartnerDTO partnerDTO = anagPartnerService.findOneByFiscalCode(instanceDTO.getPartnerFiscalCode())
-            .orElseThrow(() -> new RuntimeException("Partner not found: " + instanceDTO.getPartnerFiscalCode()));
-
-        AnagInstitutionFilter filter = new AnagInstitutionFilter();
-        filter.setPartnerId(partnerDTO.getPartnerIdentification().getId());
-        List<com.nexigroup.pagopa.cruscotto.service.dto.AnagInstitutionDTO> institutionListPartner = anagInstitutionService.findAllNoPaging(filter);
-        List<String> listInstitutionFiscalCode = institutionListPartner.stream()
-            .map(anagInstitutionDTO -> anagInstitutionDTO.getInstitutionIdentification().getFiscalCode())
-            .distinct() // Remove duplicates
-            .toList();
-
-        long totalInstitutionsCount = listInstitutionFiscalCode.size();
-        LOGGER.info("Total institutions managed by partner {}: {}", instanceDTO.getPartnerFiscalCode(), totalInstitutionsCount);
-
         // Get all months in the analysis period
         List<YearMonth> monthsInPeriod = getMonthsInPeriod(instanceDTO.getAnalysisPeriodStartDate(),
-            instanceDTO.getAnalysisPeriodEndDate());
+                                                           instanceDTO.getAnalysisPeriodEndDate());
 
         // Group IO data by month
         Map<YearMonth, List<PagoPaIODTO>> dataByMonth = ioDataList.stream()
@@ -493,16 +470,13 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
             List<PagoPaIODTO> monthData = dataByMonth.getOrDefault(yearMonth, new ArrayList<>());
 
             // Calculate compliance for this month (aggregated message % vs requiredMessagePercentage)
-            // Only entities with data are evaluated for compliance
             Map<String, Boolean> monthlyEntityCompliance = calculateEntityCompliance(monthData, requiredMessagePercentage);
             long compliantEntities = monthlyEntityCompliance.values().stream()
                 .filter(Boolean::booleanValue)
                 .count();
-            long totalEntitiesWithData = monthlyEntityCompliance.size();
-
-            // Use total partner institutions count (not just those with data) - following KPI C2 pattern
-            double compliancePercentage = totalInstitutionsCount > 0
-                ? (double) compliantEntities / totalInstitutionsCount * 100.0 : 100.0;
+            long totalEntities = monthlyEntityCompliance.size();
+            double compliancePercentage = totalEntities > 0
+                ? (double) compliantEntities / totalEntities * 100.0 : 100.0;
 
             // Create monthly detail result
             com.nexigroup.pagopa.cruscotto.domain.KpiC1DetailResult monthlyDetailResult =
@@ -521,27 +495,22 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
             long totalPositions = monthData.stream().mapToLong(PagoPaIODTO::getNumeroPosizioni).sum();
             long totalMessages = monthData.stream().mapToLong(PagoPaIODTO::getNumeroMessaggi).sum();
             monthlyDetailResult.updateDetails(totalPositions, totalMessages);
-
-            // Use total partner institutions (not entities with data) - following KPI C2 pattern
-            monthlyDetailResult.updateInstitutions(totalInstitutionsCount, compliantEntities);
+            monthlyDetailResult.updateInstitutions(totalEntities, compliantEntities);
 
             kpiC1DetailResultService.save(monthlyDetailResult);
             LOGGER.info("Saved monthly result for {}: {} institutions ({} compliant, {}%), outcome: {}",
-                yearMonth, totalInstitutionsCount, compliantEntities, String.format("%.2f", compliancePercentage),
-                monthlyDetailResult.getOutcome());
+                        yearMonth, totalEntities, compliantEntities, String.format("%.2f", compliancePercentage),
+                        monthlyDetailResult.getOutcome());
         }
 
-        // Create total detail result (entire analysis period)
-        // Only entities with data are evaluated for compliance
-        Map<String, Boolean> totalEntityCompliance = calculateEntityCompliance(ioDataList, requiredMessagePercentage);
+    // Create total detail result (entire analysis period)
+    Map<String, Boolean> totalEntityCompliance = calculateEntityCompliance(ioDataList, requiredMessagePercentage);
         long totalCompliantEntities = totalEntityCompliance.values().stream()
             .filter(Boolean::booleanValue)
             .count();
-        long totalEntitiesWithData = totalEntityCompliance.size();
-
-        // Use total partner institutions count (not just those with data) - following KPI C2 pattern
-        double totalCompliancePercentage = totalInstitutionsCount > 0
-            ? (double) totalCompliantEntities / totalInstitutionsCount * 100.0 : 100.0;
+        long totalEntities = totalEntityCompliance.size();
+        double totalCompliancePercentage = totalEntities > 0
+            ? (double) totalCompliantEntities / totalEntities * 100.0 : 100.0;
 
         com.nexigroup.pagopa.cruscotto.domain.KpiC1DetailResult totalDetailResult =
             new com.nexigroup.pagopa.cruscotto.domain.KpiC1DetailResult(
@@ -559,17 +528,15 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
         long totalPositions = ioDataList.stream().mapToLong(PagoPaIODTO::getNumeroPosizioni).sum();
         long totalMessages = ioDataList.stream().mapToLong(PagoPaIODTO::getNumeroMessaggi).sum();
         totalDetailResult.updateDetails(totalPositions, totalMessages);
-
-        // Use total partner institutions (not entities with data) - following KPI C2 pattern
-        totalDetailResult.updateInstitutions(totalInstitutionsCount, totalCompliantEntities);
+        totalDetailResult.updateInstitutions(totalEntities, totalCompliantEntities);
 
         kpiC1DetailResultService.save(totalDetailResult);
         LOGGER.info("Saved total result: {} institutions ({} compliant, {}%), outcome: {}",
-            totalInstitutionsCount, totalCompliantEntities, String.format("%.2f", totalCompliancePercentage),
-            totalDetailResult.getOutcome());
+                    totalEntities, totalCompliantEntities, String.format("%.2f", totalCompliancePercentage),
+                    totalDetailResult.getOutcome());
 
         LOGGER.info("Saved {} detail results ({} monthly + 1 total)",
-            monthsInPeriod.size() + 1, monthsInPeriod.size());
+                   monthsInPeriod.size() + 1, monthsInPeriod.size());
     }
 
     /**
@@ -724,7 +691,7 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
                     instance, instanceModule, analysisDate,
                     com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType.MESE,
                     monthStart, monthEnd,
-                    NO_DATA_FOUND,
+                    "NO_DATA_FOUND",
                     OutcomeStatus.OK, // OK because no data means compliant by default
                     true,
                     toleranceThreshold != null ? java.math.BigDecimal.valueOf(toleranceThreshold) : null,
@@ -741,7 +708,7 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
                 instance, instanceModule, analysisDate,
                 com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType.TOTALE,
                 instanceDTO.getAnalysisPeriodStartDate(), instanceDTO.getAnalysisPeriodEndDate(),
-                NO_DATA_FOUND,
+                "NO_DATA_FOUND",
                 OutcomeStatus.OK, // OK because no data means compliant by default
                 true,
                 toleranceThreshold != null ? java.math.BigDecimal.valueOf(toleranceThreshold) : null,
@@ -774,7 +741,7 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
         // Create a single "empty" analytic record to indicate no data was processed
         com.nexigroup.pagopa.cruscotto.domain.KpiC1AnalyticData analyticData = new com.nexigroup.pagopa.cruscotto.domain.KpiC1AnalyticData(
             instance, instanceModule, analysisDate, analysisDate, // Use analysis date as data date
-            NO_DATA_FOUND, 0L, 0L // Zero positions and messages
+            "NO_DATA_FOUND", 0L, 0L // Zero positions and messages
         );
 
         kpiC1AnalyticDataService.save(analyticData);
