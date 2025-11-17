@@ -429,7 +429,7 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
 
     /**
      * Save detail results - one per month (MESE) and one total (TOTALE)
-     * Following the same pattern as KpiB3
+     * Following the same pattern as KpiB3 and KpiC2
      */
     private void saveKpiC1DetailResults(
         com.nexigroup.pagopa.cruscotto.domain.KpiC1Result savedResult,
@@ -451,6 +451,22 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
             ? kpiConfigurationDTO.getInstitutionTolerance().doubleValue() : 50.0; // default 50%
         double requiredMessagePercentage = kpiConfigurationDTO.getNotificationTolerance() != null
             ? kpiConfigurationDTO.getNotificationTolerance().doubleValue() : 100.0; // default 100%
+
+        // Following KPI C2 pattern: retrieve ALL partner institutions (not just those with IO data)
+        // This ensures totalInstitutions reflects all institutions managed by the partner
+        AnagPartnerDTO partnerDTO = anagPartnerService.findOneByFiscalCode(instanceDTO.getPartnerFiscalCode())
+            .orElseThrow(() -> new RuntimeException("Partner not found: " + instanceDTO.getPartnerFiscalCode()));
+
+        AnagInstitutionFilter filter = new AnagInstitutionFilter();
+        filter.setPartnerId(partnerDTO.getPartnerIdentification().getId());
+        List<com.nexigroup.pagopa.cruscotto.service.dto.AnagInstitutionDTO> institutionListPartner = anagInstitutionService.findAllNoPaging(filter);
+        List<String> listInstitutionFiscalCode = institutionListPartner.stream()
+            .map(anagInstitutionDTO -> anagInstitutionDTO.getInstitutionIdentification().getFiscalCode())
+            .distinct() // Remove duplicates
+            .toList();
+
+        long totalInstitutionsCount = listInstitutionFiscalCode.size();
+        LOGGER.info("Total institutions managed by partner {}: {}", instanceDTO.getPartnerFiscalCode(), totalInstitutionsCount);
 
         // Get all months in the analysis period
         List<YearMonth> monthsInPeriod = getMonthsInPeriod(instanceDTO.getAnalysisPeriodStartDate(),
@@ -477,6 +493,7 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
             List<PagoPaIODTO> monthData = dataByMonth.getOrDefault(yearMonth, new ArrayList<>());
 
             // Calculate compliance for this month (aggregated message % vs requiredMessagePercentage)
+            // Only entities with data are evaluated for compliance
             Map<String, Boolean> monthlyEntityCompliance = calculateEntityCompliance(monthData, requiredMessagePercentage);
             long compliantEntities = monthlyEntityCompliance.values().stream()
                 .filter(Boolean::booleanValue)
@@ -484,6 +501,10 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
             long totalEntities = monthlyEntityCompliance.size();
             double compliancePercentage = totalEntities > 0
                 ? (double) compliantEntities / totalEntities * 100.0 : 100.0;
+
+            // Use total partner institutions count (not just those with data) - following KPI C2 pattern
+            double compliancePercentage = totalInstitutionsCount > 0
+                ? (double) compliantEntities / totalInstitutionsCount * 100.0 : 100.0;
 
             // Create monthly detail result
             com.nexigroup.pagopa.cruscotto.domain.KpiC1DetailResult monthlyDetailResult =
@@ -504,13 +525,19 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
             monthlyDetailResult.updateDetails(totalPositions, totalMessages);
             monthlyDetailResult.updateInstitutions(totalEntities, compliantEntities);
 
+            // Use total partner institutions (not entities with data) - following KPI C2 pattern
+            monthlyDetailResult.updateInstitutions(totalInstitutionsCount, compliantEntities);
+
             kpiC1DetailResultService.save(monthlyDetailResult);
             LOGGER.info("Saved monthly result for {}: {} institutions ({} compliant, {}%), outcome: {}",
                         yearMonth, totalEntities, compliantEntities, String.format("%.2f", compliancePercentage),
+            LOGGER.info("Saved monthly result for {}: {} institutions ({} compliant, {}%), outcome: {}",
+                        yearMonth, totalInstitutionsCount, compliantEntities, String.format("%.2f", compliancePercentage),
                         monthlyDetailResult.getOutcome());
         }
 
     // Create total detail result (entire analysis period)
+    // Only entities with data are evaluated for compliance
     Map<String, Boolean> totalEntityCompliance = calculateEntityCompliance(ioDataList, requiredMessagePercentage);
         long totalCompliantEntities = totalEntityCompliance.values().stream()
             .filter(Boolean::booleanValue)
@@ -518,6 +545,11 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
         long totalEntities = totalEntityCompliance.size();
         double totalCompliancePercentage = totalEntities > 0
             ? (double) totalCompliantEntities / totalEntities * 100.0 : 100.0;
+
+        com.nexigroup.pagopa.cruscotto.domain.KpiC1DetailResult totalDetailResult =
+        // Use total partner institutions count (not just those with data) - following KPI C2 pattern
+        double totalCompliancePercentage = totalInstitutionsCount > 0
+            ? (double) totalCompliantEntities / totalInstitutionsCount * 100.0 : 100.0;
 
         com.nexigroup.pagopa.cruscotto.domain.KpiC1DetailResult totalDetailResult =
             new com.nexigroup.pagopa.cruscotto.domain.KpiC1DetailResult(
@@ -537,9 +569,14 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
         totalDetailResult.updateDetails(totalPositions, totalMessages);
         totalDetailResult.updateInstitutions(totalEntities, totalCompliantEntities);
 
+        // Use total partner institutions (not entities with data) - following KPI C2 pattern
+        totalDetailResult.updateInstitutions(totalInstitutionsCount, totalCompliantEntities);
+
         kpiC1DetailResultService.save(totalDetailResult);
         LOGGER.info("Saved total result: {} institutions ({} compliant, {}%), outcome: {}",
                     totalEntities, totalCompliantEntities, String.format("%.2f", totalCompliancePercentage),
+        LOGGER.info("Saved total result: {} institutions ({} compliant, {}%), outcome: {}",
+                    totalInstitutionsCount, totalCompliantEntities, String.format("%.2f", totalCompliancePercentage),
                     totalDetailResult.getOutcome());
 
         LOGGER.info("Saved {} detail results ({} monthly + 1 total)",

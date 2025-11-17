@@ -621,7 +621,7 @@ public class KpiC2ServiceImpl implements KpiC2Service {
                 // Estrazione dati dal result set basandosi sulla query del repository
                 // Format atteso: [CF_PARTNER, DATE, STATION, CF_ENTE, API, TOT_REQ, REQ_OK, REQ_KO]
                 String cfPartner = (String) logData[0];
-                String institution = (String) logData[1];
+                String cfInstitution = (String) logData[1];
                 LocalDate date = ((LocalDateTime) logData[2]).toLocalDate();
 
                 Long paymentsNumber =  ((Long) logData[3]).longValue();
@@ -641,7 +641,7 @@ public class KpiC2ServiceImpl implements KpiC2Service {
                 drilldownEntity.setAnalysisDate(analyticData.getAnalysisDate());
 
                 // Setta i dati API log
-                drilldownEntity.setPartnerCf(cfPartner);
+                drilldownEntity.setInstitutionCf(cfInstitution);
                 drilldownEntity.setNumPayment(paymentsNumber);
                 drilldownEntity.setNumNotification(notificationNumber);
                 drilldownEntity.setPercentNotification(getPercentagePeriodNotification(paymentsNumber, notificationNumber));
@@ -651,7 +651,7 @@ public class KpiC2ServiceImpl implements KpiC2Service {
                 kpiC2AnalyticDrillDownRepository.save(drilldownEntity);
 
                 log.trace("Saved drilldown record: {} {} {} {} {} ",
-                    cfPartner, date, institution, paymentsNumber, notificationNumber);
+                    cfPartner, date, cfInstitution, paymentsNumber, notificationNumber);
             }
 
             log.debug("Populated {} drilldown records for KPI C.2 analytic data {} on date {}",
