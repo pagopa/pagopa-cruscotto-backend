@@ -113,14 +113,18 @@ class KpiC1NegativeEvidencePersistenceTest {
     ArgumentCaptor<List<com.nexigroup.pagopa.cruscotto.domain.IoDrilldown>> captor = ArgumentCaptor.forClass((Class) List.class);
         when(ioDrilldownService.saveAll(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        OutcomeStatus outcome = service.executeKpiC1Calculation(instance, module, conf, LocalDate.of(2025,1,3));
-        assertThat(outcome).isEqualTo(OutcomeStatus.KO); // because monthly compliance will fail due to ENTE_LOW
+    OutcomeStatus outcome = service.executeKpiC1Calculation(instance, module, conf, LocalDate.of(2025,1,3));
+    // Con nuova logica: outcome OK perché percentuale enti compliant (1/2 = 50%) soddisfa institutionTolerance=50% anche se esistono evidenze negative
+    assertThat(outcome).isEqualTo(OutcomeStatus.OK);
 
-        verify(ioDrilldownService, atLeastOnce()).saveAll(captor.capture());
-    List<com.nexigroup.pagopa.cruscotto.domain.IoDrilldown> saved = captor.getValue();
-        assertThat(saved).hasSize(1);
-        assertThat(saved.get(0).getCfInstitution()).isEqualTo("ENTE_LOW");
-        assertThat(saved.get(0).getPercentage()).isLessThan(95.0);
-        assertThat(saved.get(0).getMeetsTolerance()).isFalse();
+    verify(ioDrilldownService, atLeastOnce()).saveAll(any());
+    List<com.nexigroup.pagopa.cruscotto.domain.IoDrilldown> saved = captured.get();
+        // Nuova logica: giornata con almeno un KO => tutte le righe del giorno in drilldown (2)
+        assertThat(saved).hasSize(2);
+        // Verifica presenza ente KO e ente OK
+        assertThat(saved.stream().anyMatch(d -> d.getCfInstitution().equals("ENTE_LOW") && Boolean.FALSE.equals(d.getMeetsTolerance()))).isTrue();
+        assertThat(saved.stream().anyMatch(d -> d.getCfInstitution().equals("ENTE_OK") && Boolean.TRUE.equals(d.getMeetsTolerance()))).isTrue();
+        // Percentuale ente KO < soglia
+        assertThat(saved.stream().filter(d -> d.getCfInstitution().equals("ENTE_LOW")).findFirst().orElseThrow().getPercentage()).isLessThan(95.0);
     }
 }
