@@ -9,12 +9,15 @@ import com.nexigroup.pagopa.cruscotto.service.filter.InstitutionFilter;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import java.util.List;
 
 public interface AnagInstitutionService {
 
 	AnagInstitution findByInstitutionCode(String institutionCode);
 
     Page<InstitutionIdentificationDTO> findAll(InstitutionFilter filter, Pageable pageable);
+
+    List<AnagInstitutionDTO> findAllNoPaging(AnagInstitutionFilter filter);
 
     Page<AnagInstitutionDTO> findAll(AnagInstitutionFilter filter, Pageable pageable);
     void saveAll(java.util.List<CreditorInstitution> creditorInstitutions);

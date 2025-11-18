@@ -11,10 +11,8 @@ import com.nexigroup.pagopa.cruscotto.repository.PagoPaPaymentReceiptDrilldownRe
 import com.nexigroup.pagopa.cruscotto.service.PagoPaPaymentReceiptDrilldownService;
 import com.nexigroup.pagopa.cruscotto.service.dto.PagoPaPaymentReceiptDrilldownDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.PagoPaPaymentReceiptDTO;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneOffset;
+
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +58,7 @@ public class PagoPaPaymentReceiptDrilldownServiceImpl implements PagoPaPaymentRe
         LocalDate analysisDate,
         List<PagoPaPaymentReceiptDTO> rawData
     ) {
-        LOGGER.debug("Saving quarter-hour aggregated data for instance={}, station={}, date={}", 
+        LOGGER.debug("Saving quarter-hour aggregated data for instance={}, station={}, date={}",
                      instanceId, stationId, evaluationDate);
 
         // Load entities
@@ -84,7 +82,7 @@ public class PagoPaPaymentReceiptDrilldownServiceImpl implements PagoPaPaymentRe
         LocalDate analysisDate,
         List<PagoPaPaymentReceiptDTO> rawData
     ) {
-        LOGGER.debug("Saving quarter-hour aggregated data (optimized) for instance={}, station={}, date={}", 
+        LOGGER.debug("Saving quarter-hour aggregated data (optimized) for instance={}, station={}, date={}",
                      instance.getId(), station.getId(), evaluationDate);
 
         // Create 96 quarter-hour slots for the day (00:00-00:15, 00:15-00:30, etc.)
@@ -92,12 +90,12 @@ public class PagoPaPaymentReceiptDrilldownServiceImpl implements PagoPaPaymentRe
 
         // Aggregate raw data into quarter-hour slots
         for (PagoPaPaymentReceiptDTO record : rawData) {
-            LocalDateTime recordStart = record.getStartDate().atZone(ZoneOffset.systemDefault()).toLocalDateTime();
-            LocalDateTime recordEnd = record.getEndDate().atZone(ZoneOffset.systemDefault()).toLocalDateTime();
-            
+            LocalDateTime recordStart = record.getStartDate().atZone(ZoneId.systemDefault()).toLocalDateTime();
+            LocalDateTime recordEnd = record.getEndDate().atZone(ZoneId.systemDefault()).toLocalDateTime();
+
             // Find the quarter-hour slot this record belongs to
             LocalDateTime slotStart = findQuarterHourSlot(recordStart);
-            
+
             if (quarterHourSlots.containsKey(slotStart)) {
                 long[] values = quarterHourSlots.get(slotStart);
                 values[0] += record.getTotRes(); // totRes
@@ -119,8 +117,8 @@ public class PagoPaPaymentReceiptDrilldownServiceImpl implements PagoPaPaymentRe
             drilldown.setStation(station);
             drilldown.setAnalysisDate(analysisDate);
             drilldown.setEvaluationDate(evaluationDate);
-            drilldown.setStartTime(slotStart.atZone(ZoneOffset.systemDefault()).toInstant());
-            drilldown.setEndTime(slotEnd.atZone(ZoneOffset.systemDefault()).toInstant());
+            drilldown.setStartTime(slotStart.atZone(ZoneId.systemDefault()).toInstant());
+            drilldown.setEndTime(slotEnd.atZone(ZoneId.systemDefault()).toInstant());
             drilldown.setTotRes(values[0]);
             drilldown.setResOk(values[1]);
             drilldown.setResKo(values[2]);
@@ -129,7 +127,7 @@ public class PagoPaPaymentReceiptDrilldownServiceImpl implements PagoPaPaymentRe
         }
 
         drilldownRepository.saveAll(drilldownRecords);
-        LOGGER.info("Saved {} quarter-hour drilldown records for station {} on date {}", 
+        LOGGER.info("Saved {} quarter-hour drilldown records for station {} on date {}",
                     drilldownRecords.size(), station.getName(), evaluationDate);
     }
 
@@ -148,11 +146,11 @@ public class PagoPaPaymentReceiptDrilldownServiceImpl implements PagoPaPaymentRe
 
         // Aggregate raw data into quarter-hour slots
         for (PagoPaPaymentReceiptDTO record : rawData) {
-            LocalDateTime recordStart = record.getStartDate().atZone(ZoneOffset.systemDefault()).toLocalDateTime();
-            
+            LocalDateTime recordStart = record.getStartDate().atZone(ZoneId.systemDefault()).toLocalDateTime();
+
             // Find the quarter-hour slot this record belongs to
             LocalDateTime slotStart = findQuarterHourSlot(recordStart);
-            
+
             if (quarterHourSlots.containsKey(slotStart)) {
                 long[] values = quarterHourSlots.get(slotStart);
                 values[0] += record.getTotRes(); // totRes
@@ -173,8 +171,8 @@ public class PagoPaPaymentReceiptDrilldownServiceImpl implements PagoPaPaymentRe
             drilldown.setStation(station);
             drilldown.setAnalysisDate(analysisDate);
             drilldown.setEvaluationDate(evaluationDate);
-            drilldown.setStartTime(slotStart.atZone(ZoneOffset.systemDefault()).toInstant());
-            drilldown.setEndTime(slotEnd.atZone(ZoneOffset.systemDefault()).toInstant());
+            drilldown.setStartTime(slotStart.atZone(ZoneId.systemDefault()).toInstant());
+            drilldown.setEndTime(slotEnd.atZone(ZoneId.systemDefault()).toInstant());
             drilldown.setTotRes(values[0]);
             drilldown.setResOk(values[1]);
             drilldown.setResKo(values[2]);
@@ -182,7 +180,7 @@ public class PagoPaPaymentReceiptDrilldownServiceImpl implements PagoPaPaymentRe
             batch.add(drilldown);
         }
 
-        LOGGER.debug("Added {} quarter-hour records to batch for station {} on date {}", 
+        LOGGER.debug("Added {} quarter-hour records to batch for station {} on date {}",
                      96, station.getName(), evaluationDate);
     }
 
@@ -195,7 +193,7 @@ public class PagoPaPaymentReceiptDrilldownServiceImpl implements PagoPaPaymentRe
         LOGGER.debug("Saving batch of {} drilldown records", batch.size());
         List<PagoPaPaymentReceiptDrilldown> savedRecords = drilldownRepository.saveAll(batch);
         LOGGER.info("Successfully saved batch of {} drilldown records", savedRecords.size());
-        
+
         return savedRecords.size();
     }
 
@@ -206,7 +204,7 @@ public class PagoPaPaymentReceiptDrilldownServiceImpl implements PagoPaPaymentRe
         Long stationId,
         LocalDate evaluationDate
     ) {
-        LOGGER.debug("Getting drilldown data for instance={}, station={}, evaluation date={}", 
+        LOGGER.debug("Getting drilldown data for instance={}, station={}, evaluation date={}",
                      instanceId, stationId, evaluationDate);
 
         List<PagoPaPaymentReceiptDrilldown> records = drilldownRepository
@@ -234,7 +232,7 @@ public class PagoPaPaymentReceiptDrilldownServiceImpl implements PagoPaPaymentRe
     public int deleteByInstanceModuleIdAndAnalysisDate(Long instanceModuleId, LocalDate analysisDate) {
         LOGGER.debug("Deleting drilldown data for instance module {} and analysis date {}", instanceModuleId, analysisDate);
         int deletedCount = drilldownRepository.deleteByInstanceModuleIdAndAnalysisDate(instanceModuleId, analysisDate);
-        LOGGER.info("Deleted {} drilldown records for instance module {} on analysis date {}", 
+        LOGGER.info("Deleted {} drilldown records for instance module {} on analysis date {}",
                     deletedCount, instanceModuleId, analysisDate);
         return deletedCount;
     }
@@ -245,12 +243,12 @@ public class PagoPaPaymentReceiptDrilldownServiceImpl implements PagoPaPaymentRe
     private Map<LocalDateTime, long[]> createQuarterHourSlots(LocalDate date) {
         Map<LocalDateTime, long[]> slots = new TreeMap<>();
         LocalDateTime startOfDay = date.atStartOfDay();
-        
+
         for (int i = 0; i < 96; i++) { // 24 hours * 4 quarters = 96 slots
             LocalDateTime slotStart = startOfDay.plusMinutes(i * 15);
             slots.put(slotStart, new long[]{0L, 0L, 0L}); // [totRes, resOk, resKo]
         }
-        
+
         return slots;
     }
 
@@ -280,20 +278,20 @@ public class PagoPaPaymentReceiptDrilldownServiceImpl implements PagoPaPaymentRe
         dto.setTotRes(record.getTotRes());
         dto.setResOk(record.getResOk());
         dto.setResKo(record.getResKo());
-        
+
         // Calculate percentage
         if (record.getTotRes() > 0) {
             dto.setResKoPercentage((double) (record.getResKo() * 100) / record.getTotRes());
         } else {
             dto.setResKoPercentage(0.0);
         }
-        
+
         // Create time slot string
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
-        LocalTime startTime = record.getStartTime().atZone(ZoneOffset.systemDefault()).toLocalTime();
-        LocalTime endTime = record.getEndTime().atZone(ZoneOffset.systemDefault()).toLocalTime();
+        LocalTime startTime = record.getStartTime().atZone(ZoneId.systemDefault()).toLocalTime();
+        LocalTime endTime = record.getEndTime().atZone(ZoneId.systemDefault()).toLocalTime();
         dto.setTimeSlot(startTime.format(timeFormatter) + "-" + endTime.format(timeFormatter));
-        
+
         return dto;
     }
 }

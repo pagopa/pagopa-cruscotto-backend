@@ -8,7 +8,7 @@
       "name": "unlicensed",
       "url": ""
     },
-    "version": "0.7.41"
+    "version": "0.7.53"
   },
   "servers": [
     {
@@ -4803,7 +4803,7 @@
         }
       }
     },
-     "/api/kpi-analytic-data/c2/module/{detailResultId}": {
+    "/api/kpi-analytic-data/c2/module/{detailResultId}": {
       "get": {
         "tags": [
           "kpi-analytic-data-resource"
@@ -5324,6 +5324,61 @@
                   "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/KpiC1AnalyticDrillDownDTO"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpi-c1-io-drilldown/{analyticDataId}": {
+      "get": {
+        "tags": [
+          "kpi-c1-io-drilldown-resource"
+        ],
+        "operationId": "getkpic1IODrilldownByAnalyticDataId",
+        "parameters": [
+          {
+            "name": "analyticDataId",
+            "in": "path",
+            "description": "ID of the KPI C.1 analytic data",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IoDrilldownDTO"
                   }
                 }
               }
@@ -9107,12 +9162,74 @@
           "partnerName": {
             "type": "string"
           },
-          "stationId": {
+          "stationName": {
+            "type": "string"
+          }
+        }
+      },
+      "IoDrilldownDTO": {
+        "required": [
+          "analyticDataId",
+          "instanceId",
+          "instanceModuleId",
+          "referenceDate",
+          "dataDate",
+          "cfInstitution",
+          "positionsCount",
+          "messagesCount",
+          "percentage",
+          "meetsTolerance"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
             "type": "integer",
             "format": "int64"
           },
-          "stationName": {
-            "type": "string"
+          "analyticDataId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceModuleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "referenceDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "dataDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "cfInstitution": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          },
+          "cfPartner": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          },
+          "positionsCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "messagesCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "percentage": {
+            "type": "number",
+            "format": "double"
+          },
+          "meetsTolerance": {
+            "type": "boolean"
           }
         }
       },
@@ -10884,9 +11001,9 @@
       "KpiC2ResultDTO": {
         "required": [
           "analysisDate",
-          "eligibilityThreshold",
+          "institutionTolerance",
           "tolerance",
-          "evaluationType",
+          "notificationTolerance",
           "instanceId",
           "instanceModuleId",
           "outcome"
@@ -11758,11 +11875,11 @@
             "type": "number",
             "format": "double"
           },
-          "totalPayments":{
+          "totalPayments": {
             "type": "integer",
             "format": "int32"
           },
-          "totalNotifications":{
+          "totalNotifications": {
             "type": "integer",
             "format": "int32"
           },
@@ -12411,11 +12528,11 @@
             "type": "number",
             "format": "double"
           },
-          "totalPayments":{
+          "totalPayments": {
             "type": "integer",
             "format": "int32"
           },
-          "totalNotifications":{
+          "totalNotifications": {
             "type": "integer",
             "format": "int32"
           },
@@ -12754,7 +12871,7 @@
         }
       },
       "KpiC1AnalyticDrillDownDTO": {
-         "required": [
+        "required": [
           "instanceId",
           "analysisDate",
           "dataDate",
@@ -12790,22 +12907,22 @@
             "maxLength": 255,
             "minLength": 0
           },
-          "positionsCount":{
+          "positionsCount": {
             "type": "integer",
             "format": "int32"
           },
-          "messagesCount":{
+          "messagesCount": {
             "type": "integer",
             "format": "int32"
           },
-          "percentageMessages":{
+          "percentageMessages": {
             "type": "number",
             "format": "double"
           }
         }
       },
       "KpiC2AnalyticDrillDownDTO": {
-         "required": [
+        "required": [
           "instanceId",
           "analysisDate",
           "dataDate",
@@ -12841,11 +12958,11 @@
             "maxLength": 255,
             "minLength": 0
           },
-          "totalPayments":{
+          "totalPayments": {
             "type": "integer",
             "format": "int32"
           },
-          "totalNotifications":{
+          "totalNotifications": {
             "type": "integer",
             "format": "int32"
           },

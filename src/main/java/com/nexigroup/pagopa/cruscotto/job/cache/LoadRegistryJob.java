@@ -18,9 +18,8 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.ArrayUtils;
@@ -40,7 +39,9 @@ import org.springframework.stereotype.Component;
 public class LoadRegistryJob extends QuartzJobBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoadRegistryJob.class);
-        
+    private static final String LOG_VALIDATION_ERROR_PATTERN = "{}: {}";
+    private static final String LOG_AFTER_VALIDATION_PATTERN = "After validation {} records will be saved";
+
     private final PagoPaCacheClient pagoPaCacheClient;
 
     private final AnagPartnerService anagPartnerService;
@@ -50,7 +51,6 @@ public class LoadRegistryJob extends QuartzJobBean {
     private final AnagInstitutionService anagInstitutionService;
     private final AnagStationAnagInstitutionService anagStationAnagInstitutionService;
 
-    private static final String LOG_AFTER_VALIDATION_PATTERN = "After validation {} records will be saved";
 
     @Override
     protected void executeInternal(@NotNull JobExecutionContext context) {
@@ -90,13 +90,13 @@ public class LoadRegistryJob extends QuartzJobBean {
                         institutions.add(ci);
                     } else {
                         LOGGER.error("Invalid partner {}", ci);
-                        violations.forEach(violation -> LOGGER.error("{}: {}", violation.getPropertyPath(), violation.getMessage()));
-                    }    
-                
+                        violations.forEach(violation -> LOGGER.error(LOG_VALIDATION_ERROR_PATTERN, violation.getPropertyPath(), violation.getMessage()));
+                    }
+
             }
         }
             // Save all institutions
-            LOGGER.info("After validation {} records will be saved", institutions.size());
+            LOGGER.info(LOG_AFTER_VALIDATION_PATTERN, institutions.size());
 
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
@@ -106,13 +106,13 @@ public class LoadRegistryJob extends QuartzJobBean {
             stopWatch.stop();
 
             LOGGER.info("Saved {} rows institution to database into {} seconds", institutions.size(), stopWatch.getTime(TimeUnit.SECONDS));
-            
-            
+
+
         }
     }
 
-        
-    
+
+
     private void loadInstitutionsStations() {
         LOGGER.info("Call PagoPA to get creditorInstitutionStations");
         CreditorInstitutionStationsResponse response = pagoPaCacheClient.creditorInstitutionStations();
@@ -197,12 +197,12 @@ public class LoadRegistryJob extends QuartzJobBean {
                         partnerDTOS.add(partnerDTO);
                     } else {
                         LOGGER.error("Invalid partner {}", partnerDTO);
-                        violations.forEach(violation -> LOGGER.error("{}: {}", violation.getPropertyPath(), violation.getMessage()));
+                        violations.forEach(violation -> LOGGER.error(LOG_VALIDATION_ERROR_PATTERN, violation.getPropertyPath(), violation.getMessage()));
                     }
                 }
             }
 
-            LOGGER.info("After validation {} records will be saved", partnerDTOS.size());
+            LOGGER.info(LOG_AFTER_VALIDATION_PATTERN, partnerDTOS.size());
 
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
@@ -246,12 +246,12 @@ public class LoadRegistryJob extends QuartzJobBean {
                         stationDTOS.add(stationDTO);
                     } else {
                         LOGGER.error("Invalid station {}", stationDTO);
-                        violations.forEach(violation -> LOGGER.error("{}: {}", violation.getPropertyPath(), violation.getMessage()));
+                        violations.forEach(violation -> LOGGER.error(LOG_VALIDATION_ERROR_PATTERN, violation.getPropertyPath(), violation.getMessage()));
                     }
                 }
             }
 
-            LOGGER.info("After validation {} records will be saved", stationDTOS.size());
+            LOGGER.info(LOG_AFTER_VALIDATION_PATTERN, stationDTOS.size());
 
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();

@@ -19,7 +19,7 @@ import java.time.LocalDate;
 @Table(name = "kpi_result")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 public class KpiResult extends AbstractAuditingEntity<Long> implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -28,6 +28,7 @@ public class KpiResult extends AbstractAuditingEntity<Long> implements Serializa
     @Column(name = "co_id")
     @SequenceGenerator(name = "SQCRUSC8_KPIRESULT", sequenceName = "SQCRUSC8_KPIRESULT", allocationSize = 1)
     @GeneratedValue(generator = "SQCRUSC8_KPIRESULT", strategy = GenerationType.SEQUENCE)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @Enumerated(EnumType.STRING)

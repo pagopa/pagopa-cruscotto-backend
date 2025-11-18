@@ -23,6 +23,7 @@ import com.nexigroup.pagopa.cruscotto.service.KpiB9DetailResultService;
 import com.nexigroup.pagopa.cruscotto.service.KpiB3DetailResultService;
 import com.nexigroup.pagopa.cruscotto.service.KpiB4DetailResultService;
 import com.nexigroup.pagopa.cruscotto.service.KpiB5Service;
+import com.nexigroup.pagopa.cruscotto.service.KpiC1DetailResultService;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiDetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA1DetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA2DetailResultDTO;
@@ -32,6 +33,7 @@ import com.nexigroup.pagopa.cruscotto.service.dto.KpiB9DetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB3DetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB4DetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB6DetailResultDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiC1DetailResultDTO;
 
 import java.util.List;
 import java.util.Optional;
@@ -71,6 +73,10 @@ public class KpiDetailResultResource {
 
     private final KpiB8DetailResultService kpiB8DetailResultService;
 
+    private final KpiC1DetailResultService kpiC1DetailResultService;
+    
+    private final KpiC2DetailResultService kpiC2DetailResultService;
+
 
     public KpiDetailResultResource(
         KpiA1DetailResultService kpiA1DetailResultService,
@@ -82,7 +88,9 @@ public class KpiDetailResultResource {
         KpiB4DetailResultService kpiB4DetailResultService,
         KpiB5Service kpiB5Service,
         KpiB8DetailResultService kpiB8DetailResultService,
-        GenericKpiDetailResultService genericKpiDetailResultService
+        KpiC1DetailResultService kpiC1DetailResultService,
+        GenericKpiDetailResultService genericKpiDetailResultService,
+        KpiC2DetailResultService kpiC2DetailResultService
     ) {
         this.kpiA1DetailResultService = kpiA1DetailResultService;
         this.kpiB1DetailResultService = kpiB1DetailResultService;
@@ -93,7 +101,9 @@ public class KpiDetailResultResource {
         this.kpiB4DetailResultService = kpiB4DetailResultService;
         this.kpiB5Service = kpiB5Service;
         this.kpiB8DetailResultService = kpiB8DetailResultService;
+        this.kpiC1DetailResultService = kpiC1DetailResultService;
         this.genericKpiDetailResultService = genericKpiDetailResultService;
+        this.kpiC2DetailResultService = kpiC2DetailResultService;
     }
 
     /**
@@ -234,10 +244,28 @@ public class KpiDetailResultResource {
     @GetMapping("kpi-detail-results/b8/module/{resultId}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.KPI_B8_DETAIL_RESULT_DETAIL + "\")")
     public ResponseEntity<List<KpiB8DetailResultDTO>> getKpiB8DetailResults(@PathVariable Long resultId) {
-        log.debug("REST request to get kpi detail results of kpiB4Result : {} of type b8", resultId);
+        log.debug("REST request to get kpi detail results of kpiB8Result : {} of type b8", resultId);
         List<KpiB8DetailResultDTO> kpiB8DetailResults = kpiB8DetailResultService.findByResultId(resultId);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(kpiB8DetailResults));
     }
+
+    /**
+     * {@code GET  /kpi-detail-results/b4/module/{resultId}} : get the KpiB4DetailResultDTOs
+     * associated with the "resultId" of type B4.
+     *
+     * @param resultId the id of the kpiB4Result for which the KPI detail results are to be retrieved
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of KpiB4DetailResultDTOs in the body,
+     *         or with status {@code 404 (Not Found)} if no results are found
+     */
+    @GetMapping("kpi-detail-results/c2/module/{resultId}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.KPI_C2_DETAIL_RESULT_DETAIL + "\")")
+    public ResponseEntity<List<KpiC2DetailResultDTO>> getKpiC2DetailResults(@PathVariable Long resultId) {
+        log.debug("REST request to get kpi detail results of kpiC2Result : {} of type c2", resultId);
+        List<KpiC2DetailResultDTO> kpiC2DetailResults = kpiC2DetailResultService.findByResultId(resultId);
+        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(kpiC2DetailResults));
+    }
+
+
 
     /**
      * {@code GET  /kpi-detail-results/b6/module/{resultId}} : get the KpiB6DetailResultDTOs
@@ -256,5 +284,21 @@ public class KpiDetailResultResource {
                 .map(KpiB6DetailResultDTO::new)
                 .collect(Collectors.toList());
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(kpiB6DetailResults));
+    }
+
+    /**
+     * {@code GET  /kpi-detail-results/c1/module/{resultId}} : get the KpiC1DetailResultDTOs
+     * associated with the "resultId" of type C1.
+     *
+     * @param resultId the id of the kpiC1Result for which the KPI detail results are to be retrieved
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of KpiC1DetailResultDTOs in the body,
+     *         or with status {@code 404 (Not Found)} if no results are found
+     */
+    @GetMapping("kpi-detail-results/c1/module/{resultId}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.KPI_C1_DETAIL_RESULT_DETAIL + "\")")
+    public ResponseEntity<List<KpiC1DetailResultDTO>> getKpiC1DetailResults(@PathVariable Long resultId) {
+        log.debug("REST request to get kpi detail results of kpiC1Result : {} of type c1", resultId);
+        List<KpiC1DetailResultDTO> kpiC1DetailResults = kpiC1DetailResultService.findByResultId(resultId);
+        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(kpiC1DetailResults));
     }
 }

@@ -19,11 +19,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.springframework.data.domain.*;
+import org.springframework.data.repository.query.QueryByExampleExecutor;
+
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -228,5 +233,22 @@ class AnagStationServiceImplTest {
         anagStationService.updateAllStationsAssociatedInstitutionsCount();
 
         verify(anagStationRepository).updateAssociatedInstitutesCount(1L, 2);
+    }
+
+    @Test
+    void testFindAll_WithStationId() {
+        AnagStationFilter filter = new AnagStationFilter();
+        filter.setPartnerId(1L);
+        filter.setStationId(123L); // abilita il ramo
+        filter.setShowNotActive(false);
+
+        mockQueryBuilderChain();
+        when(jpaQuery.fetch()).thenReturn(List.of(new AnagStationDTO()));
+
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<AnagStationDTO> page = anagStationService.findAll(filter, pageable);
+
+        assertThat(page).isNotNull();
+        assertThat(page.getContent()).hasSize(1);
     }
 }
