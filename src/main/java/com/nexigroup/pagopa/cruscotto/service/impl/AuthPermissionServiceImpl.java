@@ -34,6 +34,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class AuthPermissionServiceImpl implements AuthPermissionService {
 
+    private static final String MODULO = "modulo";
+
     private final Logger log = LoggerFactory.getLogger(AuthPermissionServiceImpl.class);
 
     private final QueryBuilder queryBuilder;
@@ -95,7 +97,7 @@ public class AuthPermissionServiceImpl implements AuthPermissionService {
                 AuthPermissionDTO.class,
                 QAuthPermission.authPermission.id.as("id"),
                 QAuthPermission.authPermission.nome.as("nome"),
-                QAuthPermission.authPermission.modulo.as("modulo")
+                QAuthPermission.authPermission.modulo.as(MODULO)
             )
         );
 
@@ -190,7 +192,7 @@ public class AuthPermissionServiceImpl implements AuthPermissionService {
             Projections.fields(
                 AuthPermissionDTO.class,
                 QAuthPermission.authPermission.id.as("id"),
-                QAuthPermission.authPermission.modulo.as("modulo"),
+                QAuthPermission.authPermission.modulo.as(MODULO),
                 QAuthPermission.authPermission.nome.as("nome")
             )
         );
@@ -241,7 +243,7 @@ public class AuthPermissionServiceImpl implements AuthPermissionService {
                 AuthPermissionDTO.class,
                 QAuthPermission.authPermission.id.as("id"),
                 QAuthPermission.authPermission.nome.as("nome"),
-                QAuthPermission.authPermission.modulo.as("modulo")
+                QAuthPermission.authPermission.modulo.as(MODULO)
             )
         );
 

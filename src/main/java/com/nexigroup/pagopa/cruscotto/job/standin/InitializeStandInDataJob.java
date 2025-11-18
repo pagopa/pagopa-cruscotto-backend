@@ -28,7 +28,9 @@ import org.springframework.stereotype.Component;
 public class InitializeStandInDataJob extends QuartzJobBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InitializeStandInDataJob.class);
-    
+
+    private static final String LOAD_STANDIN_DATA_JOB = "loadStandInDataJob";
+
     private static final DateTimeFormatter API_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final int CHUNK_SIZE_DAYS = 10;
     private static final int INITIALIZATION_MONTHS = 6;
@@ -37,7 +39,7 @@ public class InitializeStandInDataJob extends QuartzJobBean {
     private final ApplicationProperties applicationProperties;
     private final PagopaNumeroStandinRepository pagopaNumeroStandinRepository;
     private final JobService jobService;
-    
+
     private volatile boolean initializationCompleted = false;
 
     public InitializeStandInDataJob(
@@ -54,7 +56,7 @@ public class InitializeStandInDataJob extends QuartzJobBean {
     @Override
     protected void executeInternal(@NonNull JobExecutionContext context) {
         LOGGER.info("Starting Stand-In data initialization for the last {} months", INITIALIZATION_MONTHS);
-        
+
         try {
             if (!applicationProperties.getJob().getLoadStandInDataJob().isEnabled()) {
                 LOGGER.info("LoadStandInDataJob is disabled, skipping Stand-In data initialization");
@@ -80,15 +82,15 @@ public class InitializeStandInDataJob extends QuartzJobBean {
             // Check if any Stand-In data exists in the last 6 months
             LocalDate sixMonthsAgo = LocalDate.now().minusMonths(INITIALIZATION_MONTHS);
             LocalDate yesterday = LocalDate.now().minusDays(1);
-            
+
             List<PagopaNumeroStandin> existingData = pagopaNumeroStandinRepository.findByDateRange(
-                sixMonthsAgo.atStartOfDay(), 
+                sixMonthsAgo.atStartOfDay(),
                 yesterday.atTime(23, 59, 59)
             );
-            
-            LOGGER.debug("Found {} existing Stand-In records in the last {} months", 
-                        existingData.size(), INITIALIZATION_MONTHS);
-            
+
+            LOGGER.debug("Found {} existing Stand-In records in the last {} months",
+                existingData.size(), INITIALIZATION_MONTHS);
+
         } catch (Exception e) {
             LOGGER.warn("Error checking existing Stand-In data: {}", e.getMessage());
         }
@@ -100,16 +102,16 @@ public class InitializeStandInDataJob extends QuartzJobBean {
     private void initializeStandInDataInBackground() throws InterruptedException {
         LocalDate endDate = LocalDate.now().minusDays(1); // Yesterday
         LocalDate startDate = endDate.minusMonths(INITIALIZATION_MONTHS);
-        
-        LOGGER.info("Initializing Stand-In data from {} to {} ({}-day chunks)", 
-                   startDate, endDate, CHUNK_SIZE_DAYS);
+
+        LOGGER.info("Initializing Stand-In data from {} to {} ({}-day chunks)",
+            startDate, endDate, CHUNK_SIZE_DAYS);
 
         int totalChunks = 0;
         int successChunks = 0;
         int failedChunks = 0;
 
         LocalDate currentChunkStart = startDate;
-        
+
         while (!currentChunkStart.isAfter(endDate)) {
             // Calculate chunk end date (max CHUNK_SIZE_DAYS or until endDate)
             LocalDate currentChunkEnd = currentChunkStart.plusDays(CHUNK_SIZE_DAYS - 1);
@@ -118,12 +120,12 @@ public class InitializeStandInDataJob extends QuartzJobBean {
             }
 
             totalChunks++;
-            
+
             LOGGER.debug("Loading chunk {}: {} to {}", totalChunks, currentChunkStart, currentChunkEnd);
-            
+
             try {
                 boolean success = loadStandInDataChunk(currentChunkStart, currentChunkEnd);
-                
+
                 if (success) {
                     successChunks++;
                     LOGGER.debug("Successfully loaded chunk {} to {}", currentChunkStart, currentChunkEnd);
@@ -131,24 +133,24 @@ public class InitializeStandInDataJob extends QuartzJobBean {
                     failedChunks++;
                     LOGGER.warn("Failed to load chunk {} to {}", currentChunkStart, currentChunkEnd);
                 }
-                
+
             } catch (Exception e) {
                 failedChunks++;
                 LOGGER.error("Error loading chunk {} to {}: {}", currentChunkStart, currentChunkEnd, e.getMessage());
             }
-            
+
             // Move to next chunk
             currentChunkStart = currentChunkEnd.plusDays(1);
-            
+
             // Delay between chunks to avoid overwhelming the system
             if (!currentChunkStart.isAfter(endDate)) {
                 Thread.sleep(DELAY_BETWEEN_CHUNKS_MS);
             }
         }
-        
-        LOGGER.info("Stand-In data initialization summary - Total chunks: {}, Success: {}, Failed: {}", 
-                   totalChunks, successChunks, failedChunks);
-                   
+
+        LOGGER.info("Stand-In data initialization summary - Total chunks: {}, Success: {}, Failed: {}",
+            totalChunks, successChunks, failedChunks);
+
         if (failedChunks > 0) {
             LOGGER.warn("Some chunks failed during initialization. Consider running the job again or checking manually.");
         }
@@ -160,24 +162,24 @@ public class InitializeStandInDataJob extends QuartzJobBean {
     private boolean loadStandInDataChunk(LocalDate fromDate, LocalDate toDate) {
         try {
             // Check if loadStandInDataJob exists and is available
-            if (!jobService.checkJobWithName("loadStandInDataJob")) {
+            if (!jobService.checkJobWithName(LOAD_STANDIN_DATA_JOB)) {
                 LOGGER.error("loadStandInDataJob not found in scheduler");
                 return false;
             }
-            
-            if (jobService.checkJobRunning("loadStandInDataJob")) {
+
+            if (jobService.checkJobRunning(LOAD_STANDIN_DATA_JOB)) {
                 LOGGER.warn("loadStandInDataJob is currently running, skipping chunk {} to {}", fromDate, toDate);
                 return false;
             }
-            
+
             // Prepare job parameters
             Map<String, Object> jobData = new HashMap<>();
             jobData.put("fromDate", fromDate.format(API_DATE_FORMATTER));
             jobData.put("toDate", toDate.format(API_DATE_FORMATTER));
-            
+
             // Execute loadStandInDataJob with date range parameters
-            boolean jobStarted = jobService.startJobNow("loadStandInDataJob", jobData);
-            
+            boolean jobStarted = jobService.startJobNow(LOAD_STANDIN_DATA_JOB, jobData);
+
             if (jobStarted) {
                 // Wait a bit for the job to complete (simplified approach)
                 // In a production environment, you might want to implement proper job completion monitoring
@@ -187,10 +189,10 @@ public class InitializeStandInDataJob extends QuartzJobBean {
                 LOGGER.error("Failed to start loadStandInDataJob for chunk {} to {}", fromDate, toDate);
                 return false;
             }
-            
+
         } catch (Exception e) {
-            LOGGER.error("Error executing loadStandInDataJob for chunk {} to {}: {}", 
-                        fromDate, toDate, e.getMessage(), e);
+            LOGGER.error("Error executing loadStandInDataJob for chunk {} to {}: {}",
+                fromDate, toDate, e.getMessage(), e);
             return false;
         }
     }
