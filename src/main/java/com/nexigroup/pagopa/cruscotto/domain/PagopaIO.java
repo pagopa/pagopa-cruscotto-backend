@@ -87,6 +87,8 @@ public class PagopaIO implements Serializable {
 
     /**
      * Check if this record meets the specified tolerance threshold
+     * NUOVA LOGICA: un ente è OK (meets tolerance) se percentuale >= tolleranza
+     * (cioè raggiunge o supera la soglia di messaggi richiesta)
      * @param toleranceThreshold the minimum percentage threshold
      * @return true if percentage meets or exceeds threshold
      */

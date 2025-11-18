@@ -101,6 +101,8 @@ public class PagoPaIODTO implements Serializable {
 
     /**
      * Check if this record meets the tolerance threshold
+     * NUOVA LOGICA: un ente è OK (meets tolerance) se percentuale >= tolleranza
+     * (cioè raggiunge o supera la soglia di messaggi richiesta)
      */
     public boolean meetsToleranceThreshold(double toleranceThreshold) {
         return getPercentualeMessaggi() >= toleranceThreshold;
