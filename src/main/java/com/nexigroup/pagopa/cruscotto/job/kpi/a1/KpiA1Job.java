@@ -7,10 +7,7 @@ import com.nexigroup.pagopa.cruscotto.service.*;
 import com.nexigroup.pagopa.cruscotto.service.dto.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.Month;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -163,7 +160,7 @@ public class KpiA1Job extends QuartzJobBean {
                             Map<Month, LocalDate> monthlyStartDate = new HashMap<>();
                             Map<Month, LocalDate> monthlyEndDate = new HashMap<>();
                             List<KpiA1AnalyticDataDTO> allKpiA1AnalyticDataDTOS = new ArrayList<>();
-                            
+
                             AtomicReference<Long> totReqPeriod = new AtomicReference<>(0L);
                             AtomicReference<Long> totTimeoutReqPeriod = new AtomicReference<>(0L);
 
@@ -270,7 +267,7 @@ public class KpiA1Job extends QuartzJobBean {
                                                         return excludePlanned;
                                                     })
                                                     .anyMatch(Boolean::booleanValue);
-                                                
+
                                                 if (!exclude) {
                                                     pagoPaRecordedTimeoutMap.computeIfAbsent(date, k -> new ArrayList<>()).add(pagoPaRecordedTimeoutDTO);
                                                     sumTotReqDaily = sumTotReqDaily + pagoPaRecordedTimeoutDTO.getTotReq();
@@ -279,7 +276,7 @@ public class KpiA1Job extends QuartzJobBean {
                                                     sumValidTimeouReqtDaily =
                                                         sumValidTimeouReqtDaily + pagoPaRecordedTimeoutDTO.getReqTimeout();
                                                 }
-                                                
+
                                                 LOGGER.debug("sumTotReqDaily: {}", sumTotReqDaily);
                                             }
 
@@ -305,11 +302,11 @@ public class KpiA1Job extends QuartzJobBean {
                                                 // Aggregazione mensile
                                                 monthlyTotReq.merge(currentMonth, totReqMonth.get(), Long::sum);
                                                 monthlyReqTimeout.merge(currentMonth, totTimeoutReqMonth.get(), Long::sum);
-                                                
+
                                                 // Imposta le date del mese se non già presenti
                                                 monthlyStartDate.putIfAbsent(currentMonth, firstDayOfMonth.get());
                                                 monthlyEndDate.put(currentMonth, lastDayOfMonth.get());
-                                                
+
                                                 // Calcola outcome per questa combinazione station-method e aggiungilo alla lista
                                                 allKpiA1AnalyticDataDTOS.addAll(kpiA1AnalyticDataDTOS);
                                             }
@@ -321,13 +318,13 @@ public class KpiA1Job extends QuartzJobBean {
                                     totTimeoutReqPeriod.set(totTimeoutReqPeriod.get() + totTimeoutReqMonth.get());
                                 });
                             });
-                            
+
                             // Crea i KpiA1DetailResultDTO aggregati per mese
                             List<KpiA1DetailResultDTO> monthlyDetailResults = new ArrayList<>();
                             for (Month month : monthlyTotReq.keySet()) {
                                 Long totalReqMonth = monthlyTotReq.get(month);
                                 Long totalTimeoutMonth = monthlyReqTimeout.get(month);
-                                
+
                                 double percTimeoutReqMonth = totalReqMonth.compareTo(0L) > 0
                                     ? (double) (totalTimeoutMonth * 100) / totalReqMonth
                                     : 0.0;
@@ -349,7 +346,7 @@ public class KpiA1Job extends QuartzJobBean {
                                 if (percTimeoutReqMonth > (eligibilityThreshold + tolerance)) {
                                     aggregatedOutcome = OutcomeStatus.KO;
                                 }
-                                
+
                                 kpiA1DetailResultDTO.setOutcome(aggregatedOutcome);
 
                                 if (
@@ -362,7 +359,7 @@ public class KpiA1Job extends QuartzJobBean {
                                 kpiA1DetailResultDTO = kpiA1DetailResultService.save(kpiA1DetailResultDTO);
                                 monthlyDetailResults.add(kpiA1DetailResultDTO);
                             }
-                            
+
                             // Associa ogni KpiA1AnalyticData al detailResult corrispondente al suo mese
                             if (!monthlyDetailResults.isEmpty() && !allKpiA1AnalyticDataDTOS.isEmpty()) {
                                 // Crea una mappa per associare ogni mese al suo detailResult
@@ -420,7 +417,7 @@ public class KpiA1Job extends QuartzJobBean {
                             Long totalTimeoutFromMonths = monthlyDetailResults.stream()
                                 .mapToLong(KpiA1DetailResultDTO::getReqTimeout)
                                 .sum();
-                            
+
                             double percTimeoutReqPeriod = totalReqFromMonths.compareTo(0L) > 0
                                 ? (double) (totalTimeoutFromMonths * 100) / totalReqFromMonths
                                 : 0.0;
@@ -497,10 +494,10 @@ public class KpiA1Job extends QuartzJobBean {
 
     private boolean isInstantInRangeInclusive(Instant instantToCheck, Instant startInstant, Instant endInstant) {
         return (
-            (instantToCheck.atZone(ZoneOffset.systemDefault()).isEqual(startInstant.atZone(ZoneOffset.systemDefault())) ||
-                instantToCheck.atZone(ZoneOffset.systemDefault()).isAfter(startInstant.atZone(ZoneOffset.systemDefault()))) &&
-            (instantToCheck.atZone(ZoneOffset.systemDefault()).isEqual(endInstant.atZone(ZoneOffset.systemDefault())) ||
-                instantToCheck.atZone(ZoneOffset.systemDefault()).isBefore(endInstant.atZone(ZoneOffset.systemDefault())))
+            (instantToCheck.atZone(ZoneId.systemDefault()).isEqual(startInstant.atZone(ZoneId.systemDefault())) ||
+                instantToCheck.atZone(ZoneId.systemDefault()).isAfter(startInstant.atZone(ZoneId.systemDefault()))) &&
+            (instantToCheck.atZone(ZoneId.systemDefault()).isEqual(endInstant.atZone(ZoneId.systemDefault())) ||
+                instantToCheck.atZone(ZoneId.systemDefault()).isBefore(endInstant.atZone(ZoneId.systemDefault())))
         );
     }
 }

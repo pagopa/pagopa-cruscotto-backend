@@ -193,7 +193,7 @@ public class ModuleServiceImpl implements ModuleService {
                         "Module cannot be cannot be created. The code %s is already assigned to an existing module",
                         moduleToCreate.getCode()
                     ),
-                    "module",
+                    MODULE,
                     "module.cannotBeCreated"
                 );
             });
@@ -217,6 +217,7 @@ public class ModuleServiceImpl implements ModuleService {
         module.setConfigTransactionTolerance(moduleToCreate.getConfigTransactionTolerance());
         module.setConfigInstitutionCount(moduleToCreate.getConfigInstitutionCount());
         module.setConfigInstitutionTolerance(moduleToCreate.getConfigInstitutionTolerance());
+        module.setConfigNotificationTolerance(moduleToCreate.getConfigNotificationTolerance());
 
         module = moduleRepository.save(module);
 
@@ -243,7 +244,7 @@ public class ModuleServiceImpl implements ModuleService {
                 if (!module.getCode().equals(moduleToUpdate.getCode())) {
                     throw new GenericServiceException(
                         String.format("Module cannot be cannot be updated. The module code %s cannot be modified", module.getCode()),
-                        "module",
+                        MODULE,
                         "module.cannotBeUpdated"
                     );
                 }
@@ -264,6 +265,7 @@ public class ModuleServiceImpl implements ModuleService {
                 module.setConfigTransactionTolerance(moduleToUpdate.getConfigTransactionTolerance());
                 module.setConfigInstitutionCount(moduleToUpdate.getConfigInstitutionCount());
                 module.setConfigInstitutionTolerance(moduleToUpdate.getConfigInstitutionTolerance());
+                module.setConfigNotificationTolerance(moduleToUpdate.getConfigNotificationTolerance());
                 moduleRepository.save(module);
 
                 log.info("Updating of module with identification {} by user {}", module.getId(), loginUtenteLoggato);
@@ -299,7 +301,9 @@ public class ModuleServiceImpl implements ModuleService {
             QModule.module.configTransactionCount.as("configTransactionCount"),
             QModule.module.configTransactionTolerance.as("configTransactionTolerance"),
             QModule.module.configInstitutionCount.as("configInstitutionCount"),
-            QModule.module.configInstitutionTolerance.as("configInstitutionTolerance")
+            QModule.module.configInstitutionTolerance.as("configInstitutionTolerance"),
+            QModule.module.configNotificationTolerance.as("configNotificationTolerance")
+
         );
     }
 }

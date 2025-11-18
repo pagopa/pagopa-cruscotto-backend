@@ -71,6 +71,10 @@ public class KpiConfiguration implements Serializable {
     @Column(name = "CO_TRANSACTION_TOLERANCE", precision = 19, scale = 2)
     private BigDecimal transactionTolerance;
 
+    @Column(name = "CO_NOTIFICATION_TOLERANCE", precision = 19, scale = 2)
+    private BigDecimal notificationTolerance;
+
+
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof KpiConfiguration that)) return false;
@@ -110,6 +114,9 @@ public class KpiConfiguration implements Serializable {
             institutionTolerance +
             ", transactionTolerance=" +
             transactionTolerance +
+            ", notificationTolerance=" +
+            notificationTolerance +
+
             '}'
         );
     }

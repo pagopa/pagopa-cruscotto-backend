@@ -50,6 +50,9 @@ public class KpiConfigurationDTO implements Serializable {
 
     private BigDecimal transactionTolerance;
 
+    private BigDecimal notificationTolerance;
+
+
     private Boolean configExcludePlannedShutdown;
 
     private Boolean configExcludeUnplannedShutdown;
@@ -69,6 +72,8 @@ public class KpiConfigurationDTO implements Serializable {
     private Boolean configInstitutionTolerance;
 
     private Boolean configTransactionTolerance;
+
+    private Boolean configNotificationTolerance;
 
     private Boolean enabled;
 

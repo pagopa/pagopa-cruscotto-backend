@@ -55,6 +55,7 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
     public static final String FIELD_INSTITUTION_COUNT = "institutionCount";
     public static final String FIELD_TRANSACTION_TOLERANCE = "transactionTolerance";
     public static final String FIELD_INSTITUTION_TOLERANCE = "institutionTolerance";
+    public static final String FIELD_NOTIFICATION_TOLERANCE = "notificationTolerance";
     public static final String FIELD_CONFIG_EXCLUDE_PLANNED_SHUTDOWN = "configExcludePlannedShutdown";
     public static final String FIELD_CONFIG_EXCLUDE_UNPLANNED_SHUTDOWN = "configExcludeUnplannedShutdown";
     public static final String FIELD_CONFIG_ELIGIBILITY_THRESHOLD = "configEligibilityThreshold";
@@ -65,6 +66,7 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
     public static final String FIELD_CONFIG_TRANSACTION_COUNT = "configTransactionCount";
     public static final String FIELD_CONFIG_INSTITUTION_TOLERANCE = "configInstitutionTolerance";
     public static final String FIELD_CONFIG_TRANSACTION_TOLERANCE = "configTransactionTolerance";
+    public static final String FIELD_CONFIG_NOTIFICATION_TOLERANCE = "configNotificationTolerance";
 
     private static final String CURRENT_USER_LOGIN_NOT_FOUND = "Current user login not found";
 
@@ -174,6 +176,7 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
             qKpiConfiguration.institutionCount.as(FIELD_INSTITUTION_COUNT),
             qKpiConfiguration.transactionTolerance.as(FIELD_TRANSACTION_TOLERANCE),
             qKpiConfiguration.institutionTolerance.as(FIELD_INSTITUTION_TOLERANCE),
+            qKpiConfiguration.notificationTolerance.as(FIELD_NOTIFICATION_TOLERANCE),
             qModule.name.as(FIELD_MODULE_NAME),
             qModule.configExcludePlannedShutdown.as(FIELD_CONFIG_EXCLUDE_PLANNED_SHUTDOWN),
             qModule.configExcludeUnplannedShutdown.as(FIELD_CONFIG_EXCLUDE_UNPLANNED_SHUTDOWN),
@@ -184,7 +187,9 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
             qModule.configInstitutionCount.as(FIELD_CONFIG_INSTITUTION_COUNT),
             qModule.configTransactionCount.as(FIELD_CONFIG_TRANSACTION_COUNT),
             qModule.configInstitutionTolerance.as(FIELD_CONFIG_INSTITUTION_TOLERANCE),
-            qModule.configTransactionTolerance.as(FIELD_CONFIG_TRANSACTION_TOLERANCE)
+            qModule.configTransactionTolerance.as(FIELD_CONFIG_TRANSACTION_TOLERANCE),
+            qModule.configNotificationTolerance.as(FIELD_CONFIG_NOTIFICATION_TOLERANCE)
+
         );
     }
 
@@ -252,6 +257,11 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
         if (module.getConfigTransactionTolerance()) {
             kpiConfiguration.setTransactionTolerance(kpiConfigurationToCreate.getTransactionTolerance());
         }
+
+        if (module.getConfigNotificationTolerance()) {
+            kpiConfiguration.setNotificationTolerance(kpiConfigurationToCreate.getNotificationTolerance());
+        }
+
         if (module.getConfigInstitutionCount()) {
             kpiConfiguration.setInstitutionCount(kpiConfigurationToCreate.getInstitutionCount());
         }
@@ -328,6 +338,9 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
                 if (module.getConfigTransactionTolerance()) {
                     kpiConfiguration.setTransactionTolerance(kpiConfigurationToUpdate.getTransactionTolerance());
                 }
+                if (module.getConfigNotificationTolerance()) {
+                    kpiConfiguration.setNotificationTolerance(kpiConfigurationToUpdate.getNotificationTolerance());
+                }
                 if (module.getConfigInstitutionCount()) {
                     kpiConfiguration.setInstitutionCount(kpiConfigurationToUpdate.getInstitutionCount());
                 }
@@ -345,7 +358,7 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
             .orElseThrow(() ->
                 new GenericServiceException(
                     String.format("kpiConfiguration with id %s not exist", kpiConfigurationToUpdate.getId()),
-                    "kpiConfiguration",
+                    KPI_CONFIGURATION,
                     "kpiConfiguration.notExists"
                 )
             );
