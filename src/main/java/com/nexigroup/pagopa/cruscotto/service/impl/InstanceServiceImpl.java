@@ -4,16 +4,20 @@ import com.nexigroup.pagopa.cruscotto.domain.*;
 import com.nexigroup.pagopa.cruscotto.domain.Module;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisOutcome;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisType;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.AuthenticationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.InstanceStatus;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleStatus;
 import com.nexigroup.pagopa.cruscotto.repository.AnagPartnerRepository;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
 import com.nexigroup.pagopa.cruscotto.repository.ModuleRepository;
+import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
 import com.nexigroup.pagopa.cruscotto.security.SecurityUtils;
+import com.nexigroup.pagopa.cruscotto.service.AuthUserService;
 import com.nexigroup.pagopa.cruscotto.service.GenericServiceException;
 import com.nexigroup.pagopa.cruscotto.service.InstanceService;
 import com.nexigroup.pagopa.cruscotto.service.bean.InstanceRequestBean;
+import com.nexigroup.pagopa.cruscotto.service.dto.AuthUserDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.InstanceDTO;
 import com.nexigroup.pagopa.cruscotto.service.filter.InstanceFilter;
 import com.nexigroup.pagopa.cruscotto.service.mapper.InstanceMapper;
@@ -90,13 +94,16 @@ public class InstanceServiceImpl implements InstanceService {
 
     private final UserUtils userUtils;
 
+    private final AuthUserService authUserService;
+
     public InstanceServiceImpl(
         InstanceRepository instanceRepository,
         AnagPartnerRepository anagPartnerRepository,
         ModuleRepository moduleRepository,
         InstanceMapper instanceMapper,
         QueryBuilder queryBuilder,
-        UserUtils userUtils
+        UserUtils userUtils,
+        AuthUserService authUserService
     ) {
         this.instanceRepository = instanceRepository;
         this.anagPartnerRepository = anagPartnerRepository;
@@ -104,6 +111,7 @@ public class InstanceServiceImpl implements InstanceService {
         this.instanceMapper = instanceMapper;
         this.queryBuilder = queryBuilder;
         this.userUtils = userUtils;
+        this.authUserService = authUserService;
     }
 
     /**
@@ -339,7 +347,24 @@ public class InstanceServiceImpl implements InstanceService {
             .filter(Optional::isPresent)
             .map(Optional::get)
             .map(instance -> {
-                if (!instance.getStatus().equals(InstanceStatus.BOZZA) && !instance.getStatus().equals(InstanceStatus.PIANIFICATA)) {
+                String loginUtenteLoggato = SecurityUtils.getCurrentUserLogin()
+                    .orElseThrow(() -> new RuntimeException(CURRENT_USER_LOGIN_NOT_FOUND));
+
+                AuthenticationType authenticationType = SecurityUtils.getAuthenticationTypeUserLogin()
+                    .orElseThrow(() -> new RuntimeException("Authentication Type not found"));
+
+                // Get user with authorities
+                AuthUserDTO currentUser = authUserService.getUserWithAuthorities(authenticationType)
+                    .orElseThrow(() -> new RuntimeException("Current user not found"));    
+
+                // Check if user has force delete permission
+                boolean canForceDelete = currentUser.getAuthorities() != null && 
+                    currentUser.getAuthorities().contains(AuthoritiesConstants.INSTANCE_FORCED_DELETION);
+
+                // Check if deletion is allowed based on status (unless user can force delete)
+                if (!canForceDelete && 
+                    !instance.getStatus().equals(InstanceStatus.BOZZA) && 
+                    !instance.getStatus().equals(InstanceStatus.PIANIFICATA)) {
                     throw new GenericServiceException(
                         String.format("Instance with id %s cannot be deleted because it is in %s status", id, instance.getStatus()),
                         INSTANCE,
@@ -347,16 +372,22 @@ public class InstanceServiceImpl implements InstanceService {
                     );
                 }
 
-                String loginUtenteLoggato = SecurityUtils.getCurrentUserLogin()
-                    .orElseThrow(() -> new RuntimeException(CURRENT_USER_LOGIN_NOT_FOUND));
-
                 instanceRepository.deleteById(id);
 
-                LOGGER.info(
-                    "Physical deleting of instance with identification {} by user {}",
-                    instance.getInstanceIdentification(),
-                    loginUtenteLoggato
-                );
+                if (canForceDelete) {
+                    LOGGER.warn(
+                        "FORCED deletion of instance with identification {} in status {} by user {} with INSTANCE_FORCE_DELETE permission",
+                        instance.getInstanceIdentification(),
+                        instance.getStatus(),
+                        loginUtenteLoggato
+                    );
+                } else {
+                    LOGGER.info(
+                        "Physical deleting of instance with identification {} by user {}",
+                        instance.getInstanceIdentification(),
+                        loginUtenteLoggato
+                    );
+                }
 
                 return instance;
             })

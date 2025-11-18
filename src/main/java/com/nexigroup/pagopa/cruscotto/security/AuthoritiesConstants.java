@@ -216,6 +216,8 @@ public final class AuthoritiesConstants {
 
     public static final String INSTITUTION_LIST = "GTW.INSTITUTION_LIST";
 
+    public static final String INSTANCE_FORCED_DELETION = "GTW.INSTANCE_FORCED_DELETION";
+
 
     private AuthoritiesConstants() {}
 }
