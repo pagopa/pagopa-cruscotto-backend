@@ -6,8 +6,10 @@ import com.nexigroup.pagopa.cruscotto.repository.AnagPartnerRepository;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
 import com.nexigroup.pagopa.cruscotto.repository.ModuleRepository;
 import com.nexigroup.pagopa.cruscotto.security.SecurityUtils;
+import com.nexigroup.pagopa.cruscotto.service.AuthUserService;
 import com.nexigroup.pagopa.cruscotto.service.GenericServiceException;
 import com.nexigroup.pagopa.cruscotto.service.bean.InstanceRequestBean;
+import com.nexigroup.pagopa.cruscotto.service.dto.AuthUserDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.InstanceDTO;
 import com.nexigroup.pagopa.cruscotto.service.mapper.InstanceMapper;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
@@ -23,9 +25,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
+import java.time.Instant;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,6 +45,7 @@ class InstanceServiceImplTest {
     @Mock private QueryBuilder queryBuilder;
     @Mock private JPQLQuery<Instance> jpqlQuery;
     @Mock private JPQLQuery<InstanceDTO> jpqlDtoQuery;
+    @Mock private AuthUserService authUserService;
 
     @InjectMocks private InstanceServiceImpl service;
 
@@ -210,6 +216,59 @@ class InstanceServiceImplTest {
 
         assertNotNull(result);
         assertEquals(0, result.getTotalElements());
+    }
+
+    @Test
+    void shouldNotDeleteInstanceInEseguitaStatusWithoutForceDeletePermission() {
+        // Given
+        Instance instance = createInstance(InstanceStatus.ESEGUITA);
+        AuthUserDTO user = new AuthUserDTO();
+        user.setAuthorities(Set.of("instance.read", "instance.delete")); // No forceDelete
+
+        when(authUserService.getUserWithAuthorities(any())).thenReturn(Optional.of(user));
+        when(instanceRepository.findById(1L)).thenReturn(Optional.of(instance));
+
+        // When & Then
+        assertThrows(GenericServiceException.class, () -> {
+            service.delete(instance.getId());
+        });
+    }
+
+    @Test
+    void shouldForceDeleteInstanceInAnyStatusWithForceDeletePermission() {
+        // Given
+        Instance instance = createInstance(InstanceStatus.ESEGUITA);
+        AuthUserDTO user = new AuthUserDTO();
+        user.setAuthorities(Set.of("instance.read", "instance.delete", "instance.forceDelete"));
+
+        when(authUserService.getUserWithAuthorities(any())).thenReturn(Optional.of(user));
+        when(instanceRepository.findById(1L)).thenReturn(Optional.of(instance));
+
+        // When
+        InstanceDTO result = service.delete(instance.getId());
+
+        // Then
+        assertNotNull(result);
+        verify(instanceRepository).deleteById(instance.getId());
+    }
+
+    /**
+     * Helper method to create test instances
+     */
+    private Instance createInstance(InstanceStatus status) {
+        Instance instance = new Instance();
+        instance.setId(1L);
+        instance.setStatus(status);
+        instance.setInstanceIdentification("TEST-INST-001");
+        instance.setCreatedDate(Instant.now());
+        instance.setCreatedBy("system");
+        
+        AnagPartner partner = new AnagPartner();
+        partner.setId(1L);
+        partner.setFiscalCode("TESTFC123");
+        instance.setPartner(partner);
+        
+        return instance;
     }
 
 }
