@@ -123,17 +123,17 @@ class KpiC1DataServiceImplTest {
     }
 
     @Test
-    @DisplayName("Edge cases: zero positions with zero messages => 0%, zero positions with messages => 100%")
+    @DisplayName("Edge cases: zero positions with zero messages => 100%, zero positions with messages => 100%")
     void testEdgeCasesZeroPositionsLogic() {
         double requiredMessagePercentage = 100.0;
 
         List<PagoPaIODTO> data = List.of(
-            dto("ENTE_ZERO", LocalDate.of(2025,1,1), 0, 0),      // 0% -> not compliant
-            dto("ENTE_MSG", LocalDate.of(2025,1,1), 0, 5)       // 100% -> compliant
+            dto("ENTE_ZERO", LocalDate.of(2025,1,1), 0, 0),      // 100% -> compliant (no positions = OK)
+            dto("ENTE_MSG", LocalDate.of(2025,1,1), 0, 5)       // 100% -> compliant (no positions = OK)
         );
 
         Map<String, Boolean> compliance = service.calculateEntityCompliance(data, requiredMessagePercentage);
-        assertThat(compliance.get("ENTE_ZERO")).isFalse();
+        assertThat(compliance.get("ENTE_ZERO")).isTrue();
         assertThat(compliance.get("ENTE_MSG")).isTrue();
     }
 }
