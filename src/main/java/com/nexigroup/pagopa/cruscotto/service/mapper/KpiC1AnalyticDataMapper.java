@@ -20,6 +20,7 @@ public interface KpiC1AnalyticDataMapper extends EntityMapper<KpiC1AnalyticDataD
     @Mapping(target = "dataDate", source = "data")
     @Mapping(target = "institutionCount", ignore = true) // calcolato dinamicamente
     @Mapping(target = "koInstitutionCount", ignore = true) // calcolato dinamicamente
+    @Mapping(target = "meetsTolerance", source = "meetsTolerance")
     KpiC1AnalyticDataDTO toDto(KpiC1AnalyticData kpiC1AnalyticData);
 
     @Mapping(target = "id", ignore = true)
