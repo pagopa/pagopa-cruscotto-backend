@@ -575,8 +575,8 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
 
     /**
      * Save analytic data for traceability
-     * NUOVA LOGICA: salviamo righe mensili aggregate per institution, non più righe giornaliere
-     * Ogni riga rappresenta il totale mensile di un'institution
+     * NUOVA LOGICA: salviamo righe aggregate per data (non per institution)
+     * Ogni riga rappresenta i conteggi aggregati di tutte le istituzioni per una data
      */
     private void saveKpiC1AnalyticDataAndNegativeEvidences(
         com.nexigroup.pagopa.cruscotto.domain.KpiC1Result savedResult,
@@ -605,7 +605,7 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
             .filter(dr -> dr.getEvaluationType() == EvaluationType.TOTALE)
             .findFirst().orElse(null);
 
-        // NUOVA LOGICA: Aggrega i dati per MESE e INSTITUTION
+        // NUOVA LOGICA: Aggrega i dati per MESE e INSTITUTION per calcolare metriche
         // Group by month and institution
         Map<YearMonth, Map<String, List<PagoPaIODTO>>> dataByMonthAndInstitution = ioDataList.stream()
             .collect(Collectors.groupingBy(
@@ -615,11 +615,23 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
 
         List<IoDrilldown> negatives = new ArrayList<>();
 
-        // Per ogni mese e institution, crea una riga analitica aggregata
+        // Per ogni mese, calcola i conteggi aggregati e salva una singola riga analitica
         dataByMonthAndInstitution.forEach((yearMonth, institutionMap) -> {
             LocalDate monthDate = yearMonth.atDay(1); // Usiamo il primo giorno del mese come data di riferimento
             
-            institutionMap.forEach((institution, institutionMonthData) -> {
+            // Conta istituzioni totali e KO per questo mese
+            int totalInstitutions = 0;
+            int koInstitutions = 0;
+            String cfPartner = null;
+            List<IoDrilldown> monthDrilldowns = new ArrayList<>();
+            
+            // Analizza ogni istituzione per determinare se è KO
+            for (Map.Entry<String, List<PagoPaIODTO>> entry : institutionMap.entrySet()) {
+                String institution = entry.getKey();
+                List<PagoPaIODTO> institutionMonthData = entry.getValue();
+                
+                totalInstitutions++;
+                
                 // Aggrega posizioni e messaggi per questo ente in questo mese
                 long totalPositions = institutionMonthData.stream()
                     .mapToLong(data -> data.getNumeroPosizioni() != null ? data.getNumeroPosizioni().longValue() : 0L)
@@ -639,35 +651,21 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
                 // NUOVA LOGICA: un ente è OK (meets tolerance) se percentuale >= tolleranza
                 boolean meetsTolerance = percentage >= requiredMessagePercentage;
                 
-                // Prendi il cfPartner dal primo record (tutti dovrebbero avere lo stesso)
-                String cfPartner = institutionMonthData.isEmpty() ? null : institutionMonthData.get(0).getCfPartner();
-
-                // Crea la riga analitica mensile aggregata
-                com.nexigroup.pagopa.cruscotto.domain.KpiC1AnalyticData analyticData = 
-                    new com.nexigroup.pagopa.cruscotto.domain.KpiC1AnalyticData(
-                        instance, instanceModule, analysisDate, monthDate,
-                        institution, totalPositions, totalMessages
-                    );
-
-                analyticData.setPercentage(percentage);
-                analyticData.setMeetsTolerance(meetsTolerance);
-                analyticData.setCfPartner(cfPartner);
-
-                // Associa il dettaglio mensile corrispondente
-                KpiC1DetailResult matchedMonthly = monthlyDetailResults.stream()
-                    .filter(dr -> YearMonth.from(dr.getEvaluationStartDate()).equals(yearMonth))
-                    .findFirst().orElse(totalDetailResult);
-                analyticData.setDetailResult(matchedMonthly);
+                if (!meetsTolerance) {
+                    koInstitutions++;
+                }
                 
-                com.nexigroup.pagopa.cruscotto.domain.KpiC1AnalyticData savedAnalytic = 
-                    kpiC1AnalyticDataService.save(analyticData);
-
-                // Se l'ente è in KO in questo mese, crea una riga di drilldown (evidenza negativa)
+                // Prendi il cfPartner dal primo record
+                if (cfPartner == null && !institutionMonthData.isEmpty()) {
+                    cfPartner = institutionMonthData.get(0).getCfPartner();
+                }
+                
+                // Prepara drilldown per ente KO (verrà associato l'analytic data dopo)
                 if (!meetsTolerance) {
                     IoDrilldown drill = new IoDrilldown(
                         instance,
                         instanceModule,
-                        savedAnalytic,
+                        null, // verrà associato dopo il salvataggio dell'analytic data
                         analysisDate,
                         monthDate,
                         institution,
@@ -677,12 +675,42 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
                         percentage,
                         meetsTolerance
                     );
-                    negatives.add(drill);
+                    monthDrilldowns.add(drill);
                 }
-                
-                LOGGER.debug("Saved analytic data for institution {} in month {}: positions={}, messages={}, percentage={:.2f}%, meetsToler={}", 
-                    institution, yearMonth, totalPositions, totalMessages, percentage, meetsTolerance);
-            });
+            }
+
+            // Crea una singola riga analitica aggregata per questo mese
+            com.nexigroup.pagopa.cruscotto.domain.KpiC1AnalyticData analyticData = 
+                new com.nexigroup.pagopa.cruscotto.domain.KpiC1AnalyticData(
+                    instance, instanceModule, analysisDate, monthDate,
+                    "AGGREGATED", // cfInstitution impostato a AGGREGATED per indicare aggregazione
+                    (long) totalInstitutions, // usiamo positionNumber per memorizzare institutionCount
+                    (long) koInstitutions     // usiamo messageNumber per memorizzare koInstitutionCount
+                );
+
+            // Percentuale e meetsTolerance non sono significativi a livello aggregato
+            analyticData.setPercentage(null);
+            analyticData.setMeetsTolerance(null);
+            analyticData.setCfPartner(cfPartner);
+
+            // Associa il dettaglio mensile corrispondente
+            KpiC1DetailResult matchedMonthly = monthlyDetailResults.stream()
+                .filter(dr -> YearMonth.from(dr.getEvaluationStartDate()).equals(yearMonth))
+                .findFirst().orElse(totalDetailResult);
+            analyticData.setDetailResult(matchedMonthly);
+            
+            // Salva l'analytic data PRIMA dei drilldown
+            com.nexigroup.pagopa.cruscotto.domain.KpiC1AnalyticData savedAnalytic = 
+                kpiC1AnalyticDataService.save(analyticData);
+
+            // Ora associa l'analytic data salvato ai drilldown e aggiungili alla lista
+            for (IoDrilldown drill : monthDrilldowns) {
+                drill.setKpiC1AnalyticData(savedAnalytic);
+                negatives.add(drill);
+            }
+
+            LOGGER.debug("Saved aggregated analytic data for month {}: total institutions={}, KO institutions={}", 
+                yearMonth, totalInstitutions, koInstitutions);
         });
 
         if (!negatives.isEmpty()) {
@@ -692,8 +720,7 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
             LOGGER.info("Nessuna evidenza negativa (nessun mese con enti KO) per questa esecuzione KPI C.1.");
         }
 
-        LOGGER.info("Saved {} analytic data records (aggregati mensili per institution)", dataByMonthAndInstitution.values().stream()
-            .mapToLong(Map::size).sum());
+        LOGGER.info("Saved {} analytic data records (aggregati per mese)", dataByMonthAndInstitution.size());
     }
 
     /**
