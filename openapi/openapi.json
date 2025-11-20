@@ -12468,6 +12468,10 @@
           "koInstitutionCount": {
             "type": "integer",
             "format": "int32"
+          },
+          "meetsTolerance": {
+            "type": "boolean",
+            "description": "Indica se l'ente ha raggiunto la soglia di tolleranza"
           }
         }
       },
