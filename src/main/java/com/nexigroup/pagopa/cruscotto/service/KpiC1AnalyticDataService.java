@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -195,26 +196,22 @@ public class KpiC1AnalyticDataService {
         }
         log.debug("Required message percentage={} for detailResultId={}", requiredMessagePercentage, detailResultId);
 
-        // Calcoliamo per ogni data quante istituzioni hanno almeno una riga e quante sono KO (percentuale giornaliera < soglia)
-            Map<LocalDate, Set<String>> institutionsByDate = new HashMap<>();
-            Map<LocalDate, Set<String>> koInstitutionsByDate = new HashMap<>();
-        for (KpiC1AnalyticData r : rows) {
-                institutionsByDate.computeIfAbsent(r.getData(), d -> new HashSet<>()).add(r.getCfInstitution());
-                if (Boolean.FALSE.equals(r.getMeetsTolerance())) {
-                    koInstitutionsByDate.computeIfAbsent(r.getData(), d -> new HashSet<>()).add(r.getCfInstitution());
-            }
-        }
-
+        // I dati sono già aggregati per data nella tabella, quindi basta mapparli direttamente
         return rows.stream()
-            .map(kpiC1AnalyticDataMapper::toDto)
-            .peek(dto -> {
+            .map(row -> {
+                KpiC1AnalyticDataDTO dto = new KpiC1AnalyticDataDTO();
+                dto.setId(row.getId());
+                dto.setInstanceId(row.getInstance().getId());
+                dto.setInstanceModuleId(row.getInstanceModule().getId());
                 dto.setKpiC1DetailResultId(detailResultId);
-                    LocalDate day = dto.getDataDate();
-                    int instCount = institutionsByDate.getOrDefault(day, java.util.Collections.emptySet()).size();
-                    int koCount = koInstitutionsByDate.getOrDefault(day, java.util.Collections.emptySet()).size();
-                dto.setInstitutionCount(instCount);
-                dto.setKoInstitutionCount(koCount);
+                dto.setAnalysisDate(row.getReferenceDate());
+                dto.setDataDate(row.getData());
+                // I conteggi sono memorizzati nei campi positionNumber e messageNumber
+                dto.setInstitutionCount(row.getPositionNumber() != null ? row.getPositionNumber().intValue() : 0);
+                dto.setKoInstitutionCount(row.getMessageNumber() != null ? row.getMessageNumber().intValue() : 0);
+                return dto;
             })
+            .sorted(Comparator.comparing(KpiC1AnalyticDataDTO::getDataDate))
             .collect(Collectors.toList());
     }
 

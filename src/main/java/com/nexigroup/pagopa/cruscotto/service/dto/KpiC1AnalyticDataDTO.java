@@ -36,12 +36,6 @@ public class KpiC1AnalyticDataDTO implements Serializable {
     private Long instanceModuleId;
 
     /**
-     * Station ID
-     */
-    @NotNull
-    private String stationId;
-
-    /**
      * KPI C1 Detail Result ID
      */
     @NotNull
@@ -70,9 +64,4 @@ public class KpiC1AnalyticDataDTO implements Serializable {
      */
     @NotNull
     private Integer koInstitutionCount;
-
-    /**
-     * Meets Tolerance - indica se l'ente ha raggiunto la soglia di tolleranza
-     */
-    private Boolean meetsTolerance;
 }
