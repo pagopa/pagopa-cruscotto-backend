@@ -150,3 +150,4 @@ class KpiC1NegativeEvidencePersistenceTest {
         assertThat(saved.stream().filter(d -> d.getCfInstitution().equals("ENTE_LOW")).findFirst().orElseThrow().getPercentage()).isLessThan(95.0);
     }
 }
+
