@@ -13,6 +13,7 @@ import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
 import com.nexigroup.pagopa.cruscotto.repository.ModuleRepository;
 import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
 import com.nexigroup.pagopa.cruscotto.security.SecurityUtils;
+import com.nexigroup.pagopa.cruscotto.service.AnagPartnerService;
 import com.nexigroup.pagopa.cruscotto.service.AuthUserService;
 import com.nexigroup.pagopa.cruscotto.service.GenericServiceException;
 import com.nexigroup.pagopa.cruscotto.service.InstanceService;
@@ -29,6 +30,9 @@ import com.querydsl.core.types.*;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAUpdateClause;
+
+import jakarta.persistence.EntityNotFoundException;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -44,6 +48,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -102,6 +107,8 @@ public class InstanceServiceImpl implements InstanceService {
 
     private final AuthUserService authUserService;
 
+    private final AnagPartnerService anagPartnerService;
+
     public InstanceServiceImpl(
         InstanceRepository instanceRepository,
         AnagPartnerRepository anagPartnerRepository,
@@ -109,7 +116,8 @@ public class InstanceServiceImpl implements InstanceService {
         InstanceMapper instanceMapper,
         QueryBuilder queryBuilder,
         UserUtils userUtils,
-        AuthUserService authUserService
+        AuthUserService authUserService,
+        AnagPartnerService anagPartnerService
     ) {
         this.instanceRepository = instanceRepository;
         this.anagPartnerRepository = anagPartnerRepository;
@@ -118,6 +126,7 @@ public class InstanceServiceImpl implements InstanceService {
         this.queryBuilder = queryBuilder;
         this.userUtils = userUtils;
         this.authUserService = authUserService;
+        this.anagPartnerService = anagPartnerService;
     }
 
     /**
@@ -132,6 +141,9 @@ public class InstanceServiceImpl implements InstanceService {
         LOGGER.debug("Request to get all Instance by filter: {}", filter);
 
         BooleanBuilder builder = new BooleanBuilder();
+
+        // IMPORTANT: Exclude deleted instances (status CANCELLATA)
+        builder.and(QInstance.instance.status.ne(InstanceStatus.CANCELLATA));
 
         if (StringUtils.isNotBlank(filter.getPartnerId())) {
             builder.and(QInstance.instance.partner.id.eq(Long.valueOf(filter.getPartnerId())));
@@ -378,7 +390,18 @@ public class InstanceServiceImpl implements InstanceService {
                     );
                 }
 
-                instanceRepository.deleteById(id);
+                if (canForceDelete) {
+                    // Soft delete - just change status to CANCELLATA
+                    instance.setStatus(InstanceStatus.CANCELLATA);
+                    instanceRepository.save(instance);
+
+                    // Get partner info
+                    AnagPartner partner = instance.getPartner();
+                    
+                    // Update partner's analysis tracking fields
+                    updatePartnerAnalysisFieldsAfterDeletion(partner.getId());
+
+                } else instanceRepository.deleteById(id);
 
                 if (canForceDelete) {
                     LOGGER.warn(
@@ -402,6 +425,34 @@ public class InstanceServiceImpl implements InstanceService {
                 new GenericServiceException(String.format(INSTANCE_ID_NOT_EXISTS, id), INSTANCE, INSTANCE_NOT_EXISTS)
             );
     }
+
+    private void updatePartnerAnalysisFieldsAfterDeletion(Long partnerId) {
+    // Find most recent remaining instance for this partner
+    List<Instance> remainingInstances = instanceRepository
+        .findByPartnerIdAndStatusNotOrderByLastAnalysisDateDesc(partnerId, InstanceStatus.CANCELLATA, PageRequest.of(0, 1));
+
+    
+    if (!remainingInstances.isEmpty()) {
+        Instance mostRecent = remainingInstances.get(0);
+        anagPartnerService.updateLastAnalysisDate(partnerId, mostRecent.getLastAnalysisDate());
+        anagPartnerService.updateAnalysisPeriodDates(
+                partnerId,
+                mostRecent.getAnalysisPeriodStartDate(),
+                mostRecent.getAnalysisPeriodEndDate()
+            );
+    } else {
+        // No more instances for this partner
+        anagPartnerService.updateLastAnalysisDate(partnerId, null);
+        anagPartnerService.updateAnalysisPeriodDates(
+                partnerId,
+                null,
+                null
+            );
+    }
+    
+    
+}
+
 
     @Override
     public List<InstanceDTO> findInstanceToCalculate(ModuleCode moduleCode, Integer limit) {
