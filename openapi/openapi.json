@@ -12424,7 +12424,6 @@
         "required": [
           "instanceId",
           "instanceModuleId",
-          "stationId",
           "kpiC1DetailResultId",
           "analysisDate",
           "dataDate",
@@ -12442,10 +12441,6 @@
             "format": "int64"
           },
           "instanceModuleId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "stationId": {
             "type": "integer",
             "format": "int64"
           },
@@ -12468,10 +12463,6 @@
           "koInstitutionCount": {
             "type": "integer",
             "format": "int32"
-          },
-          "meetsTolerance": {
-            "type": "boolean",
-            "description": "Indica se l'ente ha raggiunto la soglia di tolleranza"
           }
         }
       },
