@@ -62,9 +62,8 @@ public class KpiB1Job extends QuartzJobBean {
      */
     private List<KpiB1AnalyticDrillDownDTO> aggregateKpiB1AnalyticDataDrillDown(
             AtomicReference<KpiB1AnalyticDataDTO> kpiB1AnalyticDataRef,
-            List<PagopaTransactionDTO> filteredPeriodRecords,
-            LocalDate detailResultEvaluationStartDate,
-            LocalDate detailResultEvaluationEndDate) {
+            List<PagopaTransactionDTO> filteredPeriodRecords
+            ) {
 
         List<KpiB1AnalyticDrillDownDTO> drillDownList = new ArrayList<>();
 
@@ -442,12 +441,10 @@ public class KpiB1Job extends QuartzJobBean {
                                     filteredPeriodRecords.stream()
                                             .filter(record -> {
                                                 LocalDate recordDate = record.getDate();
-                                                return !recordDate.isBefore(detailResult.getEvaluationStartDate()) &&
-                                                       !recordDate.isAfter(detailResult.getEvaluationEndDate());
+                                                return !recordDate.isBefore(analyticData.getDataDate()) &&
+                                                       !recordDate.isAfter(analyticData.getDataDate());
                                             })
-                                            .collect(Collectors.toList()),
-                                    detailResult.getEvaluationStartDate(),
-                                    detailResult.getEvaluationEndDate()
+                                            .collect(Collectors.toList())
                             );
                             kpiB1AnalyticDrillDownService.saveAll(drillDowns);
                         }
