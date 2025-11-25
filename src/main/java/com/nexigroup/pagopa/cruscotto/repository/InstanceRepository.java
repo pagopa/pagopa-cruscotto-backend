@@ -15,6 +15,6 @@ import java.util.List;
 @Repository
 public interface InstanceRepository extends JpaRepository<Instance, Long>, JpaSpecificationExecutor<Instance> {
 
-    List<Instance> findByPartnerIdAndStatusNotOrderByLastAnalysisDateDesc(Long partnerId, InstanceStatus status, Pageable pageable);
+    List<Instance> findByPartnerIdAndStatusOrderByLastAnalysisDateDesc(Long partnerId, InstanceStatus status);
 
 }

@@ -31,8 +31,6 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAUpdateClause;
 
-import jakarta.persistence.EntityNotFoundException;
-
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -48,7 +46,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -399,7 +396,7 @@ public class InstanceServiceImpl implements InstanceService {
                     AnagPartner partner = instance.getPartner();
                     
                     // Update partner's analysis tracking fields
-                    updatePartnerAnalysisFieldsAfterDeletion(partner.getId());
+                    updatePartnerAnalysisFieldsAfterDeletion(partner.getId(), instance.getChangePartnerQualified());
 
                 } else instanceRepository.deleteById(id);
 
@@ -426,32 +423,78 @@ public class InstanceServiceImpl implements InstanceService {
             );
     }
 
-    private void updatePartnerAnalysisFieldsAfterDeletion(Long partnerId) {
-    // Find most recent remaining instance for this partner
-    List<Instance> remainingInstances = instanceRepository
-        .findByPartnerIdAndStatusNotOrderByLastAnalysisDateDesc(partnerId, InstanceStatus.CANCELLATA, PageRequest.of(0, 1));
+    private void updatePartnerAnalysisFieldsAfterDeletion(Long partnerId, Boolean changePartnerQualified) {
+        // Find most recent remaining instance for this partner
+        List<Instance> remainingInstances = instanceRepository
+                .findByPartnerIdAndStatusOrderByLastAnalysisDateDesc(partnerId, InstanceStatus.ESEGUITA);
 
-    
-    if (!remainingInstances.isEmpty()) {
-        Instance mostRecent = remainingInstances.get(0);
-        anagPartnerService.updateLastAnalysisDate(partnerId, mostRecent.getLastAnalysisDate());
-        anagPartnerService.updateAnalysisPeriodDates(
-                partnerId,
-                mostRecent.getAnalysisPeriodStartDate(),
-                mostRecent.getAnalysisPeriodEndDate()
-            );
-    } else {
-        // No more instances for this partner
-        anagPartnerService.updateLastAnalysisDate(partnerId, null);
-        anagPartnerService.updateAnalysisPeriodDates(
-                partnerId,
-                null,
-                null
-            );
+        if (!remainingInstances.isEmpty()) {
+
+            // Check if instance being deleted has changed partner qualification
+            if (changePartnerQualified != null && changePartnerQualified) {
+
+                // Find the most recent instance with changePartnerQualified = true
+                Optional<Instance> mostRecentChangedQualifiedInstance = remainingInstances.stream()
+                        .filter(instance -> instance.getChangePartnerQualified() != null
+                                && instance.getChangePartnerQualified())
+                        .findFirst();
+
+                if (mostRecentChangedQualifiedInstance.isPresent()) {
+                    Instance instance = mostRecentChangedQualifiedInstance.get();
+                    AnalysisOutcome outcome = instance.getLastAnalysisOutcome();
+
+                    // Partner is qualified if outcome is OK
+                    // Partner is NOT qualified if outcome is KO
+                    boolean isQualified = outcome == AnalysisOutcome.OK;
+
+                    anagPartnerService.changePartnerQualified(partnerId, isQualified);
+
+                    LOGGER.info(
+                            "Partner {} qualified status updated to {} based on instance {} with outcome {}",
+                            partnerId,
+                            isQualified,
+                            instance.getInstanceIdentification(),
+                            outcome);
+                } else {
+                    // No remaining instance changed qualification, restore to default qualified flag
+                    anagPartnerService.changePartnerQualified(partnerId, false);
+                    LOGGER.info(
+                            "Partner {} qualified flag restored to default because no remaining instance changed qualification for partner {}.",
+                            partnerId);
+                }
+
+            } else {
+                // If changePartnerQualified is false or null, retain current qualified status
+                LOGGER.info(
+                        "Partner {} qualified status remains unchanged after deletion of instance that did not change qualification",
+                        partnerId);
+            }
+
+            Instance mostRecent = remainingInstances.get(0);
+            anagPartnerService.updateLastAnalysisDate(partnerId, mostRecent.getLastAnalysisDate());
+            anagPartnerService.updateAnalysisPeriodDates(
+                    partnerId,
+                    mostRecent.getAnalysisPeriodStartDate(),
+                    mostRecent.getAnalysisPeriodEndDate());
+            LOGGER.info(
+                            "Partner lastAnalysisDate, lastAnalysisPeriod updated to values based on instance {}",
+                            partnerId,
+                            mostRecent.getInstanceIdentification()
+                        );         
+        } else {
+            // No more instances for this partner
+            anagPartnerService.changePartnerQualified(partnerId, false);
+            anagPartnerService.updateLastAnalysisDate(partnerId, null);
+            anagPartnerService.updateAnalysisPeriodDates(
+                    partnerId,
+                    null,
+                    null);
+            LOGGER.info(
+                            "Partner lastAnalysisDate, lastAnalysisPeriod and qualified flag restored to default values after deletion of all instances for partner {}",
+                            partnerId);        
+        }
+
     }
-    
-    
-}
 
 
     @Override
