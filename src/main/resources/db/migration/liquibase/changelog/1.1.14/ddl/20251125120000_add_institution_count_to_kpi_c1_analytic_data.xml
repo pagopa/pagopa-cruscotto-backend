@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+  <changeSet id="20251125120000-1" author="system">
+    <comment>
+      Add CO_INSTITUTION_COUNT column to KPI_C1_ANALYTIC_DATA table.
+      This column tracks the number of distinct institutions (cf_institution) 
+      that contributed to the daily aggregation.
+    </comment>
+    
+    <!-- Add column CO_INSTITUTION_COUNT -->
+    <addColumn tableName="KPI_C1_ANALYTIC_DATA" schemaName="${database.defaultSchemaName}">
+      <column name="CO_INSTITUTION_COUNT" type="INTEGER" defaultValueNumeric="0">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+    
+    <rollback>
+      <!-- Rollback: drop the column -->
+      <dropColumn tableName="KPI_C1_ANALYTIC_DATA" schemaName="${database.defaultSchemaName}">
+        <column name="CO_INSTITUTION_COUNT"/>
+      </dropColumn>
+    </rollback>
+  </changeSet>
+  
+</databaseChangeLog>
