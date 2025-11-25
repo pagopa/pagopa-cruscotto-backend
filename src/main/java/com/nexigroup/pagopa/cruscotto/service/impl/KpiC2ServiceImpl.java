@@ -639,7 +639,7 @@ public class KpiC2ServiceImpl implements KpiC2Service {
 
                 // Setta la data di analisi
                 drilldownEntity.setAnalysisDate(analyticData.getAnalysisDate());
-
+                drilldownEntity.setEvaluationDate(analyticData.getEvaluationDate());
                 // Setta i dati API log
                 drilldownEntity.setInstitutionCf(cfInstitution);
                 drilldownEntity.setNumPayment(paymentsNumber);
