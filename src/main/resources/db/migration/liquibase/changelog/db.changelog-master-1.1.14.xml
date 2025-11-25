@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <property name="autoIncrement" value="true"/>
+
+    <!-- Include previous version -->
+    <include file="db.changelog-master-1.1.13.xml" relativeToChangelogFile="true"/>
+
+    <!--
+        Modified KPI C.1 analytic data aggregation logic.
+        This changelog includes database changes for version 1.1.14:
+        - Cleanup of existing KPI_C1_ANALYTIC_DATA records
+        - New daily aggregation logic (aggregated by day instead of month)
+        - Removed koInstitutionCount concept
+        - Added positionsCount and messagesCount as aggregated totals
+    -->
+
+    <!-- Cleanup existing data for new aggregation logic (DDL) -->
+    <include file="1.1.14/ddl/20251125100000_cleanup_kpi_c1_analytic_data.xml" relativeToChangelogFile="true"/>
+    
+    <!-- Drop unused columns from KPI_C1_ANALYTIC_DATA (DDL) -->
+    <include file="1.1.14/ddl/20251125110000_drop_unused_columns_kpi_c1_analytic_data.xml" relativeToChangelogFile="true"/>
+
+</databaseChangeLog>

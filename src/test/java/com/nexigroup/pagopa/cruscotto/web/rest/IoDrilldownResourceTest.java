@@ -38,7 +38,6 @@ class IoDrilldownResourceTest {
         KpiC1AnalyticData analytic = new KpiC1AnalyticData(); analytic.setId(10L);
         analytic.setInstance(inst); analytic.setInstanceModule(mod);
         analytic.setReferenceDate(LocalDate.now()); analytic.setData(LocalDate.now());
-        analytic.setCfInstitution("ENTE_X");
 
         IoDrilldown row = new IoDrilldown(inst, mod, analytic, LocalDate.now(), LocalDate.now(), "ENTE_X", "PARTNER_CF",
             100L, 60L, 60.0, false);

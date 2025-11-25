@@ -18,17 +18,18 @@ public interface KpiC1AnalyticDataMapper extends EntityMapper<KpiC1AnalyticDataD
     @Mapping(target = "analysisDate", source = "referenceDate")
     @Mapping(target = "dataDate", source = "data")
     @Mapping(target = "institutionCount", ignore = true) // calcolato dinamicamente
-    @Mapping(target = "koInstitutionCount", ignore = true) // calcolato dinamicamente
+    @Mapping(target = "positionsCount", source = "positionNumber") // aggregated positions
+    @Mapping(target = "messagesCount", source = "messageNumber") // aggregated messages
     KpiC1AnalyticDataDTO toDto(KpiC1AnalyticData kpiC1AnalyticData);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "instance", ignore = true) // Will be set programmatically
     @Mapping(target = "instanceModule", ignore = true) // Will be set programmatically
+    @Mapping(target = "detailResult", ignore = true) // Will be set programmatically
     @Mapping(target = "referenceDate", source = "analysisDate")
     @Mapping(target = "data", source = "dataDate")
-    @Mapping(target = "cfInstitution", ignore = true) // Not available in DTO
-    @Mapping(target = "positionNumber", constant = "0L") // Not available in contract
-    @Mapping(target = "messageNumber", constant = "0L") // Not available in contract
+    @Mapping(target = "positionNumber", source = "positionsCount")
+    @Mapping(target = "messageNumber", source = "messagesCount")
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "createdDate", ignore = true)
     @Mapping(target = "lastModifiedBy", ignore = true)
