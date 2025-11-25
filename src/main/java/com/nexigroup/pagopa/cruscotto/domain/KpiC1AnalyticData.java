@@ -70,19 +70,23 @@ public class KpiC1AnalyticData extends AbstractAuditingEntity<Long> {
     @Column(name = "CO_MESSAGES_COUNT", nullable = false)
     private Long messageNumber = 0L;
 
+    @Column(name = "CO_INSTITUTION_COUNT", nullable = false)
+    private Integer institutionCount = 0;
+
     /**
      * Default constructor
      */
     public KpiC1AnalyticData() {
         this.positionNumber = 0L;
         this.messageNumber = 0L;
+        this.institutionCount = 0;
     }
 
     /**
      * Constructor per la creazione dei dati analitici
      */
     public KpiC1AnalyticData(Instance instance, InstanceModule instanceModule, LocalDate referenceDate,
-                             LocalDate data, Long positionNumber, Long messageNumber) {
+                             LocalDate data, Long positionNumber, Long messageNumber, Integer institutionCount) {
         this();
         this.instance = instance;
         this.instanceModule = instanceModule;
@@ -90,6 +94,7 @@ public class KpiC1AnalyticData extends AbstractAuditingEntity<Long> {
         this.data = data;
         this.positionNumber = positionNumber != null ? positionNumber : 0L;
         this.messageNumber = messageNumber != null ? messageNumber : 0L;
+        this.institutionCount = institutionCount != null ? institutionCount : 0;
     }
 
     @Override
@@ -121,6 +126,7 @@ public class KpiC1AnalyticData extends AbstractAuditingEntity<Long> {
                 ", data=" + data +
                 ", positionNumber=" + positionNumber +
                 ", messageNumber=" + messageNumber +
+                ", institutionCount=" + institutionCount +
                 "}";
     }
 }

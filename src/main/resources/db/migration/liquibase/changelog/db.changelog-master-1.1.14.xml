@@ -25,5 +25,8 @@
     
     <!-- Drop unused columns from KPI_C1_ANALYTIC_DATA (DDL) -->
     <include file="1.1.14/ddl/20251125110000_drop_unused_columns_kpi_c1_analytic_data.xml" relativeToChangelogFile="true"/>
+    
+    <!-- Add institution count column to KPI_C1_ANALYTIC_DATA (DDL) -->
+    <include file="1.1.14/ddl/20251125120000_add_institution_count_to_kpi_c1_analytic_data.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>
