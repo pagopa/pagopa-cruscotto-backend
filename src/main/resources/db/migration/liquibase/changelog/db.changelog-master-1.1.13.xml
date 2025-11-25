@@ -25,6 +25,8 @@
 
     <include file="1.1.13/ddl/20251113195900_alter_table_entity_KpiC2AnalyticDrillDown.xml" relativeToChangelogFile="true"/>
 
+    <include file="1.1.13/ddl/20251125195900_alter_table_entity_KpiC2AnalyticDrillDown_add_evaluationDate.xml" relativeToChangelogFile="true"/>
+
   <!-- KPI C.1 configuration and authorizations (DML) -->
     <include file="1.1.13/dml/20251104170001_add_kpi_c1_data.xml" relativeToChangelogFile="true"/>
     <!-- IO_DRILLDOWN permissions (DML) -->
