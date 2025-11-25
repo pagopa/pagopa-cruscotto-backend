@@ -632,12 +632,19 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
                 .mapToLong(data -> data.getNumeroMessaggi() != null ? data.getNumeroMessaggi().longValue() : 0L)
                 .sum();
             
+            // Calcola il numero di istituzioni DISTINTE per questo giorno
+            int distinctInstitutions = (int) dayDataList.stream()
+                .map(PagoPaIODTO::getEnte)
+                .distinct()
+                .count();
+            
             // Crea UNA SOLA riga analitica per questo giorno (aggregata su tutti gli enti)
             com.nexigroup.pagopa.cruscotto.domain.KpiC1AnalyticData analyticData = 
                 new com.nexigroup.pagopa.cruscotto.domain.KpiC1AnalyticData(
                     instance, instanceModule, analysisDate, day,
                     totalPositions, // positionNumber contiene positionsCount totale giornaliero
-                    totalMessages  // messageNumber contiene messagesCount totale giornaliero
+                    totalMessages,  // messageNumber contiene messagesCount totale giornaliero
+                    distinctInstitutions // institutionCount contiene il numero di enti distinti
                 );
 
             analyticData.setDetailResult(matchedMonthly);
@@ -788,7 +795,8 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
         // Create a single "empty" analytic record to indicate no data was processed
         com.nexigroup.pagopa.cruscotto.domain.KpiC1AnalyticData analyticData = new com.nexigroup.pagopa.cruscotto.domain.KpiC1AnalyticData(
             instance, instanceModule, analysisDate, analysisDate, // Use analysis date as data date
-            0L, 0L // Zero positions and messages
+            0L, 0L, // Zero positions and messages
+            0 // Zero institutions
         );
         
         kpiC1AnalyticDataService.save(analyticData);
