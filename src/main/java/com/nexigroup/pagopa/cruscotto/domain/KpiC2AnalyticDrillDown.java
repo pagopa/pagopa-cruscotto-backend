@@ -64,6 +64,10 @@ public class KpiC2AnalyticDrillDown implements Serializable {
     private LocalDate analysisDate;
 
     @NotNull
+    @Column(name = "DT_EVALUATION_DATE", nullable = false)
+    private LocalDate evaluationDate;
+
+    @NotNull
     @Size(max = 255)
     @Column(name = "CF_INSTITUTION", nullable = false, length = 255)
     private String institutionCf;
@@ -104,6 +108,7 @@ public class KpiC2AnalyticDrillDown implements Serializable {
             ", instance=" + instance +
             ", instanceModule=" + instanceModule +
             ", analysisDate=" + analysisDate +
+            ", evaluationDate=" + evaluationDate +
             ", institutionCf='" + institutionCf + '\'' +
             ", numPayment=" + numPayment +
             ", numNotification=" + numNotification +
