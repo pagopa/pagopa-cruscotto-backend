@@ -17,7 +17,7 @@ public interface KpiC1AnalyticDataMapper extends EntityMapper<KpiC1AnalyticDataD
     @Mapping(target = "kpiC1DetailResultId", ignore = true) // valorizzato post-mapping in service
     @Mapping(target = "analysisDate", source = "referenceDate")
     @Mapping(target = "dataDate", source = "data")
-    @Mapping(target = "institutionCount", ignore = true) // calcolato dinamicamente
+    @Mapping(target = "institutionCount", source = "institutionCount")
     @Mapping(target = "positionsCount", source = "positionNumber") // aggregated positions
     @Mapping(target = "messagesCount", source = "messageNumber") // aggregated messages
     KpiC1AnalyticDataDTO toDto(KpiC1AnalyticData kpiC1AnalyticData);
@@ -28,6 +28,7 @@ public interface KpiC1AnalyticDataMapper extends EntityMapper<KpiC1AnalyticDataD
     @Mapping(target = "detailResult", ignore = true) // Will be set programmatically
     @Mapping(target = "referenceDate", source = "analysisDate")
     @Mapping(target = "data", source = "dataDate")
+    @Mapping(target = "institutionCount", source = "institutionCount")
     @Mapping(target = "positionNumber", source = "positionsCount")
     @Mapping(target = "messageNumber", source = "messagesCount")
     @Mapping(target = "createdBy", ignore = true)
