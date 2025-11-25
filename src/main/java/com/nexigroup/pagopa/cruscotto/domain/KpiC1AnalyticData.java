@@ -56,11 +56,6 @@ public class KpiC1AnalyticData extends AbstractAuditingEntity<Long> {
     @Column(name = "DT_DATA_DATE", nullable = false)
     private LocalDate data;
 
-    @NotNull
-    @Size(max = 50)
-    @Column(name = "TE_CF_INSTITUTION", nullable = false, length = 50)
-    private String cfInstitution;
-
     // Link al dettaglio (KPI_C1_DETAIL_RESULT) per consentire drill-down diretto.
     // La colonna esiste già nello schema (CO_KPI_C1_DETAIL_RESULT_ID) ma non era mappata.
     // Non imponiamo NOT NULL a livello JPA per non rompere dati storici già inseriti null; nuova logica la popolerà sempre.
@@ -75,16 +70,6 @@ public class KpiC1AnalyticData extends AbstractAuditingEntity<Long> {
     @Column(name = "CO_MESSAGES_COUNT", nullable = false)
     private Long messageNumber = 0L;
 
-    @Column(name = "CO_PERCENTAGE")
-    private Double percentage;
-
-    @Column(name = "FL_MEETS_TOLERANCE")
-    private Boolean meetsTolerance;
-
-    @Size(max = 50)
-    @Column(name = "TE_CF_PARTNER", length = 50)
-    private String cfPartner;
-
     /**
      * Default constructor
      */
@@ -97,13 +82,12 @@ public class KpiC1AnalyticData extends AbstractAuditingEntity<Long> {
      * Constructor per la creazione dei dati analitici
      */
     public KpiC1AnalyticData(Instance instance, InstanceModule instanceModule, LocalDate referenceDate,
-                             LocalDate data, String cfInstitution, Long positionNumber, Long messageNumber) {
+                             LocalDate data, Long positionNumber, Long messageNumber) {
         this();
         this.instance = instance;
         this.instanceModule = instanceModule;
         this.referenceDate = referenceDate;
         this.data = data;
-        this.cfInstitution = cfInstitution;
         this.positionNumber = positionNumber != null ? positionNumber : 0L;
         this.messageNumber = messageNumber != null ? messageNumber : 0L;
     }
@@ -135,12 +119,8 @@ public class KpiC1AnalyticData extends AbstractAuditingEntity<Long> {
                 "id=" + id +
                 ", referenceDate=" + referenceDate +
                 ", data=" + data +
-                ", cfInstitution='" + cfInstitution + '\'' +
-                ", cfPartner='" + cfPartner + '\'' +
                 ", positionNumber=" + positionNumber +
                 ", messageNumber=" + messageNumber +
-                ", percentage=" + percentage +
-                ", meetsTolerance=" + meetsTolerance +
                 "}";
     }
 }
