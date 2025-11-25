@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+
+  <changeSet id="20251125195900-1" author="system" context="ddl">
+
+    <addColumn tableName="KPI_C2_ANALYTIC_DRILLDOWN">
+      <column name="DT_EVALUATION_DATE" type="DATE" />
+    </addColumn>
+
+    <!-- Callback: post-addColumn -->
+    <rollback>
+      <dropColumn
+        tableName="KPI_C2_ANALYTIC_DRILLDOWN"
+        columnName="DT_EVALUATION_DATE"/>
+    </rollback>
+  </changeSet>
+
+</databaseChangeLog>
