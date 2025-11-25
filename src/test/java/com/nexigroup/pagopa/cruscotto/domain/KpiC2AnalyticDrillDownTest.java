@@ -21,6 +21,7 @@ class KpiC2AnalyticDrillDownTest {
         entity.setInstance(instance);
         entity.setInstanceModule(instanceModule);
         entity.setAnalysisDate(date);
+        entity.setEvaluationDate(date);
         entity.setInstitutionCf("ABC123");
         entity.setNumPayment(10L);
         entity.setNumNotification(5L);
@@ -31,6 +32,7 @@ class KpiC2AnalyticDrillDownTest {
         assertEquals(instance, entity.getInstance());
         assertEquals(instanceModule, entity.getInstanceModule());
         assertEquals(date, entity.getAnalysisDate());
+        assertEquals(date, entity.getEvaluationDate());
         assertEquals("ABC123", entity.getInstitutionCf());
         assertEquals(10L, entity.getNumPayment());
         assertEquals(5L, entity.getNumNotification());
