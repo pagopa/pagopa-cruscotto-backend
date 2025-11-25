@@ -33,6 +33,9 @@ public class KpiC2AnalyticDrillDownDTO implements Serializable {
     @NotNull
     private LocalDate analysisDate;
 
+    @NotNull
+    private LocalDate evaluationDate;
+
     private String institutionCf;
 
     @NotNull
@@ -61,6 +64,7 @@ public class KpiC2AnalyticDrillDownDTO implements Serializable {
             ", instanceId=" + instanceId +
             ", instanceModuleId=" + instanceModuleId +
             ", analysisDate=" + analysisDate +
+            ", evaluationDate=" + evaluationDate +
             ", institutionCf='" + institutionCf + '\'' +
             ", numPayment=" + numPayment +
             ", numNotification=" + numNotification +
