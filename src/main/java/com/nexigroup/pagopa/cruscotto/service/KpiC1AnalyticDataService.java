@@ -199,14 +199,10 @@ public class KpiC1AnalyticDataService {
                 // Prendi il primo record per i dati comuni
                 KpiC1AnalyticData firstRow = dayRows.get(0);
                 
-                // Aggrega i conteggi per il giorno
-                int totalInstitutions = dayRows.size();
-                long totalPositions = dayRows.stream()
-                    .mapToLong(r -> r.getPositionNumber() != null ? r.getPositionNumber() : 0L)
-                    .sum();
-                long totalMessages = dayRows.stream()
-                    .mapToLong(r -> r.getMessageNumber() != null ? r.getMessageNumber() : 0L)
-                    .sum();
+                // Usa i valori già aggregati dal database (ora c'è UN SOLO record per giorno)
+                int totalInstitutions = firstRow.getInstitutionCount() != null ? firstRow.getInstitutionCount() : 0;
+                long totalPositions = firstRow.getPositionNumber() != null ? firstRow.getPositionNumber() : 0L;
+                long totalMessages = firstRow.getMessageNumber() != null ? firstRow.getMessageNumber() : 0L;
                 
                 KpiC1AnalyticDataDTO dto = new KpiC1AnalyticDataDTO();
                 dto.setId(firstRow.getId());
