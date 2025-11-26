@@ -162,25 +162,28 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
 
         List<PagoPaIODTO> ioDataList = new ArrayList<>();
 
-        // First access: try with CF_Partner
+        // First access: get data with CF_Partner
         if (pagopaIORepository.existsByCfPartner(partnerFiscalCode)) {
-            LOGGER.info("Using first access method - CF_Partner exists");
+            LOGGER.info("First access method - retrieving records with CF_Partner");
             List<com.nexigroup.pagopa.cruscotto.domain.PagopaIO> dataWithPartner = 
                 pagopaIORepository.findByCfPartnerAndDateRange(partnerFiscalCode, startDate, endDate);
             ioDataList.addAll(dataWithPartner.stream()
                 .map(pagopaIOMapper::toDto)
                 .collect(Collectors.toList()));
-        } else {
-            // Second access: try with individual entities without CF_Partner
-            LOGGER.info("Using second access method - searching by entities without CF_Partner");
-            List<com.nexigroup.pagopa.cruscotto.domain.PagopaIO> dataWithoutPartner = 
-                pagopaIORepository.findByCfInstitutionListAndDateRangeWithoutCfPartner(entiList, startDate, endDate);
-            ioDataList.addAll(dataWithoutPartner.stream()
-                .map(pagopaIOMapper::toDto)
-                .collect(Collectors.toList()));
+            LOGGER.info("Retrieved {} records with CF_Partner", dataWithPartner.size());
         }
+        
+        // Second access: ALSO get data for entities without CF_Partner
+        // This ensures we capture ALL data, even when some records have cfPartner and others don't
+        LOGGER.info("Second access method - retrieving records by entities without CF_Partner");
+        List<com.nexigroup.pagopa.cruscotto.domain.PagopaIO> dataWithoutPartner = 
+            pagopaIORepository.findByCfInstitutionListAndDateRangeWithoutCfPartner(entiList, startDate, endDate);
+        ioDataList.addAll(dataWithoutPartner.stream()
+            .map(pagopaIOMapper::toDto)
+            .collect(Collectors.toList()));
+        LOGGER.info("Retrieved {} records without CF_Partner", dataWithoutPartner.size());
 
-        LOGGER.info("Retrieved {} IO data records", ioDataList.size());
+        LOGGER.info("Retrieved total {} IO data records", ioDataList.size());
         return ioDataList;
     }
 
@@ -605,122 +608,101 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
             .filter(dr -> dr.getEvaluationType() == EvaluationType.TOTALE)
             .findFirst().orElse(null);
 
-        // NUOVA LOGICA: Aggrega i dati per MESE e INSTITUTION per calcolare metriche
-        // Group by month and institution
-        Map<YearMonth, Map<String, List<PagoPaIODTO>>> dataByMonthAndInstitution = ioDataList.stream()
-            .collect(Collectors.groupingBy(
-                data -> YearMonth.from(data.getData()),
-                Collectors.groupingBy(PagoPaIODTO::getEnte)
-            ));
+        // NUOVA LOGICA: Aggrega i dati per GIORNO (tutti gli enti insieme)
+        // Group by day only
+        Map<LocalDate, List<PagoPaIODTO>> dataByDay = ioDataList.stream()
+            .collect(Collectors.groupingBy(PagoPaIODTO::getData));
 
-        List<IoDrilldown> negatives = new ArrayList<>();
+        List<IoDrilldown> allDrilldowns = new ArrayList<>();
 
-        // Per ogni mese, calcola i conteggi aggregati e salva una singola riga analitica
-        dataByMonthAndInstitution.forEach((yearMonth, institutionMap) -> {
-            LocalDate monthDate = yearMonth.atDay(1); // Usiamo il primo giorno del mese come data di riferimento
+        // Per ogni giorno, calcola i conteggi aggregati totali e salva una riga analitica
+        dataByDay.forEach((day, dayDataList) -> {
             
-            // Conta istituzioni totali e KO per questo mese
-            int totalInstitutions = 0;
-            int koInstitutions = 0;
-            String cfPartner = null;
-            List<IoDrilldown> monthDrilldowns = new ArrayList<>();
-            
-            // Analizza ogni istituzione per determinare se è KO
-            for (Map.Entry<String, List<PagoPaIODTO>> entry : institutionMap.entrySet()) {
-                String institution = entry.getKey();
-                List<PagoPaIODTO> institutionMonthData = entry.getValue();
-                
-                totalInstitutions++;
-                
-                // Aggrega posizioni e messaggi per questo ente in questo mese
-                long totalPositions = institutionMonthData.stream()
-                    .mapToLong(data -> data.getNumeroPosizioni() != null ? data.getNumeroPosizioni().longValue() : 0L)
-                    .sum();
-                long totalMessages = institutionMonthData.stream()
-                    .mapToLong(data -> data.getNumeroMessaggi() != null ? data.getNumeroMessaggi().longValue() : 0L)
-                    .sum();
-                
-                // Calcola percentuale mensile aggregata
-                double percentage;
-                if (totalPositions == 0) {
-                    percentage = 100.0; // Se non ci sono posizioni, consideriamo 100%
-                } else {
-                    percentage = ((double) totalMessages / (double) totalPositions) * 100.0;
-                }
-                
-                // NUOVA LOGICA: un ente è OK (meets tolerance) se percentuale >= tolleranza
-                boolean meetsTolerance = percentage >= requiredMessagePercentage;
-                
-                if (!meetsTolerance) {
-                    koInstitutions++;
-                }
-                
-                // Prendi il cfPartner dal primo record
-                if (cfPartner == null && !institutionMonthData.isEmpty()) {
-                    cfPartner = institutionMonthData.get(0).getCfPartner();
-                }
-                
-                // Prepara drilldown per ente KO (verrà associato l'analytic data dopo)
-                if (!meetsTolerance) {
-                    IoDrilldown drill = new IoDrilldown(
-                        instance,
-                        instanceModule,
-                        null, // verrà associato dopo il salvataggio dell'analytic data
-                        analysisDate,
-                        monthDate,
-                        institution,
-                        cfPartner,
-                        totalPositions,
-                        totalMessages,
-                        percentage,
-                        meetsTolerance
-                    );
-                    monthDrilldowns.add(drill);
-                }
-            }
-
-            // Crea una singola riga analitica aggregata per questo mese
-            com.nexigroup.pagopa.cruscotto.domain.KpiC1AnalyticData analyticData = 
-                new com.nexigroup.pagopa.cruscotto.domain.KpiC1AnalyticData(
-                    instance, instanceModule, analysisDate, monthDate,
-                    "AGGREGATED", // cfInstitution impostato a AGGREGATED per indicare aggregazione
-                    (long) totalInstitutions, // usiamo positionNumber per memorizzare institutionCount
-                    (long) koInstitutions     // usiamo messageNumber per memorizzare koInstitutionCount
-                );
-
-            // Percentuale e meetsTolerance non sono significativi a livello aggregato
-            analyticData.setPercentage(null);
-            analyticData.setMeetsTolerance(null);
-            analyticData.setCfPartner(cfPartner);
-
-            // Associa il dettaglio mensile corrispondente
+            // Determina il detail result mensile corrispondente a questo giorno
+            YearMonth yearMonth = YearMonth.from(day);
             KpiC1DetailResult matchedMonthly = monthlyDetailResults.stream()
                 .filter(dr -> YearMonth.from(dr.getEvaluationStartDate()).equals(yearMonth))
                 .findFirst().orElse(totalDetailResult);
+            
+            // Aggrega posizioni e messaggi per TUTTI gli enti in questo giorno
+            long totalPositions = dayDataList.stream()
+                .mapToLong(data -> data.getNumeroPosizioni() != null ? data.getNumeroPosizioni().longValue() : 0L)
+                .sum();
+            long totalMessages = dayDataList.stream()
+                .mapToLong(data -> data.getNumeroMessaggi() != null ? data.getNumeroMessaggi().longValue() : 0L)
+                .sum();
+            
+            // Calcola il numero di istituzioni DISTINTE per questo giorno
+            int distinctInstitutions = (int) dayDataList.stream()
+                .map(PagoPaIODTO::getEnte)
+                .distinct()
+                .count();
+            
+            // Crea UNA SOLA riga analitica per questo giorno (aggregata su tutti gli enti)
+            com.nexigroup.pagopa.cruscotto.domain.KpiC1AnalyticData analyticData = 
+                new com.nexigroup.pagopa.cruscotto.domain.KpiC1AnalyticData(
+                    instance, instanceModule, analysisDate, day,
+                    totalPositions, // positionNumber contiene positionsCount totale giornaliero
+                    totalMessages,  // messageNumber contiene messagesCount totale giornaliero
+                    distinctInstitutions // institutionCount contiene il numero di enti distinti
+                );
+
             analyticData.setDetailResult(matchedMonthly);
             
-            // Salva l'analytic data PRIMA dei drilldown
+            // Salva l'analytic data
             com.nexigroup.pagopa.cruscotto.domain.KpiC1AnalyticData savedAnalytic = 
                 kpiC1AnalyticDataService.save(analyticData);
-
-            // Ora associa l'analytic data salvato ai drilldown e aggiungili alla lista
-            for (IoDrilldown drill : monthDrilldowns) {
-                drill.setKpiC1AnalyticData(savedAnalytic);
-                negatives.add(drill);
+            
+            // Crea drilldown per OGNI SINGOLO RECORD originale di pagopa_io per questo giorno
+            // Questo permette di vedere il dettaglio completo dell'aggregazione
+            for (PagoPaIODTO ioRecord : dayDataList) {
+                long positionNumber = ioRecord.getNumeroPosizioni() != null ? 
+                    ioRecord.getNumeroPosizioni().longValue() : 0L;
+                long messageNumber = ioRecord.getNumeroMessaggi() != null ? 
+                    ioRecord.getNumeroMessaggi().longValue() : 0L;
+                
+                // Calcola percentuale per questo singolo record
+                double percentage;
+                if (positionNumber == 0) {
+                    percentage = 100.0; // Se non ci sono posizioni, consideriamo 100%
+                } else {
+                    percentage = ((double) messageNumber / (double) positionNumber) * 100.0;
+                }
+                
+                // Determina se questo record soddisfa la tolleranza
+                boolean meetsTolerance = percentage >= requiredMessagePercentage;
+                
+                // Crea drilldown per TUTTI i record (non solo quelli KO)
+                IoDrilldown drill = new IoDrilldown(
+                    instance,
+                    instanceModule,
+                    savedAnalytic,
+                    analysisDate,
+                    day,
+                    ioRecord.getEnte(),
+                    ioRecord.getCfPartner(),
+                    positionNumber,
+                    messageNumber,
+                    percentage,
+                    meetsTolerance
+                );
+                allDrilldowns.add(drill);
             }
 
-            LOGGER.debug("Saved aggregated analytic data for month {}: total institutions={}, KO institutions={}", 
-                yearMonth, totalInstitutions, koInstitutions);
+            LOGGER.debug("Saved 1 analytic data record for day {} with {} detail drilldown records", 
+                         day, dayDataList.size());
         });
 
-        if (!negatives.isEmpty()) {
-            ioDrilldownService.saveAll(negatives);
-            LOGGER.info("Saved {} IO negative evidence drilldown rows (mesi con enti KO)", negatives.size());
+        if (!allDrilldowns.isEmpty()) {
+            ioDrilldownService.saveAll(allDrilldowns);
+            long koCount = allDrilldowns.stream().filter(d -> !d.getMeetsTolerance()).count();
+            LOGGER.info("Saved {} IO drilldown rows (dettaglio completo: {} KO, {} OK)", 
+                       allDrilldowns.size(), koCount, allDrilldowns.size() - koCount);
         } else {
-            LOGGER.info("Nessuna evidenza negativa (nessun mese con enti KO) per questa esecuzione KPI C.1.");
+            LOGGER.info("Nessun drilldown salvato per questa esecuzione KPI C.1.");
         }
 
-        LOGGER.info("Saved {} analytic data records (aggregati per mese)", dataByMonthAndInstitution.size());
+        LOGGER.info("Saved {} analytic data records (1 per giorno con totali aggregati)", dataByDay.size());
     }
 
     /**
@@ -813,7 +795,8 @@ public class KpiC1DataServiceImpl implements KpiC1DataService {
         // Create a single "empty" analytic record to indicate no data was processed
         com.nexigroup.pagopa.cruscotto.domain.KpiC1AnalyticData analyticData = new com.nexigroup.pagopa.cruscotto.domain.KpiC1AnalyticData(
             instance, instanceModule, analysisDate, analysisDate, // Use analysis date as data date
-            "NO_DATA_FOUND", 0L, 0L // Zero positions and messages
+            0L, 0L, // Zero positions and messages
+            0 // Zero institutions
         );
         
         kpiC1AnalyticDataService.save(analyticData);

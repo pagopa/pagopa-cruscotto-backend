@@ -21,14 +21,13 @@ public interface KpiC1AnalyticDataRepository extends JpaRepository<KpiC1Analytic
      */
     @Query("SELECT k FROM KpiC1AnalyticData k WHERE k.instance.id = :instanceId " +
            "AND k.referenceDate = :referenceDate " +
-           "ORDER BY k.data, k.cfInstitution")
+           "ORDER BY k.data")
     List<KpiC1AnalyticData> findByInstanceIdAndReferenceDate(
             @Param("instanceId") Long instanceId,
             @Param("referenceDate") LocalDate referenceDate);
 
-    /**
-     * Trova i dati analitici per un CF institution e periodo specifici
-     */
+    /* METODI COMMENTATI - usavano il campo cfInstitution che è stato rimosso
+    
     @Query("SELECT k FROM KpiC1AnalyticData k WHERE k.cfInstitution = :cfInstitution " +
            "AND k.data BETWEEN :startDate AND :endDate " +
            "ORDER BY k.data")
@@ -36,17 +35,17 @@ public interface KpiC1AnalyticDataRepository extends JpaRepository<KpiC1Analytic
             @Param("cfInstitution") String cfInstitution,
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate);
+    */
 
     /**
      * Trova i dati analitici per una data specifica
      */
     @Query("SELECT k FROM KpiC1AnalyticData k WHERE k.data = :data " +
-           "ORDER BY k.cfInstitution")
+           "ORDER BY k.data")
     List<KpiC1AnalyticData> findByData(@Param("data") LocalDate data);
 
-    /**
-     * Aggrega i dati per CF institution in un periodo specifico
-     */
+    /* METODI COMMENTATI - usavano il campo cfInstitution che è stato rimosso
+    
     @Query("SELECT k.cfInstitution, " +
            "SUM(k.positionNumber) as totalPositions, " +
            "SUM(k.messageNumber) as totalMessages " +
@@ -54,6 +53,7 @@ public interface KpiC1AnalyticDataRepository extends JpaRepository<KpiC1Analytic
            "GROUP BY k.cfInstitution " +
            "ORDER BY k.cfInstitution")
     List<Object[]> aggregateByReferenceDateAndCfInstitution(@Param("referenceDate") LocalDate referenceDate);
+    */
 
     /**
      * Calcola totali globali per una data di riferimento
@@ -62,9 +62,8 @@ public interface KpiC1AnalyticDataRepository extends JpaRepository<KpiC1Analytic
            "FROM KpiC1AnalyticData k WHERE k.referenceDate = :referenceDate")
     Object[] calculateTotalsByReferenceDate(@Param("referenceDate") LocalDate referenceDate);
 
-    /**
-     * Trova i dati analitici per instance, data di riferimento e CF institution specifici
-     */
+    /* METODI COMMENTATI - usavano il campo cfInstitution che è stato rimosso
+    
     @Query("SELECT k FROM KpiC1AnalyticData k WHERE k.instance.id = :instanceId " +
            "AND k.referenceDate = :referenceDate " +
            "AND k.cfInstitution = :cfInstitution " +
@@ -74,26 +73,17 @@ public interface KpiC1AnalyticDataRepository extends JpaRepository<KpiC1Analytic
             @Param("referenceDate") LocalDate referenceDate,
             @Param("cfInstitution") String cfInstitution);
 
-    /**
-     * Trova i CF institution unici per una data di riferimento
-     */
     @Query("SELECT DISTINCT k.cfInstitution FROM KpiC1AnalyticData k " +
            "WHERE k.referenceDate = :referenceDate " +
            "ORDER BY k.cfInstitution")
     List<String> findDistinctCfInstitutionByReferenceDate(@Param("referenceDate") LocalDate referenceDate);
 
-    /**
-     * Conta i record per CF institution in una data di riferimento
-     */
     @Query("SELECT COUNT(k) FROM KpiC1AnalyticData k WHERE k.referenceDate = :referenceDate " +
            "AND k.cfInstitution = :cfInstitution")
     long countByReferenceDateAndCfInstitution(
             @Param("referenceDate") LocalDate referenceDate,
             @Param("cfInstitution") String cfInstitution);
 
-    /**
-     * Trova le date per cui esistono dati analitici per un CF institution specifico
-     */
     @Query("SELECT DISTINCT k.data FROM KpiC1AnalyticData k " +
            "WHERE k.cfInstitution = :cfInstitution " +
            "AND k.data BETWEEN :startDate AND :endDate " +
@@ -102,6 +92,7 @@ public interface KpiC1AnalyticDataRepository extends JpaRepository<KpiC1Analytic
             @Param("cfInstitution") String cfInstitution,
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate);
+    */
 
     /**
      * Trova i dati analitici correlati a un KpiC1DetailResult specifico.
@@ -109,7 +100,7 @@ public interface KpiC1AnalyticDataRepository extends JpaRepository<KpiC1Analytic
      */
     @Query("SELECT ad FROM KpiC1AnalyticData ad " +
            "WHERE ad.detailResult.id = :detailResultId " +
-           "ORDER BY ad.cfInstitution, ad.data")
+           "ORDER BY ad.data")
     List<KpiC1AnalyticData> findByDetailResultId(@Param("detailResultId") Long detailResultId);
 
     /**

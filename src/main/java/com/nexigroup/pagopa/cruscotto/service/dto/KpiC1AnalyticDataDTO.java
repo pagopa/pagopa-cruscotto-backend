@@ -54,14 +54,20 @@ public class KpiC1AnalyticDataDTO implements Serializable {
     private LocalDate dataDate;
 
     /**
-     * Institution Count
+     * Institution Count (total institutions)
      */
     @NotNull
     private Integer institutionCount;
 
     /**
-     * KO Institution Count
+     * Positions Count (total positions aggregated)
      */
     @NotNull
-    private Integer koInstitutionCount;
+    private Long positionsCount;
+
+    /**
+     * Messages Count (total messages aggregated)
+     */
+    @NotNull
+    private Long messagesCount;
 }
