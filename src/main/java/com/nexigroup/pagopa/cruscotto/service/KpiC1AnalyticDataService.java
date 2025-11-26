@@ -58,9 +58,8 @@ public class KpiC1AnalyticDataService {
         return kpiC1AnalyticDataRepository.findByInstanceIdAndReferenceDate(instanceId, referenceDate);
     }
 
-    /**
-     * Trova i dati analitici per un CF institution e periodo specifici
-     */
+    /* METODI COMMENTATI - usavano il campo cfInstitution che è stato rimosso
+    
     @Transactional(readOnly = true)
     public List<KpiC1AnalyticData> findByCfInstitutionAndDataBetween(
             String cfInstitution, LocalDate startDate, LocalDate endDate) {
@@ -69,6 +68,7 @@ public class KpiC1AnalyticDataService {
         return kpiC1AnalyticDataRepository.findByCfInstitutionAndDataBetween(
                 cfInstitution, startDate, endDate);
     }
+    */
 
     /**
      * Trova i dati analitici per una data specifica
@@ -79,14 +79,14 @@ public class KpiC1AnalyticDataService {
         return kpiC1AnalyticDataRepository.findByData(data);
     }
 
-    /**
-     * Aggrega i dati per CF institution in una data di riferimento
-     */
+    /* METODI COMMENTATI - usavano il campo cfInstitution che è stato rimosso
+    
     @Transactional(readOnly = true)
     public List<Object[]> aggregateByReferenceDateAndCfInstitution(LocalDate referenceDate) {
         log.debug("Aggregating KpiC1AnalyticData by CF institution for referenceDate: {}", referenceDate);
         return kpiC1AnalyticDataRepository.aggregateByReferenceDateAndCfInstitution(referenceDate);
     }
+    */
 
     /**
      * Calcola totali globali per una data di riferimento
@@ -97,9 +97,8 @@ public class KpiC1AnalyticDataService {
         return kpiC1AnalyticDataRepository.calculateTotalsByReferenceDate(referenceDate);
     }
 
-    /**
-     * Trova i dati per instance, data di riferimento e CF institution specifici
-     */
+    /* METODI COMMENTATI - usavano il campo cfInstitution che è stato rimosso
+    
     @Transactional(readOnly = true)
     public List<KpiC1AnalyticData> findByInstanceIdAndReferenceDateAndCfInstitution(
             Long instanceId, LocalDate referenceDate, String cfInstitution) {
@@ -109,18 +108,12 @@ public class KpiC1AnalyticDataService {
                 instanceId, referenceDate, cfInstitution);
     }
 
-    /**
-     * Trova i CF institution unici per una data di riferimento
-     */
     @Transactional(readOnly = true)
     public List<String> findDistinctCfInstitutionByReferenceDate(LocalDate referenceDate) {
         log.debug("Finding distinct CF institutions for referenceDate: {}", referenceDate);
         return kpiC1AnalyticDataRepository.findDistinctCfInstitutionByReferenceDate(referenceDate);
     }
 
-    /**
-     * Conta i record per CF institution in una data di riferimento
-     */
     @Transactional(readOnly = true)
     public long countByReferenceDateAndCfInstitution(LocalDate referenceDate, String cfInstitution) {
         log.debug("Counting records for referenceDate: {} and cfInstitution: {}", 
@@ -128,9 +121,6 @@ public class KpiC1AnalyticDataService {
         return kpiC1AnalyticDataRepository.countByReferenceDateAndCfInstitution(referenceDate, cfInstitution);
     }
 
-    /**
-     * Trova le date per cui esistono dati per un CF institution specifico
-     */
     @Transactional(readOnly = true)
     public List<LocalDate> findDistinctDataByCfInstitutionAndPeriod(
             String cfInstitution, LocalDate startDate, LocalDate endDate) {
@@ -139,6 +129,7 @@ public class KpiC1AnalyticDataService {
         return kpiC1AnalyticDataRepository.findDistinctDataByCfInstitutionAndPeriod(
                 cfInstitution, startDate, endDate);
     }
+    */
 
     /**
      * Elimina tutti i dati analitici
@@ -196,19 +187,33 @@ public class KpiC1AnalyticDataService {
         }
         log.debug("Required message percentage={} for detailResultId={}", requiredMessagePercentage, detailResultId);
 
-        // I dati sono già aggregati per data nella tabella, quindi basta mapparli direttamente
-        return rows.stream()
-            .map(row -> {
+        // Aggrega i dati per giorno
+        Map<LocalDate, List<KpiC1AnalyticData>> dataByDay = rows.stream()
+            .collect(Collectors.groupingBy(KpiC1AnalyticData::getData));
+
+        return dataByDay.entrySet().stream()
+            .map(entry -> {
+                LocalDate day = entry.getKey();
+                List<KpiC1AnalyticData> dayRows = entry.getValue();
+                
+                // Prendi il primo record per i dati comuni
+                KpiC1AnalyticData firstRow = dayRows.get(0);
+                
+                // Usa i valori già aggregati dal database (ora c'è UN SOLO record per giorno)
+                int totalInstitutions = firstRow.getInstitutionCount() != null ? firstRow.getInstitutionCount() : 0;
+                long totalPositions = firstRow.getPositionNumber() != null ? firstRow.getPositionNumber() : 0L;
+                long totalMessages = firstRow.getMessageNumber() != null ? firstRow.getMessageNumber() : 0L;
+                
                 KpiC1AnalyticDataDTO dto = new KpiC1AnalyticDataDTO();
-                dto.setId(row.getId());
-                dto.setInstanceId(row.getInstance().getId());
-                dto.setInstanceModuleId(row.getInstanceModule().getId());
+                dto.setId(firstRow.getId());
+                dto.setInstanceId(firstRow.getInstance().getId());
+                dto.setInstanceModuleId(firstRow.getInstanceModule().getId());
                 dto.setKpiC1DetailResultId(detailResultId);
-                dto.setAnalysisDate(row.getReferenceDate());
-                dto.setDataDate(row.getData());
-                // I conteggi sono memorizzati nei campi positionNumber e messageNumber
-                dto.setInstitutionCount(row.getPositionNumber() != null ? row.getPositionNumber().intValue() : 0);
-                dto.setKoInstitutionCount(row.getMessageNumber() != null ? row.getMessageNumber().intValue() : 0);
+                dto.setAnalysisDate(firstRow.getReferenceDate());
+                dto.setDataDate(day);
+                dto.setInstitutionCount(totalInstitutions);
+                dto.setPositionsCount(totalPositions);
+                dto.setMessagesCount(totalMessages);
                 return dto;
             })
             .sorted(Comparator.comparing(KpiC1AnalyticDataDTO::getDataDate))

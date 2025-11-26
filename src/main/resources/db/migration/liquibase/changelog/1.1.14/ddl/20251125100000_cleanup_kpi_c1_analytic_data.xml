@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+  <changeSet id="20251125100000-1" author="system">
+    <comment>
+      Cleanup KPI_C1_ANALYTIC_DATA table to prepare for new aggregation logic.
+      The table will now store daily aggregated data with positions_count and messages_count
+      instead of institution_count and ko_institution_count.
+      This migration removes all existing data to start fresh with the new logic.
+    </comment>
+    
+    <!-- Delete all existing records in IO_DRILLDOWN that reference KPI_C1_ANALYTIC_DATA -->
+    <delete tableName="IO_DRILLDOWN" schemaName="${database.defaultSchemaName}">
+      <where>CO_KPI_C1_ANALYTIC_DATA_ID IS NOT NULL</where>
+    </delete>
+    
+    <!-- Delete all existing records in KPI_C1_ANALYTIC_DATA -->
+    <delete tableName="KPI_C1_ANALYTIC_DATA" schemaName="${database.defaultSchemaName}"/>
+    
+    <rollback>
+      <comment>No rollback - data cleanup is intentional</comment>
+    </rollback>
+  </changeSet>
+  
+</databaseChangeLog>
