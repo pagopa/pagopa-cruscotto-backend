@@ -1,10 +1,8 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
 import com.nexigroup.pagopa.cruscotto.domain.Instance;
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
-import com.nexigroup.pagopa.cruscotto.repository.KpiB4DetailResultRepository;
 import com.nexigroup.pagopa.cruscotto.service.KpiB4DataService;
 import com.nexigroup.pagopa.cruscotto.service.KpiB4Service;
 import com.nexigroup.pagopa.cruscotto.service.dto.InstanceDTO;
@@ -30,7 +28,6 @@ public class KpiB4DataServiceImpl implements KpiB4DataService {
     
     private final KpiB4Service kpiB4Service;
     private final InstanceRepository instanceRepository;
-    private final KpiB4DetailResultRepository kpiB4DetailResultRepository;
 
     /**
      * Save KPI B.4 results in the three tables (Result, DetailResult, AnalyticData)
@@ -56,32 +53,11 @@ public class KpiB4DataServiceImpl implements KpiB4DataService {
                 .orElseThrow(() -> new RuntimeException("Instance not found: " + instanceDTO.getId()));
 
             // Eseguo il calcolo completo del KPI B.4 che salva automaticamente i risultati
+            // Il metodo executeKpiB4Calculation già calcola correttamente l'outcome basandosi sui detail results
             KpiB4ResultDTO result = kpiB4Service.executeKpiB4Calculation(instance);
             
-            // CORREZIONE BUG: Gestisce l'outcome basato sul tipo di valutazione
-            OutcomeStatus finalOutcome = outcome; // Outcome calcolato dal job
-            
-            // Se il tipo di valutazione è MESE, controlla se ci sono detail results con outcome KO
-            if (result.getId() != null && kpiConfigurationDTO.getEvaluationType() == EvaluationType.MESE) {
-                boolean hasKoDetailResults = kpiB4DetailResultRepository.existsKoOutcomeByResultId(result.getId());
-                
-                if (hasKoDetailResults) {
-                    LOGGER.warn("Found KO outcomes in detail results for monthly evaluation - setting overall outcome to KO for instance {}", 
-                               instanceDTO.getId());
-                    finalOutcome = OutcomeStatus.KO;
-                } else {
-                    LOGGER.info("All detail results are OK for monthly evaluation - keeping outcome {} for instance {}", 
-                               outcome, instanceDTO.getId());
-                }
-            }
-            
-            // CORREZIONE BUG: Sovrascrivi l'outcome con quello corretto calcolato
-            if (result.getId() != null) {
-                kpiB4Service.updateKpiB4ResultOutcome(result.getId(), finalOutcome);
-                LOGGER.info("Updated KPI B.4 result outcome from {} to {} for instance {} (evaluation type: {})", 
-                           result.getOutcome(), finalOutcome, instanceDTO.getId(), 
-                           kpiConfigurationDTO.getEvaluationType());
-            }
+            // Restituisci l'outcome calcolato da executeKpiB4Calculation (non sovrascriverlo)
+            OutcomeStatus finalOutcome = result.getOutcome();
             
             LOGGER.info("KPI B.4 calculation completed successfully for instance: {}. Final outcome: {}", 
                        instanceDTO.getId(), finalOutcome);
