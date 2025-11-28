@@ -134,8 +134,28 @@ public class KpiB4ServiceImpl implements KpiB4Service {
             createAndSaveDetailResults(savedResult, instance);
             createAndSaveAnalyticData(savedResult, instance);
 
-            log.info("KPI B.4 calculated for instance {}: {}% success rate (threshold: {}%), status: {} - Detail and analytic data saved",
-                instance.getId(), successPercentage, threshold, outcomeStatus);
+            // CORREZIONE BUG: Dopo aver creato i detail results, ricalcola l'outcome del result principale
+            // basandosi sui detail results effettivi invece che sui dati placeholder
+            log.info("BEFORE correction - KPI B.4 result {} has outcome: {}, evaluationType: {}", 
+                savedResult.getId(), savedResult.getOutcome(), savedResult.getEvaluationType());
+            
+            OutcomeStatus correctedOutcome = calculateOutcomeFromDetailResults(savedResult);
+            
+            log.info("AFTER calculation - correctedOutcome: {}, original outcome: {}", 
+                correctedOutcome, savedResult.getOutcome());
+            
+            if (correctedOutcome != savedResult.getOutcome()) {
+                log.warn("CORRECTING KPI B.4 outcome for instance {} (result id: {}) from {} to {} based on detail results",
+                    instance.getId(), savedResult.getId(), savedResult.getOutcome(), correctedOutcome);
+                savedResult.setOutcome(correctedOutcome);
+                savedResult = kpiB4ResultRepository.save(savedResult);
+                log.info("SAVED corrected outcome to database for result id: {}", savedResult.getId());
+            } else {
+                log.info("Outcome already correct, no update needed for result id: {}", savedResult.getId());
+            }
+
+            log.info("KPI B.4 calculated for instance {}: final status: {} - Detail and analytic data saved",
+                instance.getId(), correctedOutcome);
 
             return kpiB4ResultMapper.toDto(savedResult);
 
@@ -629,6 +649,73 @@ public class KpiB4ServiceImpl implements KpiB4Service {
                  percentageCp, thresholdValue, toleranceValue, maxAllowed, outcome);
 
         return outcome;
+    }
+
+    /**
+     * Calcola l'outcome corretto del KPI B.4 result basandosi sui detail results effettivi.
+     * Per valutazione TOTALE: usa l'outcome del detail result TOTALE
+     * Per valutazione MESE: se almeno un detail result mensile è KO, l'outcome è KO, altrimenti OK
+     *
+     * @param kpiB4Result il result principale
+     * @return l'outcome corretto basato sui detail results
+     */
+    private OutcomeStatus calculateOutcomeFromDetailResults(KpiB4Result kpiB4Result) {
+        log.debug("Calculating outcome from detail results for KPI B.4 result id: {}, evaluationType: {}", 
+            kpiB4Result.getId(), kpiB4Result.getEvaluationType());
+        
+        List<KpiB4DetailResult> detailResults = kpiB4DetailResultRepository.findByKpiB4Result(kpiB4Result);
+        
+        log.info("Found {} detail results for KPI B.4 result id: {}", detailResults.size(), kpiB4Result.getId());
+        
+        if (detailResults.isEmpty()) {
+            log.warn("No detail results found for KPI B.4 result {}, keeping original outcome", kpiB4Result.getId());
+            return kpiB4Result.getOutcome();
+        }
+
+        // Log dei detail results trovati
+        for (KpiB4DetailResult dr : detailResults) {
+            log.info("Detail result: id={}, evaluationType={}, outcome={}, startDate={}, endDate={}", 
+                dr.getId(), dr.getEvaluationType(), dr.getOutcome(), 
+                dr.getEvaluationStartDate(), dr.getEvaluationEndDate());
+        }
+
+        EvaluationType evaluationType = kpiB4Result.getEvaluationType();
+        
+        if (evaluationType == EvaluationType.TOTALE) {
+            // Per valutazione TOTALE, trova il detail result di tipo TOTALE e usa il suo outcome
+            log.info("Evaluation type is TOTALE, looking for TOTALE detail result");
+            OutcomeStatus totalOutcome = detailResults.stream()
+                .filter(dr -> dr.getEvaluationType() == com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType.TOTALE)
+                .findFirst()
+                .map(dr -> {
+                    log.info("Found TOTALE detail result with outcome: {}", dr.getOutcome());
+                    return dr.getOutcome();
+                })
+                .orElse(kpiB4Result.getOutcome());
+            
+            log.info("Calculated outcome from TOTALE detail result: {}", totalOutcome);
+            return totalOutcome;
+        } else {
+            // Per valutazione MESE, se almeno un detail result mensile è KO, l'outcome è KO
+            log.info("Evaluation type is MESE, checking monthly detail results for KO");
+            
+            long monthlyCount = detailResults.stream()
+                .filter(dr -> dr.getEvaluationType() == com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType.MESE)
+                .count();
+            
+            long koCount = detailResults.stream()
+                .filter(dr -> dr.getEvaluationType() == com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType.MESE)
+                .filter(dr -> dr.getOutcome() == OutcomeStatus.KO)
+                .count();
+            
+            log.info("Monthly detail results: total={}, KO count={}", monthlyCount, koCount);
+            
+            boolean hasKoInMonthlyResults = koCount > 0;
+            OutcomeStatus finalOutcome = hasKoInMonthlyResults ? OutcomeStatus.KO : OutcomeStatus.OK;
+            
+            log.info("Calculated outcome from monthly detail results: {} (hasKO: {})", finalOutcome, hasKoInMonthlyResults);
+            return finalOutcome;
+        }
     }
 
     @Override
