@@ -5,7 +5,6 @@ import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
-import com.nexigroup.pagopa.cruscotto.repository.KpiB4DetailResultRepository;
 import com.nexigroup.pagopa.cruscotto.service.KpiB4Service;
 import com.nexigroup.pagopa.cruscotto.service.dto.InstanceDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.InstanceModuleDTO;
@@ -36,15 +35,12 @@ class KpiB4DataServiceImplTest {
     
     @Mock
     private InstanceRepository instanceRepository;
-    
-    @Mock
-    private KpiB4DetailResultRepository kpiB4DetailResultRepository;
 
     private KpiB4DataServiceImpl kpiB4DataService;
 
     @BeforeEach
     void setUp() {
-        kpiB4DataService = new KpiB4DataServiceImpl(kpiB4Service, instanceRepository, kpiB4DetailResultRepository);
+        kpiB4DataService = new KpiB4DataServiceImpl(kpiB4Service, instanceRepository);
     }
 
     @Test
@@ -61,14 +57,11 @@ class KpiB4DataServiceImplTest {
         instance.setId(1L);
         when(instanceRepository.findById(1L)).thenReturn(Optional.of(instance));
 
-        // Mock KpiB4Service
+        // Mock KpiB4Service - il metodo executeKpiB4Calculation ora calcola l'outcome corretto
         KpiB4ResultDTO kpiB4ResultDTO = new KpiB4ResultDTO();
         kpiB4ResultDTO.setId(1L);
         kpiB4ResultDTO.setOutcome(OutcomeStatus.OK);
         when(kpiB4Service.executeKpiB4Calculation(any(Instance.class))).thenReturn(kpiB4ResultDTO);
-
-        // Mock detail result check for monthly evaluation
-        when(kpiB4DetailResultRepository.existsKoOutcomeByResultId(1L)).thenReturn(false);
 
         // When & Then
         OutcomeStatus result = assertDoesNotThrow(() -> 
