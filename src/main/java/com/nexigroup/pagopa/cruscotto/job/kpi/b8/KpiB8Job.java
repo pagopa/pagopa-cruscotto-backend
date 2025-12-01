@@ -126,17 +126,42 @@ public class KpiB8Job extends QuartzJobBean {
         LOGGER.info("Processing instance module {} for KPI B.8", instanceModuleDTO.getId());
 
         try {
+            // Update instance status from "planned" to "in progress"
+            instanceService.updateInstanceStatusInProgress(instanceDTO.getId());
+
             // REQUISITO: Verifica prerequisiti - controllo presenza dati API log per il periodo
             if (!hasApiLogDataForPeriod(instanceDTO)) {
                 LOGGER.warn("SKIPPING KPI B.8 calculation for instance {} - No API log data for analysis period {} to {}",
                     instanceDTO.getId(),
                     instanceDTO.getAnalysisPeriodStartDate(),
                     instanceDTO.getAnalysisPeriodEndDate());
+                
+                // Anche se non ci sono dati, dobbiamo impostare outcome OK e triggare il state calculation
+                try {
+                    LocalDate analysisDate = calculateAnalysisDate(instanceDTO, instanceModuleDTO);
+                    OutcomeStatus noDataOutcome = kpiB8DataService.saveKpiB8Results(instanceDTO, instanceModuleDTO,
+                                                                                   kpiConfigurationDTO, analysisDate, OutcomeStatus.OK);
+                    instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(), noDataOutcome);
+                    
+                    // Trigger calculateStateInstanceJob anche per il caso no-data
+                    JobDetail job = scheduler.getJobDetail(JobKey.jobKey(JobConstant.CALCULATE_STATE_INSTANCE_JOB, "DEFAULT"));
+                    Trigger trigger = TriggerBuilder.newTrigger()
+                        .usingJobData("instanceId", instanceDTO.getId())
+                        .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                            .withMisfireHandlingInstructionFireNow()
+                            .withRepeatCount(0))
+                        .forJob(job)
+                        .build();
+                    scheduler.scheduleJob(trigger);
+                    
+                    LOGGER.info("No data case: set outcome OK and triggered calculateStateInstanceJob for instance: {}", instanceDTO.getId());
+                    
+                } catch (Exception e) {
+                    LOGGER.error("Error handling no-data case for instance {}: {}", instanceDTO.getId(), e.getMessage(), e);
+                }
+                
                 return; // Non eseguire l'analisi se non ci sono dati
             }
-
-            // Update instance status from "planned" to "in progress"
-            instanceService.updateInstanceStatusInProgress(instanceDTO.getId());
 
             // Calcola la data di analisi basata sulla configurazione
             LocalDate analysisDate = calculateAnalysisDate(instanceDTO, instanceModuleDTO);
@@ -251,11 +276,11 @@ public class KpiB8Job extends QuartzJobBean {
             LOGGER.info("Analysis period: {} to {} for partner: {}", periodStart, periodEnd, partnerFiscalCode);
 
             // REQUISITO: Verifica prerequisiti - se non esistono dati nella tabella pagopa_apilog
-            // per il periodo dell'istanza, l'analisi non deve essere effettuata
+            // per il periodo dell'istanza, restituiamo OK (nessun errore se non ci sono dati)
             if (!hasApiLogDataForPeriod(instanceDTO)) {
-                LOGGER.warn("SKIPPING KPI B.8 analysis for instance {} - No API log data found for period {} to {}",
-                    instanceDTO.getId(), periodStart, periodEnd);
-                throw new RuntimeException("No API log data available for analysis period");
+                LOGGER.warn("No API log data found for period {} to {} - returning OK outcome (no data = compliant)",
+                    periodStart, periodEnd);
+                return OutcomeStatus.OK;
             }
 
             // Verifica il tipo di valutazione configurata
