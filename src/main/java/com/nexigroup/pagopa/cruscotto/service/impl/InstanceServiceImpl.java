@@ -439,8 +439,8 @@ public class InstanceServiceImpl implements InstanceService {
                                 && instance.getChangePartnerQualified())
                         .findFirst();
 
-                if (mostRecentChangedQualifiedInstance.isPresent()) {
-                    Instance instance = mostRecentChangedQualifiedInstance.get();
+                mostRecentChangedQualifiedInstance.ifPresentOrElse(
+                instance -> {
                     AnalysisOutcome outcome = instance.getLastAnalysisOutcome();
 
                     // Partner is qualified if outcome is OK
@@ -455,13 +455,15 @@ public class InstanceServiceImpl implements InstanceService {
                             isQualified,
                             instance.getInstanceIdentification(),
                             outcome);
-                } else {
+                },
+                () -> {
                     // No remaining instance changed qualification, restore to default qualified flag
                     anagPartnerService.changePartnerQualified(partnerId, false);
                     LOGGER.info(
                             "Partner {} qualified flag restored to default because no remaining instance changed qualification for partner {}.",
                             partnerId);
                 }
+            );
 
             } else {
                 // If changePartnerQualified is false or null, retain current qualified status
