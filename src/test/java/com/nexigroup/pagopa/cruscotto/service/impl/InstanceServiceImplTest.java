@@ -5,7 +5,9 @@ import com.nexigroup.pagopa.cruscotto.domain.enumeration.*;
 import com.nexigroup.pagopa.cruscotto.repository.AnagPartnerRepository;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
 import com.nexigroup.pagopa.cruscotto.repository.ModuleRepository;
+import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
 import com.nexigroup.pagopa.cruscotto.security.SecurityUtils;
+import com.nexigroup.pagopa.cruscotto.service.AnagPartnerService;
 import com.nexigroup.pagopa.cruscotto.service.AuthUserService;
 import com.nexigroup.pagopa.cruscotto.service.GenericServiceException;
 import com.nexigroup.pagopa.cruscotto.service.bean.InstanceRequestBean;
@@ -15,7 +17,6 @@ import com.nexigroup.pagopa.cruscotto.service.mapper.InstanceMapper;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import com.nexigroup.pagopa.cruscotto.service.util.UserUtils;
 import com.querydsl.core.types.*;
-import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQuery;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,8 +30,7 @@ import java.time.Instant;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,9 +43,8 @@ class InstanceServiceImplTest {
     @Mock private InstanceMapper instanceMapper;
     @Mock private UserUtils userUtils;
     @Mock private QueryBuilder queryBuilder;
-    @Mock private JPQLQuery<Instance> jpqlQuery;
-    @Mock private JPQLQuery<InstanceDTO> jpqlDtoQuery;
     @Mock private AuthUserService authUserService;
+    @Mock private AnagPartnerService anagPartnerService;
 
     @InjectMocks private InstanceServiceImpl service;
 
@@ -95,9 +94,7 @@ class InstanceServiceImplTest {
 
     @Test
     void update_shouldUpdate_whenInstanceInBozza() {
-        Instance instance = new Instance();
-        instance.setId(1L);
-        instance.setStatus(InstanceStatus.BOZZA);
+        Instance instance = createInstance(InstanceStatus.BOZZA);
 
         InstanceRequestBean req = new InstanceRequestBean();
         req.setId(1L);
@@ -136,15 +133,20 @@ class InstanceServiceImplTest {
 
     @Test
     void delete_shouldRemove_whenInstanceInBozza() {
-        Instance instance = new Instance();
-        instance.setId(1L);
-        instance.setStatus(InstanceStatus.BOZZA);
+        Instance instance = createInstance(InstanceStatus.BOZZA);
 
         when(instanceRepository.findById(1L)).thenReturn(Optional.of(instance));
         when(instanceMapper.toDto(instance)).thenReturn(new InstanceDTO());
 
         try (MockedStatic<SecurityUtils> utilities = mockStatic(SecurityUtils.class)) {
             utilities.when(SecurityUtils::getCurrentUserLogin).thenReturn(Optional.of("user"));
+            utilities.when(SecurityUtils::getAuthenticationTypeUserLogin)
+                .thenReturn(Optional.of(AuthenticationType.FORM_LOGIN));
+
+            AuthUserDTO user = new AuthUserDTO();
+            user.setAuthorities(Set.of("instance.read", "instance.delete"));
+
+            when(authUserService.getUserWithAuthorities(any())).thenReturn(Optional.of(user));
 
             InstanceDTO dto = service.delete(1L);
 
@@ -162,9 +164,7 @@ class InstanceServiceImplTest {
 
     @Test
     void updateStatus_shouldToggleBetweenBozzaAndPianificata() {
-        Instance instance = new Instance();
-        instance.setId(1L);
-        instance.setStatus(InstanceStatus.BOZZA);
+        Instance instance = createInstance(InstanceStatus.BOZZA);
 
         when(instanceRepository.findById(1L)).thenReturn(Optional.of(instance));
         when(instanceRepository.save(any(Instance.class))).thenReturn(instance);
@@ -177,13 +177,14 @@ class InstanceServiceImplTest {
 
             assertNotNull(dto);
             verify(instanceRepository).save(instance);
+            assertEquals(InstanceStatus.PIANIFICATA, instance.getStatus());
         }
     }
 
     @Test
     void findOne_shouldReturnDto_whenExists() {
-        Instance instance = new Instance();
-        instance.setId(1L);
+        Instance instance = createInstance(InstanceStatus.BOZZA);
+
         when(instanceRepository.findById(1L)).thenReturn(Optional.of(instance));
         when(instanceMapper.toDto(instance)).thenReturn(new InstanceDTO());
 
@@ -201,13 +202,13 @@ class InstanceServiceImplTest {
         when(rawQuery.from(any(EntityPath.class))).thenReturn(rawQuery);
         when(rawQuery.leftJoin(any(EntityPath.class), any(Path.class))).thenReturn(rawQuery);
         when(rawQuery.where(any(Predicate.class))).thenReturn(rawQuery);
-        when(rawQuery.fetch()).thenReturn(Collections.singletonList(0L));
-        when(rawQuery.select(any(Expression.class))).thenReturn(rawQuery);
         when(rawQuery.offset(anyLong())).thenReturn(rawQuery);
         when(rawQuery.limit(anyLong())).thenReturn(rawQuery);
         // Fix for strict stubbing
         lenient().when(rawQuery.orderBy(any(OrderSpecifier.class))).thenReturn(rawQuery);
         when(rawQuery.fetch()).thenReturn(Collections.emptyList());
+        when(rawQuery.select(any(Expression.class))).thenReturn(rawQuery);
+        when(rawQuery.fetchCount()).thenReturn(0L);
 
         Page<InstanceDTO> result = service.findAll(
             new com.nexigroup.pagopa.cruscotto.service.filter.InstanceFilter(),
@@ -228,10 +229,13 @@ class InstanceServiceImplTest {
         when(authUserService.getUserWithAuthorities(any())).thenReturn(Optional.of(user));
         when(instanceRepository.findById(1L)).thenReturn(Optional.of(instance));
 
-        // When & Then
-        assertThrows(GenericServiceException.class, () -> {
-            service.delete(instance.getId());
-        });
+        try (MockedStatic<SecurityUtils> utilities = mockStatic(SecurityUtils.class)) {
+            utilities.when(SecurityUtils::getCurrentUserLogin).thenReturn(Optional.of("testUser"));
+            utilities.when(SecurityUtils::getAuthenticationTypeUserLogin)
+                .thenReturn(Optional.of(AuthenticationType.FORM_LOGIN));
+
+            assertThrows(GenericServiceException.class, () -> service.delete(1L));
+        }
     }
 
     @Test
@@ -239,17 +243,26 @@ class InstanceServiceImplTest {
         // Given
         Instance instance = createInstance(InstanceStatus.ESEGUITA);
         AuthUserDTO user = new AuthUserDTO();
-        user.setAuthorities(Set.of("instance.read", "instance.delete", "instance.forceDelete"));
+        user.setAuthorities(Set.of(
+            "instance.read",
+            "instance.delete",
+            AuthoritiesConstants.INSTANCE_FORCED_DELETION // corretto
+        ));
 
         when(authUserService.getUserWithAuthorities(any())).thenReturn(Optional.of(user));
         when(instanceRepository.findById(1L)).thenReturn(Optional.of(instance));
+        when(instanceMapper.toDto(instance)).thenReturn(new InstanceDTO());
 
-        // When
-        InstanceDTO result = service.delete(instance.getId());
+        try (MockedStatic<SecurityUtils> utilities = mockStatic(SecurityUtils.class)) {
+            utilities.when(SecurityUtils::getCurrentUserLogin).thenReturn(Optional.of("user"));
+            utilities.when(SecurityUtils::getAuthenticationTypeUserLogin)
+                .thenReturn(Optional.of(AuthenticationType.FORM_LOGIN));
 
-        // Then
-        assertNotNull(result);
-        verify(instanceRepository).deleteById(instance.getId());
+            InstanceDTO result = service.delete(1L);
+
+            assertNotNull(result);
+            verify(instanceRepository).save(instance); // perché il servizio fa soft delete
+        }
     }
 
     /**
@@ -262,13 +275,12 @@ class InstanceServiceImplTest {
         instance.setInstanceIdentification("TEST-INST-001");
         instance.setCreatedDate(Instant.now());
         instance.setCreatedBy("system");
-        
+
         AnagPartner partner = new AnagPartner();
         partner.setId(1L);
         partner.setFiscalCode("TESTFC123");
         instance.setPartner(partner);
-        
+
         return instance;
     }
-
 }

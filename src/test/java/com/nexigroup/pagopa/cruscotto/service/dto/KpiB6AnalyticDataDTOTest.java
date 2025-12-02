@@ -31,7 +31,7 @@ class KpiB6AnalyticDataDTOTest {
         assertEquals("evt123", dto.getEventId());
         assertEquals("TYPE_A", dto.getEventType());
         assertEquals(LocalDate.of(2025, 10, 29), dto.getAnalysisDate());
-        assertEquals(101, dto.getStationCode());
+        assertEquals("101", dto.getStationCode());
         assertEquals("CARD", dto.getPaymentOption());
     }
 
@@ -62,7 +62,7 @@ class KpiB6AnalyticDataDTOTest {
         assertEquals(3L, b6Dto.getInstanceModuleId());
         assertEquals(5L, b6Dto.getKpiB6DetailResultId());
         assertEquals(LocalDate.of(2025, 10, 29), b6Dto.getAnalysisDate());
-        assertEquals(200, b6Dto.getStationCode());
+        assertEquals("200", b6Dto.getStationCode());
         assertEquals(10L, b6Dto.getAnagStationId());
         assertEquals("evt999", b6Dto.getEventId());
         assertEquals("TYPE_B", b6Dto.getEventType());
