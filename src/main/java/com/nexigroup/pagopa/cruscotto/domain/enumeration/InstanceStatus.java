@@ -10,4 +10,5 @@ public enum InstanceStatus {
     IN_ESECUZIONE,
     ESEGUITA,
     ERRORE,
+    CANCELLATA
 }
