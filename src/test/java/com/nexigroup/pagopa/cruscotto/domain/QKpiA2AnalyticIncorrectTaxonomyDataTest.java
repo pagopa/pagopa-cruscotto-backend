@@ -19,7 +19,8 @@ class QKpiA2AnalyticIncorrectTaxonomyDataTest {
             new QKpiA2AnalyticIncorrectTaxonomyData("testVar");
         assertNotNull(qData);
         assertNotNull(qData.id);
-        assertNotNull(qData.total);
+        assertNotNull(qData.totIncorrectPayments);
+        assertNotNull(qData.totPayments);
         assertNotNull(qData.transferCategory);
         assertNotNull(qData.fromHour);
         assertNotNull(qData.endHour);
