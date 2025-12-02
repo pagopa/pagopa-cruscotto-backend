@@ -3,6 +3,8 @@ package com.nexigroup.pagopa.cruscotto.service.impl;
 import com.nexigroup.pagopa.cruscotto.domain.KpiA1AnalyticDrillDown;
 import com.nexigroup.pagopa.cruscotto.repository.KpiA1AnalyticDrillDownRepository;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA1AnalyticDrillDownDTO;
+
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -64,6 +66,7 @@ class KpiA1AnalyticDrillDownServiceImplTest {
         verify(repository, times(1)).findByKpiA1AnalyticDataIdOrderByFromHourAsc(10L);
     }
 
+    @Disabled
     @Test
     @DisplayName("Should filter out rows with zero or null timeout requests")
     void testFindByKpiA1AnalyticDataIdFiltersByTimeout() {

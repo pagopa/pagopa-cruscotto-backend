@@ -24,7 +24,6 @@ public class KpiA1AnalyticDrillDownServiceImpl implements KpiA1AnalyticDrillDown
     public List<KpiA1AnalyticDrillDownDTO> findByKpiA1AnalyticDataId(Long analyticDataId) {
         return repository.findByKpiA1AnalyticDataIdOrderByFromHourAsc(analyticDataId)
             .stream()
-            .filter(entity -> entity.getReqTimeout() != null && entity.getReqTimeout() > 0)
             .map(this::toDto)
             .collect(Collectors.toList());
     }
