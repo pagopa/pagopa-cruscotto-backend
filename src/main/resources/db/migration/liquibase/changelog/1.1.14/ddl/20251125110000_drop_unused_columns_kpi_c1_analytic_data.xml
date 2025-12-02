@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+  <changeSet id="20251125110000-1" author="system">
+    <comment>
+      Drop unused columns from KPI_C1_ANALYTIC_DATA table.
+      With the new daily aggregation logic, these columns are no longer needed:
+      - TE_CF_INSTITUTION: Data is now aggregated in the service layer, not stored per institution
+      - CO_PERCENTAGE: Percentage calculation is done in IO_DRILLDOWN table
+      - FL_MEETS_TOLERANCE: Tolerance flag is stored in IO_DRILLDOWN table
+      - TE_CF_PARTNER: Partner information is available through IO_DRILLDOWN
+    </comment>
+    
+    <!-- Drop column TE_CF_INSTITUTION -->
+    <dropColumn tableName="KPI_C1_ANALYTIC_DATA" schemaName="${database.defaultSchemaName}">
+      <column name="TE_CF_INSTITUTION"/>
+    </dropColumn>
+    
+    <!-- Drop column CO_PERCENTAGE -->
+    <dropColumn tableName="KPI_C1_ANALYTIC_DATA" schemaName="${database.defaultSchemaName}">
+      <column name="CO_PERCENTAGE"/>
+    </dropColumn>
+    
+    <!-- Drop column FL_MEETS_TOLERANCE -->
+    <dropColumn tableName="KPI_C1_ANALYTIC_DATA" schemaName="${database.defaultSchemaName}">
+      <column name="FL_MEETS_TOLERANCE"/>
+    </dropColumn>
+    
+    <!-- Drop column TE_CF_PARTNER -->
+    <dropColumn tableName="KPI_C1_ANALYTIC_DATA" schemaName="${database.defaultSchemaName}">
+      <column name="TE_CF_PARTNER"/>
+    </dropColumn>
+    
+    <rollback>
+      <!-- Rollback: recreate the columns -->
+      <addColumn tableName="KPI_C1_ANALYTIC_DATA" schemaName="${database.defaultSchemaName}">
+        <column name="TE_CF_INSTITUTION" type="VARCHAR(35)"/>
+      </addColumn>
+      <addColumn tableName="KPI_C1_ANALYTIC_DATA" schemaName="${database.defaultSchemaName}">
+        <column name="CO_PERCENTAGE" type="DECIMAL(10,2)"/>
+      </addColumn>
+      <addColumn tableName="KPI_C1_ANALYTIC_DATA" schemaName="${database.defaultSchemaName}">
+        <column name="FL_MEETS_TOLERANCE" type="BOOLEAN"/>
+      </addColumn>
+      <addColumn tableName="KPI_C1_ANALYTIC_DATA" schemaName="${database.defaultSchemaName}">
+        <column name="TE_CF_PARTNER" type="VARCHAR(35)"/>
+      </addColumn>
+    </rollback>
+  </changeSet>
+  
+</databaseChangeLog>

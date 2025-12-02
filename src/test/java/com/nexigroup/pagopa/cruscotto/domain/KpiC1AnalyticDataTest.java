@@ -16,8 +16,6 @@ class KpiC1AnalyticDataTest {
         assertThat(data.getPositionNumber()).isEqualTo(0L);
         assertThat(data.getMessageNumber()).isEqualTo(0L);
         assertThat(data.getId()).isNull();
-        assertThat(data.getPercentage()).isNull();
-        assertThat(data.getMeetsTolerance()).isNull();
     }
 
     @Test
@@ -28,16 +26,16 @@ class KpiC1AnalyticDataTest {
         LocalDate dataDate = LocalDate.of(2024, 1, 11);
 
         KpiC1AnalyticData data = new KpiC1AnalyticData(
-            instance, module, refDate, dataDate, "CF123", 5L, 7L
+            instance, module, refDate, dataDate, 5L, 7L, 3
         );
 
         assertThat(data.getInstance()).isEqualTo(instance);
         assertThat(data.getInstanceModule()).isEqualTo(module);
         assertThat(data.getReferenceDate()).isEqualTo(refDate);
         assertThat(data.getData()).isEqualTo(dataDate);
-        assertThat(data.getCfInstitution()).isEqualTo("CF123");
         assertThat(data.getPositionNumber()).isEqualTo(5L);
         assertThat(data.getMessageNumber()).isEqualTo(7L);
+        assertThat(data.getInstitutionCount()).isEqualTo(3);
     }
 
     @Test
@@ -47,11 +45,12 @@ class KpiC1AnalyticDataTest {
         LocalDate refDate = LocalDate.now();
 
         KpiC1AnalyticData data = new KpiC1AnalyticData(
-            instance, module, refDate, refDate, "CF000", null, null
+            instance, module, refDate, refDate, null, null, 0
         );
 
         assertThat(data.getPositionNumber()).isEqualTo(0L);
         assertThat(data.getMessageNumber()).isEqualTo(0L);
+        assertThat(data.getInstitutionCount()).isEqualTo(0);
     }
 
     @Test
@@ -76,16 +75,16 @@ class KpiC1AnalyticDataTest {
         data.setId(10L);
         data.setReferenceDate(LocalDate.of(2024, 2, 1));
         data.setData(LocalDate.of(2024, 2, 2));
-        data.setCfInstitution("INST111");
         data.setPositionNumber(3L);
         data.setMessageNumber(6L);
+        data.setInstitutionCount(2);
 
         String ts = data.toString();
 
         assertThat(ts).contains("id=10");
-        assertThat(ts).contains("INST111");
         assertThat(ts).contains("positionNumber=3");
         assertThat(ts).contains("messageNumber=6");
+        assertThat(ts).contains("institutionCount=2");
     }
 
     @Test
