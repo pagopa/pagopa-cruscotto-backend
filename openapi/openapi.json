@@ -12602,7 +12602,11 @@
           "transferCategory": {
             "type": "string"
           },
-          "total": {
+          "totPayments": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totIncorrectPayments": {
             "type": "integer",
             "format": "int64"
           }

@@ -138,6 +138,29 @@ public class KpiC2Job extends QuartzJobBean {
                     instanceDTO.getId(),
                     instanceDTO.getAnalysisPeriodStartDate(),
                     instanceDTO.getAnalysisPeriodEndDate());
+                try {
+                    LocalDate analysisDate = calculateAnalysisDate(instanceDTO, instanceModuleDTO);
+                    OutcomeStatus noDataOutcome = kpiC2DataService.saveKpiC2Results(instanceDTO, instanceModuleDTO,
+                        kpiConfigurationDTO, analysisDate, OutcomeStatus.OK);
+                    instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(), noDataOutcome);
+
+                    // Trigger calculateStateInstanceJob anche per il caso no-data
+                    JobDetail job = scheduler.getJobDetail(JobKey.jobKey(JobConstant.CALCULATE_STATE_INSTANCE_JOB, "DEFAULT"));
+                    Trigger trigger = TriggerBuilder.newTrigger()
+                        .usingJobData("instanceId", instanceDTO.getId())
+                        .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                            .withMisfireHandlingInstructionFireNow()
+                            .withRepeatCount(0))
+                        .forJob(job)
+                        .build();
+                    scheduler.scheduleJob(trigger);
+
+                    LOGGER.info("No data case: set outcome OK and triggered calculateStateInstanceJob for instance: {}", instanceDTO.getId());
+
+                } catch (Exception e) {
+                    LOGGER.error("Error handling no-data case for instance {}: {}", instanceDTO.getId(), e.getMessage(), e);
+                }
+
                 return; // Non eseguire l'analisi se non ci sono dati
             }
 
