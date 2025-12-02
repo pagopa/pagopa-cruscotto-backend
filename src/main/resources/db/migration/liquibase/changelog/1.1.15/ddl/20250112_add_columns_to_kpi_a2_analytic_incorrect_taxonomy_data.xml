@@ -15,12 +15,12 @@
     <!-- rename existing 'total' column into the desired name -->
     <renameColumn tableName="kpi_a2_analytic_incorrect_taxonomy_data"
                   oldColumnName="total"
-                  newColumnName="CO_TOT_INCORRECT_PAYMENTS"
+                  newColumnName="co_tot_incorrect_payments"
                   columnDataType="bigint"/>
 
     <!-- add the new CO_TOT_PAYMENTS column -->
     <addColumn tableName="kpi_a2_analytic_incorrect_taxonomy_data">
-      <column name="CO_TOT_PAYMENTS" type="bigint" defaultValueNumeric="0">
+      <column name="co_tot_payments" type="bigint" defaultValueNumeric="0">
         <constraints nullable="false"/>
       </column>
     </addColumn>
@@ -28,11 +28,11 @@
     <rollback>
       <!-- revert rename -->
       <renameColumn tableName="kpi_a2_analytic_incorrect_taxonomy_data"
-                    oldColumnName="CO_TOT_INCORRECT_PAYMENTS"
+                    oldColumnName="co_tot_incorrect_payments"
                     newColumnName="total"
                     columnDataType="bigint"/>
       <!-- remove added column -->
-      <dropColumn tableName="kpi_a2_analytic_incorrect_taxonomy_data" columnName="CO_TOT_PAYMENTS"/>
+      <dropColumn tableName="kpi_a2_analytic_incorrect_taxonomy_data" columnName="co_tot_payments"/>
     </rollback>
   </changeSet>
 </databaseChangeLog>
