@@ -138,7 +138,7 @@ public class KpiA2Job extends QuartzJobBean {
                             AtomicReference<Long> totIncorrectPaymentsPeriod = new AtomicReference<>(0L);
                             List<KpiA2AnalyticDataDTO> kpiA2AnalyticDataDTOS = new ArrayList<>();
                             Map<String, Boolean> transferCategoryMap = new HashMap<>();
-                            Map<LocalDate, List<PagoPaTaxonomyAggregatePositionDTO>> taxonomyAggregatePositionMap = new HashMap<>();
+                            Map<LocalDate, List<KpiA2AnalyticIncorrectTaxonomyDataDTO>> taxonomyAggregatePositionMap = new HashMap<>();
 
                             instanceDTO
                                 .getAnalysisPeriodStartDate()
@@ -159,19 +159,26 @@ public class KpiA2Job extends QuartzJobBean {
                                     for (PagoPaTaxonomyAggregatePositionDTO pagoPaTaxonomyAggregatePositionDTO : pagoPaTaxonomyAggregatePositionDTOS) {
                                         sumPaymentsDaily = sumPaymentsDaily + pagoPaTaxonomyAggregatePositionDTO.getTotal();
 
-                                        if (
-                                            !TaxonomyValidationUtils.isCorrectPayment(
-                                                pagoPaTaxonomyAggregatePositionDTO.getTransferCategory(),
-                                                taxonomyTakingsIdentifierSet,
-                                                transferCategoryMap
-                                            )
-                                        ) {
-                                            sumIncorrectPaymentsDaily =
-                                                sumIncorrectPaymentsDaily + pagoPaTaxonomyAggregatePositionDTO.getTotal();
-                                                // Save in map with key: partnerFiscalCode + '_' + date
-                                                taxonomyAggregatePositionMap.computeIfAbsent(date, k -> new ArrayList<>()).add(pagoPaTaxonomyAggregatePositionDTO);
+                                        boolean isCorrect = TaxonomyValidationUtils.isCorrectPayment(
+                                            pagoPaTaxonomyAggregatePositionDTO.getTransferCategory(),
+                                            taxonomyTakingsIdentifierSet,
+                                            transferCategoryMap
+                                        );
 
+                                        KpiA2AnalyticIncorrectTaxonomyDataDTO dto = new KpiA2AnalyticIncorrectTaxonomyDataDTO();
+
+                                        if (!isCorrect) {
+                                            sumIncorrectPaymentsDaily += pagoPaTaxonomyAggregatePositionDTO.getTotal();
+                                            dto.setCoTotalIncorrectPayments(pagoPaTaxonomyAggregatePositionDTO.getTotal());
+                                        } else {
+                                            // keep a record for correct payments with total = 0 (no mutation of original)
+                                            dto.setCoTotalIncorrectPayments(0L);
                                         }
+                                        dto.setTransferCategory(pagoPaTaxonomyAggregatePositionDTO.getTransferCategory());
+                                        dto.setCoTotalPayments(pagoPaTaxonomyAggregatePositionDTO.getTotal());
+                                        dto.setFromHour(pagoPaTaxonomyAggregatePositionDTO.getStartDate());
+                                        dto.setEndHour(pagoPaTaxonomyAggregatePositionDTO.getEndDate());
+                                        taxonomyAggregatePositionMap.computeIfAbsent(date, k -> new ArrayList<>()).add(dto);
                                     }
 
                                     totPaymentsPeriod.set(totPaymentsPeriod.get() + sumPaymentsDaily);
@@ -228,13 +235,8 @@ public class KpiA2Job extends QuartzJobBean {
                                     .filter(entry -> entry.getKey().equals(kpiA2AnalyticData.getEvaluationDate()))
                                     .flatMap(entry -> entry.getValue().stream())
                                     .map(record -> {
-                                        KpiA2AnalyticIncorrectTaxonomyDataDTO dto = new KpiA2AnalyticIncorrectTaxonomyDataDTO();
-                                        dto.setKpiA2AnalyticDataId(kpiA2AnalyticData.getId());
-                                        dto.setTransferCategory(record.getTransferCategory());
-                                        dto.setTotal(record.getTotal());
-                                        dto.setFromHour(record.getStartDate());
-                                        dto.setEndHour(record.getEndDate());
-                                        return dto;
+                                        record.setKpiA2AnalyticDataId(kpiA2AnalyticData.getId());
+                                        return record;
                                     })
                                     .collect(java.util.stream.Collectors.toList());
 
