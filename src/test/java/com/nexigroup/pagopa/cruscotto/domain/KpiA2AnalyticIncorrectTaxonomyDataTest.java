@@ -22,14 +22,16 @@ class KpiA2AnalyticIncorrectTaxonomyDataTest {
         data.setId(id);
         data.setKpiA2AnalyticDataId(analyticDataId);
         data.setTransferCategory(transferCategory);
-        data.setTotal(total);
+        data.setCoTotalIncorrectPayments(0L);
+        data.setTotPayments(total);
         data.setFromHour(fromHour);
         data.setEndHour(endHour);
 
         assertThat(data.getId()).isEqualTo(id);
         assertThat(data.getKpiA2AnalyticDataId()).isEqualTo(analyticDataId);
         assertThat(data.getTransferCategory()).isEqualTo(transferCategory);
-        assertThat(data.getTotal()).isEqualTo(total);
+        assertThat(data.getCoTotalIncorrectPayments()).isEqualTo(0L);
+        assertThat(data.getTotPayments()).isEqualTo(total);
         assertThat(data.getFromHour()).isEqualTo(fromHour);
         assertThat(data.getEndHour()).isEqualTo(endHour);
     }
@@ -40,13 +42,15 @@ class KpiA2AnalyticIncorrectTaxonomyDataTest {
         d1.setId(1L);
         d1.setKpiA2AnalyticDataId(100L);
         d1.setTransferCategory("CAT01");
-        d1.setTotal(500L);
+        d1.setCoTotalIncorrectPayments(0L);
+        d1.setTotPayments(500L);
 
         KpiA2AnalyticIncorrectTaxonomyData d2 = new KpiA2AnalyticIncorrectTaxonomyData();
         d2.setId(1L);
         d2.setKpiA2AnalyticDataId(100L);
         d2.setTransferCategory("CAT01");
-        d2.setTotal(500L);
+        d2.setCoTotalIncorrectPayments(0L);
+        d2.setTotPayments(500L);
 
         assertThat(d1).isEqualTo(d2);
         assertThat(d1.hashCode()).isEqualTo(d2.hashCode());
@@ -57,7 +61,7 @@ class KpiA2AnalyticIncorrectTaxonomyDataTest {
         KpiA2AnalyticIncorrectTaxonomyData data = new KpiA2AnalyticIncorrectTaxonomyData();
         data.setId(1L);
         data.setTransferCategory("CAT01");
-        data.setTotal(200L);
+        data.setTotPayments(200L);
 
         String toString = data.toString();
         assertThat(toString).contains("CAT01");
