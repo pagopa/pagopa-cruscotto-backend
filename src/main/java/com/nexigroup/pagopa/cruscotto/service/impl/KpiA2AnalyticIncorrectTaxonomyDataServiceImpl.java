@@ -22,8 +22,8 @@ public class KpiA2AnalyticIncorrectTaxonomyDataServiceImpl implements KpiA2Analy
                 KpiA2AnalyticIncorrectTaxonomyData entity = new KpiA2AnalyticIncorrectTaxonomyData();
                 entity.setKpiA2AnalyticDataId(dto.getKpiA2AnalyticDataId());
                 entity.setTransferCategory(dto.getTransferCategory());
-                entity.setTotPayments(dto.getCoTotalPayments());
-                entity.setCoTotalIncorrectPayments(dto.getCoTotalIncorrectPayments());
+                entity.setTotPayments(dto.getTotPayments());
+                entity.setCoTotalIncorrectPayments(dto.getTotIncorrectPayments());
                 entity.setFromHour(dto.getFromHour());
                 entity.setEndHour(dto.getEndHour());
                 return entity;
@@ -40,8 +40,8 @@ public class KpiA2AnalyticIncorrectTaxonomyDataServiceImpl implements KpiA2Analy
                 dto.setId(entity.getId());
                 dto.setKpiA2AnalyticDataId(entity.getKpiA2AnalyticDataId());
                 dto.setTransferCategory(entity.getTransferCategory());
-                dto.setCoTotalPayments(entity.getTotPayments());
-                dto.setCoTotalIncorrectPayments(entity.getCoTotalIncorrectPayments());
+                dto.setTotPayments(entity.getTotPayments());
+                dto.setTotIncorrectPayments(entity.getCoTotalIncorrectPayments());
                 dto.setFromHour(entity.getFromHour());
                 dto.setEndHour(entity.getEndHour());
                 return dto;

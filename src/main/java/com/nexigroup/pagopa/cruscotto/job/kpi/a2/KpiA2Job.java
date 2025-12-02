@@ -169,13 +169,13 @@ public class KpiA2Job extends QuartzJobBean {
 
                                         if (!isCorrect) {
                                             sumIncorrectPaymentsDaily += pagoPaTaxonomyAggregatePositionDTO.getTotal();
-                                            dto.setCoTotalIncorrectPayments(pagoPaTaxonomyAggregatePositionDTO.getTotal());
+                                            dto.setTotIncorrectPayments(pagoPaTaxonomyAggregatePositionDTO.getTotal());
                                         } else {
                                             // keep a record for correct payments with total = 0 (no mutation of original)
-                                            dto.setCoTotalIncorrectPayments(0L);
+                                            dto.setTotIncorrectPayments(0L);
                                         }
                                         dto.setTransferCategory(pagoPaTaxonomyAggregatePositionDTO.getTransferCategory());
-                                        dto.setCoTotalPayments(pagoPaTaxonomyAggregatePositionDTO.getTotal());
+                                        dto.setTotPayments(pagoPaTaxonomyAggregatePositionDTO.getTotal());
                                         dto.setFromHour(pagoPaTaxonomyAggregatePositionDTO.getStartDate());
                                         dto.setEndHour(pagoPaTaxonomyAggregatePositionDTO.getEndDate());
                                         taxonomyAggregatePositionMap.computeIfAbsent(date, k -> new ArrayList<>()).add(dto);

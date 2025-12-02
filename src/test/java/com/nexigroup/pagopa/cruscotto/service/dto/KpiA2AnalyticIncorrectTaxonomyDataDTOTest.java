@@ -15,8 +15,8 @@ class KpiA2AnalyticIncorrectTaxonomyDataDTOTest {
         dto.setId(1L);
         dto.setKpiA2AnalyticDataId(2L);
         dto.setTransferCategory("Category1");
-        dto.setCoTotalIncorrectPayments(50L);
-        dto.setCoTotalPayments(100L);
+        dto.setTotIncorrectPayments(50L);
+        dto.setTotPayments(100L);
         Instant from = Instant.now();
         Instant end = from.plusSeconds(3600);
         dto.setFromHour(from);
@@ -25,8 +25,8 @@ class KpiA2AnalyticIncorrectTaxonomyDataDTOTest {
         assertEquals(1L, dto.getId());
         assertEquals(2L, dto.getKpiA2AnalyticDataId());
         assertEquals("Category1", dto.getTransferCategory());
-        assertEquals(50L, dto.getCoTotalIncorrectPayments());
-        assertEquals(100L, dto.getCoTotalPayments());
+        assertEquals(50L, dto.getTotIncorrectPayments());
+        assertEquals(100L, dto.getTotPayments());
         assertEquals(from, dto.getFromHour());
         assertEquals(end, dto.getEndHour());
     }
@@ -39,8 +39,8 @@ class KpiA2AnalyticIncorrectTaxonomyDataDTOTest {
         dto1.setId(1L);
         dto1.setKpiA2AnalyticDataId(2L);
         dto1.setTransferCategory("Category1");
-        dto1.setCoTotalIncorrectPayments(50L);
-        dto1.setCoTotalPayments(100L);
+        dto1.setTotIncorrectPayments(50L);
+        dto1.setTotPayments(100L);
         dto1.setFromHour(now);
         dto1.setEndHour(now.plusSeconds(3600));
 
@@ -48,8 +48,8 @@ class KpiA2AnalyticIncorrectTaxonomyDataDTOTest {
         dto2.setId(1L);
         dto2.setKpiA2AnalyticDataId(2L);
         dto2.setTransferCategory("Category1");
-        dto2.setCoTotalIncorrectPayments(50L);
-        dto2.setCoTotalPayments(100L);
+        dto2.setTotIncorrectPayments(50L);
+        dto2.setTotPayments(100L);
         dto2.setFromHour(now);
         dto2.setEndHour(now.plusSeconds(3600));
 

@@ -33,16 +33,16 @@ class KpiA2AnalyticIncorrectTaxonomyDataServiceImplTest {
         KpiA2AnalyticIncorrectTaxonomyDataDTO dto1 = new KpiA2AnalyticIncorrectTaxonomyDataDTO();
         dto1.setKpiA2AnalyticDataId(1L);
         dto1.setTransferCategory("Category1");
-        dto1.setCoTotalIncorrectPayments(10L);
-        dto1.setCoTotalPayments(100L);
+        dto1.setTotIncorrectPayments(10L);
+        dto1.setTotPayments(100L);
         dto1.setFromHour(Instant.ofEpochSecond(8));
         dto1.setEndHour(Instant.ofEpochSecond(10));
 
         KpiA2AnalyticIncorrectTaxonomyDataDTO dto2 = new KpiA2AnalyticIncorrectTaxonomyDataDTO();
         dto2.setKpiA2AnalyticDataId(1L);
         dto2.setTransferCategory("Category2");
-        dto2.setCoTotalIncorrectPayments(5L);
-        dto2.setCoTotalPayments(50L);
+        dto2.setTotIncorrectPayments(5L);
+        dto2.setTotPayments(50L);
         dto2.setFromHour(Instant.ofEpochSecond(10));
         dto2.setEndHour(Instant.ofEpochSecond(12));
 

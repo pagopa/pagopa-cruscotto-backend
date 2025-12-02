@@ -14,9 +14,9 @@ public class KpiA2AnalyticIncorrectTaxonomyDataDTO implements Serializable {
 
     private String transferCategory;
 
-    private Long coTotalPayments;
+    private Long totPayments;
 
-    private Long coTotalIncorrectPayments;
+    private Long totIncorrectPayments;
 
     private java.time.Instant fromHour;
 
