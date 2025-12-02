@@ -116,8 +116,8 @@ public class KpiB2Job extends QuartzJobBean {
                     long sumTotReqDaily = dailyRecords.stream().mapToLong(PagoPaRecordedTimeoutDTO::getTotReq).sum();
                     long sumReqOkDaily = dailyRecords.stream().mapToLong(PagoPaRecordedTimeoutDTO::getReqOk).sum();
                     long sumReqTimeoutDaily = dailyRecords.stream().mapToLong(PagoPaRecordedTimeoutDTO::getReqTimeout).sum();
-                    double sumWeightsDaily = dailyRecords.stream().mapToDouble(r -> r.getTotReq() * (Double.isNaN(r.getAvgTime()) ? 0.0 : r.getAvgTime())).sum();
-                    double weightedAverageDaily = sumTotReqDaily > 0 ? sumWeightsDaily / sumTotReqDaily : 0.0;
+                    double sumWeightsDaily = dailyRecords.stream().mapToDouble(r -> r.getReqOk() * (Double.isNaN(r.getAvgTime()) ? 0.0 : r.getAvgTime())).sum();
+                    double weightedAverageDaily = sumReqOkDaily > 0 ? sumWeightsDaily / sumReqOkDaily : 0.0;
                     KpiB2AnalyticDataDTO analyticData = new KpiB2AnalyticDataDTO();
                     analyticData.setInstanceId(instanceDTO.getId());
                     analyticData.setInstanceModuleId(instanceModuleDTO.getId());
@@ -154,7 +154,7 @@ public class KpiB2Job extends QuartzJobBean {
         AtomicReference<Long> totRecordMonth = new AtomicReference<>();
 
         long totRecordInstance = filteredPeriodRecords.stream()
-                .mapToLong(PagoPaRecordedTimeoutDTO::getTotReq)
+                .mapToLong(PagoPaRecordedTimeoutDTO::getReqOk)
                 .sum();
 
         long sumTotReqTotal = 0;
@@ -182,15 +182,15 @@ public class KpiB2Job extends QuartzJobBean {
                     .collect(java.util.stream.Collectors.toList());
 
             totRecordMonth.set(monthPeriodRecords.stream()
-                    .mapToLong(PagoPaRecordedTimeoutDTO::getTotReq)
+                    .mapToLong(PagoPaRecordedTimeoutDTO::getReqOk)
                     .sum());
             for (PagoPaRecordedTimeoutDTO record : monthPeriodRecords) {
                 double avgTime = Double.isNaN(record.getAvgTime()) ? 0.0 : record.getAvgTime();
-                sumTotReqMontly += record.getTotReq();
-                sumWeightsMontly += (record.getTotReq() * avgTime);
+                sumTotReqMontly += record.getReqOk();
+                sumWeightsMontly += (record.getReqOk() * avgTime);
 
-                double monthWeight = (double) (record.getTotReq() * 100) / totRecordMonth.get();
-                double totalWeight = (double) (record.getTotReq() * 100) / totRecordInstance;
+                double monthWeight = (double) (record.getReqOk() * 100) / totRecordMonth.get();
+                double totalWeight = (double) (record.getReqOk() * 100) / totRecordInstance;
                 if (avgTime > averageTimeLimit) {
 
                     sumMonthOverTimeLimit += monthWeight;
