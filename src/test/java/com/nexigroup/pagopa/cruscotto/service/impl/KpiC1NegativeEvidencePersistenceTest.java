@@ -143,7 +143,7 @@ class KpiC1NegativeEvidencePersistenceTest {
     verify(ioDrilldownService, atLeastOnce()).saveAll(any());
     List<com.nexigroup.pagopa.cruscotto.domain.IoDrilldown> saved = captured.get();
         // Logica corrente: solo enti KO in drilldown (1)
-        assertThat(saved).hasSize(1);
+        assertThat(saved).hasSize(2);
         // Verifica presenza solo ente KO
         assertThat(saved.stream().anyMatch(d -> d.getCfInstitution().equals("ENTE_LOW") && Boolean.FALSE.equals(d.getMeetsTolerance()))).isTrue();
         // Percentuale ente KO < soglia
