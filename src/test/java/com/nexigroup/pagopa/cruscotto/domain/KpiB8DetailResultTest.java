@@ -24,7 +24,6 @@ class KpiB8DetailResultTest {
         detailResult.setId(1L);
         detailResult.setInstanceId(10L);
         detailResult.setInstanceModuleId(20L);
-        detailResult.setAnagStationId(30L);
         detailResult.setAnalysisDate(LocalDate.of(2025, 10, 30));
         detailResult.setEvaluationType(EvaluationType.MESE);
         detailResult.setEvaluationStartDate(LocalDate.of(2025, 10, 1));
@@ -37,7 +36,6 @@ class KpiB8DetailResultTest {
         assertThat(detailResult.getId()).isEqualTo(1L);
         assertThat(detailResult.getInstanceId()).isEqualTo(10L);
         assertThat(detailResult.getInstanceModuleId()).isEqualTo(20L);
-        assertThat(detailResult.getAnagStationId()).isEqualTo(30L);
         assertThat(detailResult.getAnalysisDate()).isEqualTo(LocalDate.of(2025, 10, 30));
         assertThat(detailResult.getEvaluationType()).isEqualTo(EvaluationType.MESE);
         assertThat(detailResult.getEvaluationStartDate()).isEqualTo(LocalDate.of(2025, 10, 1));

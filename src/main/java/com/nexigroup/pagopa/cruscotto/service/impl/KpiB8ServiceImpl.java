@@ -265,22 +265,12 @@ public class KpiB8ServiceImpl implements KpiB8Service {
         log.info("Creating KPI B.8 detail results for instance {} (partner-level aggregated)", instance.getId());
 
         try {
-            // Verifica che il partner abbia stazioni (necessario per calcolare il KPI B.8)
-            List<AnagStation> stations = anagStationRepository.findByAnagPartnerFiscalCode(instance.getPartner().getFiscalCode());
-
-            if (stations.isEmpty()) {
-                log.warn("SKIPPING KPI B.8 detail results for partner {} - No stations found. Cannot calculate KPI B.8 without stations.",
-                    instance.getPartner().getFiscalCode());
-                return; // Salta il partner se non ha stazioni associate
-            }
 
             LocalDate analysisDate = kpiB8Result.getAnalysisDate();
             LocalDate periodStart = instance.getAnalysisPeriodStartDate();
             LocalDate periodEnd = instance.getAnalysisPeriodEndDate();
             String partnerFiscalCode = instance.getPartner().getFiscalCode();
 
-            // Ottieni la prima stazione per il campo obbligatorio (il KPI B.8 è a livello partner, non per singola stazione)
-            AnagStation primaryStation = stations.get(0);
 
             // Calcola tutti i mesi nel periodo di analisi
             List<YearMonth> monthsInPeriod = getMonthsInPeriod(periodStart, periodEnd);
@@ -322,10 +312,8 @@ public class KpiB8ServiceImpl implements KpiB8Service {
                 KpiB8DetailResult monthlyDetailResult = new KpiB8DetailResult();
                 monthlyDetailResult.setInstanceId(instance.getId());
                 monthlyDetailResult.setInstanceModuleId(kpiB8Result.getInstanceModule().getId());
-                monthlyDetailResult.setAnagStationId(primaryStation.getId()); // Campo obbligatorio, usa la prima stazione
                 monthlyDetailResult.setInstance(instance);
                 monthlyDetailResult.setInstanceModule(kpiB8Result.getInstanceModule());
-                monthlyDetailResult.setAnagStation(primaryStation);
                 monthlyDetailResult.setKpiB8Result(kpiB8Result);
                 monthlyDetailResult.setAnalysisDate(analysisDate);
                 monthlyDetailResult.setEvaluationType(com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType.MESE);
@@ -360,10 +348,8 @@ public class KpiB8ServiceImpl implements KpiB8Service {
             KpiB8DetailResult totalDetailResult = new KpiB8DetailResult();
             totalDetailResult.setInstanceId(instance.getId());
             totalDetailResult.setInstanceModuleId(kpiB8Result.getInstanceModule().getId());
-            totalDetailResult.setAnagStationId(primaryStation.getId()); // Campo obbligatorio, usa la prima stazione
             totalDetailResult.setInstance(instance);
             totalDetailResult.setInstanceModule(kpiB8Result.getInstanceModule());
-            totalDetailResult.setAnagStation(primaryStation);
             totalDetailResult.setKpiB8Result(kpiB8Result);
             totalDetailResult.setAnalysisDate(analysisDate);
             totalDetailResult.setEvaluationType(com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType.TOTALE);

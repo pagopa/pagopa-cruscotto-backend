@@ -30,7 +30,6 @@ class KpiB8DetailResultDTOTest {
         dto.setId(1L);
         dto.setInstanceId(2L);
         dto.setInstanceModuleId(3L);
-        dto.setAnagStationId(4L);
         dto.setAnalysisDate(LocalDate.of(2025, 10, 30));
         dto.setEvaluationType(EvaluationType.MESE);
         dto.setEvaluationStartDate(LocalDate.of(2025, 10, 1));
@@ -50,7 +49,6 @@ class KpiB8DetailResultDTOTest {
         assertThat(dto.getId()).isEqualTo(1L);
         assertThat(dto.getInstanceId()).isEqualTo(2L);
         assertThat(dto.getInstanceModuleId()).isEqualTo(3L);
-        assertThat(dto.getAnagStationId()).isEqualTo(4L);
         assertThat(dto.getAnalysisDate()).isEqualTo(LocalDate.of(2025, 10, 30));
         assertThat(dto.getEvaluationType()).isEqualTo(EvaluationType.MESE);
         assertThat(dto.getEvaluationStartDate()).isEqualTo(LocalDate.of(2025, 10, 1));
@@ -75,10 +73,10 @@ class KpiB8DetailResultDTOTest {
         Set<ConstraintViolation<KpiB8DetailResultDTO>> violations = validator.validate(dto);
 
         // Should trigger 11 @NotNull violations (including perKO)
-        assertThat(violations).hasSize(11);
+        assertThat(violations).hasSize(10);
         assertThat(violations.stream().map(ConstraintViolation::getPropertyPath))
             .extracting(Object::toString)
-            .contains("id", "instanceId", "instanceModuleId", "anagStationId",
+            .contains("id", "instanceId", "instanceModuleId",
                 "analysisDate", "evaluationType", "evaluationStartDate",
                 "evaluationEndDate", "totReq", "reqKO", "perKO");
     }
@@ -134,7 +132,6 @@ class KpiB8DetailResultDTOTest {
         dto.setId(1L);
         dto.setInstanceId(2L);
         dto.setInstanceModuleId(3L);
-        dto.setAnagStationId(4L);
         dto.setAnalysisDate(LocalDate.now());
         dto.setEvaluationType(EvaluationType.MESE);
         dto.setEvaluationStartDate(LocalDate.now().minusDays(1));
