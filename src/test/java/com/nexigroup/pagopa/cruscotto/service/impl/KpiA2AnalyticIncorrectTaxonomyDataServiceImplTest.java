@@ -33,14 +33,16 @@ class KpiA2AnalyticIncorrectTaxonomyDataServiceImplTest {
         KpiA2AnalyticIncorrectTaxonomyDataDTO dto1 = new KpiA2AnalyticIncorrectTaxonomyDataDTO();
         dto1.setKpiA2AnalyticDataId(1L);
         dto1.setTransferCategory("Category1");
-        dto1.setTotal(10L);
+        dto1.setTotIncorrectPayments(10L);
+        dto1.setTotPayments(100L);
         dto1.setFromHour(Instant.ofEpochSecond(8));
         dto1.setEndHour(Instant.ofEpochSecond(10));
 
         KpiA2AnalyticIncorrectTaxonomyDataDTO dto2 = new KpiA2AnalyticIncorrectTaxonomyDataDTO();
         dto2.setKpiA2AnalyticDataId(1L);
         dto2.setTransferCategory("Category2");
-        dto2.setTotal(5L);
+        dto2.setTotIncorrectPayments(5L);
+        dto2.setTotPayments(50L);
         dto2.setFromHour(Instant.ofEpochSecond(10));
         dto2.setEndHour(Instant.ofEpochSecond(12));
 
@@ -66,7 +68,8 @@ class KpiA2AnalyticIncorrectTaxonomyDataServiceImplTest {
         entity1.setId(1L);
         entity1.setKpiA2AnalyticDataId(1L);
         entity1.setTransferCategory("Category1");
-        entity1.setTotal(10L);
+        entity1.setTotIncorrectPayments(10L);
+        entity1.setTotPayments(100L);
         entity1.setFromHour(Instant.ofEpochSecond(8));
         entity1.setEndHour(Instant.ofEpochSecond(10));
 
@@ -74,7 +77,8 @@ class KpiA2AnalyticIncorrectTaxonomyDataServiceImplTest {
         entity2.setId(2L);
         entity2.setKpiA2AnalyticDataId(1L);
         entity2.setTransferCategory("Category2");
-        entity2.setTotal(5L);
+        entity2.setTotIncorrectPayments(5L);
+        entity2.setTotPayments(50L);
         entity2.setFromHour(Instant.ofEpochSecond(10));
         entity2.setEndHour(Instant.ofEpochSecond(12));
 

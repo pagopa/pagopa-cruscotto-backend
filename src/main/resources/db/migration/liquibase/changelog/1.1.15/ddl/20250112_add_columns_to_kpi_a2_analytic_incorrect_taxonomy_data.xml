@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+       http://www.liquibase.org/xml/ns/dbchangelog
+       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+  <changeSet id="20250112-01-add-columns" author="system">
+    <preConditions onFail="HALT">
+      <tableExists tableName="kpi_a2_analytic_incorrect_taxonomy_data"/>
+      <columnExists tableName="kpi_a2_analytic_incorrect_taxonomy_data" columnName="total"/>
+    </preConditions>
+
+    <!-- rename existing 'total' column into the desired name -->
+    <renameColumn tableName="kpi_a2_analytic_incorrect_taxonomy_data"
+                  oldColumnName="total"
+                  newColumnName="co_tot_incorrect_payments"
+                  columnDataType="bigint"/>
+
+    <!-- add the new CO_TOT_PAYMENTS column -->
+    <addColumn tableName="kpi_a2_analytic_incorrect_taxonomy_data">
+      <column name="co_tot_payments" type="bigint" defaultValueNumeric="0">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+
+    <rollback>
+      <!-- revert rename -->
+      <renameColumn tableName="kpi_a2_analytic_incorrect_taxonomy_data"
+                    oldColumnName="co_tot_incorrect_payments"
+                    newColumnName="total"
+                    columnDataType="bigint"/>
+      <!-- remove added column -->
+      <dropColumn tableName="kpi_a2_analytic_incorrect_taxonomy_data" columnName="co_tot_payments"/>
+    </rollback>
+  </changeSet>
+</databaseChangeLog>

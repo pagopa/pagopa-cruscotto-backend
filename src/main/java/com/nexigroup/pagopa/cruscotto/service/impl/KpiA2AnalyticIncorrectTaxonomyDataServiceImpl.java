@@ -16,13 +16,14 @@ public class KpiA2AnalyticIncorrectTaxonomyDataServiceImpl implements KpiA2Analy
 
     @Override
     public void saveAll(List<KpiA2AnalyticIncorrectTaxonomyDataDTO> incorrectTaxonomyDataList) {
-        
+
         List<KpiA2AnalyticIncorrectTaxonomyData> entities = incorrectTaxonomyDataList.stream()
             .map(dto -> {
                 KpiA2AnalyticIncorrectTaxonomyData entity = new KpiA2AnalyticIncorrectTaxonomyData();
                 entity.setKpiA2AnalyticDataId(dto.getKpiA2AnalyticDataId());
                 entity.setTransferCategory(dto.getTransferCategory());
-                entity.setTotal(dto.getTotal());
+                entity.setTotPayments(dto.getTotPayments());
+                entity.setTotIncorrectPayments(dto.getTotIncorrectPayments());
                 entity.setFromHour(dto.getFromHour());
                 entity.setEndHour(dto.getEndHour());
                 return entity;
@@ -39,7 +40,8 @@ public class KpiA2AnalyticIncorrectTaxonomyDataServiceImpl implements KpiA2Analy
                 dto.setId(entity.getId());
                 dto.setKpiA2AnalyticDataId(entity.getKpiA2AnalyticDataId());
                 dto.setTransferCategory(entity.getTransferCategory());
-                dto.setTotal(entity.getTotal());
+                dto.setTotPayments(entity.getTotPayments());
+                dto.setTotIncorrectPayments(entity.getTotIncorrectPayments());
                 dto.setFromHour(entity.getFromHour());
                 dto.setEndHour(entity.getEndHour());
                 return dto;

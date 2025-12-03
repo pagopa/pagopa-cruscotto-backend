@@ -4,16 +4,21 @@ import com.nexigroup.pagopa.cruscotto.domain.*;
 import com.nexigroup.pagopa.cruscotto.domain.Module;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisOutcome;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisType;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.AuthenticationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.InstanceStatus;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleStatus;
 import com.nexigroup.pagopa.cruscotto.repository.AnagPartnerRepository;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
 import com.nexigroup.pagopa.cruscotto.repository.ModuleRepository;
+import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
 import com.nexigroup.pagopa.cruscotto.security.SecurityUtils;
+import com.nexigroup.pagopa.cruscotto.service.AnagPartnerService;
+import com.nexigroup.pagopa.cruscotto.service.AuthUserService;
 import com.nexigroup.pagopa.cruscotto.service.GenericServiceException;
 import com.nexigroup.pagopa.cruscotto.service.InstanceService;
 import com.nexigroup.pagopa.cruscotto.service.bean.InstanceRequestBean;
+import com.nexigroup.pagopa.cruscotto.service.dto.AuthUserDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.InstanceDTO;
 import com.nexigroup.pagopa.cruscotto.service.filter.InstanceFilter;
 import com.nexigroup.pagopa.cruscotto.service.mapper.InstanceMapper;
@@ -25,6 +30,7 @@ import com.querydsl.core.types.*;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAUpdateClause;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -96,13 +102,19 @@ public class InstanceServiceImpl implements InstanceService {
 
     private final UserUtils userUtils;
 
+    private final AuthUserService authUserService;
+
+    private final AnagPartnerService anagPartnerService;
+
     public InstanceServiceImpl(
         InstanceRepository instanceRepository,
         AnagPartnerRepository anagPartnerRepository,
         ModuleRepository moduleRepository,
         InstanceMapper instanceMapper,
         QueryBuilder queryBuilder,
-        UserUtils userUtils
+        UserUtils userUtils,
+        AuthUserService authUserService,
+        AnagPartnerService anagPartnerService
     ) {
         this.instanceRepository = instanceRepository;
         this.anagPartnerRepository = anagPartnerRepository;
@@ -110,6 +122,8 @@ public class InstanceServiceImpl implements InstanceService {
         this.instanceMapper = instanceMapper;
         this.queryBuilder = queryBuilder;
         this.userUtils = userUtils;
+        this.authUserService = authUserService;
+        this.anagPartnerService = anagPartnerService;
     }
 
     /**
@@ -124,6 +138,9 @@ public class InstanceServiceImpl implements InstanceService {
         LOGGER.debug("Request to get all Instance by filter: {}", filter);
 
         BooleanBuilder builder = new BooleanBuilder();
+
+        // IMPORTANT: Exclude deleted instances (status CANCELLATA)
+        builder.and(QInstance.instance.status.ne(InstanceStatus.CANCELLATA));
 
         if (StringUtils.isNotBlank(filter.getPartnerId())) {
             builder.and(QInstance.instance.partner.id.eq(Long.valueOf(filter.getPartnerId())));
@@ -345,7 +362,24 @@ public class InstanceServiceImpl implements InstanceService {
             .filter(Optional::isPresent)
             .map(Optional::get)
             .map(instance -> {
-                if (!instance.getStatus().equals(InstanceStatus.BOZZA) && !instance.getStatus().equals(InstanceStatus.PIANIFICATA)) {
+                String loginUtenteLoggato = SecurityUtils.getCurrentUserLogin()
+                    .orElseThrow(() -> new RuntimeException(CURRENT_USER_LOGIN_NOT_FOUND));
+
+                AuthenticationType authenticationType = SecurityUtils.getAuthenticationTypeUserLogin()
+                    .orElseThrow(() -> new RuntimeException("Authentication Type not found"));
+
+                // Get user with authorities
+                AuthUserDTO currentUser = authUserService.getUserWithAuthorities(authenticationType)
+                    .orElseThrow(() -> new RuntimeException("Current user not found"));    
+
+                // Check if user has force delete permission
+                boolean canForceDelete = currentUser.getAuthorities() != null && 
+                    currentUser.getAuthorities().contains(AuthoritiesConstants.INSTANCE_FORCED_DELETION);
+
+                // Check if deletion is allowed based on status (unless user can force delete)
+                if (!canForceDelete && 
+                    !instance.getStatus().equals(InstanceStatus.BOZZA) && 
+                    !instance.getStatus().equals(InstanceStatus.PIANIFICATA)) {
                     throw new GenericServiceException(
                         String.format("Instance with id %s cannot be deleted because it is in %s status", id, instance.getStatus()),
                         INSTANCE,
@@ -353,16 +387,33 @@ public class InstanceServiceImpl implements InstanceService {
                     );
                 }
 
-                String loginUtenteLoggato = SecurityUtils.getCurrentUserLogin()
-                    .orElseThrow(() -> new RuntimeException(CURRENT_USER_LOGIN_NOT_FOUND));
+                if (canForceDelete) {
+                    // Soft delete - just change status to CANCELLATA
+                    instance.setStatus(InstanceStatus.CANCELLATA);
+                    instanceRepository.save(instance);
 
-                instanceRepository.deleteById(id);
+                    // Get partner info
+                    AnagPartner partner = instance.getPartner();
+                    
+                    // Update partner's analysis tracking fields
+                    updatePartnerAnalysisFieldsAfterDeletion(partner.getId(), instance.getChangePartnerQualified());
 
-                LOGGER.info(
-                    "Physical deleting of instance with identification {} by user {}",
-                    instance.getInstanceIdentification(),
-                    loginUtenteLoggato
-                );
+                } else instanceRepository.deleteById(id);
+
+                if (canForceDelete) {
+                    LOGGER.warn(
+                        "FORCED deletion of instance with identification {} in status {} by user {} with INSTANCE_FORCE_DELETE permission",
+                        instance.getInstanceIdentification(),
+                        instance.getStatus(),
+                        loginUtenteLoggato
+                    );
+                } else {
+                    LOGGER.info(
+                        "Physical deleting of instance with identification {} by user {}",
+                        instance.getInstanceIdentification(),
+                        loginUtenteLoggato
+                    );
+                }
 
                 return instance;
             })
@@ -371,6 +422,82 @@ public class InstanceServiceImpl implements InstanceService {
                 new GenericServiceException(String.format(INSTANCE_ID_NOT_EXISTS, id), INSTANCE, INSTANCE_NOT_EXISTS)
             );
     }
+
+    private void updatePartnerAnalysisFieldsAfterDeletion(Long partnerId, Boolean changePartnerQualified) {
+        // Find most recent remaining instance for this partner
+        List<Instance> remainingInstances = instanceRepository
+                .findByPartnerIdAndStatusOrderByLastAnalysisDateDesc(partnerId, InstanceStatus.ESEGUITA);
+
+        if (!remainingInstances.isEmpty()) {
+
+            // Check if instance being deleted has changed partner qualification
+            if (changePartnerQualified != null && changePartnerQualified) {
+
+                // Find the most recent instance with changePartnerQualified = true
+                Optional<Instance> mostRecentChangedQualifiedInstance = remainingInstances.stream()
+                        .filter(instance -> instance.getChangePartnerQualified() != null
+                                && instance.getChangePartnerQualified())
+                        .findFirst();
+
+                mostRecentChangedQualifiedInstance.ifPresentOrElse(
+                instance -> {
+                    AnalysisOutcome outcome = instance.getLastAnalysisOutcome();
+
+                    // Partner is qualified if outcome is OK
+                    // Partner is NOT qualified if outcome is KO
+                    boolean isQualified = outcome == AnalysisOutcome.OK;
+
+                    anagPartnerService.changePartnerQualified(partnerId, isQualified);
+
+                    LOGGER.info(
+                            "Partner {} qualified status updated to {} based on instance {} with outcome {}",
+                            partnerId,
+                            isQualified,
+                            instance.getInstanceIdentification(),
+                            outcome);
+                },
+                () -> {
+                    // No remaining instance changed qualification, restore to default qualified flag
+                    anagPartnerService.changePartnerQualified(partnerId, false);
+                    LOGGER.info(
+                            "Partner {} qualified flag restored to default because no remaining instance changed qualification for partner {}.",
+                            partnerId);
+                }
+            );
+
+            } else {
+                // If changePartnerQualified is false or null, retain current qualified status
+                LOGGER.info(
+                        "Partner {} qualified status remains unchanged after deletion of instance that did not change qualification",
+                        partnerId);
+            }
+
+            Instance mostRecent = remainingInstances.get(0);
+            anagPartnerService.updateLastAnalysisDate(partnerId, mostRecent.getLastAnalysisDate());
+            anagPartnerService.updateAnalysisPeriodDates(
+                    partnerId,
+                    mostRecent.getAnalysisPeriodStartDate(),
+                    mostRecent.getAnalysisPeriodEndDate());
+            LOGGER.info(
+                            "Partner lastAnalysisDate, lastAnalysisPeriod updated to values based on instance {}",
+                            partnerId,
+                            mostRecent.getInstanceIdentification()
+                        );         
+        } else {
+            // No more instances for this partner
+            anagPartnerService.changePartnerQualified(partnerId, false);
+            anagPartnerService.updateLastAnalysisDate(partnerId, null);
+            anagPartnerService.updateAnalysisPeriodDates(
+                    partnerId,
+                    null,
+                    null);
+            LOGGER.info(
+                            "Partner lastAnalysisDate, lastAnalysisPeriod and qualified flag restored to default values after deletion of all instances for partner {}",
+                            partnerId);        
+        }
+
+    }
+
 
     @Override
     public List<InstanceDTO> findInstanceToCalculate(ModuleCode moduleCode, Integer limit) {

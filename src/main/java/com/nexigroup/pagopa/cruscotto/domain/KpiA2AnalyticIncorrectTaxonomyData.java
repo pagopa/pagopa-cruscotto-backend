@@ -19,8 +19,11 @@ public class KpiA2AnalyticIncorrectTaxonomyData implements Serializable {
     @Column(name = "transfer_category", nullable = false)
     private String transferCategory;
 
-    @Column(name = "total", nullable = false)
-    private Long total;
+    @Column(name = "co_tot_payments", nullable = false)
+    private Long totPayments;
+
+    @Column(name = "co_tot_incorrect_payments", nullable = false)
+    private Long totIncorrectPayments;
 
     @Column(name = "from_hour")
     private java.time.Instant fromHour;
