@@ -38,7 +38,7 @@
   <include file="1.1.8/dml/20251016120002_activate_kpi_b8_module.xml" relativeToChangelogFile="true"/>
 
 
-
+  <include file="1.1.8/ddl/20251203130000_KpiB8AnaliticData_drop_column_ANAG_STATION_ID.xml" relativeToChangelogFile="true"/>
 
 
 
