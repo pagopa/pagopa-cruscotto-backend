@@ -258,21 +258,16 @@ public class KpiC2ServiceImpl implements KpiC2Service {
 
         try {
             // Verifica che il partner abbia stazioni (necessario per calcolare il KPI C.2)
-            List<AnagStation> stations = anagStationRepository.findByAnagPartnerFiscalCode(instance.getPartner().getFiscalCode());
+            //List<AnagStation> stations = anagStationRepository.findByAnagPartnerFiscalCode(instance.getPartner().getFiscalCode());
 
-            if (stations.isEmpty()) {
-                log.warn("SKIPPING KPI C.2 detail results for partner {} - No stations found. Cannot calculate KPI C.2 without stations.",
-                    instance.getPartner().getFiscalCode());
-                return; // Salta il partner se non ha stazioni associate
-            }
+
 
             LocalDate analysisDate = kpiC2Result.getAnalysisDate();
             LocalDate periodStart = instance.getAnalysisPeriodStartDate();
             LocalDate periodEnd = instance.getAnalysisPeriodEndDate();
             String partnerFiscalCode = instance.getPartner().getFiscalCode();
 
-            // Ottieni la prima stazione per il campo obbligatorio (il KPI C.2 è a livello partner, non per singola stazione)
-            AnagStation primaryStation = stations.get(0);
+
 
             // Calcola tutti i mesi nel periodo di analisi
             List<YearMonth> monthsInPeriod = getMonthsInPeriod(periodStart, periodEnd);
