@@ -24,9 +24,6 @@ public class KpiB4DetailResultDTO implements Serializable {
     private Long instanceModuleId;
 
     @NotNull
-    private Long anagStationId;
-
-    @NotNull
     private LocalDate analysisDate;
 
     @NotNull
@@ -83,7 +80,6 @@ public class KpiB4DetailResultDTO implements Serializable {
             "id=" + id +
             ", instanceId=" + instanceId +
             ", instanceModuleId=" + instanceModuleId +
-            ", anagStationId=" + anagStationId +
             ", analysisDate='" + analysisDate + "'" +
             ", evaluationType='" + evaluationType + "'" +
             ", evaluationStartDate='" + evaluationStartDate + "'" +

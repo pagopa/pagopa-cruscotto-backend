@@ -63,8 +63,7 @@ class KpiB8DetailResultServiceImplTest {
         entity1.setId(1L);
         entity1.setInstanceId(10L);
         entity1.setInstanceModuleId(100L);
-        entity1.setAnagStationId(1000L);
-        entity1.setKpiB8Result(new com.nexigroup.pagopa.cruscotto.domain.KpiB8Result() {{
+         entity1.setKpiB8Result(new com.nexigroup.pagopa.cruscotto.domain.KpiB8Result() {{
             setId(999L);
         }});
         entity1.setAnalysisDate(LocalDate.of(2025, 10, 28));

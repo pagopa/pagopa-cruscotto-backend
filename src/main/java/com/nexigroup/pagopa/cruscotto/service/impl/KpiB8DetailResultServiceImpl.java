@@ -64,7 +64,6 @@ public class KpiB8DetailResultServiceImpl implements KpiB8DetailResultService {
         dto.setId(kpiB8DetailResult.getId());
         dto.setInstanceId(kpiB8DetailResult.getInstanceId());
         dto.setInstanceModuleId(kpiB8DetailResult.getInstanceModuleId());
-        dto.setAnagStationId(kpiB8DetailResult.getAnagStationId());
         dto.setKpiB8ResultId(kpiB8DetailResult.getKpiB8Result().getId());
         dto.setAnalysisDate(kpiB8DetailResult.getAnalysisDate());
         dto.setEvaluationType(kpiB8DetailResult.getEvaluationType());

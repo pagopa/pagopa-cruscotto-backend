@@ -174,11 +174,10 @@ public class KpiB3DataServiceImpl implements KpiB3DataService {
         List<AnagStation> partnerStations = anagStationRepository.findByAnagPartnerFiscalCode(partnerFiscalCode);
         
         if (partnerStations.isEmpty()) {
-            LOGGER.warn("No stations found for partner: {}", partnerFiscalCode);
-            return;
+            LOGGER.debug("No stations found for partner: {} - Creating detail results with zero Stand-In events", partnerFiscalCode);
+        } else {
+            LOGGER.debug("Processing KPI B.3 for partner {} with {} stations", partnerFiscalCode, partnerStations.size());
         }
-        
-        LOGGER.info("Processing KPI B.3 for partner {} with {} stations", partnerFiscalCode, partnerStations.size());
         
         // Get eligibility threshold from the result configuration
         int eligibilityThreshold = kpiResult.getEligibilityThreshold() != null ? 

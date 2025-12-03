@@ -18,7 +18,6 @@ class KpiB4DetailResultDTOTest {
         Long id = 1L;
         Long instanceId = 2L;
         Long instanceModuleId = 3L;
-        Long anagStationId = 4L;
         LocalDate analysisDate = LocalDate.now();
         EvaluationType evaluationType = EvaluationType.MESE;
         LocalDate evalStart = LocalDate.now().minusDays(5);
@@ -34,7 +33,6 @@ class KpiB4DetailResultDTOTest {
         dto.setId(id);
         dto.setInstanceId(instanceId);
         dto.setInstanceModuleId(instanceModuleId);
-        dto.setAnagStationId(anagStationId);
         dto.setAnalysisDate(analysisDate);
         dto.setEvaluationType(evaluationType);
         dto.setEvaluationStartDate(evalStart);
@@ -50,7 +48,6 @@ class KpiB4DetailResultDTOTest {
         assertThat(dto.getId()).isEqualTo(id);
         assertThat(dto.getInstanceId()).isEqualTo(instanceId);
         assertThat(dto.getInstanceModuleId()).isEqualTo(instanceModuleId);
-        assertThat(dto.getAnagStationId()).isEqualTo(anagStationId);
         assertThat(dto.getAnalysisDate()).isEqualTo(analysisDate);
         assertThat(dto.getEvaluationType()).isEqualTo(evaluationType);
         assertThat(dto.getEvaluationStartDate()).isEqualTo(evalStart);
@@ -92,7 +89,6 @@ class KpiB4DetailResultDTOTest {
         dto.setId(1L);
         dto.setInstanceId(2L);
         dto.setInstanceModuleId(3L);
-        dto.setAnagStationId(4L);
         dto.setStationCode("CODE");
         dto.setStationName("NAME");
         dto.setEvaluationType(EvaluationType.MESE);
@@ -103,7 +99,6 @@ class KpiB4DetailResultDTOTest {
             .contains("id=1")
             .contains("instanceId=2")
             .contains("instanceModuleId=3")
-            .contains("anagStationId=4")
             .contains("stationCode='CODE'")
             .contains("stationName='NAME'")
             .contains("evaluationType='MESE'");
