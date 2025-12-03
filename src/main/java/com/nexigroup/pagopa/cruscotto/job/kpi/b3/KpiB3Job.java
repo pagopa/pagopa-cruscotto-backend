@@ -127,8 +127,43 @@ public class KpiB3Job extends QuartzJobBean {
                         );
                         
                         if (partnerStations.isEmpty()) {
-                            LOGGER.warn("No stations found for partner {}, skipping KPI B.3 calculation", 
+                            LOGGER.warn("No stations found for partner {}, setting outcome OK and completing workflow", 
                                       instanceDTO.getPartnerFiscalCode());
+                            
+                            // Anche se non ci sono stazioni, dobbiamo salvare il risultato e aggiornare l'outcome
+                            try {
+                                // Salva risultato con outcome OK (nessuna stazione = nessun evento Stand-In possibile)
+                                kpiB3DataService.saveKpiB3Results(
+                                    instanceDTO,
+                                    instanceModuleDTO,
+                                    kpiConfigurationDTO,
+                                    analysisDate,
+                                    OutcomeStatus.OK,
+                                    List.of() // Lista vuota di eventi Stand-In
+                                );
+                                
+                                // Aggiorna l'outcome dell'instance module
+                                instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(), OutcomeStatus.OK);
+                                
+                                // Trigger calculateStateInstanceJob anche per il caso no-stations
+                                JobDetail job = scheduler.getJobDetail(JobKey.jobKey(JobConstant.CALCULATE_STATE_INSTANCE_JOB, "DEFAULT"));
+                                Trigger trigger = TriggerBuilder.newTrigger()
+                                    .usingJobData("instanceId", instanceDTO.getId())
+                                    .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                                        .withMisfireHandlingInstructionFireNow()
+                                        .withRepeatCount(0))
+                                    .forJob(job)
+                                    .build();
+                                scheduler.scheduleJob(trigger);
+                                
+                                LOGGER.info("No stations case: set outcome OK and triggered calculateStateInstanceJob for instance: {}", 
+                                          instanceDTO.getId());
+                                
+                            } catch (Exception e) {
+                                LOGGER.error("Error handling no-stations case for instance {}: {}", 
+                                           instanceDTO.getId(), e.getMessage(), e);
+                            }
+                            
                             return;
                         }
                         
