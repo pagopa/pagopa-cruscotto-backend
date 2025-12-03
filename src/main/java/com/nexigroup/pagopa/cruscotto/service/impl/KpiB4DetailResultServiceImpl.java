@@ -64,7 +64,6 @@ public class KpiB4DetailResultServiceImpl implements KpiB4DetailResultService {
         dto.setId(kpiB4DetailResult.getId());
         dto.setInstanceId(kpiB4DetailResult.getInstanceId());
         dto.setInstanceModuleId(kpiB4DetailResult.getInstanceModuleId());
-        dto.setAnagStationId(kpiB4DetailResult.getAnagStationId());
         dto.setKpiB4ResultId(kpiB4DetailResult.getKpiB4Result().getId());
         dto.setAnalysisDate(kpiB4DetailResult.getAnalysisDate());
         dto.setEvaluationType(kpiB4DetailResult.getEvaluationType());
