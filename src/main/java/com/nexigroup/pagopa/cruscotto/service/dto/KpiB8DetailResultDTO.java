@@ -25,8 +25,6 @@ public class KpiB8DetailResultDTO implements Serializable {
     @NotNull
     private Long instanceModuleId;
 
-    @NotNull
-    private Long anagStationId;
 
     @NotNull
     private LocalDate analysisDate;

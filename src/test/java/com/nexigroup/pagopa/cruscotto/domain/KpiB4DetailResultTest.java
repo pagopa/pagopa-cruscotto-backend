@@ -37,7 +37,6 @@ class KpiB4DetailResultTest {
         detailResult.setId(id);
         detailResult.setInstanceId(instanceId);
         detailResult.setInstanceModuleId(instanceModuleId);
-        detailResult.setAnagStationId(stationId);
         detailResult.setAnalysisDate(analysisDate);
         detailResult.setEvaluationType(evalType);
         detailResult.setEvaluationStartDate(startDate);
@@ -50,7 +49,6 @@ class KpiB4DetailResultTest {
         assertThat(detailResult.getId()).isEqualTo(id);
         assertThat(detailResult.getInstanceId()).isEqualTo(instanceId);
         assertThat(detailResult.getInstanceModuleId()).isEqualTo(instanceModuleId);
-        assertThat(detailResult.getAnagStationId()).isEqualTo(stationId);
         assertThat(detailResult.getAnalysisDate()).isEqualTo(analysisDate);
         assertThat(detailResult.getEvaluationType()).isEqualTo(evalType);
         assertThat(detailResult.getEvaluationStartDate()).isEqualTo(startDate);
