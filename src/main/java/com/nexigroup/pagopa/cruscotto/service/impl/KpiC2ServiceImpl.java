@@ -336,7 +336,8 @@ public class KpiC2ServiceImpl implements KpiC2Service {
                 monthlyDetailResult.setPercentEntiOk(monthlyPercentageNotification);
 
 
-                monthlyDetailResult.setOutcome(calculateDetailResultOutcome(monthlyPercentageInstitution,monthlyPercentageNotification, kpiC2Result)); // Calcola outcome specifico per questo detail result
+
+                monthlyDetailResult.setOutcome(calculateDetailResultOutcome(numberTotalIntitution,monthlyPercentageInstitution,monthlyPercentageNotification, kpiC2Result)); // Calcola outcome specifico per questo detail result
 
                 kpiC2DetailResultRepository.save(monthlyDetailResult);
                 log.info("Created {} monthly + 1 total KPI C.2 detail results for partner {} " +
@@ -390,7 +391,7 @@ public class KpiC2ServiceImpl implements KpiC2Service {
             totalDetailResult.setTotalPayment(totalNumberPayment);
             totalDetailResult.setTotalNotification(totalNumberNotification);
             totalDetailResult.setPercentEntiOk(percentageNotificationPeriod);
-            totalDetailResult.setOutcome(calculateDetailResultOutcome(percentageInstitutionPeriod, percentageNotificationPeriod, kpiC2Result)); // Calcola outcome specifico per questo detail result
+            totalDetailResult.setOutcome(calculateDetailResultOutcome(numberTotalIntitution,percentageInstitutionPeriod, percentageNotificationPeriod, kpiC2Result)); // Calcola outcome specifico per questo detail result
 
             kpiC2DetailResultRepository.save(totalDetailResult);
 
@@ -663,13 +664,14 @@ public class KpiC2ServiceImpl implements KpiC2Service {
      * Calcola l'outcome specifico per un KpiC2DetailResult basato sulla percentuale CP.
      * La logica è: se la percentuale CP è <= (soglia + tolleranza) allora OK, altrimenti KO.
      *
+     * @param numberTotalIntitution
      * @param percentageInstitution  la percentuale CP del detail result
      * @param percentageNotification
      * @param kpiC2Result            il result principale per ottenere soglia e tolleranza
      * @return l'outcome specifico per questo detail result
      */
-    private OutcomeStatus calculateDetailResultOutcome(BigDecimal percentageInstitution, BigDecimal percentageNotification, KpiC2Result kpiC2Result) {
-        if (percentageInstitution == null || percentageNotification ==null) {
+    private OutcomeStatus calculateDetailResultOutcome(Long numberTotalIntitution, BigDecimal percentageInstitution, BigDecimal percentageNotification, KpiC2Result kpiC2Result) {
+        if (percentageInstitution == null || percentageNotification ==null ||numberTotalIntitution== null || numberTotalIntitution ==0L ) {
             return OutcomeStatus.OK; // Se non ci sono dati, consideriamo OK
         }
 
