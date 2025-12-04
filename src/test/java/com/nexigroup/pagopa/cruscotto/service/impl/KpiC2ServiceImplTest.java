@@ -90,8 +90,12 @@ class KpiC2ServiceImplTest {
         InstanceModuleDTO instanceModuleDTO = new InstanceModuleDTO();
         instanceModuleDTO.setId(1L);
 
+        InstanceModule instanceModule = new InstanceModule();
+        instanceModule.setId(1L); // Important
+
         KpiC2Result savedResult = new KpiC2Result();
         savedResult.setId(1L);
+        savedResult.setInstanceModule(instanceModule); // <-- set this
 
         when(kpiConfigurationRepository.findByModuleCode(ModuleCode.C2.code))
             .thenReturn(Optional.of(config));
@@ -100,7 +104,7 @@ class KpiC2ServiceImplTest {
         when(instanceModuleService.findOne(instance.getId(), module.getId()))
             .thenReturn(Optional.of(instanceModuleDTO));
         when(instanceModuleService.findById(instanceModuleDTO.getId()))
-            .thenReturn(Optional.of(new InstanceModule()));
+            .thenReturn(Optional.of(instanceModule));
         when(kpiC2ResultRepository.save(any(KpiC2Result.class))).thenReturn(savedResult);
         when(anagInstitutionService.findAllNoPaging(any(AnagInstitutionFilter.class)))
             .thenReturn(Collections.emptyList());
