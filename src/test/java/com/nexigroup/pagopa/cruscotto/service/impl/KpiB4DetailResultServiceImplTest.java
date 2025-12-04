@@ -77,7 +77,6 @@ class KpiB4DetailResultServiceImplTest {
         entity.setId(1L);
         entity.setInstanceId(10L);
         entity.setInstanceModuleId(20L);
-        entity.setAnagStationId(30L);
         entity.setKpiB4Result(kpiB4Result);
         entity.setAnalysisDate(LocalDate.from(LocalDateTime.now()));
         entity.setEvaluationType(EvaluationType.MESE);

@@ -37,4 +37,8 @@
     <!-- Add constraints for PagoPa API Log drilldown table -->
     <include file="1.1.6/ddl/20251016140001_added_entity_constraints_PagopaApiLogDrilldown.xml" relativeToChangelogFile="true"/>
 
+    <include file="1.1.6/ddl/20251203130800_KpiB4AnaliticData_drop_column_ANAG_STATION_ID.xml" relativeToChangelogFile="true"/>
+
+
+
 </databaseChangeLog>

@@ -138,14 +138,14 @@ public class KpiB4ServiceImpl implements KpiB4Service {
 
             // CORREZIONE BUG: Dopo aver creato i detail results, ricalcola l'outcome del result principale
             // basandosi sui detail results effettivi invece che sui dati placeholder
-            log.info("BEFORE correction - KPI B.4 result {} has outcome: {}, evaluationType: {}", 
+            log.info("BEFORE correction - KPI B.4 result {} has outcome: {}, evaluationType: {}",
                 savedResult.getId(), savedResult.getOutcome(), savedResult.getEvaluationType());
-            
+
             OutcomeStatus correctedOutcome = calculateOutcomeFromDetailResults(savedResult);
-            
-            log.info("AFTER calculation - correctedOutcome: {}, original outcome: {}", 
+
+            log.info("AFTER calculation - correctedOutcome: {}, original outcome: {}",
                 correctedOutcome, savedResult.getOutcome());
-            
+
             if (correctedOutcome != savedResult.getOutcome()) {
                 log.warn("CORRECTING KPI B.4 outcome for instance {} (result id: {}) from {} to {} based on detail results",
                     instance.getId(), savedResult.getId(), savedResult.getOutcome(), correctedOutcome);
@@ -285,22 +285,13 @@ public class KpiB4ServiceImpl implements KpiB4Service {
         log.info("Creating KPI B.4 detail results for instance {} (partner-level aggregated)", instance.getId());
 
         try {
-            // Verifica che il partner abbia stazioni (necessario per calcolare il KPI B.4)
-            List<AnagStation> stations = anagStationRepository.findByAnagPartnerFiscalCode(instance.getPartner().getFiscalCode());
 
-            if (stations.isEmpty()) {
-                log.warn("SKIPPING KPI B.4 detail results for partner {} - No stations found. Cannot calculate KPI B.4 without stations.",
-                        instance.getPartner().getFiscalCode());
-                return; // Salta il partner se non ha stazioni associate
-            }
 
             LocalDate analysisDate = kpiB4Result.getAnalysisDate();
             LocalDate periodStart = instance.getAnalysisPeriodStartDate();
             LocalDate periodEnd = instance.getAnalysisPeriodEndDate();
             String partnerFiscalCode = instance.getPartner().getFiscalCode();
 
-            // Ottieni la prima stazione per il campo obbligatorio (il KPI B.4 è a livello partner, non per singola stazione)
-            AnagStation primaryStation = stations.get(0);
 
             // Calcola tutti i mesi nel periodo di analisi
             List<YearMonth> monthsInPeriod = getMonthsInPeriod(periodStart, periodEnd);
@@ -342,10 +333,8 @@ public class KpiB4ServiceImpl implements KpiB4Service {
                 KpiB4DetailResult monthlyDetailResult = new KpiB4DetailResult();
                 monthlyDetailResult.setInstanceId(instance.getId());
                 monthlyDetailResult.setInstanceModuleId(kpiB4Result.getInstanceModule().getId());
-                monthlyDetailResult.setAnagStationId(primaryStation.getId()); // Campo obbligatorio, usa la prima stazione
                 monthlyDetailResult.setInstance(instance);
                 monthlyDetailResult.setInstanceModule(kpiB4Result.getInstanceModule());
-                monthlyDetailResult.setAnagStation(primaryStation);
                 monthlyDetailResult.setKpiB4Result(kpiB4Result);
                 monthlyDetailResult.setAnalysisDate(analysisDate);
                 monthlyDetailResult.setEvaluationType(com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType.MESE);
@@ -380,10 +369,8 @@ public class KpiB4ServiceImpl implements KpiB4Service {
             KpiB4DetailResult totalDetailResult = new KpiB4DetailResult();
             totalDetailResult.setInstanceId(instance.getId());
             totalDetailResult.setInstanceModuleId(kpiB4Result.getInstanceModule().getId());
-            totalDetailResult.setAnagStationId(primaryStation.getId()); // Campo obbligatorio, usa la prima stazione
             totalDetailResult.setInstance(instance);
             totalDetailResult.setInstanceModule(kpiB4Result.getInstanceModule());
-            totalDetailResult.setAnagStation(primaryStation);
             totalDetailResult.setKpiB4Result(kpiB4Result);
             totalDetailResult.setAnalysisDate(analysisDate);
             totalDetailResult.setEvaluationType(com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType.TOTALE);
@@ -662,13 +649,13 @@ public class KpiB4ServiceImpl implements KpiB4Service {
      * @return l'outcome corretto basato sui detail results
      */
     private OutcomeStatus calculateOutcomeFromDetailResults(KpiB4Result kpiB4Result) {
-        log.debug("Calculating outcome from detail results for KPI B.4 result id: {}, evaluationType: {}", 
+        log.debug("Calculating outcome from detail results for KPI B.4 result id: {}, evaluationType: {}",
             kpiB4Result.getId(), kpiB4Result.getEvaluationType());
-        
+
         List<KpiB4DetailResult> detailResults = kpiB4DetailResultRepository.findByKpiB4Result(kpiB4Result);
-        
+
         log.info("Found {} detail results for KPI B.4 result id: {}", detailResults.size(), kpiB4Result.getId());
-        
+
         if (detailResults.isEmpty()) {
             log.warn("No detail results found for KPI B.4 result {}, keeping original outcome", kpiB4Result.getId());
             return kpiB4Result.getOutcome();
@@ -676,13 +663,13 @@ public class KpiB4ServiceImpl implements KpiB4Service {
 
         // Log dei detail results trovati
         for (KpiB4DetailResult dr : detailResults) {
-            log.info("Detail result: id={}, evaluationType={}, outcome={}, startDate={}, endDate={}", 
-                dr.getId(), dr.getEvaluationType(), dr.getOutcome(), 
+            log.info("Detail result: id={}, evaluationType={}, outcome={}, startDate={}, endDate={}",
+                dr.getId(), dr.getEvaluationType(), dr.getOutcome(),
                 dr.getEvaluationStartDate(), dr.getEvaluationEndDate());
         }
 
         EvaluationType evaluationType = kpiB4Result.getEvaluationType();
-        
+
         if (evaluationType == EvaluationType.TOTALE) {
             // Per valutazione TOTALE, trova il detail result di tipo TOTALE e usa il suo outcome
             log.info("Evaluation type is TOTALE, looking for TOTALE detail result");
@@ -694,27 +681,27 @@ public class KpiB4ServiceImpl implements KpiB4Service {
                     return dr.getOutcome();
                 })
                 .orElse(kpiB4Result.getOutcome());
-            
+
             log.info("Calculated outcome from TOTALE detail result: {}", totalOutcome);
             return totalOutcome;
         } else {
             // Per valutazione MESE, se almeno un detail result mensile è KO, l'outcome è KO
             log.info("Evaluation type is MESE, checking monthly detail results for KO");
-            
+
             long monthlyCount = detailResults.stream()
                 .filter(dr -> dr.getEvaluationType() == com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType.MESE)
                 .count();
-            
+
             long koCount = detailResults.stream()
                 .filter(dr -> dr.getEvaluationType() == com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType.MESE)
                 .filter(dr -> dr.getOutcome() == OutcomeStatus.KO)
                 .count();
-            
+
             log.info("Monthly detail results: total={}, KO count={}", monthlyCount, koCount);
-            
+
             boolean hasKoInMonthlyResults = koCount > 0;
             OutcomeStatus finalOutcome = hasKoInMonthlyResults ? OutcomeStatus.KO : OutcomeStatus.OK;
-            
+
             log.info("Calculated outcome from monthly detail results: {} (hasKO: {})", finalOutcome, hasKoInMonthlyResults);
             return finalOutcome;
         }

@@ -157,10 +157,18 @@ class KpiC1NegativeEvidencePersistenceTest {
         OutcomeStatus outcome = service.executeKpiC1Calculation(
             instance, module, conf, LocalDate.of(2025,1,3));
 
+
+    verify(ioDrilldownService, atLeastOnce()).saveAll(any());
+    List<com.nexigroup.pagopa.cruscotto.domain.IoDrilldown> saved = captured.get();
+        // Logica corrente: solo enti KO in drilldown (1)
+        assertThat(saved).hasSize(2);
+        // Verifica presenza solo ente KO
+        assertThat(saved.stream().anyMatch(d -> d.getCfInstitution().equals("ENTE_LOW") && Boolean.FALSE.equals(d.getMeetsTolerance()))).isTrue();
+        // Percentuale ente KO < soglia
+        assertThat(saved.stream().filter(d -> d.getCfInstitution().equals("ENTE_LOW")).findFirst().orElseThrow().getPercentage()).isLessThan(95.0);
         assertThat(outcome).isEqualTo(OutcomeStatus.OK);
         verify(ioDrilldownService, atLeastOnce()).saveAll(any());
 
-        List<IoDrilldown> saved = captured.get();
 
         assertThat(saved).hasSize(2);
 
@@ -181,5 +189,6 @@ class KpiC1NegativeEvidencePersistenceTest {
         assertThat(ok.getCfInstitution()).isEqualTo("ENTE_OK");
         assertThat(ok.getPercentage()).isEqualTo(100.0);
         assertThat(ok.getMeetsTolerance()).isTrue();
+
     }
 }
