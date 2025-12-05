@@ -10,6 +10,7 @@ import com.nexigroup.pagopa.cruscotto.service.mapper.KpiB8ResultMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -202,12 +203,12 @@ class KpiB8ServiceImplTest {
 
     @Test
     void testCreateDetailResultsNoStations() throws Exception {
-        // Assicuriamoci che il partner sia settato
+        // Ensure the partner is set
         AnagPartner partner = new AnagPartner();
         partner.setFiscalCode("12345678901");
         instance.setPartner(partner);
 
-        // Stub lenient per evitare errori se non chiamato
+        // Return empty list of stations
         lenient().when(anagStationRepository.findByAnagPartnerFiscalCode(anyString()))
             .thenReturn(Collections.emptyList());
 
@@ -224,6 +225,17 @@ class KpiB8ServiceImplTest {
         method.setAccessible(true);
         method.invoke(kpiB8Service, result, instance);
 
+        // Capture saved detail results
+        ArgumentCaptor<KpiB8DetailResult> captor = ArgumentCaptor.forClass(KpiB8DetailResult.class);
+        verify(kpiB8DetailResultRepository, atLeastOnce()).save(captor.capture());
+
+        // Assertions: check that totals are correct even with no stations
+        List<KpiB8DetailResult> savedResults = captor.getAllValues();
+        assertFalse(savedResults.isEmpty(), "Expected some detail results to be saved");
+        savedResults.forEach(dr -> {
+            assertEquals(0, dr.getTotReq(), "Total requests should be 0 when no stations");
+            assertEquals(0, dr.getReqKO(), "KO requests should be 0 when no stations");
+        });
     }
 
     @Test
