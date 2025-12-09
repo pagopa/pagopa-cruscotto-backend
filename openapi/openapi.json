@@ -5203,6 +5203,23 @@
               "type": "integer",
               "format": "int64"
             }
+          },
+          {
+            "name": "spontaneousPaymentsFilter",
+            "in": "query",
+            "description": "Filter for spontaneous payments status: 'ATTIVI' (active only), 'NON_ATTIVI' or 'NON ATTIVI' (non-active only), 'ALL' or 'TUTTI' (all records). Defaults to 'NON_ATTIVI' if not provided.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ATTIVI",
+                "NON_ATTIVI",
+                "NON ATTIVI",
+                "ALL",
+                "TUTTI"
+              ],
+              "default": "NON_ATTIVI"
+            }
           }
         ],
         "responses": {
