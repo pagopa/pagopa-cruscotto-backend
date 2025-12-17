@@ -87,6 +87,8 @@ public class ApplicationProperties {
         private LoadStandInDataJob loadStandInDataJob = new LoadStandInDataJob();
 
         private ClearLogJob clearLogJob = new ClearLogJob();
+
+        private ReportGenerationJob reportGenerationJob = new ReportGenerationJob();
     }
 
     @Getter
@@ -304,6 +306,15 @@ public class ApplicationProperties {
         private boolean enabled;
 
         private String cronExpression = "0 0 0 * * ?"; // Every day at midnight
+    }
+
+    @Setter
+    @Getter
+    public static class ReportGenerationJob {
+
+        private boolean enabled = true;
+
+        private String cron = "0 */10 * * * ?"; // Every 10 minutes
     }
 
     @Setter
