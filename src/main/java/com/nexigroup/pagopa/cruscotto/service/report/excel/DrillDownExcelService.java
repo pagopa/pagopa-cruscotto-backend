@@ -30,9 +30,9 @@ public class DrillDownExcelService {
             for (DrillDownExcelExporter exporter : exporters) {
                 List<?> data = exporter.loadData(instanceCode);
 
-                if (data == null || data.isEmpty()) {
-                    continue;
-                }
+                //if (data == null || data.isEmpty()) {
+                //    continue;
+                //}
 
                 Sheet sheet = workbook.createSheet(exporter.getSheetName());
                 exporter.writeSheet(sheet, data);

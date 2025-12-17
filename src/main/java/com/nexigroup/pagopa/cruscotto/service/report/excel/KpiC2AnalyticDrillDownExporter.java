@@ -27,7 +27,7 @@ public class KpiC2AnalyticDrillDownExporter implements DrillDownExcelExporter {
 
     @Override
     public int getOrder() {
-        return 1;
+        return 11;
     }
 
     @Override
@@ -48,10 +48,17 @@ public class KpiC2AnalyticDrillDownExporter implements DrillDownExcelExporter {
 
     @Override
     public void writeSheet(Sheet sheet, List<?> data) {
+
+        int rowIdx = 0;
+        if (data == null || data.isEmpty()) {
+            Row row = sheet.createRow(rowIdx);
+            row.createCell(0).setCellValue("NO DATA FOUND");
+            return;
+        }
+
         @SuppressWarnings("unchecked")
         List<KpiC2AnalyticDrillDown> rows = (List<KpiC2AnalyticDrillDown>) data;
 
-        int rowIdx = 0;
 
         // Header
         Row header = sheet.createRow(rowIdx++);
@@ -59,6 +66,7 @@ public class KpiC2AnalyticDrillDownExporter implements DrillDownExcelExporter {
         header.createCell(1).setCellValue("Num Payment");
         header.createCell(2).setCellValue("Num Notification");
         header.createCell(3).setCellValue("% Notification");
+
 
         // Body
         for (KpiC2AnalyticDrillDown r : rows) {

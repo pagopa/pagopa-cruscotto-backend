@@ -21,12 +21,12 @@ public class KpiB5AnalyticDrillDownExporter implements DrillDownExcelExporter {
 
     @Override
     public String getSheetName() {
-        return "KPI_B5_ANALYTIC";
+        return "KPI_B5_ANALYTIC_DRILLDOWN";
     }
 
     @Override
     public int getOrder() {
-        return 2;
+        return 7;
     }
 
     @Override
@@ -49,11 +49,16 @@ public class KpiB5AnalyticDrillDownExporter implements DrillDownExcelExporter {
     @Override
     public void writeSheet(Sheet sheet, List<?> data) {
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings("unchecked")        int rowIdx = 0;
+        if (data == null || data.isEmpty()) {
+            Row row = sheet.createRow(rowIdx);
+            row.createCell(0).setCellValue("NO DATA FOUND");
+            return;
+        }
+
         List<KpiB5AnalyticDrillDown> rows =
             (List<KpiB5AnalyticDrillDown>) data;
 
-        int rowIdx = 0;
 
         // ===== HEADER =====
         Row header = sheet.createRow(rowIdx++);
