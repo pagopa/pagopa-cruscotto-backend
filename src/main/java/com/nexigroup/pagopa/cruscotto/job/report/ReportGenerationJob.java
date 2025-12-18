@@ -71,6 +71,12 @@ public class ReportGenerationJob extends QuartzJobBean {
                             LOGGER.info("Chiamo il servizio executeAsyncGeneration");
                             // reportGenerationService.executeAsyncGeneration(reportId);
 
+                            //per ora simuliamo il successo, queste 3 linee di codice sono solo per simulare un lavoro e verranno cancellate
+                            LOGGER.info("START report {}", reportId);
+                            Thread.sleep(2000); // simulazione lavoro
+                            LOGGER.info("END report {}", reportId);
+                            // Fine simulazione
+
                             successCount.incrementAndGet();
                             LOGGER.info("Successfully processed report ID: {}", reportId);
                         } catch (Exception e) {
@@ -105,7 +111,8 @@ public class ReportGenerationJob extends QuartzJobBean {
      *
      * @return List of report IDs in PENDING status
      */
-    private List<Long> queryPendingReports() {
+    
+    protected List<Long> queryPendingReports() {
         // TODO: Query reale da implementare
         // return reportRepository.findByStatus(ReportStatus.PENDING);
 
