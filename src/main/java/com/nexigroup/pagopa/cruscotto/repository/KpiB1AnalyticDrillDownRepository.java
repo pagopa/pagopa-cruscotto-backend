@@ -14,11 +14,22 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface KpiB1AnalyticDrillDownRepository extends JpaRepository<KpiB1AnalyticDrillDown, Long>, JpaSpecificationExecutor<KpiB1AnalyticDrillDown> {
-    
+
     @Modifying
     @Query("DELETE KpiB1AnalyticDrillDown kpiB1AnalyticDrillDown WHERE kpiB1AnalyticDrillDown.kpiB1AnalyticData.id IN :analyticDataIds")
     int deleteByKpiB1AnalyticDataIds(@Param("analyticDataIds") List<Long> analyticDataIds);
 
     @Query("SELECT b FROM KpiB1AnalyticDrillDown b WHERE b.kpiB1AnalyticData.id = :analyticDataId ORDER BY b.dataDate ASC, b.partnerFiscalCode ASC")
     List<KpiB1AnalyticDrillDown> findByKpiB1AnalyticDataId(@Param("analyticDataId") Long analyticDataId);
+
+    @Query("""
+        SELECT b
+        FROM KpiB1AnalyticDrillDown b
+        WHERE b.kpiB1AnalyticData.id IN :analyticDataIds
+        ORDER BY b.dataDate ASC, b.partnerFiscalCode ASC
+    """)
+    List<KpiB1AnalyticDrillDown> findByKpiB1AnalyticDataIds(
+        @Param("analyticDataIds") List<Long> analyticDataIds
+    );
+
 }

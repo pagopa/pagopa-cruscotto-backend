@@ -203,6 +203,9 @@ application:
     clear-log-job:
       cron: 0 0/20 05-6 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
       days: 7
+    report-generation-job:
+      enabled: true
+      cron: 0 */10 * * * ? # Every 10 minutes
 
   liquibase:
     async-start: false
