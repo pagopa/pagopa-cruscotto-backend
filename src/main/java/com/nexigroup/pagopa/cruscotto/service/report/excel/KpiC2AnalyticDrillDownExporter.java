@@ -27,7 +27,7 @@ public class KpiC2AnalyticDrillDownExporter implements DrillDownExcelExporter {
 
     @Override
     public int getOrder() {
-        return 11;
+        return 12;
     }
 
     @Override

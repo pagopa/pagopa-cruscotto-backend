@@ -28,4 +28,19 @@ public interface KpiB3DetailResultRepository extends JpaRepository<KpiB3DetailRe
         "SELECT kpiB3DetailResult FROM KpiB3DetailResult kpiB3DetailResult WHERE kpiB3DetailResult.kpiB3Result.id = :resultId ORDER BY kpiB3DetailResult.analysisDate DESC"
     )
     List<KpiB3DetailResult> findAllByResultIdOrderByAnalysisDateDesc(@Param("resultId") Long resultId);
+
+    @Query("""
+        SELECT d
+        FROM KpiB3DetailResult d
+        WHERE d.instance.id = :instanceId
+          AND d.analysisDate = (
+              SELECT MAX(dd.analysisDate)
+              FROM KpiB3DetailResult dd
+              WHERE dd.instance.id = :instanceId
+          )
+        ORDER BY d.instanceModule.id ASC
+    """)
+    List<KpiB3DetailResult> findLatestByInstanceId(
+        @Param("instanceId") Long instanceId
+    );
 }
