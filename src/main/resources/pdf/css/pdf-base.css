@@ -1,0 +1,105 @@
+@page {
+    size: A4;
+    margin: 0;
+}
+
+@media print {
+    .header {
+        position: fixed;
+        top: 0;
+        width: 100%;
+    }
+}
+
+/* BASE */
+body {
+    font-family: TitilliumWeb, sans-serif;
+    font-size: 11pt;
+    color: #000000;
+    line-height: 1.35;
+}
+
+/* HEADER FULL WIDTH */
+.header {
+    background-color: #0066CC;
+    color: #ffffff;
+    height: 70px;
+    width: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    position: fixed;
+}
+
+.header-left {
+    padding: 12px 0;
+    vertical-align: middle;
+}
+
+.logo {
+    width: 90px;
+    vertical-align: middle;
+}
+
+.header-title {
+    font-size: 22px;
+    font-weight: bold;
+    margin-left: 16px;
+    vertical-align: middle;
+}
+
+/* FOOTER */
+.footer {
+    width: auto;
+    position: fixed;
+    bottom: 4mm;
+    left: 10mm;
+    right: 10mm;
+    font-size: 9pt;
+    color: #7A757F;
+}
+
+.footer table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.footer td {
+    width: 33.33%;
+    vertical-align: middle;
+}
+
+.footer td:first-child {
+    text-align: left;
+}
+
+.footer td:nth-child(2) {
+    text-align: center;
+}
+
+.footer td:last-child {
+    text-align: right;
+}
+
+/* PAGE COUNTER */
+.page-number::before {
+    content:
+        attr(data-page-label) " "
+        counter(page) " "
+        attr(data-of-label) " "
+        counter(pages);
+}
+
+.page {
+    box-sizing: border-box;
+    width: 100%;
+    padding-top: 90px;
+    /* spazio sotto header */
+    padding-left: 10mm;
+    padding-right: 10mm;
+}
+
+.page-break {
+  page-break-before: always;
+}

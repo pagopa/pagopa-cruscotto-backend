@@ -43,7 +43,7 @@ spring:
   main:
     allow-bean-definition-overriding: true
   messages:
-    basename: i18n/messages
+    basename: i18n/messages,i18n/pdf
   security:
     oauth2:
       resourceserver:

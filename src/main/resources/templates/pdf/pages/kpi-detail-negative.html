@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div class="page page-break" th:fragment="page(kpi)">
+
+  <div class="kpi-header">
+    <h2 class="kpi-detail-title">
+      <span th:text="'KPI ' + ${kpi.code}">KPI A.2</span>
+    </h2>
+
+    <h3 class="kpi-subtitle"
+        th:text="#{${'pdf.kpi.' + kpi.code + '.title'}}">
+      Tassonomia precisa
+    </h3>
+
+    <p class="kpi-description"
+      th:text="#{${'pdf.kpi.' + kpi.code + '.description'}}">
+    </p>
+  </div>
+
+  <div class="kpi-detail-outcome">
+    <span class="kpi-pill ko" th:text="#{pdf.kpi.ko}">NON CONFORME</span>
+  </div>
+
+  <div class="kpi-box">
+    <div class="kpi-row">
+      <span class="kpi-label" th:text="#{pdf.kpi.detail.outcome}">Esito:</span>
+      <span class="ko" th:text="#{pdf.kpi.ko}">NON CONFORME</span>
+    </div>
+
+    <div class="kpi-evidence" th:if="${kpi.evidences != null}">
+      <div class="kpi-evidence-title" th:text="#{pdf.kpi.detail.evidence}">Evidenze:</div>
+      <ul>
+        <li th:each="e : ${kpi.evidences}" th:text="${e}"></li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

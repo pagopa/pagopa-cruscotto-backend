@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div class="page" th:fragment="page">
+
+    <!-- TITLE -->
+    <div class="title-block">
+        <h1 th:text="#{pdf.summary.title}">SISTEMA DI ANALISI QUALITATIVA</h1>
+
+        <div class="subtitle">
+            <span th:text="#{pdf.summary.analysisNumber}">Analisi numero:</span>
+            <strong th:text="${analysisCode}">INST-XXX</strong>
+        </div>
+    </div>
+
+    <!-- INFO -->
+    <table class="info-grid">
+        <tr>
+            <td>
+                <strong th:text="#{pdf.partner}">Partner:</strong>
+                <span th:text="${partner}">Partner</span>
+            </td>
+            <td class="text-right">
+                <strong th:text="#{pdf.outcome}">Esito:</strong>
+                <span class="outcome"
+                      th:text="${esito}"
+                      th:classappend="' ' + ${esitoClass}">
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <strong th:text="#{pdf.analysisDate}">Data:</strong>
+                <span th:text="${dataAnalisi}"></span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <strong th:text="#{pdf.period}">Periodo:</strong>
+                <span th:text="${periodo}"></span>
+            </td>
+        </tr>
+    </table>
+
+    <!-- KPI TABLE -->
+    <h2 class="kpi-title" th:text="#{pdf.kpi.title}">KPI ANALIZZATI</h2>
+
+    <table class="kpi-table">
+        <tbody>
+            <tr th:each="kpi : ${kpis}">
+                <td class="kpi-code" th:text="${kpi.code}"></td>
+                <td th:text="${kpi.description}"></td>
+                <td class="kpi-esito"
+                    th:classappend="${kpi.conforme} ? ' ok' : ' ko'">
+                    <span th:if="${kpi.conforme}" th:text="#{pdf.kpi.ok}"></span>
+                    <span th:unless="${kpi.conforme}" th:text="#{pdf.kpi.ko}"></span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+</div>
+
+</body>
+</html>
