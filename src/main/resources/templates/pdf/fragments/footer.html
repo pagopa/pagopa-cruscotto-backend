@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div class="footer" th:fragment="pdfFooter">
+    <table>
+        <tr>
+            <td th:text="${reportName}">
+                Report_INST-XXXX
+            </td>
+
+            <td th:text="${dataAnalisi}">
+                08/10/2025
+            </td>
+
+            <td class="page-number"
+                th:attr="data-page-label=#{pdf.footer.page},
+                        data-of-label=#{pdf.footer.of}">
+            </td>
+        </tr>
+    </table>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,63 @@
+/* TITLES */
+.title-block {
+    text-align: center;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+}
+
+h1 {
+    font-size: 22pt;
+    color: #0066CC;
+    margin-bottom: 6px;
+}
+
+.subtitle { font-size: 11pt; }
+
+/* INFO */
+.info-grid {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 28px;
+}
+
+.info-grid td {
+    padding: 6px 0;
+    vertical-align: top;
+}
+
+.text-right { text-align: right; }
+
+/* OUTCOME */
+.ok { color: #008000; }
+.ko { color: #FF0000; }
+.outcome { font-weight: bold; }
+
+/* KPI TABLE */
+.kpi-title {
+    text-align: center;
+    text-transform: uppercase;
+    color: #0066CC;
+    font-size: 16pt;
+    margin-bottom: 12px;
+}
+
+.kpi-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.kpi-table td {
+    border: 1px solid #999999;
+    padding: 8px;
+}
+
+.kpi-code {
+    width: 60px;
+    font-weight: bold;
+}
+
+.kpi-outcome {
+    width: 120px;
+    text-align: center;
+    font-weight: bold;
+}

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <link rel="stylesheet" href="pdf-base.css"/>
+  <link rel="stylesheet" href="pdf-summary.css"/>
+  <link rel="stylesheet" href="pdf-kpi-detail.css"/>
+</head>
+<body>
+
+<div th:replace="pdf/fragments/header :: pdfHeader"></div>
+
+<div th:replace="pdf/pages/summary :: page"></div>
+
+<!-- NEGATIVE KPIs -->
+<div th:each="k : ${negativeKpis}">
+  <div th:replace="pdf/pages/kpi-detail-negative :: page(${k})"></div>
+</div>
+
+<div th:replace="pdf/fragments/footer :: pdfFooter"></div>
+
+</body>
+</html>
