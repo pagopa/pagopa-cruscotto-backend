@@ -1,4 +1,4 @@
-package com.nexigroup.pagopa.cruscotto.service.excel.exporter;
+package com.nexigroup.pagopa.cruscotto.service.report.excel;
 
 import com.nexigroup.pagopa.cruscotto.domain.KpiA1AnalyticDrillDown;
 import com.nexigroup.pagopa.cruscotto.repository.KpiA1AnalyticDataRepository;

@@ -3,7 +3,6 @@ package com.nexigroup.pagopa.cruscotto.service.report.excel;
 import com.nexigroup.pagopa.cruscotto.domain.KpiB2AnalyticDrillDown;
 import com.nexigroup.pagopa.cruscotto.repository.KpiB2AnalyticDataRepository;
 import com.nexigroup.pagopa.cruscotto.repository.KpiB2AnalyticDrillDownRepository;
-import com.nexigroup.pagopa.cruscotto.service.report.excel.DrillDownExcelExporter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.core.annotation.Order;
