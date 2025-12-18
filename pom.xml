@@ -439,16 +439,6 @@
       <artifactId>poi-ooxml</artifactId>
       <version>5.2.5</version>
     </dependency>
-    <!-- POI EXCEL> -->
-
-
-    <!-- iText 7 pdfHTML (HTML to PDF converter) -->
-    <dependency>
-      <groupId>com.itextpdf</groupId>
-      <artifactId>html2pdf</artifactId>
-      <version>5.0.2</version>
-    </dependency>
-
   </dependencies>
 
   <build>
