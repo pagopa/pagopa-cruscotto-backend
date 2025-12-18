@@ -12,6 +12,8 @@ import org.quartz.JobExecutionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 /**
  * Test per ReportGenerationJob.
  * Verifica il comportamento del job schedulato per la generazione asincrona dei report.
@@ -130,6 +132,41 @@ class ReportGenerationJobTest {
         LOGGER.info("Test passed: Attualmente queryPendingReports() ritorna lista vuota.");
         LOGGER.info("Il log 'Chiamo il servizio executeAsyncGeneration' verrà stampato solo quando ci saranno report PENDING reali.");
         LOGGER.info("Per testarlo, il collega dovrà implementare il repository e popolare il DB con report PENDING.");
+    }
+
+
+    @Test
+    void testParallelExecutionWithFakeReports() {
+        // Given
+        ApplicationProperties properties = mock(ApplicationProperties.class);
+        ApplicationProperties.Job job = mock(ApplicationProperties.Job.class);
+        ApplicationProperties.ReportGenerationJob reportJob = mock(ApplicationProperties.ReportGenerationJob.class);
+
+        when(properties.getJob()).thenReturn(job);
+        when(job.getReportGenerationJob()).thenReturn(reportJob);
+        when(reportJob.isEnabled()).thenReturn(true);
+
+        // Subclass FINTA del job
+        ReportGenerationJob jobUnderTest = new ReportGenerationJob(properties) {
+
+            @Override
+            protected List<Long> queryPendingReports() {
+                return List.of(1L, 2L, 3L, 4L, 5L);
+            }
+
+            @Override
+            protected void executeInternal(JobExecutionContext context) {
+                LOGGER.info("=== TEST PARALLEL EXECUTION START ===");
+                super.executeInternal(context);
+                LOGGER.info("=== TEST PARALLEL EXECUTION END ===");
+            }
+        };
+
+        // When
+        jobUnderTest.executeInternal(mock(JobExecutionContext.class));
+
+        // Then
+        // Se arrivi qui senza eccezioni e vedi log paralleli → OK
     }
 }
 
