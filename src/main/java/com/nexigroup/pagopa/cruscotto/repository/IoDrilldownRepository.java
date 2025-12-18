@@ -19,4 +19,21 @@ public interface IoDrilldownRepository extends JpaRepository<IoDrilldown, Long> 
     @Query("SELECT i FROM IoDrilldown i WHERE i.instanceModule.id = :instanceModuleId AND i.referenceDate = :referenceDate")
     List<IoDrilldown> findByInstanceModuleAndReferenceDate(@Param("instanceModuleId") Long instanceModuleId,
                                                             @Param("referenceDate") java.time.LocalDate referenceDate);
+
+    @Query("""
+        SELECT i
+        FROM IoDrilldown i
+        WHERE i.instance.id = :instanceId
+          AND i.dataDate = (
+              SELECT MAX(ii.dataDate)
+              FROM IoDrilldown ii
+              WHERE ii.instance.id = :instanceId
+          )
+        ORDER BY i.cfInstitution, i.dataDate
+    """)
+    List<IoDrilldown> findLatestByInstanceId(@Param("instanceId") Long instanceId);
+
 }
+
+
+

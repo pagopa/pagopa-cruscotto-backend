@@ -3,6 +3,8 @@ package com.nexigroup.pagopa.cruscotto.repository;
 import com.nexigroup.pagopa.cruscotto.domain.KpiB4DetailResult;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import com.nexigroup.pagopa.cruscotto.domain.KpiB4Result;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -42,8 +44,8 @@ public interface KpiB4DetailResultRepository extends JpaRepository<KpiB4DetailRe
      * @return the list of KpiB4DetailResult
      */
     List<KpiB4DetailResult> findByInstanceIdAndAnalysisDateAndEvaluationType(
-        Long instanceId, 
-        LocalDateTime analysisDate, 
+        Long instanceId,
+        LocalDateTime analysisDate,
         String evaluationType
     );
 
@@ -65,7 +67,7 @@ public interface KpiB4DetailResultRepository extends JpaRepository<KpiB4DetailRe
      */
     @Query("SELECT k FROM KpiB4DetailResult k WHERE k.instanceId = :instanceId AND k.analysisDate = :analysisDate AND k.evaluationType = 'MESE' ORDER BY k.evaluationStartDate ASC")
     List<KpiB4DetailResult> findMonthlyResultsByInstanceIdAndAnalysisDate(
-        @Param("instanceId") Long instanceId, 
+        @Param("instanceId") Long instanceId,
         @Param("analysisDate") LocalDateTime analysisDate
     );
 
@@ -78,7 +80,7 @@ public interface KpiB4DetailResultRepository extends JpaRepository<KpiB4DetailRe
      */
     @Query("SELECT k FROM KpiB4DetailResult k WHERE k.instanceId = :instanceId AND k.analysisDate = :analysisDate AND k.evaluationType = 'TOTALE'")
     KpiB4DetailResult findTotalResultByInstanceIdAndAnalysisDate(
-        @Param("instanceId") Long instanceId, 
+        @Param("instanceId") Long instanceId,
         @Param("analysisDate") LocalDateTime analysisDate
     );
 
@@ -98,7 +100,7 @@ public interface KpiB4DetailResultRepository extends JpaRepository<KpiB4DetailRe
      */
     @Query("SELECT COUNT(k) > 0 FROM KpiB4DetailResult k WHERE k.instanceId = :instanceId AND k.analysisDate = :analysisDate AND k.outcome = 'KO'")
     boolean existsNonCompliantByInstanceIdAndAnalysisDate(
-        @Param("instanceId") Long instanceId, 
+        @Param("instanceId") Long instanceId,
         @Param("analysisDate") LocalDateTime analysisDate
     );
 
@@ -128,4 +130,19 @@ public interface KpiB4DetailResultRepository extends JpaRepository<KpiB4DetailRe
      */
     @Query("SELECT COUNT(kdr) > 0 FROM KpiB4DetailResult kdr WHERE kdr.kpiB4Result.id = :resultId AND kdr.outcome = 'KO'")
     boolean existsKoOutcomeByResultId(@Param("resultId") Long resultId);
+
+    @Query("""
+        SELECT d
+        FROM KpiB4DetailResult d
+        WHERE d.instanceId = :instanceId
+          AND d.analysisDate = (
+              SELECT MAX(dd.analysisDate)
+              FROM KpiB4DetailResult dd
+              WHERE dd.instanceId = :instanceId
+          )
+        ORDER BY d.instanceModuleId ASC
+    """)
+    List<KpiB4DetailResult> findLatestByInstanceId(
+        @Param("instanceId") Long instanceId
+    );
 }

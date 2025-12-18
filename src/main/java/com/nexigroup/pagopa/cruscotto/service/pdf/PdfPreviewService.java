@@ -8,6 +8,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import com.nexigroup.pagopa.cruscotto.domain.*;
+import com.nexigroup.pagopa.cruscotto.repository.*;
+import com.nexigroup.pagopa.cruscotto.service.KpiA1DetailResultService;
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiA1DetailResultDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiB6DetailResultDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -20,13 +25,30 @@ public class PdfPreviewService {
 
     private final PdfGenerationService generationService;
     private final PdfRendererService rendererService;
+    private final KpiA1DetailResultRepository kpiA1DetailResultRepository;
+    private final KpiA2DetailResultRepository kpiA2DetailResultRepository;
+
+    private final KpiB3DetailResultRepository kpiB3DetailResultRepository;
+    private final KpiB4DetailResultRepository kpiB4DetailResultRepository;
+    private final KpiB5DetailResultRepository kpiB5DetailResultRepository;
+
+    private final KpiC1DetailResultRepository kpiC1DetailResultRepository;
+    private final KpiC2DetailResultRepository kpiC2DetailResultRepository;
+
 
     public PdfPreviewService(
-            PdfGenerationService generationService,
-            PdfRendererService rendererService
+        PdfGenerationService generationService,
+        PdfRendererService rendererService, KpiA1DetailResultRepository kpiA1DetailResultRepository, KpiA2DetailResultRepository kpiA2DetailResultRepository, KpiB3DetailResultRepository kpiB3DetailResultRepository, KpiB4DetailResultRepository kpiB4DetailResultRepository, KpiB5DetailResultRepository kpiB5DetailResultRepository, KpiC1DetailResultRepository kpiC1DetailResultRepository, KpiC2DetailResultRepository kpiC2DetailResultRepository
     ) {
         this.generationService = generationService;
         this.rendererService = rendererService;
+        this.kpiA1DetailResultRepository = kpiA1DetailResultRepository;
+        this.kpiA2DetailResultRepository = kpiA2DetailResultRepository;
+        this.kpiB3DetailResultRepository = kpiB3DetailResultRepository;
+        this.kpiB4DetailResultRepository = kpiB4DetailResultRepository;
+        this.kpiB5DetailResultRepository = kpiB5DetailResultRepository;
+        this.kpiC1DetailResultRepository = kpiC1DetailResultRepository;
+        this.kpiC2DetailResultRepository = kpiC2DetailResultRepository;
     }
 
     public Path generatePreviewSetPdf(Locale locale) throws Exception {
@@ -85,6 +107,22 @@ public class PdfPreviewService {
         log.info("KPI totali: {}", kpis);
         log.info("KPI negativi: {}", negativeKpis);
         log.info("KPI positivi: {}", positiveKpis);
+        Long instanceId = 4060L;
+        //
+        List<KpiA1DetailResult> a1 = kpiA1DetailResultRepository.findLatestByInstanceId(instanceId);
+
+        List<KpiA2DetailResult> a2 = kpiA2DetailResultRepository.findLatestByInstanceId(instanceId);
+
+        List<KpiB3DetailResult> b3 = kpiB3DetailResultRepository.findLatestByInstanceId(instanceId);
+
+        List<KpiB4DetailResult> b4 = kpiB4DetailResultRepository.findLatestByInstanceId(instanceId);
+
+        List<KpiB5DetailResult> b5 = kpiB5DetailResultRepository.findLatestByInstanceId(instanceId);
+
+        List<KpiC1DetailResult> c1 = kpiC1DetailResultRepository.findLatestByInstanceId(instanceId);
+
+        List<KpiC2DetailResult> c2 = kpiC2DetailResultRepository.findLatestByInstanceId(instanceId);
+
 
         Map<String, Object> baseVars = Map.of(
             "analysisCode", "INST-06188330150-20251008-171040700",
@@ -119,6 +157,8 @@ public class PdfPreviewService {
         log.info("Set PDF generato in {}", workDir.toAbsolutePath());
         return workDir;
     }
+
+
 
     private void copy(String classpath, Path target) throws IOException {
         try (InputStream is = new ClassPathResource(classpath).getInputStream()) {
