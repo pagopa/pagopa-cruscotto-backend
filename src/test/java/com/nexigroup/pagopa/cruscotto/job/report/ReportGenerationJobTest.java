@@ -168,5 +168,42 @@ class ReportGenerationJobTest {
         // Then
         // Se arrivi qui senza eccezioni e vedi log paralleli → OK
     }
+
+
+
+    @Test
+    void testExecuteInternal_WhenOneReportFails_ShouldContinueProcessingOthers() {
+        // Given
+        ApplicationProperties properties = mock(ApplicationProperties.class);
+        ApplicationProperties.Job job = mock(ApplicationProperties.Job.class);
+        ApplicationProperties.ReportGenerationJob reportJob =
+            mock(ApplicationProperties.ReportGenerationJob.class);
+
+        when(properties.getJob()).thenReturn(job);
+        when(job.getReportGenerationJob()).thenReturn(reportJob);
+        when(reportJob.isEnabled()).thenReturn(true);
+
+        // Job finto per simulare il fallimento
+        ReportGenerationJob jobUnderTest = new ReportGenerationJob(properties) {
+
+            @Override
+            protected List<Long> queryPendingReports() {
+                return List.of(1L, 2L, 3L);
+            }
+
+            @Override
+            protected void processReport(Long reportId) throws Exception {
+                if (reportId.equals(2L)) {
+                    throw new RuntimeException("Errore simulato sul report 2");
+                }
+                Thread.sleep(500); // simulazione lavoro
+            }
+        };
+
+        // When & Then
+        assertDoesNotThrow(() ->
+            jobUnderTest.executeInternal(mock(JobExecutionContext.class))
+        );
+    }
 }
 

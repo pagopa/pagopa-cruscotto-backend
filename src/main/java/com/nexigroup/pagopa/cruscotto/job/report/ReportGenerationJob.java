@@ -65,18 +65,7 @@ public class ReportGenerationJob extends QuartzJobBean {
                 .map(reportId ->
                     CompletableFuture.runAsync(() -> {
                         try {
-                            LOGGER.info("Processing report ID: {}", reportId);
-
-                            // TODO: Decommentare quando ReportGenerationService sarà implementato dal collega
-                            LOGGER.info("Chiamo il servizio executeAsyncGeneration");
-                            // reportGenerationService.executeAsyncGeneration(reportId);
-
-                            //per ora simuliamo il successo, queste 3 linee di codice sono solo per simulare un lavoro e verranno cancellate
-                            LOGGER.info("START report {}", reportId);
-                            Thread.sleep(2000); // simulazione lavoro
-                            LOGGER.info("END report {}", reportId);
-                            // Fine simulazione
-
+                            processReport(reportId);
                             successCount.incrementAndGet();
                             LOGGER.info("Successfully processed report ID: {}", reportId);
                         } catch (Exception e) {
@@ -111,13 +100,30 @@ public class ReportGenerationJob extends QuartzJobBean {
      *
      * @return List of report IDs in PENDING status
      */
-    
+
     protected List<Long> queryPendingReports() {
         // TODO: Query reale da implementare
         // return reportRepository.findByStatus(ReportStatus.PENDING);
 
         // Per ora ritorniamo una lista vuota
         return List.of();
+    }
+
+
+    protected void processReport(Long reportId) throws Exception {
+        // TODO: Decommentare quando ReportGenerationService sarà implementato dal collega
+        //LOGGER.info("Chiamo il servizio executeAsyncGeneration");
+        // reportGenerationService.executeAsyncGeneration(reportId);
+
+        // TEMPORANEO: simulazione finché il servizio reale non esiste
+        LOGGER.info("Processing report ID: {}", reportId);
+        LOGGER.info("Chiamo il servizio executeAsyncGeneration");
+        LOGGER.info("START report {}", reportId);
+
+        Thread.sleep(2000); // simulazione lavoro
+
+        LOGGER.info("END report {}", reportId);
+        // fine simulazione
     }
 }
 
