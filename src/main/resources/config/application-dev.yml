@@ -111,7 +111,7 @@ jhipster:
 azure:
   blob:
     ${AZURE_BLOB_CONNECTION_STRING}
-    container-name: dev-cruscotto-container
+    container-name: ${AZURE_BLOB_CONTAINER_NAME:report}
 
 
 application:
