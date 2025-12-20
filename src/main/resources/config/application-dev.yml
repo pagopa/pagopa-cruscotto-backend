@@ -108,6 +108,12 @@ jhipster:
       port: 5000
       ring-buffer-size: 512
 
+azure:
+  blob:
+    ${AZURE_BLOB_CONNECTION_STRING}
+    container-name: ${AZURE_BLOB_CONTAINER_NAME:report}
+
+
 application:
   mail:
     base-url: http://localhost:8080/

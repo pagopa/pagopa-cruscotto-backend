@@ -219,10 +219,14 @@ application:
     clear-log-job:
       cron: 0 0/20 05-6 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
       days: 7
-
   liquibase:
     async-start: false
     dbVersion: 1.1.15
+
+azure:
+  blob:
+    ${AZURE_BLOB_CONNECTION_STRING}
+    container-name: ${AZURE_BLOB_CONTAINER_NAME:report}
 
 decorator:
   datasource:

@@ -218,3 +218,10 @@ decorator:
       multiline: true
       logging: slf4j
       enable-logging: false
+
+azure:
+  blob:
+    ${AZURE_BLOB_CONNECTION_STRING}
+    container-name: ${AZURE_BLOB_CONTAINER_NAME:report}
+
+
