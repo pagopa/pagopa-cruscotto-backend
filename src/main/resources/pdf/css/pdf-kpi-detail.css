@@ -17,14 +17,19 @@
 }
 
 .kpi-description {
-    font-size: 11pt;
+    font-size: 10pt;
     color: #000000;
     margin-bottom: 10px;
 }
 
 .kpi-detail-outcome {
     text-align: center;
-    margin-bottom: 12px;
+    margin-bottom: 24px;
+}
+
+.kpi-header, .kpi-detail-outcome,
+.kpi-parameters {
+    page-break-after: avoid;
 }
 
 .kpi-pill {
@@ -48,9 +53,9 @@
 }
 
 .kpi-box {
-    border: 1px solid #999999;
-    padding: 12px;
-    margin-top: 10px;
+    border: none;
+    padding: 0;
+    margin-top: 16px;
 }
 
 .kpi-row {
@@ -75,4 +80,95 @@
 .kpi-evidence ul {
     margin: 6px 0 0 18px;
     padding: 0;
+}
+
+/* =======================
+   KPI TABLE (ref: kpi-table.html)
+   ======================= */
+
+.kpi-table-wrapper {
+    margin-top: 24px;
+    margin-bottom: 24px;
+    page-break-inside: auto;
+    text-align: center;
+}
+
+.kpi-table-title {
+    font-weight: bold;
+    font-size: 14pt;
+    margin-bottom: 12px;
+    color: #0066CC;
+    font-weight: bold;
+    text-align: center;
+}
+
+.kpi-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: auto;
+    font-size: 9pt;
+}
+
+.kpi-table thead {
+    display: table-header-group;
+}
+
+.kpi-table th,
+.kpi-table td {
+    border: 1px solid #999;
+    padding: 6px 6px;
+    text-align: center;
+    vertical-align: middle;
+    word-wrap: break-word;
+    text-align: left;
+}
+
+.kpi-table .kpi-code,
+.kpi-table .col-code {
+    text-align: center;
+    font-weight: bold;
+    width: 60px;
+}
+
+.kpi-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+    font-size: 9pt;
+}
+
+.kpi-table td {
+    font-size: 9pt;
+}
+
+.kpi-table tr {
+    page-break-inside: avoid;
+}
+
+/* Numeric columns */
+.kpi-table td.numeric {
+    text-align: right;
+}
+
+/* Outcome cells */
+.kpi-table td.cell-ok {
+    color: #008000;
+    font-weight: bold;
+}
+
+.kpi-table td.cell-ko {
+    color: #FF0000;
+    font-weight: bold;
+}
+
+.kpi-parameters {
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.kpi-parameters-title {
+    color: #0066CC;
+    text-align: center;
+    font-weight: bold;
+    font-size: 12pt;
+    margin-bottom: 10px;
 }

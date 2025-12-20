@@ -7,7 +7,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.nexigroup.pagopa.cruscotto.service.pdf.PdfPreviewService;
+import com.nexigroup.pagopa.cruscotto.service.report.pdf.PdfPreviewService;
 
 @Configuration
 public class PdfPreviewRunner {

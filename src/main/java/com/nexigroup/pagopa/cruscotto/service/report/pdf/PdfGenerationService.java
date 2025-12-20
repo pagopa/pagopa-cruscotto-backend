@@ -1,4 +1,4 @@
-package com.nexigroup.pagopa.cruscotto.service.pdf;
+package com.nexigroup.pagopa.cruscotto.service.report.pdf;
 
 import java.util.Locale;
 import java.util.Map;
