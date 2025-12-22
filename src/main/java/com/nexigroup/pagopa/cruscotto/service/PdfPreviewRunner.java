@@ -1,4 +1,4 @@
-package com.nexigroup.pagopa.cruscotto;
+package com.nexigroup.pagopa.cruscotto.service;
 
 import java.nio.file.Path;
 import java.util.Locale;
