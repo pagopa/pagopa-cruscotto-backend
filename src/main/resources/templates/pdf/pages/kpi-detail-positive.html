@@ -9,35 +9,34 @@
       <span th:text="'KPI ' + ${kpi.code}">KPI A.1</span>
     </h2>
 
-    <h3 class="kpi-subtitle"
-        th:text="#{${'pdf.kpi.' + kpi.code + '.title'}}">
+    <h3 class="kpi-subtitle" th:text="#{${'pdf.kpi.' + kpi.code + '.title'}}">
       Rispetto SLA disponibilità servizio
     </h3>
 
-    <p class="kpi-description"
-       th:text="#{${'pdf.kpi.' + kpi.code + '.description'}}">
-    </p>
+    <p class="kpi-description" th:text="#{${'pdf.kpi.' + kpi.code + '.description'}}"></p>
   </div>
 
   <div class="kpi-detail-outcome">
-    <span class="kpi-pill ok" th:text="#{pdf.kpi.ok}">CONFORME</span>
+    <span class="kpi-pill ok" th:text="#{pdf.kpi.compliant}">CONFORME</span>
   </div>
 
-  <div class="kpi-box">
-    <div class="kpi-row">
-      <span class="kpi-label" th:text="#{pdf.kpi.detail.outcome}">Esito:</span>
-      <span class="ok" th:text="#{pdf.kpi.ok}">CONFORME</span>
+  <!-- PARAMETERS PLACEHOLDER -->
+  <div class="kpi-parameters">
+    <div class="kpi-parameters-title" th:text="#{pdf.kpi.parameters.title}">
+      Parametri di analisi utilizzati
     </div>
 
-    <div class="kpi-evidence" th:if="${kpi.notes != null}">
-      <div class="kpi-evidence-title" th:text="#{pdf.kpi.detail.notes}">Note:</div>
-      <ul>
-        <li th:each="n : ${kpi.notes}" th:text="${n}"></li>
-      </ul>
+    <!-- TODO: parametri dinamici -->
+    <div class="kpi-parameters-placeholder">
+      <!-- gestiti da service -->
     </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="kpi-table-wrapper" th:if="${kpi.code == 'A.1' and kpiA1Table != null}">
+    <div th:replace="pdf/fragments/kpi-table :: kpiTable(${kpiA1Table})"></div>
   </div>
 
 </div>
-
 </body>
 </html>

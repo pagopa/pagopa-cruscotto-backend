@@ -1,6 +1,10 @@
 @page {
     size: A4;
     margin: 0;
+    /* margin-top: 25mm;
+    margin-bottom: 25mm;
+    margin-left: 10mm;
+    margin-right: 10mm; */
 }
 
 @media print {
@@ -31,9 +35,11 @@ body {
     position: fixed;
 }
 
-.header-left {
-    padding: 12px 0;
-    vertical-align: middle;
+.header-inner {
+    padding-left: 10mm;
+    padding-right: 10mm;
+    display: flex;
+    align-items: center;
 }
 
 .logo {
@@ -66,7 +72,7 @@ body {
 }
 
 .footer td {
-    width: 33.33%;
+    width: 50%;
     vertical-align: middle;
 }
 
@@ -94,10 +100,11 @@ body {
 .page {
     box-sizing: border-box;
     width: 100%;
-    padding-top: 90px;
+    padding-top: 95px;
     /* spazio sotto header */
     padding-left: 10mm;
     padding-right: 10mm;
+    padding-bottom: 30mm;
 }
 
 .page-break {
