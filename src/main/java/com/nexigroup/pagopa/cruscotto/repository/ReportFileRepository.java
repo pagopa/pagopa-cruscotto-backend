@@ -3,6 +3,7 @@ package com.nexigroup.pagopa.cruscotto.repository;
 import com.nexigroup.pagopa.cruscotto.domain.ReportFile;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.*;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 /**

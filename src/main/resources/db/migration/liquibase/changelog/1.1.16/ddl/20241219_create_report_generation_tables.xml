@@ -44,8 +44,8 @@
             baseTableName="report_generation" 
             baseColumnNames="instance_id" 
             constraintName="fk_report_generation_instance" 
-            referencedTableName="instance" 
-            referencedColumnNames="id"/>
+            referencedTableName="INSTANCE" 
+            referencedColumnNames="CO_ID"/>
     </changeSet>
 
     <changeSet id="20241219-2-create-report-generation-indexes" author="system">

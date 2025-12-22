@@ -1,7 +1,6 @@
 package com.nexigroup.pagopa.cruscotto.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -10,8 +9,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 /**
  * A ReportFile entity.
@@ -20,7 +19,6 @@ import org.hibernate.annotations.TypeDef;
 @Entity
 @Table(name = "report_file")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-@TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 public class ReportFile implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -70,7 +68,7 @@ public class ReportFile implements Serializable {
     @Column(name = "deleted")
     private Boolean deleted = false;
 
-    @Type(type = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "package_contents", columnDefinition = "jsonb", nullable = false)
     private List<String> packageContents;
 

@@ -5,6 +5,7 @@ import com.nexigroup.pagopa.cruscotto.domain.enumeration.ReportStatus;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.*;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 /**

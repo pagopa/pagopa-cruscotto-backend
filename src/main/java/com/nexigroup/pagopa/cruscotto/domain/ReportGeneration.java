@@ -2,7 +2,6 @@ package com.nexigroup.pagopa.cruscotto.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ReportStatus;
-import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -12,8 +11,8 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 /**
  * A ReportGeneration entity.
@@ -23,7 +22,6 @@ import org.hibernate.annotations.TypeDef;
 @Entity
 @Table(name = "report_generation")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-@TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 public class ReportGeneration implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -80,7 +78,7 @@ public class ReportGeneration implements Serializable {
     @Column(name = "last_retry_date")
     private LocalDateTime lastRetryDate;
 
-    @Type(type = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "parameters", columnDefinition = "jsonb")
     private Map<String, Object> parameters;
 
