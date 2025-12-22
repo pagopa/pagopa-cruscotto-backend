@@ -2,11 +2,13 @@ package com.nexigroup.pagopa.cruscotto.service.report.excel;
 
 import com.nexigroup.pagopa.cruscotto.domain.KpiB5AnalyticDrillDown;
 import com.nexigroup.pagopa.cruscotto.repository.KpiB5AnalyticDrillDownRepository;
+import com.nexigroup.pagopa.cruscotto.service.dto.PagopaSpontaneiDTO;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class KpiB5AnalyticDrillDownExporter implements DrillDownExcelExporter {
@@ -21,7 +23,7 @@ public class KpiB5AnalyticDrillDownExporter implements DrillDownExcelExporter {
 
     @Override
     public String getSheetName() {
-        return "KPI_B5_ANALYTIC_DRILLDOWN";
+        return "KPI_B5";
     }
 
     @Override
@@ -30,13 +32,17 @@ public class KpiB5AnalyticDrillDownExporter implements DrillDownExcelExporter {
     }
 
     @Override
-    public List<KpiB5AnalyticDrillDown> loadData(String instanceCode) {
+    public List<PagopaSpontaneiDTO> loadData(String instanceCode) {
 
         // instanceCode = instanceId (come da tuoi esempi precedenti)
         Long instanceId = Long.valueOf(instanceCode);
 
-        List<KpiB5AnalyticDrillDown> result =
-            repository.findLatestByInstanceId(instanceId);
+        List<PagopaSpontaneiDTO> result =
+            repository.findLatestByInstanceId(instanceId)
+                .stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
+
 
         if (result == null || result.isEmpty()) {
             return List.of();
@@ -44,6 +50,22 @@ public class KpiB5AnalyticDrillDownExporter implements DrillDownExcelExporter {
 
         // richiesto: excel del primo record trovato
         return List.of(result.get(0));
+    }
+
+    private PagopaSpontaneiDTO toDto(KpiB5AnalyticDrillDown drillDown) {
+        PagopaSpontaneiDTO dto = new PagopaSpontaneiDTO();
+        dto.setId(drillDown.getId());
+        dto.setKpiB5AnalyticDataId(drillDown.getKpiB5AnalyticData().getId());
+        dto.setPartnerId(drillDown.getPartnerId());
+        dto.setPartnerName(drillDown.getPartnerName());
+        dto.setPartnerFiscalCode(drillDown.getPartnerFiscalCode());
+        dto.setStationCode(drillDown.getStationCode());
+        dto.setFiscalCode(drillDown.getFiscalCode());
+
+        // Use the enum's getValue() method to get the string representation
+        dto.setSpontaneousPayments(drillDown.getSpontaneousPayments().getValue());
+
+        return dto;
     }
 
     @Override
@@ -56,40 +78,25 @@ public class KpiB5AnalyticDrillDownExporter implements DrillDownExcelExporter {
             return;
         }
 
-        List<KpiB5AnalyticDrillDown> rows =
-            (List<KpiB5AnalyticDrillDown>) data;
+        List<PagopaSpontaneiDTO> rows =
+            (List<PagopaSpontaneiDTO>) data;
 
 
         // ===== HEADER =====
         Row header = sheet.createRow(rowIdx++);
-        header.createCell(0).setCellValue("Partner ID");
-        header.createCell(1).setCellValue("Partner Name");
-        header.createCell(2).setCellValue("Partner Fiscal Code");
-        header.createCell(3).setCellValue("Station Code");
-        header.createCell(4).setCellValue("Fiscal Code");
-        header.createCell(5).setCellValue("Spontaneous Payment");
-        header.createCell(6).setCellValue("Spontaneous Payments");
+
+        header.createCell(0).setCellValue("Partner Fiscal Code");
+        header.createCell(1).setCellValue("Station Code");
+        header.createCell(2).setCellValue("Fiscal Code");
+        header.createCell(3).setCellValue("Spontaneous Payments");
 
         // ===== DATA (1 record) =====
-        for (KpiB5AnalyticDrillDown r : rows) {
+        for (PagopaSpontaneiDTO r : rows) {
             Row row = sheet.createRow(rowIdx++);
-            row.createCell(0).setCellValue(
-                r.getPartnerId() != null ? r.getPartnerId() : 0
-            );
-            row.createCell(1).setCellValue(
-                r.getPartnerName() != null ? r.getPartnerName() : ""
-            );
-            row.createCell(2).setCellValue(r.getPartnerFiscalCode());
-            row.createCell(3).setCellValue(r.getStationCode());
-            row.createCell(4).setCellValue(r.getFiscalCode());
-            row.createCell(5).setCellValue(
-                Boolean.TRUE.equals(r.getSpontaneousPayment())
-            );
-            row.createCell(6).setCellValue(
-                r.getSpontaneousPayments() != null
-                    ? r.getSpontaneousPayments().name()
-                    : ""
-            );
+            row.createCell(0).setCellValue(r.getPartnerFiscalCode());
+            row.createCell(1).setCellValue(r.getStationCode());
+            row.createCell(2).setCellValue(r.getFiscalCode());
+            row.createCell(3).setCellValue(r.getSpontaneousPayments() );
         }
     }
 }
