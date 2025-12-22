@@ -3,6 +3,7 @@ package com.nexigroup.pagopa.cruscotto.service.report.excel;
 import com.nexigroup.pagopa.cruscotto.domain.KpiB1AnalyticDrillDown;
 import com.nexigroup.pagopa.cruscotto.repository.KpiB1AnalyticDataRepository;
 import com.nexigroup.pagopa.cruscotto.repository.KpiB1AnalyticDrillDownRepository;
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiB1AnalyticDrillDownDTO;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.core.annotation.Order;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @Order(3) // ordine nello sheet finale
@@ -32,7 +34,7 @@ public class KpiB1AnalyticDrillDownExcelExporter
 
     @Override
     public String getSheetName() {
-        return "KPI_B1_ANALYTIC_DRILLDOWN";
+        return "KPI_B1";
     }
 
     @Override
@@ -41,7 +43,7 @@ public class KpiB1AnalyticDrillDownExcelExporter
     }
 
     @Override
-    public List<KpiB1AnalyticDrillDown> loadData(String instanceCode) {
+    public List<KpiB1AnalyticDrillDownDTO> loadData(String instanceCode) {
 
         Long instanceId = Long.valueOf(instanceCode);
 
@@ -54,7 +56,25 @@ public class KpiB1AnalyticDrillDownExcelExporter
         }
 
         return drillDownRepository
-            .findByKpiB1AnalyticDataIds(analyticDataIds);
+            .findByKpiB1AnalyticDataIds(analyticDataIds)
+            .stream()
+            .map(this::toDto)
+            .collect(Collectors.toList());
+    }
+
+    private KpiB1AnalyticDrillDownDTO toDto(KpiB1AnalyticDrillDown entity) {
+
+        KpiB1AnalyticDrillDownDTO dto = new KpiB1AnalyticDrillDownDTO();
+        dto.setId(entity.getId());
+        dto.setDataDate(entity.getDataDate());
+        dto.setPartnerFiscalCode(entity.getPartnerFiscalCode());
+        dto.setInstitutionFiscalCode(entity.getInstitutionFiscalCode());
+        dto.setTransactionCount(entity.getTransactionCount());
+        dto.setStationCode(entity.getStationCode());
+        dto.setKpiB1AnalyticDataId(entity.getKpiB1AnalyticData().getId());
+
+        return dto;
+
     }
 
     @Override
@@ -78,11 +98,11 @@ public class KpiB1AnalyticDrillDownExcelExporter
         }
 
         @SuppressWarnings("unchecked")
-        List<KpiB1AnalyticDrillDown> rows =
-            (List<KpiB1AnalyticDrillDown>) data;
+        List<KpiB1AnalyticDrillDownDTO> rows =
+            (List<KpiB1AnalyticDrillDownDTO>) data;
 
         // ===== DATA =====
-        for (KpiB1AnalyticDrillDown r : rows) {
+        for (KpiB1AnalyticDrillDownDTO r : rows) {
             Row row = sheet.createRow(rowIdx++);
             row.createCell(0).setCellValue(
                 r.getDataDate() != null ? r.getDataDate().format(DATE_FMT) : ""

@@ -4,6 +4,7 @@ import com.nexigroup.pagopa.cruscotto.domain.KpiA1AnalyticDrillDown;
 import com.nexigroup.pagopa.cruscotto.repository.KpiA1AnalyticDataRepository;
 import com.nexigroup.pagopa.cruscotto.repository.KpiA1AnalyticDrillDownRepository;
 
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiA1AnalyticDrillDownDTO;
 import com.nexigroup.pagopa.cruscotto.service.report.excel.DrillDownExcelExporter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @Order(1)
@@ -35,7 +37,7 @@ public class KpiA1AnalyticDrillDownExporter implements DrillDownExcelExporter {
 
     @Override
     public String getSheetName() {
-        return "KPI_A1_ANALYTIC";
+        return "KPI_A1";
     }
 
     @Override
@@ -44,7 +46,7 @@ public class KpiA1AnalyticDrillDownExporter implements DrillDownExcelExporter {
     }
 
     @Override
-    public List<KpiA1AnalyticDrillDown> loadData(String instanceCode) {
+    public List<KpiA1AnalyticDrillDownDTO> loadData(String instanceCode) {
 
         Long instanceId = Long.valueOf(instanceCode);
 
@@ -55,7 +57,22 @@ public class KpiA1AnalyticDrillDownExporter implements DrillDownExcelExporter {
         }
 
         return drillDownRepository
-            .findByKpiA1AnalyticDataIdInOrderByFromHourAsc(latestAnalyticDataIdByInstanceId);
+            .findByKpiA1AnalyticDataIdInOrderByFromHourAsc(latestAnalyticDataIdByInstanceId)
+            .stream()
+            .map(this::toDto)
+            .collect(Collectors.toList());
+    }
+
+    private KpiA1AnalyticDrillDownDTO toDto(KpiA1AnalyticDrillDown entity) {
+        KpiA1AnalyticDrillDownDTO dto = new KpiA1AnalyticDrillDownDTO();
+        dto.setId(entity.getId());
+        dto.setKpiA1AnalyticDataId(entity.getKpiA1AnalyticDataId());
+        dto.setFromHour(entity.getFromHour());
+        dto.setToHour(entity.getToHour());
+        dto.setTotalRequests(entity.getTotalRequests());
+        dto.setOkRequests(entity.getOkRequests());
+        dto.setReqTimeout(entity.getReqTimeout());
+        return dto;
     }
 
     @Override
@@ -79,11 +96,11 @@ public class KpiA1AnalyticDrillDownExporter implements DrillDownExcelExporter {
         }
 
         @SuppressWarnings("unchecked")
-        List<KpiA1AnalyticDrillDown> rows =
-            (List<KpiA1AnalyticDrillDown>) data;
+        List<KpiA1AnalyticDrillDownDTO> rows =
+            (List<KpiA1AnalyticDrillDownDTO>) data;
 
         // ===== DATA =====
-        for (KpiA1AnalyticDrillDown r : rows) {
+        for (KpiA1AnalyticDrillDownDTO r : rows) {
             Row row = sheet.createRow(rowIdx++);
             row.createCell(0).setCellValue(HOUR_FMT.format(r.getFromHour()));
             row.createCell(1).setCellValue(HOUR_FMT.format(r.getToHour()));

@@ -3,6 +3,7 @@ package com.nexigroup.pagopa.cruscotto.service.report.excel;
 import com.nexigroup.pagopa.cruscotto.domain.KpiB2AnalyticDrillDown;
 import com.nexigroup.pagopa.cruscotto.repository.KpiB2AnalyticDataRepository;
 import com.nexigroup.pagopa.cruscotto.repository.KpiB2AnalyticDrillDownRepository;
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2AnalyticDrillDownDTO;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.core.annotation.Order;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @Order(4) // ordine dopo B1
@@ -34,7 +36,7 @@ public class KpiB2AnalyticDrillDownExcelExporter
 
     @Override
     public String getSheetName() {
-        return "KPI_B2_ANALYTIC_DRILLDOWN";
+        return "KPI_B2";
     }
 
     @Override
@@ -43,7 +45,7 @@ public class KpiB2AnalyticDrillDownExcelExporter
     }
 
     @Override
-    public List<KpiB2AnalyticDrillDown> loadData(String instanceCode) {
+    public List<KpiB2AnalyticDrillDownDTO> loadData(String instanceCode) {
 
         Long instanceId = Long.valueOf(instanceCode);
 
@@ -55,8 +57,24 @@ public class KpiB2AnalyticDrillDownExcelExporter
         }
 
         return drillDownRepository
-            .findByKpiB2AnalyticDataIdIn(analyticDataIds);
+            .findByKpiB2AnalyticDataIdIn(analyticDataIds)
+            .stream()
+            .map(this::toDto)
+            .collect(Collectors.toList());
     }
+
+    private  KpiB2AnalyticDrillDownDTO toDto(KpiB2AnalyticDrillDown entity) {
+        KpiB2AnalyticDrillDownDTO dto = new KpiB2AnalyticDrillDownDTO();
+        dto.setId(entity.getId());
+        dto.setKpiB2AnalyticDataId(entity.getKpiB2AnalyticDataId());
+        dto.setFromHour(entity.getFromHour());
+        dto.setEndHour(entity.getEndHour());
+        dto.setTotalRequests(entity.getTotalRequests());
+        dto.setOkRequests(entity.getOkRequests());
+        dto.setAverageTimeMs(entity.getAverageTimeMs());
+        return dto;
+    }
+
 
     @Override
     public void writeSheet(Sheet sheet, List<?> data) {
@@ -79,11 +97,11 @@ public class KpiB2AnalyticDrillDownExcelExporter
         }
 
         @SuppressWarnings("unchecked")
-        List<KpiB2AnalyticDrillDown> rows =
-            (List<KpiB2AnalyticDrillDown>) data;
+        List<KpiB2AnalyticDrillDownDTO> rows =
+            (List<KpiB2AnalyticDrillDownDTO>) data;
 
         // ===== DATA =====
-        for (KpiB2AnalyticDrillDown r : rows) {
+        for (KpiB2AnalyticDrillDownDTO r : rows) {
             Row row = sheet.createRow(rowIdx++);
             row.createCell(0).setCellValue(
                 r.getFromHour() != null ? HOUR_FMT.format(r.getFromHour()) : ""
