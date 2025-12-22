@@ -17,11 +17,13 @@ public class PdfKpiSummaryBuilder {
 
     private final KpiA1DetailResultRepository kpiA1DetailResultRepository;
     private final KpiA2DetailResultRepository kpiA2DetailResultRepository;
-
+    private final KpiB1DetailResultRepository kpiB1DetailResultRepository;
+    private final KpiB2DetailResultRepository kpiB2DetailResultRepository;
     private final KpiB3DetailResultRepository kpiB3DetailResultRepository;
     private final KpiB4DetailResultRepository kpiB4DetailResultRepository;
     private final KpiB5DetailResultRepository kpiB5DetailResultRepository;
-
+    private final KpiB8DetailResultRepository kpiB8DetailResultRepository;
+    private final KpiB9DetailResultRepository kpiB9DetailResultRepository;
     private final KpiC1DetailResultRepository kpiC1DetailResultRepository;
     private final KpiC2DetailResultRepository kpiC2DetailResultRepository;
 
@@ -29,18 +31,25 @@ public class PdfKpiSummaryBuilder {
             MessageSource messageSource,
             KpiA1DetailResultRepository kpiA1DetailResultRepository,
             KpiA2DetailResultRepository kpiA2DetailResultRepository,
+            KpiB1DetailResultRepository kpiB1DetailResultRepository,
+            KpiB2DetailResultRepository kpiB2DetailResultRepository,
             KpiB3DetailResultRepository kpiB3DetailResultRepository,
             KpiB4DetailResultRepository kpiB4DetailResultRepository,
             KpiB5DetailResultRepository kpiB5DetailResultRepository,
+            KpiB8DetailResultRepository kpiB8DetailResultRepository,
+            KpiB9DetailResultRepository kpiB9DetailResultRepository,
             KpiC1DetailResultRepository kpiC1DetailResultRepository,
-            KpiC2DetailResultRepository kpiC2DetailResultRepository
-    ) {
+            KpiC2DetailResultRepository kpiC2DetailResultRepository) {
         this.messageSource = messageSource;
         this.kpiA1DetailResultRepository = kpiA1DetailResultRepository;
         this.kpiA2DetailResultRepository = kpiA2DetailResultRepository;
+        this.kpiB1DetailResultRepository = kpiB1DetailResultRepository;
+        this.kpiB2DetailResultRepository = kpiB2DetailResultRepository;
         this.kpiB3DetailResultRepository = kpiB3DetailResultRepository;
         this.kpiB4DetailResultRepository = kpiB4DetailResultRepository;
         this.kpiB5DetailResultRepository = kpiB5DetailResultRepository;
+        this.kpiB8DetailResultRepository = kpiB8DetailResultRepository;
+        this.kpiB9DetailResultRepository = kpiB9DetailResultRepository;
         this.kpiC1DetailResultRepository = kpiC1DetailResultRepository;
         this.kpiC2DetailResultRepository = kpiC2DetailResultRepository;
     }
@@ -62,6 +71,18 @@ public class PdfKpiSummaryBuilder {
             out.add(buildFromOutcome("A.2", effectiveLocale, a2.stream().map(KpiA2DetailResult::getOutcome).toList()));
         }
 
+        // B.1 : TODO: this kpi doesn't have a field called 'outcome'
+        List<KpiB1DetailResult> b1 = kpiB1DetailResultRepository.findLatestByInstanceId(instanceId);
+        if (!b1.isEmpty()) {
+            out.add(buildFromOutcome("B.1", effectiveLocale, b1.stream().map(this::resolveB1Outcome).toList()));
+        }
+
+        // B.2
+        List<KpiB2DetailResult> b2 = kpiB2DetailResultRepository.findLatestByInstanceId(instanceId);
+        if (!b2.isEmpty()) {
+            out.add(buildFromOutcome("B.2", effectiveLocale, b2.stream().map(KpiB2DetailResult::getOutcome).toList()));
+        }
+
         // B.3
         List<KpiB3DetailResult> b3 = kpiB3DetailResultRepository.findLatestByInstanceId(instanceId);
         if (!b3.isEmpty()) {
@@ -78,6 +99,18 @@ public class PdfKpiSummaryBuilder {
         List<KpiB5DetailResult> b5 = kpiB5DetailResultRepository.findLatestByInstanceId(instanceId);
         if (!b5.isEmpty()) {
             out.add(buildFromOutcome("B.5", effectiveLocale, b5.stream().map(KpiB5DetailResult::getOutcome).toList()));
+        }
+
+        // B.8
+        List<KpiB8DetailResult> b8 = kpiB8DetailResultRepository.findLatestByInstanceId(instanceId);
+        if (!b8.isEmpty()) {
+            out.add(buildFromOutcome("B.8", effectiveLocale, b8.stream().map(KpiB8DetailResult::getOutcome).toList()));
+        }
+
+        // B.9
+        List<KpiB9DetailResult> b9 = kpiB9DetailResultRepository.findLatestByInstanceId(instanceId);
+        if (!b9.isEmpty()) {
+            out.add(buildFromOutcome("B.9", effectiveLocale, b9.stream().map(KpiB9DetailResult::getOutcome).toList()));
         }
 
         // C.1
@@ -103,7 +136,7 @@ public class PdfKpiSummaryBuilder {
         String titleKey = "pdf.kpi." + code + ".title";
 
         String title = msg(locale, titleKey, null);
-        if (title == null || title.isBlank()){
+        if (title == null || title.isBlank()) {
             title = msg(locale, titleKey, "");
         }
 
@@ -116,7 +149,8 @@ public class PdfKpiSummaryBuilder {
     }
 
     private boolean isCompliantOutcome(Object outcome) {
-        if (outcome == null) return true;
+        if (outcome == null)
+            return true;
         String s = outcome.toString().trim().toUpperCase();
 
         return s.equals("OK")
@@ -132,5 +166,11 @@ public class PdfKpiSummaryBuilder {
         } catch (Exception e) {
             return defaultValue;
         }
+    }
+
+    private String resolveB1Outcome(KpiB1DetailResult r) {
+        return (
+            isCompliantOutcome(r.getInstitutionOutcome()) && isCompliantOutcome(r.getTransactionOutcome())
+        ) ? "OK" : "KO";
     }
 }

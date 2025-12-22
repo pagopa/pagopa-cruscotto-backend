@@ -1,6 +1,10 @@
 package com.nexigroup.pagopa.cruscotto.repository;
 
+import com.nexigroup.pagopa.cruscotto.domain.KpiA2DetailResult;
 import com.nexigroup.pagopa.cruscotto.domain.KpiB2DetailResult;
+
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -17,4 +21,8 @@ public interface KpiB2DetailResultRepository extends JpaRepository<KpiB2DetailRe
     @Modifying
     @Query("DELETE KpiB2DetailResult kpiB2DetailResult WHERE kpiB2DetailResult.instanceModule.id = :instanceModuleId")
     int deleteAllByInstanceModuleId(@Param("instanceModuleId") Long instanceModuleId);
+
+    List<KpiB2DetailResult> findLatestByInstanceId(
+        @Param("instanceId") Long instanceId
+    );
 }

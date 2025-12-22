@@ -20,7 +20,7 @@
 </div>
 
 <!-- POSITIVE KPIs -->
-<div th:each="k : ${positiveKpis}">
+<div th:each="k : ${positiveKpiPages}">
   <div th:replace="pdf/pages/kpi-detail-positive :: page(${k})"></div>
 </div>
 

@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 
-<div class="page page-break" th:fragment="page(p)">
+<div class="page" th:classappend="${p.pageBreakBefore} ? ' page-break' : ''" th:fragment="page(p)">
 
   <!-- Header KPI SOLO se firstPage -->
   <div class="kpi-header" th:if="${p.firstPage}">
@@ -23,11 +23,22 @@
     </div>
   </div>
 
+   <!-- PARAMETERS PLACEHOLDER -->
+  <div class="kpi-parameters">
+    <div class="kpi-parameters-title" th:text="#{pdf.kpi.parameters.title}">
+      Parametri di analisi utilizzati
+    </div>
+
+    <!-- TODO: parametri dinamici -->
+    <div class="kpi-parameters-placeholder">
+      <!-- gestiti da service -->
+    </div>
+  </div>
+
   <!-- Tabella -->
   <div th:if="${p.table != null}">
     <div th:replace="pdf/fragments/kpi-table :: kpiTable(${p.table})"></div>
   </div>
-
 </div>
 
 </body>

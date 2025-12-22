@@ -2,18 +2,18 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 
-<div class="page page-break" th:fragment="page(kpi)">
+<div class="page" th:classappend="${p.pageBreakBefore} ? ' page-break' : ''" th:fragment="page(p)">
 
   <div class="kpi-header">
     <h2 class="kpi-detail-title">
-      <span th:text="'KPI ' + ${kpi.code}">KPI A.1</span>
+      <span th:text="'KPI ' + ${p.kpi.code}">KPI A.1</span>
     </h2>
 
-    <h3 class="kpi-subtitle" th:text="#{${'pdf.kpi.' + kpi.code + '.title'}}">
+    <h3 class="kpi-subtitle" th:text="#{${'pdf.kpi.' + p.kpi.code + '.title'}}">
       Rispetto SLA disponibilità servizio
     </h3>
 
-    <p class="kpi-description" th:text="#{${'pdf.kpi.' + kpi.code + '.description'}}"></p>
+    <p class="kpi-description" th:text="#{${'pdf.kpi.' + p.kpi.code + '.description'}}"></p>
   </div>
 
   <div class="kpi-detail-outcome">
@@ -33,8 +33,11 @@
   </div>
 
   <!-- TABLE -->
-  <div class="kpi-table-wrapper" th:if="${kpi.code == 'A.1' and kpiA1Table != null}">
+  <!--<div class="kpi-table-wrapper" th:if="${kpi.code == 'A.1' and kpiA1Table != null}">
     <div th:replace="pdf/fragments/kpi-table :: kpiTable(${kpiA1Table})"></div>
+  </div>-->
+  <div th:if="${p.table != null}">
+    <div th:replace="pdf/fragments/kpi-table :: kpiTable(${p.table})"></div>
   </div>
 
 </div>
