@@ -4,6 +4,7 @@ import com.nexigroup.pagopa.cruscotto.domain.KpiA2AnalyticIncorrectTaxonomyData;
 import com.nexigroup.pagopa.cruscotto.repository.KpiA2AnalyticDataRepository;
 import com.nexigroup.pagopa.cruscotto.repository.KpiA2AnalyticIncorrectTaxonomyDataRepository;
 
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiA2AnalyticIncorrectTaxonomyDataDTO;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.core.annotation.Order;
@@ -12,9 +13,10 @@ import org.springframework.stereotype.Component;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
-@Order(2)
+@Order(2) // ordine nello sheet finale
 public class KpiA2AnalyticIncorrectTaxonomyDrillDownExporter
     implements DrillDownExcelExporter {
 
@@ -35,7 +37,7 @@ public class KpiA2AnalyticIncorrectTaxonomyDrillDownExporter
 
     @Override
     public String getSheetName() {
-        return "KPI_A2_INCORRECT_TAXONOMY";
+        return "KPI_A2";
     }
 
     @Override
@@ -44,7 +46,7 @@ public class KpiA2AnalyticIncorrectTaxonomyDrillDownExporter
     }
 
     @Override
-    public List<KpiA2AnalyticIncorrectTaxonomyData> loadData(String instanceCode) {
+    public List<KpiA2AnalyticIncorrectTaxonomyDataDTO> loadData(String instanceCode) {
 
         Long instanceId = Long.valueOf(instanceCode);
         List<Long> latestAnalyticDataIdByInstanceId = analyticDataRepository.findLatestAnalyticDataIdByInstanceId(instanceId);
@@ -55,7 +57,23 @@ public class KpiA2AnalyticIncorrectTaxonomyDrillDownExporter
         }
 
         return drillDownRepository
-            .findByKpiA2AnalyticDataIdInOrderByFromHourAsc(latestAnalyticDataIdByInstanceId);
+            .findByKpiA2AnalyticDataIdInOrderByFromHourAsc(latestAnalyticDataIdByInstanceId)
+            .stream()
+            .map(this::toDto)
+            .collect(Collectors.toList());
+
+    }
+
+    private KpiA2AnalyticIncorrectTaxonomyDataDTO toDto(KpiA2AnalyticIncorrectTaxonomyData entity) {
+        KpiA2AnalyticIncorrectTaxonomyDataDTO dto = new KpiA2AnalyticIncorrectTaxonomyDataDTO();
+        dto.setId(entity.getId());
+        dto.setKpiA2AnalyticDataId(entity.getKpiA2AnalyticDataId());
+        dto.setTransferCategory(entity.getTransferCategory());
+        dto.setTotPayments(entity.getTotPayments());
+        dto.setTotIncorrectPayments(entity.getTotIncorrectPayments());
+        dto.setFromHour(entity.getFromHour());
+        dto.setEndHour(entity.getEndHour());
+        return dto;
     }
 
     @Override
@@ -79,11 +97,11 @@ public class KpiA2AnalyticIncorrectTaxonomyDrillDownExporter
         }
 
         @SuppressWarnings("unchecked")
-        List<KpiA2AnalyticIncorrectTaxonomyData> rows =
-            (List<KpiA2AnalyticIncorrectTaxonomyData>) data;
+        List<KpiA2AnalyticIncorrectTaxonomyDataDTO> rows =
+            (List<KpiA2AnalyticIncorrectTaxonomyDataDTO>) data;
 
         // ===== DATA =====
-        for (KpiA2AnalyticIncorrectTaxonomyData r : rows) {
+        for (KpiA2AnalyticIncorrectTaxonomyDataDTO r : rows) {
             Row row = sheet.createRow(rowIdx++);
             row.createCell(0).setCellValue(
                 r.getFromHour() != null ? HOUR_FMT.format(r.getFromHour()) : ""

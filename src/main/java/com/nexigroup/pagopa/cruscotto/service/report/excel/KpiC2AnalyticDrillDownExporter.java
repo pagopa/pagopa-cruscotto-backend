@@ -3,6 +3,7 @@ package com.nexigroup.pagopa.cruscotto.service.report.excel;
 import com.nexigroup.pagopa.cruscotto.domain.KpiC2AnalyticDrillDown;
 import com.nexigroup.pagopa.cruscotto.repository.KpiC2AnalyticDrillDownRepository;
 
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiC2AnalyticDrillDownDTO;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class KpiC2AnalyticDrillDownExporter implements DrillDownExcelExporter {
@@ -22,7 +24,7 @@ public class KpiC2AnalyticDrillDownExporter implements DrillDownExcelExporter {
 
     @Override
     public String getSheetName() {
-        return "KPI_C2_ANALYTIC";
+        return "KPI_C2";
     }
 
     @Override
@@ -31,19 +33,37 @@ public class KpiC2AnalyticDrillDownExporter implements DrillDownExcelExporter {
     }
 
     @Override
-    public List<KpiC2AnalyticDrillDown> loadData(String instanceCode) {
+    public List<KpiC2AnalyticDrillDownDTO> loadData(String instanceCode) {
 
         Long instanceId = Long.valueOf(instanceCode); // se serve mapping diverso, qui
 
-        List<KpiC2AnalyticDrillDown> result =
-            repository.findLatestByInstanceId(instanceId);
+        List<KpiC2AnalyticDrillDownDTO> result =
+            repository.findLatestByInstanceId(instanceId).stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
 
         if (result.isEmpty()) {
             return List.of();
         }
 
         // ⚠️ richiesto: excel del primo che trovi
-        return List.of(result.get(0));
+        return result;
+    }
+
+    private KpiC2AnalyticDrillDownDTO toDto(KpiC2AnalyticDrillDown entity) {
+
+            KpiC2AnalyticDrillDownDTO kpiC2AnalyticDrillDownDTO = new KpiC2AnalyticDrillDownDTO();
+
+            kpiC2AnalyticDrillDownDTO.setId( entity.getId() );
+            kpiC2AnalyticDrillDownDTO.setAnalysisDate( entity.getAnalysisDate() );
+            kpiC2AnalyticDrillDownDTO.setEvaluationDate( entity.getEvaluationDate() );
+            kpiC2AnalyticDrillDownDTO.setInstitutionCf( entity.getInstitutionCf() );
+            kpiC2AnalyticDrillDownDTO.setNumPayment( entity.getNumPayment() );
+            kpiC2AnalyticDrillDownDTO.setNumNotification( entity.getNumNotification() );
+            kpiC2AnalyticDrillDownDTO.setPercentNotification( entity.getPercentNotification() );
+            kpiC2AnalyticDrillDownDTO.setKpiC2AnalyticData( entity.getKpiC2AnalyticData() );
+
+            return kpiC2AnalyticDrillDownDTO;
     }
 
     @Override
@@ -57,7 +77,7 @@ public class KpiC2AnalyticDrillDownExporter implements DrillDownExcelExporter {
         }
 
         @SuppressWarnings("unchecked")
-        List<KpiC2AnalyticDrillDown> rows = (List<KpiC2AnalyticDrillDown>) data;
+        List<KpiC2AnalyticDrillDownDTO> rows = (List<KpiC2AnalyticDrillDownDTO>) data;
 
 
         // Header
@@ -69,7 +89,7 @@ public class KpiC2AnalyticDrillDownExporter implements DrillDownExcelExporter {
 
 
         // Body
-        for (KpiC2AnalyticDrillDown r : rows) {
+        for (KpiC2AnalyticDrillDownDTO r : rows) {
             Row row = sheet.createRow(rowIdx++);
             row.createCell(0).setCellValue(r.getInstitutionCf());
             row.createCell(1).setCellValue(

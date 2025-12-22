@@ -2,6 +2,7 @@ package com.nexigroup.pagopa.cruscotto.service.report.excel;
 
 import com.nexigroup.pagopa.cruscotto.domain.IoDrilldown;
 import com.nexigroup.pagopa.cruscotto.repository.IoDrilldownRepository;
+import com.nexigroup.pagopa.cruscotto.service.dto.IoDrilldownDTO;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Component;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -22,7 +24,7 @@ public class KpiC1AnalyticDrillDownExporter implements DrillDownExcelExporter {
 
     @Override
     public String getSheetName() {
-        return "KPI_C1_ANALYTIC_DRILLDOWN";
+        return "KPI_C1";
     }
 
     @Override
@@ -31,9 +33,30 @@ public class KpiC1AnalyticDrillDownExporter implements DrillDownExcelExporter {
     }
 
     @Override
-    public List<IoDrilldown> loadData(String instanceCode) {
+    public List<IoDrilldownDTO> loadData(String instanceCode) {
         Long instanceId = Long.valueOf(instanceCode);
-        return ioDrilldownRepository.findLatestByInstanceId(instanceId);
+        return ioDrilldownRepository.findLatestByInstanceId(instanceId).stream()
+            .map(this::toDto)
+            .collect(Collectors.toList());
+
+    }
+
+    IoDrilldownDTO toDto(IoDrilldown entity) {
+        if (entity == null) return null;
+        IoDrilldownDTO dto = new IoDrilldownDTO();
+        dto.setId(entity.getId());
+        dto.setAnalyticDataId(entity.getKpiC1AnalyticData() != null ? entity.getKpiC1AnalyticData().getId() : null);
+        dto.setInstanceId(entity.getInstance() != null ? entity.getInstance().getId() : null);
+        dto.setInstanceModuleId(entity.getInstanceModule() != null ? entity.getInstanceModule().getId() : null);
+        dto.setReferenceDate(entity.getReferenceDate());
+        dto.setDataDate(entity.getDataDate());
+        dto.setCfInstitution(entity.getCfInstitution());
+        dto.setCfPartner(entity.getCfPartner());
+        dto.setPositionsCount(entity.getPositionsCount());
+        dto.setMessagesCount(entity.getMessagesCount());
+        dto.setPercentage(entity.getPercentage());
+        dto.setMeetsTolerance(entity.getMeetsTolerance());
+        return dto;
     }
 
     @Override
@@ -62,17 +85,17 @@ public class KpiC1AnalyticDrillDownExporter implements DrillDownExcelExporter {
             return;
         }
 
-        List<IoDrilldown> records = (List<IoDrilldown>) data;
+        List<IoDrilldownDTO> records = (List<IoDrilldownDTO>) data;
 
         // Ordinamento coerente per lettura Excel
         records.sort(
-            Comparator.comparing(IoDrilldown::getCfInstitution)
-                .thenComparing(IoDrilldown::getDataDate)
+            Comparator.comparing(IoDrilldownDTO::getCfInstitution)
+                .thenComparing(IoDrilldownDTO::getDataDate)
         );
 
         // ===== DATA =====
         int rowIdx = 1;
-        for (IoDrilldown d : records) {
+        for (IoDrilldownDTO d : records) {
             Row row = sheet.createRow(rowIdx++);
 
             row.createCell(0).setCellValue(

@@ -1,0 +1,25 @@
+<div class="kpi-table-wrapper" th:fragment="kpiTable(kpiTable)">
+
+    <!-- Table title -->
+    <div class="kpi-table-title" th:text="#{pdf.kpi.table.title}">
+        Dati di riscontro
+    </div>
+
+    <table class="kpi-table">
+        <thead>
+            <tr>
+                <th class="col-code" th:each="col : ${kpiTable.columns}" th:text="${col.label}"></th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr th:each="row : ${kpiTable.rows}">
+                <td th:class="'col-' + ${col.field}"
+                    th:each="col : ${kpiTable.columns}"
+                    th:text="${row[col.field]}"
+                    th:classappend="${col.field == 'outcome'} ? (${row[col.field]} == 'OK' ? 'cell-ok' : 'cell-ko')">
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

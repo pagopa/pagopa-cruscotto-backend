@@ -12,9 +12,11 @@
 
 <div th:replace="pdf/pages/summary :: page"></div>
 
+<!--<div class="page-break"></div> -->
+
 <!-- NEGATIVE KPIs -->
-<div th:each="k : ${negativeKpis}">
-  <div th:replace="pdf/pages/kpi-detail-negative :: page(${k})"></div>
+<div th:each="p : ${negativeKpiPages}">
+  <div th:replace="pdf/pages/kpi-detail-negative :: page(${p})"></div>
 </div>
 
 <!-- POSITIVE KPIs -->
@@ -22,7 +24,7 @@
   <div th:replace="pdf/pages/kpi-detail-positive :: page(${k})"></div>
 </div>
 
-<div th:replace="pdf/fragments/footer :: pdfFooter"></div>
+<div th:replace="pdf/fragments/footer :: pdfFooter"></div>  
 
 </body>
 </html>

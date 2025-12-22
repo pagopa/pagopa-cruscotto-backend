@@ -2,6 +2,8 @@ package com.nexigroup.pagopa.cruscotto.service.report.excel;
 
 import com.nexigroup.pagopa.cruscotto.domain.PagopaApiLogDrilldown;
 import com.nexigroup.pagopa.cruscotto.repository.PagopaApiLogDrilldownRepository;
+import com.nexigroup.pagopa.cruscotto.service.dto.PagopaAPILogDTO;
+import com.nexigroup.pagopa.cruscotto.service.mapper.PagopaApiLogDrilldownMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Component;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -17,10 +20,11 @@ public class KpiB8AnalyticDrillDownExporter implements DrillDownExcelExporter {
 
     private final PagopaApiLogDrilldownRepository drilldownRepository;
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private final PagopaApiLogDrilldownMapper pagopaApiLogDrilldownMapper;
 
     @Override
     public String getSheetName() {
-        return "KPI_B8_ANALYTIC_DRILLDOWN";
+        return "KPI_B8";
     }
 
     @Override
@@ -29,11 +33,15 @@ public class KpiB8AnalyticDrillDownExporter implements DrillDownExcelExporter {
     }
 
     @Override
-    public List<PagopaApiLogDrilldown> loadData(String instanceCode) {
+    public List<PagopaAPILogDTO> loadData(String instanceCode) {
         Long instanceId = Long.valueOf(instanceCode);
 
         // Prende solo i record più recenti per l’istanza
-        List<PagopaApiLogDrilldown> records = drilldownRepository.findLatestB8ByInstanceId(instanceId);
+        List<PagopaAPILogDTO> records = drilldownRepository.findLatestB8ByInstanceId(instanceId)
+            .stream()
+            .map(this::toDto)
+            .collect(Collectors.toList());
+
 
         if (records.isEmpty()) {
             return List.of();
@@ -42,6 +50,11 @@ public class KpiB8AnalyticDrillDownExporter implements DrillDownExcelExporter {
 
         // Filtra solo i record della data più recente
         return records;
+    }
+
+
+    private PagopaAPILogDTO toDto(PagopaApiLogDrilldown pagopaApiLogDrilldown) {
+        return pagopaApiLogDrilldownMapper.toDto(pagopaApiLogDrilldown);
     }
 
     @Override
@@ -60,26 +73,26 @@ public class KpiB8AnalyticDrillDownExporter implements DrillDownExcelExporter {
         }
 
         // Scrive i dati
-        List<PagopaApiLogDrilldown> records = (List<PagopaApiLogDrilldown>) data;
+        List<PagopaAPILogDTO> records = (List<PagopaAPILogDTO>) data;
 
         // Ordina per dataDate -> partnerFiscalCode -> stationCode
         records.sort(Comparator
-            .comparing(PagopaApiLogDrilldown::getDataDate)
-            .thenComparing(PagopaApiLogDrilldown::getPartnerFiscalCode)
-            .thenComparing(PagopaApiLogDrilldown::getStationCode)
+            .comparing(PagopaAPILogDTO::getDate)
+            .thenComparing(PagopaAPILogDTO::getCfPartner)
+            .thenComparing(PagopaAPILogDTO::getStation)
         );
 
         int rowIdx = 1;
-        for (PagopaApiLogDrilldown d : records) {
+        for (PagopaAPILogDTO d : records) {
             Row row = sheet.createRow(rowIdx++);
-            row.createCell(0).setCellValue(d.getDataDate().format(dateFormatter));
-            row.createCell(1).setCellValue(d.getPartnerFiscalCode());
-            row.createCell(2).setCellValue(d.getStationCode());
-            row.createCell(3).setCellValue(d.getFiscalCode());
+            row.createCell(0).setCellValue(d.getDate().format(dateFormatter));
+            row.createCell(1).setCellValue(d.getCfPartner());
+            row.createCell(2).setCellValue(d.getStation());
+            row.createCell(3).setCellValue(d.getCfEnte());
             row.createCell(4).setCellValue(d.getApi());
-            row.createCell(5).setCellValue(d.getTotalRequests());
-            row.createCell(6).setCellValue(d.getOkRequests());
-            row.createCell(7).setCellValue(d.getKoRequests());
+            row.createCell(5).setCellValue(d.getTotReq());
+            row.createCell(6).setCellValue(d.getReqOk());
+            row.createCell(7).setCellValue(d.getReqKo());
         }
     }
 }
