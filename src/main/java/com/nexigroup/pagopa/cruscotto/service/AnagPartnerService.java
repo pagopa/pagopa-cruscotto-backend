@@ -95,4 +95,10 @@ public interface AnagPartnerService {
      * @return an {@link Optional} containing the {@link AnagPartnerDTO} if a matching entity exists, or an empty {@link Optional} if not found
      */
     Optional<AnagPartnerDTO> findOneByFiscalCode(String fiscalCode);
+
+    /**
+     * Loads partners from PagoPA API and saves them to the database.
+     * This method fetches data, validates it, and persists valid partners.
+     */
+    void loadFromPagoPA();
 }
