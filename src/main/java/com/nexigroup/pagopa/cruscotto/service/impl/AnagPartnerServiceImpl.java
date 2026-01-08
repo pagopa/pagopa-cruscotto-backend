@@ -2,12 +2,27 @@ package com.nexigroup.pagopa.cruscotto.service.impl;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.nexigroup.pagopa.cruscotto.domain.QAnagStationAnagInstitution;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.PartnerStatus;
+import com.nexigroup.pagopa.cruscotto.job.cache.Partner;
+import com.nexigroup.pagopa.cruscotto.job.client.PagoPaCacheClient;
+import com.nexigroup.pagopa.cruscotto.service.dto.PartnerIdentificationDTO;
+import com.nexigroup.pagopa.cruscotto.service.validation.ValidationGroups;
 import com.querydsl.jpa.JPAExpressions;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,17 +69,21 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
 
     private final AnagPartnerMapper anagPartnerMapper;
 
+    private final PagoPaCacheClient pagoPaCacheClient;
+
     @Value("${spring.jpa.properties.hibernate.jdbc.batch_size:100}")
     private String batchSize;
 
     public AnagPartnerServiceImpl(
         QueryBuilder queryBuilder,
         AnagPartnerRepository anagPartnerRepository,
-        AnagPartnerMapper anagPartnerMapper
+        AnagPartnerMapper anagPartnerMapper,
+        PagoPaCacheClient pagoPaCacheClient
     ) {
         this.queryBuilder = queryBuilder;
         this.anagPartnerRepository = anagPartnerRepository;
         this.anagPartnerMapper = anagPartnerMapper;
+        this.pagoPaCacheClient = pagoPaCacheClient;
     }
 
     /**
@@ -345,5 +364,57 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
     public Optional<AnagPartnerDTO> findOneByFiscalCode(String fiscalCode) {
         return anagPartnerRepository.findOneByFiscalCode(fiscalCode)
             .map(anagPartnerMapper::toDto);
+    }
+
+    @Override
+    @Transactional
+    public void loadFromPagoPA() {
+        log.info("Call PagoPA to get partners");
+
+        Partner[] response = pagoPaCacheClient.partners();
+
+        List<AnagPartnerDTO> partnerDTOS = new ArrayList<>();
+
+        log.info("{} records will be saved", response.length);
+
+        if (ArrayUtils.isNotEmpty(response)) {
+            try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
+                Validator validator = factory.getValidator();
+                for (Partner partner : response) {
+                    log.info("{}", partner);
+
+                    AnagPartnerDTO partnerDTO = new AnagPartnerDTO();
+                    partnerDTO.setPartnerIdentification(new PartnerIdentificationDTO());
+                    partnerDTO.getPartnerIdentification().setFiscalCode(partner.getBrokerCode());
+                    partnerDTO.getPartnerIdentification().setName(partner.getDescription());
+                    partnerDTO.setStatus(
+                        BooleanUtils.toBooleanDefaultIfNull(partner.getEnabled(), false) ? PartnerStatus.ATTIVO : PartnerStatus.NON_ATTIVO
+                    );
+
+                    Set<ConstraintViolation<AnagPartnerDTO>> violations = validator.validate(
+                        partnerDTO,
+                        ValidationGroups.RegistryJob.class
+                    );
+
+                    if (violations.isEmpty()) {
+                        partnerDTOS.add(partnerDTO);
+                    } else {
+                        log.error("Invalid partner {}", partnerDTO);
+                        violations.forEach(violation -> log.error("{}: {}", violation.getPropertyPath(), violation.getMessage()));
+                    }
+                }
+            }
+
+            log.info("After validation {} records will be saved", partnerDTOS.size());
+
+            StopWatch stopWatch = new StopWatch();
+            stopWatch.start();
+
+            saveAll(partnerDTOS);
+
+            stopWatch.stop();
+
+            log.info("Saved {} rows partners to database into {} seconds", partnerDTOS.size(), stopWatch.getTime(TimeUnit.SECONDS));
+        }
     }
 }
