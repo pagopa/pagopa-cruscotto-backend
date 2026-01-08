@@ -58,5 +58,15 @@ public interface AnagStationService {
     /**
      * Update count for associated institutions
      */
-    void updateAllStationsAssociatedInstitutionsCount(); 
+    void updateAllStationsAssociatedInstitutionsCount();
+    
+    /**
+     * Load stations from PagoPA.
+     */
+    void loadFromPagoPA();
+    
+    /**
+     * Load station-institution associations from PagoPA.
+     */
+    void loadAssociationsFromPagoPA();
 }
