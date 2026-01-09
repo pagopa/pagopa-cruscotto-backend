@@ -123,7 +123,7 @@ public class GenericKpiJob extends QuartzJobBean {
                     moduleCode, instance.getId(), outcome);
 
         } catch (Exception e) {
-            instanceService.updateInstanceStatusError(instance.getId());
+            // instanceService.updateInstanceStatusError(instance.getId());
             throw e;
         }
     }

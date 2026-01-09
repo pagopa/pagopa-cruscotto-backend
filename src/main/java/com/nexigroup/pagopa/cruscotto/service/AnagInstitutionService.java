@@ -21,4 +21,9 @@ public interface AnagInstitutionService {
 
     Page<AnagInstitutionDTO> findAll(AnagInstitutionFilter filter, Pageable pageable);
     void saveAll(java.util.List<CreditorInstitution> creditorInstitutions);
+    
+    /**
+     * Load institutions from PagoPA.
+     */
+    void loadFromPagoPA();
 }
