@@ -4,11 +4,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 import com.nexigroup.pagopa.cruscotto.domain.*;
 import com.nexigroup.pagopa.cruscotto.repository.*;
@@ -18,6 +16,9 @@ import com.nexigroup.pagopa.cruscotto.service.report.pdf.model.PdfKpiSummaryItem
 import com.nexigroup.pagopa.cruscotto.service.report.pdf.model.PdfKpiTableDescriptor;
 
 import com.nexigroup.pagopa.cruscotto.service.report.pdf.page.PdfKpiPageBuilder;
+import com.nexigroup.pagopa.cruscotto.service.report.pdf.wrapper.WrapperPdfFiles;
+import jakarta.persistence.EntityNotFoundException;
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -84,13 +85,17 @@ public class PdfPreviewService {
         this.kpiC2DetailResultRepository = kpiC2DetailResultRepository;
     }
 
-    public Path generatePreviewSetPdf(Locale locale) throws Exception {
+    public List<WrapperPdfFiles> generatePreviewSetPdf(Locale locale,Long instanceId) throws Exception {
 
         // Temp WorkDir
         Path workDir = Files.createTempDirectory("pdf-preview-");
 
         Map<String, Object> baseVars = new HashMap<>();
         Map<String, List<PdfKpiTableDescriptor>> kpiTables = new HashMap<>();
+        Instance instance = instanceRepository.findByIdWithPartner(instanceId);
+        if(instance==null){
+            throw new EntityNotFoundException();
+        }
 
         // Assets
         copy("pdf/css/pdf-base.css", workDir.resolve("pdf-base.css"));
@@ -104,9 +109,6 @@ public class PdfPreviewService {
         copy("pdf/fonts/TitilliumWeb_Bold.ttf", fontsDir.resolve("TitilliumWeb_Bold.ttf"));
 
         Locale effectiveLocale = (locale != null ? locale : Locale.ITALY);
-
-        // Long instanceId = 4060L;
-        Long instanceId = 8040L;
 
         /*
          * =========================
@@ -267,14 +269,21 @@ public class PdfPreviewService {
         List<PdfKpiPage> positiveKpiPages =
             pageBuilder.buildPages(positiveKpis, kpiTables);
 
-
-
+        Hibernate.isInitialized(instance.getPartner());
+        DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         baseVars.put("analysisCode", "INST-"+instanceId);
-        baseVars.put("partner", "06188330150 - MAGGIOLI S.P.A.");
+        baseVars.put("partner", instance.getPartner().getFiscalCode() +"-" + instance.getPartner().getName());
         baseVars.put("esito", negativeKpis.isEmpty() ? "CONFORME" : "NON CONFORME");
         baseVars.put("esitoClass", negativeKpis.isEmpty() ? "ok" : "ko");
-        baseVars.put("dataAnalisi", "08/10/2025");
-        baseVars.put("periodo", "Dal 01/01/2025 al 30/06/2025");
+        baseVars.put("dataAnalisi", instance.getLastAnalysisDate() != null ?
+            instance.getLastAnalysisDate().atZone(ZoneId.systemDefault()).toLocalDate().format(df) : "");
+        String periodo = "";
+        if (instance.getAnalysisPeriodStartDate() != null || instance.getAnalysisPeriodEndDate() != null) {
+            String start = instance.getAnalysisPeriodStartDate() != null ? instance.getAnalysisPeriodStartDate().format(df) : "";
+            String end = instance.getAnalysisPeriodEndDate() != null ? instance.getAnalysisPeriodEndDate().format(df) : "";
+            periodo = "Dal " + start + " al " + end;
+        }
+        baseVars.put("periodo", periodo);
         baseVars.put("reportName", "Report_INST-"+instanceId);
         baseVars.put("kpis", kpis);
         baseVars.put("negativeKpis", negativeKpis);
@@ -289,20 +298,36 @@ public class PdfPreviewService {
            PDF OUTPUT
            ========================= */
 
+
+        List<WrapperPdfFiles> listPdfFiles = new ArrayList<>();
+
         // 1) Summary
         String htmlSummary = generationService.render("pdf/layouts/summary-only", baseVars, effectiveLocale);
-        rendererService.renderToFile(htmlSummary, workDir, "report-summary.pdf");
+        listPdfFiles.add(WrapperPdfFiles.builder()
+                .content(rendererService.renderToBytes(htmlSummary, workDir))
+                .name("report-summary.pdf")
+                .build());
 
         // 2) Summary + Negativi
+
+
         String htmlNeg = generationService.render("pdf/layouts/summary-plus-negative", baseVars, effectiveLocale);
-        rendererService.renderToFile(htmlNeg, workDir, "report-negative.pdf");
+        listPdfFiles.add(WrapperPdfFiles.builder()
+            .content(rendererService.renderToBytes(htmlNeg, workDir))
+            .name("report-negative.pdf")
+            .build());
+
 
         // 3) Full report
         String htmlFull = generationService.render("pdf/layouts/full-report", baseVars, effectiveLocale);
-        rendererService.renderToFile(htmlFull, workDir, "report-complete.pdf");
+        listPdfFiles.add(WrapperPdfFiles.builder()
+            .content(rendererService.renderToBytes(htmlFull, workDir))
+            .name("report-complete.pdf")
+            .build());
+
 
         log.info("Set PDF generato in {}", workDir.toAbsolutePath());
-        return workDir;
+        return listPdfFiles;
     }
 
     private void copy(String classpath, Path target) throws IOException {
