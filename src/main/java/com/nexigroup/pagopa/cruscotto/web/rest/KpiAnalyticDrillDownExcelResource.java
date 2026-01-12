@@ -4,15 +4,20 @@ package com.nexigroup.pagopa.cruscotto.web.rest;
 import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
 
 import com.nexigroup.pagopa.cruscotto.service.report.excel.DrillDownExcelService;
+import com.nexigroup.pagopa.cruscotto.service.report.pdf.PdfPreviewService;
+import com.nexigroup.pagopa.cruscotto.service.report.pdf.wrapper.WrapperPdfFiles;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Locale;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @RestController
 @RequestMapping("/api/kpi-analytic-drilldown")
@@ -20,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class KpiAnalyticDrillDownExcelResource {
 
     private final DrillDownExcelService drillDownExcelService;
+    private final PdfPreviewService pdfPreviewService;
 
     /**
      * Export Excel DrillDown per Instance
@@ -45,4 +51,31 @@ public class KpiAnalyticDrillDownExcelResource {
             )
             .body(excel);
     }
+
+    @GetMapping("/exportPDF")
+    public void exportPdfZip(
+        @RequestParam("instanceId") Long instanceId,
+        @RequestParam(value = "locale", required = false) Locale locale,
+        HttpServletResponse response
+    ) throws Exception {
+
+        // Genera tutti i PDF come byte[]
+        List<WrapperPdfFiles> pdfFiles = pdfPreviewService.generatePreviewSetPdf(locale, instanceId);
+
+        // Imposta header HTTP per download
+        response.setContentType("application/zip");
+        response.setHeader("Content-Disposition", "attachment; filename=report_instance_" + instanceId + ".zip");
+
+        // Scrive i PDF nello ZIP
+        try (ZipOutputStream zos = new ZipOutputStream(response.getOutputStream())) {
+            for (WrapperPdfFiles pdf : pdfFiles) {
+                ZipEntry entry = new ZipEntry(pdf.getName());
+                zos.putNextEntry(entry);
+                zos.write(pdf.getContent());
+                zos.closeEntry();
+            }
+            zos.finish();
+        }
+    }
 }
+
