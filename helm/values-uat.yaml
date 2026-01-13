@@ -63,6 +63,11 @@ microservice-chart:
           # Required
           type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
           value: "75"
+      - type: memory
+        metadata:
+          # Required
+          type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
+          value: "80"          
   envConfig:
     SPRING_PROFILES_ACTIVE: 'devpagopa'
     ASPNETCORE_URLS: "http://*:8080"
