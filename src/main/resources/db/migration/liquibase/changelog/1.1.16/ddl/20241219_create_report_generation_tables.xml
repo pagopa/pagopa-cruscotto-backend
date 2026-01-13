@@ -37,32 +37,57 @@
             <column name="error_message" type="text"/>
             <column name="retry_count" type="integer" defaultValueNumeric="0"/>
             <column name="last_retry_date" type="timestamp"/>
-            <column name="parameters" type="jsonb"/>
+            <column name="parameters" type="clob"/>
         </createTable>
-        
-        <addForeignKeyConstraint 
-            baseTableName="report_generation" 
-            baseColumnNames="instance_id" 
-            constraintName="fk_report_generation_instance" 
-            referencedTableName="INSTANCE" 
+
+        <addForeignKeyConstraint
+            baseTableName="report_generation"
+            baseColumnNames="instance_id"
+            constraintName="fk_report_generation_instance"
+            referencedTableName="INSTANCE"
             referencedColumnNames="CO_ID"/>
     </changeSet>
 
-    <changeSet id="20241219-2-create-report-generation-indexes" author="system">
-        <createIndex indexName="idx_report_generation_status" tableName="report_generation">
-            <column name="status"/>
-        </createIndex>
-        
-        <createIndex indexName="idx_report_generation_requested_date" tableName="report_generation">
-            <column name="requested_date"/>
-        </createIndex>
-        
-        <sql>
-            CREATE UNIQUE INDEX idx_report_generation_unique_instance 
-            ON report_generation(instance_id) 
-            WHERE status IN ('COMPLETED', 'IN_PROGRESS', 'PENDING');
-        </sql>
-    </changeSet>
+  <changeSet id="20241219-2a-create-report-generation-status-index" author="system">
+    <preConditions onFail="MARK_RAN">
+      <tableExists tableName="report_generation"/>
+      <columnExists tableName="report_generation" columnName="status"/>
+      <not>
+        <indexExists indexName="idx_report_generation_status" tableName="report_generation"/>
+      </not>
+    </preConditions>
+    <createIndex indexName="idx_report_generation_status" tableName="report_generation">
+      <column name="status"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="20241219-2b-create-report-generation-requested-date-index" author="system">
+    <preConditions onFail="MARK_RAN">
+      <tableExists tableName="report_generation"/>
+      <columnExists tableName="report_generation" columnName="requested_date"/>
+      <not>
+        <indexExists indexName="idx_report_generation_requested_date" tableName="report_generation"/>
+      </not>
+    </preConditions>
+    <createIndex indexName="idx_report_generation_requested_date" tableName="report_generation">
+      <column name="requested_date"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="20241219-2c-create-report-generation-unique-instance-index" author="system">
+    <preConditions onFail="MARK_RAN">
+      <tableExists tableName="report_generation"/>
+      <dbms type="postgresql"/>
+      <not>
+        <indexExists indexName="idx_report_generation_unique_instance" tableName="report_generation"/>
+      </not>
+    </preConditions>
+    <sql>
+      CREATE UNIQUE INDEX idx_report_generation_unique_instance
+      ON report_generation (instance_id)
+      WHERE status IN ('COMPLETED', 'IN_PROGRESS', 'PENDING');
+    </sql>
+  </changeSet>
 
     <changeSet id="20241219-3-create-report-file-table" author="system">
         <createTable tableName="report_file">
@@ -97,28 +122,44 @@
                 <constraints nullable="false"/>
             </column>
             <column name="deleted" type="boolean" defaultValueBoolean="false"/>
-            <column name="package_contents" type="jsonb">
+            <column name="package_contents" type="clob">
                 <constraints nullable="false"/>
             </column>
         </createTable>
-        
-        <addForeignKeyConstraint 
-            baseTableName="report_file" 
-            baseColumnNames="report_generation_id" 
-            constraintName="fk_report_file_report_generation" 
-            referencedTableName="report_generation" 
+
+        <addForeignKeyConstraint
+            baseTableName="report_file"
+            baseColumnNames="report_generation_id"
+            constraintName="fk_report_file_report_generation"
+            referencedTableName="report_generation"
             referencedColumnNames="id"
             onDelete="CASCADE"/>
     </changeSet>
 
-    <changeSet id="20241219-4-create-report-file-indexes" author="system">
-        <createIndex indexName="idx_report_file_blob_name" tableName="report_file">
-            <column name="blob_name"/>
-        </createIndex>
-        
-        <createIndex indexName="idx_report_file_expiry_date" tableName="report_file">
-            <column name="expiry_date"/>
-        </createIndex>
-    </changeSet>
+  <changeSet id="20241219-4a-create-report-file-blob-name-index" author="system">
+    <preConditions onFail="MARK_RAN">
+      <tableExists tableName="report_file"/>
+      <columnExists tableName="report_file" columnName="blob_name"/>
+      <not>
+        <indexExists indexName="idx_report_file_blob_name" tableName="report_file"/>
+      </not>
+    </preConditions>
+    <createIndex indexName="idx_report_file_blob_name" tableName="report_file">
+      <column name="blob_name"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="20241219-4b-create-report-file-expiry-date-index" author="system">
+    <preConditions onFail="MARK_RAN">
+      <tableExists tableName="report_file"/>
+      <columnExists tableName="report_file" columnName="expiry_date"/>
+      <not>
+        <indexExists indexName="idx_report_file_expiry_date" tableName="report_file"/>
+      </not>
+    </preConditions>
+    <createIndex indexName="idx_report_file_expiry_date" tableName="report_file">
+      <column name="expiry_date"/>
+    </createIndex>
+  </changeSet>
 
 </databaseChangeLog>
