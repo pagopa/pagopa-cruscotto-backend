@@ -6,6 +6,7 @@ import com.nexigroup.pagopa.cruscotto.service.KpiA2AnalyticIncorrectTaxonomyData
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA2AnalyticIncorrectTaxonomyDataDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,5 +48,11 @@ public class KpiA2AnalyticIncorrectTaxonomyDataServiceImpl implements KpiA2Analy
                 return dto;
             })
             .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public int deleteAllByInstanceModule(long instanceModuleId) {
+        return repository.deleteAllByInstanceModuleId(instanceModuleId);
     }
 }
