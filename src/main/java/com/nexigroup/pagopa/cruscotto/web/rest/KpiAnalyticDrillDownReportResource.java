@@ -1,17 +1,14 @@
 package com.nexigroup.pagopa.cruscotto.web.rest;
 
 
-import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
-
-import com.nexigroup.pagopa.cruscotto.service.report.excel.DrillDownExcelService;
-import com.nexigroup.pagopa.cruscotto.service.report.pdf.PdfPreviewService;
+import com.nexigroup.pagopa.cruscotto.service.report.excel.ExcelReportGenerator;
+import com.nexigroup.pagopa.cruscotto.service.report.pdf.PDFReportGenerator;
 import com.nexigroup.pagopa.cruscotto.service.report.pdf.wrapper.WrapperPdfFiles;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,10 +19,10 @@ import java.util.zip.ZipOutputStream;
 @RestController
 @RequestMapping("/api/kpi-analytic-drilldown")
 @RequiredArgsConstructor
-public class KpiAnalyticDrillDownExcelResource {
+public class KpiAnalyticDrillDownReportResource {
 
-    private final DrillDownExcelService drillDownExcelService;
-    private final PdfPreviewService pdfPreviewService;
+    private final ExcelReportGenerator excelReportGenerator;
+    private final PDFReportGenerator PDFReportGenerator;
 
     /**
      * Export Excel DrillDown per Instance
@@ -35,7 +32,7 @@ public class KpiAnalyticDrillDownExcelResource {
         @PathVariable Long instanceId
     ) {
 
-        byte[] excel = drillDownExcelService.generateExcel(
+        byte[] excel = excelReportGenerator.generateExcel(
             String.valueOf(instanceId)
         );
 
@@ -60,7 +57,7 @@ public class KpiAnalyticDrillDownExcelResource {
     ) throws Exception {
 
         // Genera tutti i PDF come byte[]
-        List<WrapperPdfFiles> pdfFiles = pdfPreviewService.generatePreviewSetPdf(locale, instanceId);
+        List<WrapperPdfFiles> pdfFiles = PDFReportGenerator.generatePreviewSetPdf(locale, instanceId);
 
         // Imposta header HTTP per download
         response.setContentType("application/zip");
