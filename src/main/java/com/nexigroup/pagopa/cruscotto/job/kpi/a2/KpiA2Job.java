@@ -114,6 +114,12 @@ public class KpiA2Job extends QuartzJobBean {
 
                             LOGGER.info("Deletion phase for any previous processing in error");
 
+                            // Delete child records FIRST to avoid foreign key constraint violations
+                            int kpiA2IncorrectTaxonomyDataDeleted = kpiA2AnalyticIncorrectTaxonomyDataService.deleteAllByInstanceModule(
+                                instanceModuleDTO.getId()
+                            );
+                            LOGGER.info("{} kpiA2AnalyticIncorrectTaxonomyData records deleted", kpiA2IncorrectTaxonomyDataDeleted);
+
                             int kpiA2AnalyticRecordsDataDeleted = kpiA2AnalyticDataService.deleteAllByInstanceModule(
                                 instanceModuleDTO.getId()
                             );
