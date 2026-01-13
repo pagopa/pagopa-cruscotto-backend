@@ -85,7 +85,7 @@ public class PDFReportGenerator {
         this.kpiC2DetailResultRepository = kpiC2DetailResultRepository;
     }
 
-    public List<WrapperPdfFiles> generatePreviewSetPdf(Locale locale,Long instanceId) throws Exception {
+    public List<WrapperPdfFiles> generatePDF(Locale locale, Long instanceId) throws Exception {
 
         // Temp WorkDir
         Path workDir = Files.createTempDirectory("pdf-preview-");

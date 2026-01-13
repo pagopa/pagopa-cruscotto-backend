@@ -57,7 +57,7 @@ public class KpiAnalyticDrillDownReportResource {
     ) throws Exception {
 
         // Genera tutti i PDF come byte[]
-        List<WrapperPdfFiles> pdfFiles = PDFReportGenerator.generatePreviewSetPdf(locale, instanceId);
+        List<WrapperPdfFiles> pdfFiles = PDFReportGenerator.generatePDF(locale, instanceId);
 
         // Imposta header HTTP per download
         response.setContentType("application/zip");
