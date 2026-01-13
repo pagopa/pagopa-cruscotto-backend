@@ -23,7 +23,7 @@ microservice-chart:
     periodSeconds: 20
   deployment:
     create: true
-    replicas: 1
+    replicas: 2
   service:
     create: true
     type: ClusterIP
@@ -46,15 +46,15 @@ microservice-chart:
     allowPrivilegeEscalation: false
   resources:
     requests:
-      memory: "512Mi"
+      memory: "1024Mi"
       cpu: "0.40"
     limits:
-      memory: "1024Mi"
+      memory: "2048Mi"
       cpu: "0.90"
   autoscaling:
     enable: true
-    minReplica: 1
-    maxReplica: 1
+    minReplica: 2
+    maxReplica: 2
     pollingInterval: 11 # seconds
     cooldownPeriod: 50 # seconds
     triggers:
