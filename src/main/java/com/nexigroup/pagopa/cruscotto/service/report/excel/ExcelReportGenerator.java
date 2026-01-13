@@ -12,11 +12,11 @@ import java.util.Comparator;
 import java.util.List;
 
 @Service
-public class DrillDownExcelService {
+public class ExcelReportGenerator {
 
     private final List<DrillDownExcelExporter> exporters;
 
-    public DrillDownExcelService(List<DrillDownExcelExporter> exporters) {
+    public ExcelReportGenerator(List<DrillDownExcelExporter> exporters) {
         this.exporters = exporters.stream()
             .sorted(Comparator.comparingInt(DrillDownExcelExporter::getOrder))
             .toList();

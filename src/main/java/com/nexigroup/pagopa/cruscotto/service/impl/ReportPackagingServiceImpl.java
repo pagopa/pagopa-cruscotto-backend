@@ -6,7 +6,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.nexigroup.pagopa.cruscotto.service.ReportPackagingService;
 import com.nexigroup.pagopa.cruscotto.service.dto.ExcelFile;
 import com.nexigroup.pagopa.cruscotto.service.dto.ReportGenerationContext;
-import com.nexigroup.pagopa.cruscotto.service.report.excel.DrillDownExcelService;
+import com.nexigroup.pagopa.cruscotto.service.report.excel.ExcelReportGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +25,7 @@ public class ReportPackagingServiceImpl implements ReportPackagingService {
 
     private final ObjectMapper objectMapper;
 
-    public ReportPackagingServiceImpl(DrillDownExcelService drillDownExcelService) {
+    public ReportPackagingServiceImpl(ExcelReportGenerator excelReportGenerator) {
         objectMapper = new ObjectMapper();
         // registriamo il modulo per Java 8 Date/Time
         objectMapper.registerModule(new JavaTimeModule());

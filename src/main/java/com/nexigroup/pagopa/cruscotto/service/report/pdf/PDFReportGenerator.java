@@ -26,9 +26,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.context.MessageSource;
 
 @Service
-public class PdfPreviewService {
+public class PDFReportGenerator {
 
-    private static final Logger log = LoggerFactory.getLogger(PdfPreviewService.class);
+    private static final Logger log = LoggerFactory.getLogger(PDFReportGenerator.class);
 
     private final PdfGenerationService generationService;
     private final PdfRendererService rendererService;
@@ -48,7 +48,7 @@ public class PdfPreviewService {
     private final KpiC1DetailResultRepository kpiC1DetailResultRepository;
     private final KpiC2DetailResultRepository kpiC2DetailResultRepository;
 
-    public PdfPreviewService(
+    public PDFReportGenerator(
         PdfGenerationService generationService,
         PdfRendererService rendererService,
         PdfKpiTableFactory pdfKpiTableFactory,
