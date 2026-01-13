@@ -38,4 +38,12 @@ public interface JobService {
      * @return a paginated list of QrtzLogTriggerExecutedDTO that match the filter criteria
      */
     Page<QrtzLogTriggerExecutedDTO> findAll(JobExecutionFilter filter, Pageable pageable);
+
+    /**
+     * Checks if the most recent execution of a job with the given name is in COMPLETED or ERROR state.
+     *
+     * @param jobName the name of the job to check
+     * @return true if the most recent execution is completed (COMPLETED or ERROR state), false otherwise
+     */
+    boolean isJobExecutionCompleted(String jobName);
 }
