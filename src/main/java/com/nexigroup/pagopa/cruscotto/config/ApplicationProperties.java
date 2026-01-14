@@ -304,6 +304,16 @@ public class ApplicationProperties {
         private boolean enabled;
 
         private String cronExpression = "0 0 0 * * ?"; // Every day at midnight
+
+        private Integer chunkSizeDays = 10; // Default: 10 days per chunk
+
+        private Integer initializationMonths = 6; // Default: 6 months of historical data
+
+        private Integer parallelChunks = 3; // Default: 3 chunk in parallelo (numero di thread nel pool)
+
+        private Integer delayBetweenChunkStartsMs = 1000; // Default: 1 secondo di delay tra l'avvio di ogni chunk (per evitare rate limiting)
+
+        private Integer pollingIntervalMs = 2000; // Default: 2 seconds (2000ms) polling interval to check job status
     }
 
     @Setter
