@@ -12,14 +12,9 @@
 
 logging:
   level:
-    ROOT: INFO
+    ROOT: DEBUG
     com.nexigroup.pagopa.cruscotto: INFO
-    # Disable Hibernate SQL logging
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: ERROR
-    org.hibernate.orm.jdbc.bind: ERROR
-    org.hibernate.engine.jdbc.spi.SqlExceptionHelper: ERROR
-#    com.nexigroup.pagopa.cruscotto.config: DEBUG
+    com.nexigroup.pagopa.cruscotto.config: DEBUG
 #    # Logging per AWS SES
 #    com.amazonaws.services.simpleemail: DEBUG
 #    com.amazonaws.request: DEBUG
@@ -48,7 +43,7 @@ spring:
     properties:
       hibernate:
         generate_statistics: false
-    show-sql: false
+    show-sql: true
   #       jdbc:
   #         batch_size: 50
   datasource:
@@ -148,10 +143,10 @@ application:
       enabled: true
       cron: 0 0/50 07-8 ? * SAT *
     load-maintenance-job:
-      enabled: false
+      enabled: true
       cron: 0 0/50 07-8 ? * SAT *
     load-registry-job:
-      enabled: false
+      enabled: true
       cron: 0 0/50 0-23 ? * SAT *
     kpi-a1-job:
       enabled: true
@@ -189,10 +184,6 @@ application:
       enabled: true
       cron: 0 0/2 08-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
       limit: 20
-    kpi-c2-job:
-      enabled: true
-      cron: 0 0/2 08-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
-      limit: 20
     kpi-b6-job:
       enabled: true
       cron: 0 0/2 08-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
@@ -201,16 +192,26 @@ application:
       enabled: true
       cron: 0 0/2 08-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
       limit: 20
+    kpi-c2-job:
+      enabled: true
+      cron: 0 0/2 08-23 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
+      limit: 20
+
     load-stand-in-data-job:
       enabled: true
       cron-expression: 0 0 0 * * ? # Every day at midnight
+      chunk-size-days: 10 # Number of days per chunk (default: 10)
+      initialization-months: 6 # Number of months of historical data to load (default: 6)
+      parallel-chunks: 3 # Number of chunks to process in parallel (default: 3)
+      delay-between-chunk-starts-ms: 1000 # Delay between starting each chunk in milliseconds (default: 1000ms = 1 second)
+      polling-interval-ms: 2000 # Polling interval to check job status in milliseconds (default: 2000ms = 2 seconds)
     clear-log-job:
       cron: 0 0/20 05-6 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
       days: 7
 
   liquibase:
     async-start: false
-    dbVersion: 1.1.14
+    dbVersion: 1.1.15
 
 decorator:
   datasource:
