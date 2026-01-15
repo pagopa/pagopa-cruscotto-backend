@@ -310,7 +310,6 @@ public class KpiB1Job extends QuartzJobBean {
 
     @Override
     public void executeInternal(@NonNull JobExecutionContext context) {
-        AtomicReference<OutcomeStatus> kpiB1ResultFinalOutcome = new AtomicReference<>(OutcomeStatus.OK);
         LOGGER.info("Start calculate kpi B.1");
 
         if (!applicationProperties.getJob().getKpiB1Job().isEnabled()) {
@@ -336,6 +335,7 @@ public class KpiB1Job extends QuartzJobBean {
         List<String> errors = new ArrayList<>();
 
         for (InstanceDTO instanceDTO : instanceDTOS) {
+            AtomicReference<OutcomeStatus> kpiB1ResultFinalOutcome = new AtomicReference<>(OutcomeStatus.OK);
             try {
                 LOGGER.info(
                         "Start elaboration instance {} for partner {} - {} with period {} - {}",
