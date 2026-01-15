@@ -324,7 +324,7 @@ public class KpiB4ServiceImpl implements KpiB4Service {
                 //if (monthlyGpdCalls > 0) {
                     monthlyPercentageCp = new BigDecimal(monthlyCpCalls)
                         .multiply(new BigDecimal("100"))
-                        .divide(new BigDecimal(totalApiCallsAllMonths), 2, RoundingMode.HALF_UP);
+                        .divide(new BigDecimal(monthlyGpdCalls + monthlyCpCalls), 2, RoundingMode.HALF_UP);
                 //}
 
                 // Crea record mensile (PARTNER LEVEL - aggregato per tutto il partner)
