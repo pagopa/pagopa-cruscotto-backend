@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-cruscotto-backend
-    tag: "0.8.18"
+    tag: "0.8.21"
     pullPolicy: Always
   # https://github.com/Azure/azure-functions-host/blob/uat/src/WebJobs.Script.WebHost/Controllers/HostController.cs
   livenessProbe:
@@ -46,10 +46,10 @@ microservice-chart:
     allowPrivilegeEscalation: false
   resources:
     requests:
-      memory: "512Mi"
+      memory: "1024Mi"
       cpu: "0.40"
     limits:
-      memory: "1024Mi"
+      memory: 3Gi
       cpu: "0.90"
   autoscaling:
     enable: true
@@ -63,6 +63,11 @@ microservice-chart:
           # Required
           type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
           value: "75"
+      - type: memory
+        metadata:
+          # Required
+          type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
+          value: "80"          
   envConfig:
     SPRING_PROFILES_ACTIVE: 'devpagopa'
     ASPNETCORE_URLS: "http://*:8080"

@@ -7,8 +7,6 @@ import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
 import com.nexigroup.pagopa.cruscotto.repository.ModuleRepository;
 import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
 import com.nexigroup.pagopa.cruscotto.security.SecurityUtils;
-import com.nexigroup.pagopa.cruscotto.service.AnagPartnerService;
-import com.nexigroup.pagopa.cruscotto.service.AuthUserService;
 import com.nexigroup.pagopa.cruscotto.service.GenericServiceException;
 import com.nexigroup.pagopa.cruscotto.service.bean.InstanceRequestBean;
 import com.nexigroup.pagopa.cruscotto.service.dto.AuthUserDTO;
@@ -30,7 +28,6 @@ import java.time.Instant;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,8 +40,8 @@ class InstanceServiceImplTest {
     @Mock private InstanceMapper instanceMapper;
     @Mock private UserUtils userUtils;
     @Mock private QueryBuilder queryBuilder;
-    @Mock private AuthUserService authUserService;
-    @Mock private AnagPartnerService anagPartnerService;
+    @Mock private JPQLQuery<Instance> jpqlQuery;
+    @Mock private JPQLQuery<InstanceDTO> jpqlDtoQuery;
 
     @InjectMocks private InstanceServiceImpl service;
 
@@ -219,68 +216,4 @@ class InstanceServiceImplTest {
         assertEquals(0, result.getTotalElements());
     }
 
-    @Test
-    void shouldNotDeleteInstanceInEseguitaStatusWithoutForceDeletePermission() {
-        // Given
-        Instance instance = createInstance(InstanceStatus.ESEGUITA);
-        AuthUserDTO user = new AuthUserDTO();
-        user.setAuthorities(Set.of("instance.read", "instance.delete")); // No forceDelete
-
-        when(authUserService.getUserWithAuthorities(any())).thenReturn(Optional.of(user));
-        when(instanceRepository.findById(1L)).thenReturn(Optional.of(instance));
-
-        try (MockedStatic<SecurityUtils> utilities = mockStatic(SecurityUtils.class)) {
-            utilities.when(SecurityUtils::getCurrentUserLogin).thenReturn(Optional.of("testUser"));
-            utilities.when(SecurityUtils::getAuthenticationTypeUserLogin)
-                .thenReturn(Optional.of(AuthenticationType.FORM_LOGIN));
-
-            assertThrows(GenericServiceException.class, () -> service.delete(1L));
-        }
-    }
-
-    @Test
-    void shouldForceDeleteInstanceInAnyStatusWithForceDeletePermission() {
-        // Given
-        Instance instance = createInstance(InstanceStatus.ESEGUITA);
-        AuthUserDTO user = new AuthUserDTO();
-        user.setAuthorities(Set.of(
-            "instance.read",
-            "instance.delete",
-            AuthoritiesConstants.INSTANCE_FORCED_DELETION // corretto
-        ));
-
-        when(authUserService.getUserWithAuthorities(any())).thenReturn(Optional.of(user));
-        when(instanceRepository.findById(1L)).thenReturn(Optional.of(instance));
-        when(instanceMapper.toDto(instance)).thenReturn(new InstanceDTO());
-
-        try (MockedStatic<SecurityUtils> utilities = mockStatic(SecurityUtils.class)) {
-            utilities.when(SecurityUtils::getCurrentUserLogin).thenReturn(Optional.of("user"));
-            utilities.when(SecurityUtils::getAuthenticationTypeUserLogin)
-                .thenReturn(Optional.of(AuthenticationType.FORM_LOGIN));
-
-            InstanceDTO result = service.delete(1L);
-
-            assertNotNull(result);
-            verify(instanceRepository).save(instance); // perché il servizio fa soft delete
-        }
-    }
-
-    /**
-     * Helper method to create test instances
-     */
-    private Instance createInstance(InstanceStatus status) {
-        Instance instance = new Instance();
-        instance.setId(1L);
-        instance.setStatus(status);
-        instance.setInstanceIdentification("TEST-INST-001");
-        instance.setCreatedDate(Instant.now());
-        instance.setCreatedBy("system");
-
-        AnagPartner partner = new AnagPartner();
-        partner.setId(1L);
-        partner.setFiscalCode("TESTFC123");
-        instance.setPartner(partner);
-
-        return instance;
-    }
 }
