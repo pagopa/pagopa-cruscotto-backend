@@ -19,7 +19,14 @@ import com.nexigroup.pagopa.cruscotto.domain.QAnagStation;
 import com.nexigroup.pagopa.cruscotto.domain.QAnagStationAnagInstitution;
 import com.nexigroup.pagopa.cruscotto.repository.AnagInstitutionRepository;
 import com.nexigroup.pagopa.cruscotto.job.cache.CreditorInstitution;
+import com.nexigroup.pagopa.cruscotto.job.cache.CreditorInstitutionsResponse;
+import com.nexigroup.pagopa.cruscotto.job.client.PagoPaCacheClient;
 import com.nexigroup.pagopa.cruscotto.service.AnagInstitutionService;
+import com.nexigroup.pagopa.cruscotto.service.validation.ValidationGroups;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 import com.nexigroup.pagopa.cruscotto.service.dto.AnagInstitutionDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.InstitutionIdentificationDTO;
 import com.nexigroup.pagopa.cruscotto.service.filter.AnagInstitutionFilter;
@@ -32,6 +39,12 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPQLQuery;
+import org.apache.commons.lang3.time.StopWatch;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class AnagInstitutionServiceImpl implements AnagInstitutionService {
@@ -47,6 +60,9 @@ public class AnagInstitutionServiceImpl implements AnagInstitutionService {
     @Autowired
     private QueryBuilder queryBuilder;
 
+    @Autowired
+    private PagoPaCacheClient pagoPaCacheClient;
+
     @Override
     public AnagInstitution findByInstitutionCode(String institutionCode) {
     	return anagInstitutionRepository.findByFiscalCode(institutionCode);
@@ -54,24 +70,44 @@ public class AnagInstitutionServiceImpl implements AnagInstitutionService {
 
     @Override
     public void saveAll(java.util.List<CreditorInstitution> creditorInstitutions) {
-        java.util.concurrent.atomic.AtomicInteger i = new java.util.concurrent.atomic.AtomicInteger(0);
+        // Load all existing institutions once to avoid N+1 queries
+        java.util.Map<String, AnagInstitution> existingByFiscalCode = anagInstitutionRepository.findAll()
+            .stream()
+            .collect(java.util.stream.Collectors.toMap(AnagInstitution::getFiscalCode, inst -> inst));
+        
         java.util.List<AnagInstitution> toSave = new java.util.ArrayList<>();
+        
         for (CreditorInstitution ci : creditorInstitutions) {
-            AnagInstitution example = new AnagInstitution();
-            example.setFiscalCode(ci.getCreditorInstitutionCode());
-            example.setEnabled(null);
-            example.setCreatedDate(null);
-            example.setLastModifiedDate(null);
-            AnagInstitution anagInstitution = anagInstitutionRepository.findOne(org.springframework.data.domain.Example.of(example)).orElse(new AnagInstitution());
-            anagInstitution.setFiscalCode(ci.getCreditorInstitutionCode());
-            anagInstitution.setName(ci.getBusinessName());
-            anagInstitution.setEnabled(ci.getEnabled() != null ? ci.getEnabled() : true);
-            toSave.add(anagInstitution);
-            if (i.getAndIncrement() % 50 == 0) {
-                anagInstitutionRepository.flush();
+            // Get existing or create new
+            AnagInstitution anagInstitution = existingByFiscalCode.get(ci.getCreditorInstitutionCode());
+            boolean isNew = (anagInstitution == null);
+            
+            if (isNew) {
+                anagInstitution = new AnagInstitution();
+            }
+            
+            // Set fields - JPA will detect if they changed and issue UPDATE only if needed
+            String newName = ci.getBusinessName();
+            Boolean newEnabled = ci.getEnabled() != null ? ci.getEnabled() : true;
+            
+            // Only add to save list if it's new OR if values actually changed
+            boolean hasChanges = isNew || 
+                !java.util.Objects.equals(anagInstitution.getName(), newName) ||
+                !java.util.Objects.equals(anagInstitution.getEnabled(), newEnabled);
+            
+            if (hasChanges || isNew) {
+                anagInstitution.setFiscalCode(ci.getCreditorInstitutionCode());
+                anagInstitution.setName(newName);
+                anagInstitution.setEnabled(newEnabled);
+                toSave.add(anagInstitution);
             }
         }
-        anagInstitutionRepository.saveAll(toSave);
+        
+        // Batch save only entities that are new or changed
+        if (!toSave.isEmpty()) {
+            anagInstitutionRepository.saveAll(toSave);
+            anagInstitutionRepository.flush();
+        }
     }
 
     @Override
@@ -231,4 +267,44 @@ public class AnagInstitutionServiceImpl implements AnagInstitutionService {
 
            return new PageImpl<>(list, pageable, size);
    	}
+
+    @Override
+    @Transactional
+    public void loadFromPagoPA() {
+        log.info("Call PagoPA to get creditorInstitutions");
+        CreditorInstitutionsResponse response = pagoPaCacheClient.creditorInstitutions();
+        int size = response.getCreditorInstitutions() != null ? response.getCreditorInstitutions().size() : 0;
+        log.info("{} records will be processed for institutions", size);
+
+        List<CreditorInstitution> institutions = new ArrayList<>();
+
+        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
+            Validator validator = factory.getValidator();
+            if (size > 0) {
+                for (CreditorInstitution ci : response.getCreditorInstitutions().values()) {
+                    Set<ConstraintViolation<CreditorInstitution>> violations = validator.validate(
+                        ci,
+                        ValidationGroups.RegistryJob.class
+                    );
+                    if (violations.isEmpty()) {
+                        institutions.add(ci);
+                    } else {
+                        log.error("Invalid partner {}", ci);
+                        violations.forEach(violation -> log.error("{}: {}", violation.getPropertyPath(), violation.getMessage()));
+                    }
+                }
+            }
+
+            log.info("After validation {} records will be saved", institutions.size());
+
+            StopWatch stopWatch = new StopWatch();
+            stopWatch.start();
+
+            saveAll(institutions);
+
+            stopWatch.stop();
+
+            log.info("Saved {} rows institution to database into {} seconds", institutions.size(), stopWatch.getTime(TimeUnit.SECONDS));
+        }
+    }
 }
