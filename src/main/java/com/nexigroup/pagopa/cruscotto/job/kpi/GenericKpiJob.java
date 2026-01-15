@@ -92,7 +92,7 @@ public class GenericKpiJob extends QuartzJobBean {
             } catch (Exception e) {
                 LOGGER.error("Error processing instance {} for KPI {}: {}", 
                         instance.getId(), moduleCode, e.getMessage(), e);
-                instanceService.updateInstanceStatusError(instance.getId());
+                // instanceService.updateInstanceStatusError(instance.getId());
             }
         }
     }
