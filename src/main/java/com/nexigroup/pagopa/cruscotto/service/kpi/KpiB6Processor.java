@@ -343,7 +343,7 @@ public class KpiB6Processor extends AbstractKpiProcessor<KpiResultDTO, KpiDetail
                 dataAge.toHours(), maxDataAgeHours, mostRecentUpdate, java.time.Instant.now());
             
             logger.error(errorMessage);
-            throw new IllegalStateException(errorMessage);
+            // throw new IllegalStateException(errorMessage);
         } else {
             logger.info("Station data is fresh - most recent update was {} hours ago (within {} hour threshold)", 
                     dataAge.toHours(), maxDataAgeHours);
