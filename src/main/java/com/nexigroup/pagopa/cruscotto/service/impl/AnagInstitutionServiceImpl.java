@@ -74,27 +74,27 @@ public class AnagInstitutionServiceImpl implements AnagInstitutionService {
         java.util.Map<String, AnagInstitution> existingByFiscalCode = anagInstitutionRepository.findAll()
             .stream()
             .collect(java.util.stream.Collectors.toMap(AnagInstitution::getFiscalCode, inst -> inst));
-        
+
         java.util.List<AnagInstitution> toSave = new java.util.ArrayList<>();
-        
+
         for (CreditorInstitution ci : creditorInstitutions) {
             // Get existing or create new
             AnagInstitution anagInstitution = existingByFiscalCode.get(ci.getCreditorInstitutionCode());
             boolean isNew = (anagInstitution == null);
-            
+
             if (isNew) {
                 anagInstitution = new AnagInstitution();
             }
-            
+
             // Set fields - JPA will detect if they changed and issue UPDATE only if needed
             String newName = ci.getBusinessName();
             Boolean newEnabled = ci.getEnabled() != null ? ci.getEnabled() : true;
-            
+
             // Only add to save list if it's new OR if values actually changed
-            boolean hasChanges = isNew || 
+            boolean hasChanges = isNew ||
                 !java.util.Objects.equals(anagInstitution.getName(), newName) ||
                 !java.util.Objects.equals(anagInstitution.getEnabled(), newEnabled);
-            
+
             if (hasChanges || isNew) {
                 anagInstitution.setFiscalCode(ci.getCreditorInstitutionCode());
                 anagInstitution.setName(newName);
@@ -102,7 +102,7 @@ public class AnagInstitutionServiceImpl implements AnagInstitutionService {
                 toSave.add(anagInstitution);
             }
         }
-        
+
         // Batch save only entities that are new or changed
         if (!toSave.isEmpty()) {
             anagInstitutionRepository.saveAll(toSave);
@@ -263,7 +263,7 @@ public class AnagInstitutionServiceImpl implements AnagInstitutionService {
                    );
                });
 
-           List<AnagInstitutionDTO> list = findAllNoPaging(filter);
+           List<AnagInstitutionDTO> list = jpqlSelected.fetch();
 
            return new PageImpl<>(list, pageable, size);
    	}

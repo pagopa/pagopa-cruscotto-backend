@@ -109,27 +109,27 @@ public class KpiB3Job extends QuartzJobBean {
                         Double eligibilityThreshold = kpiConfigurationDTO.getEligibilityThreshold() != null
                             ? kpiConfigurationDTO.getEligibilityThreshold()
                             : 0.0;
-                        
+
                         Boolean excludePlannedShutdown = kpiConfigurationDTO.getExcludePlannedShutdown() != null
                             ? kpiConfigurationDTO.getExcludePlannedShutdown()
                             : false;
-                            
+
                         Boolean excludeUnplannedShutdown = kpiConfigurationDTO.getExcludeUnplannedShutdown() != null
                             ? kpiConfigurationDTO.getExcludeUnplannedShutdown()
                             : false;
 
-                        LOGGER.info("Configuration - Eligibility threshold: {}, Exclude planned shutdown: {}, Exclude unplanned shutdown: {}", 
+                        LOGGER.info("Configuration - Eligibility threshold: {}, Exclude planned shutdown: {}, Exclude unplanned shutdown: {}",
                                    eligibilityThreshold, excludePlannedShutdown, excludeUnplannedShutdown);
 
                         // 1. Get partner stations to filter Stand-In data correctly
                         List<AnagStation> partnerStations = anagStationRepository.findByAnagPartnerFiscalCode(
                             instanceDTO.getPartnerFiscalCode()
                         );
-                        
+
                         if (partnerStations.isEmpty()) {
-                            LOGGER.warn("No stations found for partner {}, setting outcome OK and completing workflow", 
+                            LOGGER.warn("No stations found for partner {}, setting outcome OK and completing workflow",
                                       instanceDTO.getPartnerFiscalCode());
-                            
+
                             // Anche se non ci sono stazioni, dobbiamo salvare il risultato e aggiornare l'outcome
                             try {
                                 // Salva risultato con outcome OK (nessuna stazione = nessun evento Stand-In possibile)
@@ -141,10 +141,10 @@ public class KpiB3Job extends QuartzJobBean {
                                     OutcomeStatus.OK,
                                     List.of() // Lista vuota di eventi Stand-In
                                 );
-                                
+
                                 // Aggiorna l'outcome dell'instance module
                                 instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(), OutcomeStatus.OK);
-                                
+
                                 // Trigger calculateStateInstanceJob anche per il caso no-stations
                                 JobDetail job = scheduler.getJobDetail(JobKey.jobKey(JobConstant.CALCULATE_STATE_INSTANCE_JOB, "DEFAULT"));
                                 Trigger trigger = TriggerBuilder.newTrigger()
@@ -155,24 +155,24 @@ public class KpiB3Job extends QuartzJobBean {
                                     .forJob(job)
                                     .build();
                                 scheduler.scheduleJob(trigger);
-                                
-                                LOGGER.info("No stations case: set outcome OK and triggered calculateStateInstanceJob for instance: {}", 
+
+                                LOGGER.info("No stations case: set outcome OK and triggered calculateStateInstanceJob for instance: {}",
                                           instanceDTO.getId());
-                                
+
                             } catch (Exception e) {
-                                LOGGER.error("Error handling no-stations case for instance {}: {}", 
+                                LOGGER.error("Error handling no-stations case for instance {}: {}",
                                            instanceDTO.getId(), e.getMessage(), e);
                             }
-                            
+
                             return;
                         }
-                        
+
                         // Create list of station codes for filtering
                         List<String> partnerStationCodes = partnerStations.stream()
                             .map(AnagStation::getName)
                             .collect(Collectors.toList());
-                        
-                        LOGGER.info("Partner {} has {} stations: {}", 
+
+                        LOGGER.info("Partner {} has {} stations: {}",
                                    instanceDTO.getPartnerFiscalCode(), partnerStations.size(), partnerStationCodes);
 
                         // 2. Retrieve Stand-In data from standin_number table
@@ -180,25 +180,25 @@ public class KpiB3Job extends QuartzJobBean {
                         LocalDateTime endDateTime = instanceDTO.getAnalysisPeriodEndDate().atTime(23, 59, 59);
 
                         LOGGER.info("Querying Stand-In data from {} to {}", startDateTime, endDateTime);
-                        
+
                         // Get all Stand-In data for the period, then filter for partner stations
                         List<PagopaNumeroStandin> allStandInData = pagopaNumeroStandinRepository.findByDateRange(
                             startDateTime, endDateTime
                         );
-                        
+
                         // Filter to include only events for partner stations
                         List<PagopaNumeroStandin> standInData = allStandInData.stream()
                             .filter(event -> partnerStationCodes.contains(event.getStationCode()))
                             .collect(Collectors.toList());
 
-                        LOGGER.info("Found {} total Stand-In records, {} for partner {} stations", 
+                        LOGGER.info("Found {} total Stand-In records, {} for partner {} stations",
                                    allStandInData.size(), standInData.size(), instanceDTO.getPartnerFiscalCode());
 
                         // 2. Filter data excluding shutdowns if configured
                         List<PagopaNumeroStandin> filteredStandInData = filterShutdownPeriods(
-                            standInData, 
-                            instanceDTO, 
-                            excludePlannedShutdown, 
+                            standInData,
+                            instanceDTO,
+                            excludePlannedShutdown,
                             excludeUnplannedShutdown
                         );
 
@@ -206,9 +206,9 @@ public class KpiB3Job extends QuartzJobBean {
 
                         // 3. Calculate final outcome based on Stand-In data
                         AtomicReference<OutcomeStatus> kpiB3ResultFinalOutcome = new AtomicReference<>(OutcomeStatus.OK);
-                        
+
                         OutcomeStatus outcome = calculateKpiB3Outcome(
-                            filteredStandInData, 
+                            filteredStandInData,
                             eligibilityThreshold,
                             instanceDTO
                         );
@@ -283,15 +283,35 @@ public class KpiB3Job extends QuartzJobBean {
         }
 
         try {
-            // Retrieve planned shutdowns for the analysis period
-            List<AnagPlannedShutdownDTO> plannedShutdowns = anagPlannedShutdownService.findAllByTypePlannedIntoPeriod(
-                instanceDTO.getPartnerId(),
-                TypePlanned.NON_PROGRAMMATO,
-                instanceDTO.getAnalysisPeriodStartDate(),
-                instanceDTO.getAnalysisPeriodEndDate()
-            );
+            // Costruisci la lista dei fermi da considerare in base ai flag
+            List<AnagPlannedShutdownDTO> plannedShutdowns = new java.util.ArrayList<>();
 
-            LOGGER.info("Found {} planned shutdowns for partner {}", plannedShutdowns.size(), instanceDTO.getPartnerFiscalCode());
+            if (excludePlannedShutdown) {
+                // Carica fermi PROGRAMMATI
+                plannedShutdowns.addAll(
+                    anagPlannedShutdownService.findAllByTypePlannedIntoPeriod(
+                        instanceDTO.getPartnerId(),
+                        TypePlanned.PROGRAMMATO,
+                        instanceDTO.getAnalysisPeriodStartDate(),
+                        instanceDTO.getAnalysisPeriodEndDate()
+                    )
+                );
+            }
+
+            if (Boolean.TRUE.equals(excludeUnplannedShutdown)) {
+                // Carica fermi NON PROGRAMMATI
+                plannedShutdowns.addAll(
+                    anagPlannedShutdownService.findAllByTypePlannedIntoPeriod(
+                        instanceDTO.getPartnerId(),
+                        TypePlanned.NON_PROGRAMMATO,
+                        instanceDTO.getAnalysisPeriodStartDate(),
+                        instanceDTO.getAnalysisPeriodEndDate()
+                    )
+                );
+            }
+
+            LOGGER.info("Found {} shutdowns to consider for partner {} (planned={}, unplanned={})",
+                plannedShutdowns.size(), instanceDTO.getPartnerFiscalCode(), excludePlannedShutdown, excludeUnplannedShutdown);
 
             // Filter Stand-In events excluding those in shutdown periods
             return standInData.stream()
@@ -321,13 +341,13 @@ public class KpiB3Job extends QuartzJobBean {
 
             // Check if the Stand-In event is in the shutdown period
             if (isDateTimeInRange(standInDateTime, shutdownStart, shutdownEnd)) {
-                
+
                 // Check shutdown type and exclusion configuration
                 if (excludePlanned && shutdown.getTypePlanned() == TypePlanned.PROGRAMMATO) {
                     LOGGER.debug("Excluding Stand-In event {} during planned shutdown", standIn.getId());
                     return true;
                 }
-                
+
                 if (excludeUnplanned && shutdown.getTypePlanned() == TypePlanned.NON_PROGRAMMATO) {
                     LOGGER.debug("Excluding Stand-In event {} during unplanned shutdown", standIn.getId());
                     return true;
@@ -366,7 +386,7 @@ public class KpiB3Job extends QuartzJobBean {
                 .mapToInt(PagopaNumeroStandin::getStandInCount)
                 .sum();
 
-            LOGGER.info("Total Stand-In events for partner {} in period {} to {}: {}", 
+            LOGGER.info("Total Stand-In events for partner {} in period {} to {}: {}",
                        instanceDTO.getPartnerFiscalCode(),
                        instanceDTO.getAnalysisPeriodStartDate(),
                        instanceDTO.getAnalysisPeriodEndDate(),
@@ -390,12 +410,12 @@ public class KpiB3Job extends QuartzJobBean {
 
     /**
      * Schedules KPI B.3 job execution for a single instance
-     * 
+     *
      * @param instanceIdentification the instance identification to process
      */
     public void scheduleJobForSingleInstance(String instanceIdentification) throws Exception {
         LOGGER.info("Scheduling KpiB3Job for instance: {}", instanceIdentification);
-        
+
         // Create job detail for this specific instance
         JobDetail jobDetail = JobBuilder.newJob(KpiB3Job.class)
             .withIdentity("KpiB3Job-" + instanceIdentification, "KPI_JOBS")
@@ -416,3 +436,4 @@ public class KpiB3Job extends QuartzJobBean {
         LOGGER.info("Successfully scheduled KpiB3Job for instance: {}", instanceIdentification);
     }
 }
+

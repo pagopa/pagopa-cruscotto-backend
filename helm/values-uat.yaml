@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-cruscotto-backend
-    tag: "0.8.21"
+    tag: "0.8.24"
     pullPolicy: Always
   # https://github.com/Azure/azure-functions-host/blob/uat/src/WebJobs.Script.WebHost/Controllers/HostController.cs
   livenessProbe:
@@ -67,7 +67,7 @@ microservice-chart:
         metadata:
           # Required
           type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
-          value: "80"          
+          value: "80"
   envConfig:
     SPRING_PROFILES_ACTIVE: 'devpagopa'
     ASPNETCORE_URLS: "http://*:8080"

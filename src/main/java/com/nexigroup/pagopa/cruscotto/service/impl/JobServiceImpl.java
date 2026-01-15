@@ -412,4 +412,44 @@ public class JobServiceImpl implements JobService {
         );
         return qrtzLogTriggerExecutedDTO;
     }
+
+    /**
+     * Checks if the most recent execution of a job with the given name is in COMPLETED or ERROR state.
+     *
+     * @param jobName the name of the job to check
+     * @return true if the most recent execution is completed (COMPLETED or ERROR state), false otherwise
+     */
+    @Override
+    public boolean isJobExecutionCompleted(String jobName) {
+        LOGGER.debug("Checking if job execution is completed for job: {}", jobName);
+
+        QQrtzLogTriggerExecuted qQrtzLogTriggerExecuted = QQrtzLogTriggerExecuted.qrtzLogTriggerExecuted;
+
+        try {
+            // Query to get the most recent execution of the job
+            JPQLQuery<QrtzLogTriggerExecuted> jpql = queryBuilder
+                .<QrtzLogTriggerExecuted>createQuery()
+                .from(qQrtzLogTriggerExecuted)
+                .where(qQrtzLogTriggerExecuted.jobName.eq(jobName))
+                .orderBy(qQrtzLogTriggerExecuted.scheduledTime.desc())
+                .limit(1);
+
+            QrtzLogTriggerExecuted latestExecution = jpql.fetchOne();
+
+            if (latestExecution == null) {
+                LOGGER.debug("No execution found for job: {}", jobName);
+                return false;
+            }
+
+            String state = latestExecution.getState();
+            boolean isCompleted = "COMPLETED".equals(state) || "ERROR".equals(state);
+
+            LOGGER.debug("Job {} latest execution state: {}, isCompleted: {}", jobName, state, isCompleted);
+
+            return isCompleted;
+        } catch (Exception e) {
+            LOGGER.error("Error checking job execution status for {}: {}", jobName, e.getMessage(), e);
+            return false;
+        }
+    }
 }
