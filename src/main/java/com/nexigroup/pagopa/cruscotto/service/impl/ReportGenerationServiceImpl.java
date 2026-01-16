@@ -222,12 +222,9 @@ public class ReportGenerationServiceImpl implements ReportGenerationService {
             drilldownFile.setDescription("Detailed drill-down data");
             excelFiles.add(drilldownFile);
 
-            // Convert PDF files to byte array (assuming first PDF file or merge all PDFs)
-            byte[] pdfContent = pdfFiles.isEmpty() ? new byte[0] : pdfFiles.get(0).getContent();
-
             // Package into ZIP
             log.debug("Packaging report: {}", reportId);
-            byte[] zipContent = packagingService.createReportPackage(context, pdfContent, drilldownFile);
+            byte[] zipContent = packagingService.createReportPackage(context, pdfFiles, drilldownFile);
             log.info("Report packaged successfully: {}, size: {} bytes", reportId, zipContent.length);
 
             // Generate blob name and file name
