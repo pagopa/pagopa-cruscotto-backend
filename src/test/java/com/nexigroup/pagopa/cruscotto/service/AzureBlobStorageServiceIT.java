@@ -78,7 +78,7 @@ class AzureBlobStorageServiceIT {
 
         // When
         assertThatCode(() ->
-            azureBlobStorageService.upload(data, testBlobPath, testFileName)
+            azureBlobStorageService.uploadFile(data, testBlobPath, testFileName)
         ).doesNotThrowAnyException();
 
         // Then - Verify the file was uploaded successfully
@@ -102,7 +102,7 @@ class AzureBlobStorageServiceIT {
 
         // When / Then
         assertThatThrownBy(() ->
-            azureBlobStorageService.upload(data, testBlobPath, testFileName)
+            azureBlobStorageService.uploadFile(data, testBlobPath, testFileName)
         ).isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -113,7 +113,7 @@ class AzureBlobStorageServiceIT {
 
         // When
         assertThatThrownBy(() ->
-            azureBlobStorageService.upload(data, testBlobPath, testFileName)
+            azureBlobStorageService.uploadFile(data, testBlobPath, testFileName)
         ).isInstanceOf(IllegalArgumentException.class);
 
         // Then - Verify empty file was created
@@ -136,7 +136,7 @@ class AzureBlobStorageServiceIT {
 
         // When
         assertThatCode(() ->
-            azureBlobStorageService.upload(data, pathWithSlash, testFileName)
+            azureBlobStorageService.uploadFile(data, pathWithSlash, testFileName)
         ).doesNotThrowAnyException();
 
         // Then
@@ -160,7 +160,7 @@ class AzureBlobStorageServiceIT {
 
         // When
         assertThatCode(() ->
-            azureBlobStorageService.upload(data, testBlobPath, testFileName)
+            azureBlobStorageService.uploadFile(data, testBlobPath, testFileName)
         ).doesNotThrowAnyException();
 
         // Then
@@ -180,7 +180,7 @@ class AzureBlobStorageServiceIT {
         // Given - Upload a test file first
         String testContent = "This is test content for download - " + LocalDateTime.now();
         byte[] uploadedData = testContent.getBytes(StandardCharsets.UTF_8);
-        azureBlobStorageService.upload(uploadedData, testBlobPath, testFileName);
+        azureBlobStorageService.uploadFile(uploadedData, testBlobPath, testFileName);
 
         // When
         byte[] downloadedData = azureBlobStorageService.download(testBlobPath, testFileName);
@@ -258,7 +258,7 @@ class AzureBlobStorageServiceIT {
         for (int i = 0; i < largeData.length; i++) {
             largeData[i] = (byte) (i % 256);
         }
-        azureBlobStorageService.upload(largeData, testBlobPath, testFileName);
+        azureBlobStorageService.uploadFile(largeData, testBlobPath, testFileName);
 
         // When
         byte[] downloadedData = azureBlobStorageService.download(testBlobPath, testFileName);
