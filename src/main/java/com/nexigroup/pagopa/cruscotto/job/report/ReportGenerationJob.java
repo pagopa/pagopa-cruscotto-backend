@@ -1,7 +1,9 @@
 package com.nexigroup.pagopa.cruscotto.job.report;
 
 import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
-// import com.nexigroup.pagopa.cruscotto.service.ReportGenerationService;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.ReportStatus;
+import com.nexigroup.pagopa.cruscotto.repository.ReportGenerationRepository;
+import com.nexigroup.pagopa.cruscotto.service.ReportGenerationService;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -27,8 +29,9 @@ public class ReportGenerationJob extends QuartzJobBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReportGenerationJob.class);
 
-    // private final ReportGenerationService reportGenerationService;
+    private final ReportGenerationService reportGenerationService;
     private final ApplicationProperties applicationProperties;
+    private final ReportGenerationRepository reportGenerationRepository;
 
     @Override
     protected void executeInternal(@NotNull JobExecutionContext context) {
@@ -40,11 +43,9 @@ public class ReportGenerationJob extends QuartzJobBean {
         }
 
         try {
-            // Query PENDING reports - per ora loggiamo solo
-            LOGGER.info("Query report istanza pending");
+            // Query PENDING reports
+            LOGGER.info("Querying pending report instances");
 
-            // Simuliamo una lista di report ID in stato PENDING
-            // TODO: sostituire con query reale quando la tabella sarà disponibile
             List<Long> pendingReportIds = queryPendingReports();
 
             if (pendingReportIds.isEmpty()) {
@@ -96,34 +97,21 @@ public class ReportGenerationJob extends QuartzJobBean {
 
     /**
      * Query for reports in PENDING status.
-     * TODO: Implementare query reale quando la tabella report sarà disponibile
      *
      * @return List of report IDs in PENDING status
      */
-
     protected List<Long> queryPendingReports() {
-        // TODO: Query reale da implementare
-        // return reportRepository.findByStatus(ReportStatus.PENDING);
-
-        // Per ora ritorniamo una lista vuota
-        return List.of();
+        return reportGenerationRepository.findByStatus(ReportStatus.PENDING)
+            .stream()
+            .map(reportGeneration -> reportGeneration.getId())
+            .collect(Collectors.toList());
     }
 
 
     protected void processReport(Long reportId) throws Exception {
-        // TODO: Decommentare quando ReportGenerationService sarà implementato dal collega
-        //LOGGER.info("Chiamo il servizio executeAsyncGeneration");
-        // reportGenerationService.executeAsyncGeneration(reportId);
-
-        // TEMPORANEO: simulazione finché il servizio reale non esiste
         LOGGER.info("Processing report ID: {}", reportId);
         LOGGER.info("Chiamo il servizio executeAsyncGeneration");
-        LOGGER.info("START report {}", reportId);
-
-        Thread.sleep(2000); // simulazione lavoro
-
-        LOGGER.info("END report {}", reportId);
-        // fine simulazione
+        reportGenerationService.executeAsyncGeneration(reportId);
     }
 }
 

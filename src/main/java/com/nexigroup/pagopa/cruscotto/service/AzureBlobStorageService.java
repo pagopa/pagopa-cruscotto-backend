@@ -46,7 +46,7 @@ public class AzureBlobStorageService {
      * @throws IllegalArgumentException if data is null or empty.
      * @throws RuntimeException if upload fails.
      */
-    public void upload(byte[] data, String blobPath, String fileName) {
+    public void uploadFile(byte[] data, String blobPath, String fileName) {
         if(data == null || data.length == 0) {
             throw new IllegalArgumentException("File data cannot be null or empty");
         }
