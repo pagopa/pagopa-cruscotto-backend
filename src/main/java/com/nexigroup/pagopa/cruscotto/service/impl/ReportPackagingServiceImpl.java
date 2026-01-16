@@ -7,11 +7,13 @@ import com.nexigroup.pagopa.cruscotto.service.ReportPackagingService;
 import com.nexigroup.pagopa.cruscotto.service.dto.ExcelFile;
 import com.nexigroup.pagopa.cruscotto.service.dto.ReportGenerationContext;
 import com.nexigroup.pagopa.cruscotto.service.report.excel.ExcelReportGenerator;
+import com.nexigroup.pagopa.cruscotto.service.report.pdf.wrapper.WrapperPdfFiles;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -33,14 +35,24 @@ public class ReportPackagingServiceImpl implements ReportPackagingService {
     }
 
     @Override
-    public byte[] createReportPackage(ReportGenerationContext context, byte[] pdfContent, ExcelFile excelFile) {
+    public byte[] createReportPackage(ReportGenerationContext context, List<WrapperPdfFiles> pdfFiles, ExcelFile excelFile) {
         String baseFolder = "report_" + context.getReportId() + "/";
 
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
              ZipOutputStream zip = new ZipOutputStream(baos)) {
 
-            // 1️⃣ PDF
-            addEntry(zip, baseFolder + PDF_NAME, pdfContent);
+            // 1️⃣ PDFs (multiple)
+            if (pdfFiles != null && !pdfFiles.isEmpty()) {
+                int idx = 1;
+                for (WrapperPdfFiles pdf : pdfFiles) {
+                    String filename = (pdf != null && pdf.getName() != null && !pdf.getName().isBlank())
+                        ? pdf.getName()
+                        : "report_" + idx + ".pdf";
+                    byte[] content = pdf != null && pdf.getContent() != null ? pdf.getContent() : new byte[0];
+                    addEntry(zip, baseFolder + PDF_NAME + filename, content);
+                    idx++;
+                }
+            }
 
             // 2️⃣ Excel file singolo
             if (excelFile != null) {
