@@ -33,6 +33,7 @@ public class ReportGeneration implements Serializable {
 
     @NotNull
     @ManyToOne(optional = false)
+    @JoinColumn(name = "instance_id")
     @JsonIgnoreProperties(value = { "modules", "createdBy", "lastModifiedBy" }, allowSetters = true)
     private Instance instance;
 

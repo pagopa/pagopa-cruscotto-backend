@@ -117,23 +117,23 @@ public class ReportGenerationServiceImpl implements ReportGenerationService {
         if (request.getInstanceIds() == null || request.getInstanceIds().isEmpty()) {
             throw new ReportGenerationException("At least one instance ID is required");
         }
-        
+
         log.info("Scheduling async reports for {} instances", request.getInstanceIds().size());
-        
+
         List<ReportAsyncAcceptedDTO> responses = new ArrayList<>();
-        
+
         // Process each instance ID
         for (Long instanceId : request.getInstanceIds()) {
             try {
                 log.debug("Processing instance: {}", instanceId);
-                
+
                 // Validate instance exists and is in correct status
                 Instance instance = instanceRepository
                     .findById(instanceId)
                     .orElseThrow(() -> new ReportGenerationException("Instance not found: " + instanceId));
 
                 if (instance.getStatus() != InstanceStatus.ESEGUITA) {
-                    log.warn("Skipping instance {}: not in ESEGUITA status (current: {})", 
+                    log.warn("Skipping instance {}: not in ESEGUITA status (current: {})",
                         instanceId, instance.getStatus());
                     throw new ReportGenerationException(
                         "Instance must be in ESEGUITA status to generate report. Current status: " + instance.getStatus());
@@ -142,7 +142,7 @@ public class ReportGenerationServiceImpl implements ReportGenerationService {
                 // Check for duplicate report
                 if (activeReportExistsForInstance(instanceId)) {
                     log.warn("Skipping instance {}: active report already exists", instanceId);
-                    throw new DuplicateReportException(instanceId, 
+                    throw new DuplicateReportException(instanceId,
                         "An active report already exists for instance: " + instanceId);
                 }
 
@@ -162,14 +162,14 @@ public class ReportGenerationServiceImpl implements ReportGenerationService {
                 log.info("Report scheduled with ID: {} for instance: {}", report.getId(), instanceId);
 
                 responses.add(mapToAcceptedDTO(report));
-                
+
             } catch (DuplicateReportException | ReportGenerationException e) {
                 log.error("Failed to schedule report for instance {}: {}", instanceId, e.getMessage());
                 // For now, stop on first error. Could be changed to continue with remaining instances.
                 throw e;
             }
         }
-        
+
         log.info("Successfully scheduled {} reports", responses.size());
         return responses;
     }
@@ -205,7 +205,7 @@ public class ReportGenerationServiceImpl implements ReportGenerationService {
 
             // Generate all 3 Excel files (always)
             log.debug("Generating Excel files for report: {}", reportId);
-            
+
             byte[] drilldownExcel = excelGenerator.generateExcel(context.getInstanceId().toString());
             log.info(
                 "Excel files generated successfully for report: {}, size: {} bytes",
@@ -262,7 +262,9 @@ public class ReportGenerationServiceImpl implements ReportGenerationService {
             reportFile.setUploadDate(LocalDateTime.now());
             reportFile.setExpiryDate(LocalDateTime.now().plusDays(retentionDays));
             reportFile.setDeleted(false);
-            // reportFile.setPackageContents(packageContents);
+            reportFile.setPackageContents(List.of());
+            //List<String> packageContents = packagingService.getPackageContents(context, pdfFiles, excelFiles);
+            //reportFile.setPackageContents(packageContents);
 
             reportFileRepository.save(reportFile);
             log.info("ReportFile entity created for report: {}", reportId);

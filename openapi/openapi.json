@@ -9106,23 +9106,24 @@
                 },
                 "examples": {
                   "accepted": {
-                    "value": {
-                      "id": 124,
-                      "reportType": "DETAIL",
-                      "status": "PENDING",
-                      "requestedDate": "2024-12-09T10:32:00Z",
-                      "completionDate": null,
-                      "downloadUrl": null,
-                      "fileSizeBytes": null,
-                      "fileName": null,
-                      "packageContents": null
-                    }
+                    "value": [
+                      { "key": "id", "value": 124 },
+                      { "key": "reportType", "value": "DETAIL" },
+                      { "key": "status", "value": "PENDING" },
+                      { "key": "requestedDate", "value": "2024-12-09T10:32:00Z" },
+                      { "key": "completionDate", "value": null },
+                      { "key": "downloadUrl", "value": null },
+                      { "key": "fileSizeBytes", "value": null },
+                      { "key": "fileName", "value": null },
+                      { "key": "packageContents", "value": null }
+                    ]
                   }
                 }
               }
             }
-          },
-          "400": {
+          }
+        },
+        "400": {
             "description": "Richiesta non valida"
           },
           "401": {
