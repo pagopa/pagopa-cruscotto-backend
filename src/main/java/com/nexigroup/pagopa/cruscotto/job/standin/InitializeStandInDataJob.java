@@ -6,9 +6,15 @@ import com.nexigroup.pagopa.cruscotto.repository.PagopaNumeroStandinRepository;
 import com.nexigroup.pagopa.cruscotto.service.JobService;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.springframework.lang.NonNull;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
@@ -19,9 +25,9 @@ import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
 
 /**
- * Job to initialize Stand-In data by loading the last 6 months of events.
+ * Job to initialize Stand-In data by loading the last N months of events.
  * Runs only once on application startup if no Stand-In data exists.
- * Loads data in 10-day chunks to respect API limitations.
+ * Loads data in configurable chunks to respect API limitations.
  */
 @Component
 @DisallowConcurrentExecution
@@ -32,9 +38,6 @@ public class InitializeStandInDataJob extends QuartzJobBean {
     private static final String LOAD_STANDIN_DATA_JOB = "loadStandInDataJob";
 
     private static final DateTimeFormatter API_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private static final int CHUNK_SIZE_DAYS = 10;
-    private static final int INITIALIZATION_MONTHS = 6;
-    private static final int DELAY_BETWEEN_CHUNKS_MS = 3000; // 3 seconds
 
     private final ApplicationProperties applicationProperties;
     private final PagopaNumeroStandinRepository pagopaNumeroStandinRepository;
@@ -55,7 +58,8 @@ public class InitializeStandInDataJob extends QuartzJobBean {
 
     @Override
     protected void executeInternal(@NonNull JobExecutionContext context) {
-        LOGGER.info("Starting Stand-In data initialization for the last {} months", INITIALIZATION_MONTHS);
+        int initializationMonths = applicationProperties.getJob().getLoadStandInDataJob().getInitializationMonths();
+        LOGGER.info("Starting Stand-In data initialization for the last {} months", initializationMonths);
 
         try {
             if (!applicationProperties.getJob().getLoadStandInDataJob().isEnabled()) {
@@ -79,17 +83,18 @@ public class InitializeStandInDataJob extends QuartzJobBean {
      */
     private void logExistingData() {
         try {
-            // Check if any Stand-In data exists in the last 6 months
-            LocalDate sixMonthsAgo = LocalDate.now().minusMonths(INITIALIZATION_MONTHS);
+            int initializationMonths = applicationProperties.getJob().getLoadStandInDataJob().getInitializationMonths();
+            // Check if any Stand-In data exists in the last N months
+            LocalDate nMonthsAgo = LocalDate.now().minusMonths(initializationMonths);
             LocalDate yesterday = LocalDate.now().minusDays(1);
 
             List<PagopaNumeroStandin> existingData = pagopaNumeroStandinRepository.findByDateRange(
-                sixMonthsAgo.atStartOfDay(),
+                nMonthsAgo.atStartOfDay(),
                 yesterday.atTime(23, 59, 59)
             );
 
             LOGGER.debug("Found {} existing Stand-In records in the last {} months",
-                existingData.size(), INITIALIZATION_MONTHS);
+                existingData.size(), initializationMonths);
 
         } catch (Exception e) {
             LOGGER.warn("Error checking existing Stand-In data: {}", e.getMessage());
@@ -97,62 +102,122 @@ public class InitializeStandInDataJob extends QuartzJobBean {
     }
 
     /**
-     * Initializes Stand-In data by loading chunks in the background
+     * Initializes Stand-In data by loading chunks in parallel for maximum performance
      */
     private void initializeStandInDataInBackground() throws InterruptedException {
+        int initializationMonths = applicationProperties.getJob().getLoadStandInDataJob().getInitializationMonths();
+        int chunkSizeDays = applicationProperties.getJob().getLoadStandInDataJob().getChunkSizeDays();
+        int parallelChunks = applicationProperties.getJob().getLoadStandInDataJob().getParallelChunks();
+        int delayBetweenChunkStartsMs = applicationProperties.getJob().getLoadStandInDataJob().getDelayBetweenChunkStartsMs();
+
         LocalDate endDate = LocalDate.now().minusDays(1); // Yesterday
-        LocalDate startDate = endDate.minusMonths(INITIALIZATION_MONTHS);
+        LocalDate startDate = endDate.minusMonths(initializationMonths);
 
-        LOGGER.info("Initializing Stand-In data from {} to {} ({}-day chunks)",
-            startDate, endDate, CHUNK_SIZE_DAYS);
+        LOGGER.info("Initializing Stand-In data from {} to {} ({}-day chunks, {} parallel executions, {}ms delay between starts)",
+            startDate, endDate, chunkSizeDays, parallelChunks, delayBetweenChunkStartsMs);
 
-        int totalChunks = 0;
-        int successChunks = 0;
-        int failedChunks = 0;
-
+        // Prepare all chunks
+        List<ChunkInfo> chunks = new ArrayList<>();
         LocalDate currentChunkStart = startDate;
 
         while (!currentChunkStart.isAfter(endDate)) {
-            // Calculate chunk end date (max CHUNK_SIZE_DAYS or until endDate)
-            LocalDate currentChunkEnd = currentChunkStart.plusDays(CHUNK_SIZE_DAYS - 1);
+            LocalDate currentChunkEnd = currentChunkStart.plusDays(chunkSizeDays - 1);
             if (currentChunkEnd.isAfter(endDate)) {
                 currentChunkEnd = endDate;
             }
-
-            totalChunks++;
-
-            LOGGER.debug("Loading chunk {}: {} to {}", totalChunks, currentChunkStart, currentChunkEnd);
-
-            try {
-                boolean success = loadStandInDataChunk(currentChunkStart, currentChunkEnd);
-
-                if (success) {
-                    successChunks++;
-                    LOGGER.debug("Successfully loaded chunk {} to {}", currentChunkStart, currentChunkEnd);
-                } else {
-                    failedChunks++;
-                    LOGGER.warn("Failed to load chunk {} to {}", currentChunkStart, currentChunkEnd);
-                }
-
-            } catch (Exception e) {
-                failedChunks++;
-                LOGGER.error("Error loading chunk {} to {}: {}", currentChunkStart, currentChunkEnd, e.getMessage());
-            }
-
-            // Move to next chunk
+            chunks.add(new ChunkInfo(currentChunkStart, currentChunkEnd));
             currentChunkStart = currentChunkEnd.plusDays(1);
-
-            // Delay between chunks to avoid overwhelming the system
-            if (!currentChunkStart.isAfter(endDate)) {
-                Thread.sleep(DELAY_BETWEEN_CHUNKS_MS);
-            }
         }
 
-        LOGGER.info("Stand-In data initialization summary - Total chunks: {}, Success: {}, Failed: {}",
-            totalChunks, successChunks, failedChunks);
+        int totalChunks = chunks.size();
+        LOGGER.info("Total chunks to process: {}", totalChunks);
 
-        if (failedChunks > 0) {
-            LOGGER.warn("Some chunks failed during initialization. Consider running the job again or checking manually.");
+        // Execute chunks in parallel using thread pool
+        ExecutorService executor = Executors.newFixedThreadPool(parallelChunks);
+        List<Future<Boolean>> futures = new ArrayList<>();
+        AtomicInteger successCount = new AtomicInteger(0);
+        AtomicInteger failureCount = new AtomicInteger(0);
+
+        try {
+            long startTime = System.currentTimeMillis();
+
+            // Submit all chunks with delay between submissions
+            for (int i = 0; i < chunks.size(); i++) {
+                final ChunkInfo chunk = chunks.get(i);
+                final int chunkNumber = i + 1;
+
+                Future<Boolean> future = executor.submit(() -> {
+                    try {
+                        LOGGER.debug("Starting chunk {}/{}: {} to {}", chunkNumber, totalChunks, chunk.start, chunk.end);
+                        boolean success = loadStandInDataChunk(chunk.start, chunk.end);
+
+                        if (success) {
+                            successCount.incrementAndGet();
+                            LOGGER.info("✓ Chunk {}/{} completed successfully: {} to {}", chunkNumber, totalChunks, chunk.start, chunk.end);
+                        } else {
+                            failureCount.incrementAndGet();
+                            LOGGER.warn("✗ Chunk {}/{} failed: {} to {}", chunkNumber, totalChunks, chunk.start, chunk.end);
+                        }
+
+                        return success;
+                    } catch (Exception e) {
+                        failureCount.incrementAndGet();
+                        LOGGER.error("✗ Chunk {}/{} error: {} to {} - {}", chunkNumber, totalChunks, chunk.start, chunk.end, e.getMessage());
+                        return false;
+                    }
+                });
+
+                futures.add(future);
+
+                // Delay between chunk starts to avoid overwhelming the system
+                if (i < chunks.size() - 1) {
+                    Thread.sleep(delayBetweenChunkStartsMs);
+                }
+            }
+
+            // Wait for all chunks to complete
+            LOGGER.info("All {} chunks submitted, waiting for completion...", totalChunks);
+
+            for (Future<Boolean> future : futures) {
+                try {
+                    future.get(); // Wait for completion
+                } catch (Exception e) {
+                    LOGGER.error("Error waiting for chunk completion: {}", e.getMessage());
+                }
+            }
+
+            long elapsedTime = System.currentTimeMillis() - startTime;
+
+            LOGGER.info("Stand-In data initialization completed in {}ms ({}s) - Total: {}, Success: {}, Failed: {}",
+                elapsedTime, elapsedTime / 1000, totalChunks, successCount.get(), failureCount.get());
+
+            if (failureCount.get() > 0) {
+                LOGGER.warn("{} chunks failed during initialization. Consider reviewing logs and retrying if necessary.", failureCount.get());
+            }
+
+        } finally {
+            executor.shutdown();
+            try {
+                if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
+                    executor.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                executor.shutdownNow();
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    /**
+     * Helper class to store chunk information
+     */
+    private static class ChunkInfo {
+        final LocalDate start;
+        final LocalDate end;
+
+        ChunkInfo(LocalDate start, LocalDate end) {
+            this.start = start;
+            this.end = end;
         }
     }
 
@@ -180,20 +245,92 @@ public class InitializeStandInDataJob extends QuartzJobBean {
             // Execute loadStandInDataJob with date range parameters
             boolean jobStarted = jobService.startJobNow(LOAD_STANDIN_DATA_JOB, jobData);
 
-            if (jobStarted) {
-                // Wait a bit for the job to complete (simplified approach)
-                // In a production environment, you might want to implement proper job completion monitoring
-                Thread.sleep(5000);
-                return true;
-            } else {
+            if (!jobStarted) {
                 LOGGER.error("Failed to start loadStandInDataJob for chunk {} to {}", fromDate, toDate);
                 return false;
             }
+
+            // Wait for the job to complete by polling its execution status
+            // This replaces the fixed Thread.sleep approach with a more robust solution
+            return waitForJobCompletion(fromDate, toDate);
 
         } catch (Exception e) {
             LOGGER.error("Error executing loadStandInDataJob for chunk {} to {}: {}",
                 fromDate, toDate, e.getMessage(), e);
             return false;
+        }
+    }
+
+    /**
+     * Waits for the loadStandInDataJob to complete by polling its execution status
+     * in the QRTZ_LOG_TRIGGER_EXECUTED table.
+     *
+     * This method continuously checks if the job has reached a terminal state (COMPLETED or ERROR)
+     * by querying the job execution log. There is NO timeout - the method waits until the job
+     * reaches a terminal state or detects an anomaly (job not running but not completed).
+     *
+     * The continuous polling approach is safer than a fixed timeout because:
+     * - We don't know in advance how long a chunk will take (depends on data volume and API speed)
+     * - A timeout that's too short causes false failures
+     * - A timeout that's too long delays error detection
+     * - The job will naturally complete when it's done
+     *
+     * @param fromDate the start date of the chunk being processed (for logging)
+     * @param toDate the end date of the chunk being processed (for logging)
+     * @return true if the job completed successfully (COMPLETED state), false otherwise
+     * @throws InterruptedException if the thread is interrupted while waiting
+     */
+    private boolean waitForJobCompletion(LocalDate fromDate, LocalDate toDate) throws InterruptedException {
+        int pollingIntervalMs = applicationProperties.getJob().getLoadStandInDataJob().getPollingIntervalMs();
+
+        long startTime = System.currentTimeMillis();
+        int pollCount = 0;
+        int consecutiveNotRunningCount = 0;
+        final int MAX_CONSECUTIVE_NOT_RUNNING = 3; // Failsafe: if job is not running for 3 consecutive checks, stop waiting
+
+        LOGGER.info("Waiting for loadStandInDataJob completion for chunk {} to {} (polling every {}ms, no timeout)",
+            fromDate, toDate, pollingIntervalMs);
+
+        while (true) {
+            pollCount++;
+            Thread.sleep(pollingIntervalMs);
+
+            // Check if the job execution is completed by querying the log table
+            boolean isCompleted = jobService.isJobExecutionCompleted(LOAD_STANDIN_DATA_JOB);
+
+            if (isCompleted) {
+                long elapsedTime = System.currentTimeMillis() - startTime;
+                LOGGER.info("loadStandInDataJob completed for chunk {} to {} after {} polls ({}ms / {}s)",
+                    fromDate, toDate, pollCount, elapsedTime, elapsedTime / 1000);
+                return true;
+            }
+
+            // Check if job is still running
+            boolean isRunning = jobService.checkJobRunning(LOAD_STANDIN_DATA_JOB);
+
+            if (!isRunning) {
+                consecutiveNotRunningCount++;
+                LOGGER.debug("loadStandInDataJob for chunk {} to {} is not running (consecutive: {}) but not marked as completed either (poll #{})",
+                    fromDate, toDate, consecutiveNotRunningCount, pollCount);
+
+                // Failsafe: if job is not running for multiple consecutive checks, it's likely an error
+                if (consecutiveNotRunningCount >= MAX_CONSECUTIVE_NOT_RUNNING) {
+                    LOGGER.error("loadStandInDataJob for chunk {} to {} has not been running for {} consecutive checks but is not marked as completed. " +
+                            "This indicates an error. Total polls: {}, elapsed time: {}ms",
+                        fromDate, toDate, consecutiveNotRunningCount, pollCount, System.currentTimeMillis() - startTime);
+                    return false;
+                }
+            } else {
+                // Job is running, reset counter
+                consecutiveNotRunningCount = 0;
+
+                // Log progress every 10 polls
+                if (pollCount % 10 == 0) {
+                    long elapsedTime = System.currentTimeMillis() - startTime;
+                    LOGGER.debug("Still waiting for loadStandInDataJob completion for chunk {} to {} - poll #{}, elapsed: {}s",
+                        fromDate, toDate, pollCount, elapsedTime / 1000);
+                }
+            }
         }
     }
 

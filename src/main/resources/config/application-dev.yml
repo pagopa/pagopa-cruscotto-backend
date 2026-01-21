@@ -206,6 +206,11 @@ application:
     load-stand-in-data-job:
       enabled: true
       cron-expression: 0 0 0 * * ? # Every day at midnight
+      chunk-size-days: 10 # Number of days per chunk (default: 10)
+      initialization-months: 6 # Number of months of historical data to load (default: 6)
+      parallel-chunks: 3 # Number of chunks to process in parallel (default: 3)
+      delay-between-chunk-starts-ms: 1000 # Delay between starting each chunk in milliseconds (default: 1000ms = 1 second)
+      polling-interval-ms: 2000 # Polling interval to check job status in milliseconds (default: 2000ms = 2 seconds)
     clear-log-job:
       cron: 0 0/20 05-6 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
       days: 7
