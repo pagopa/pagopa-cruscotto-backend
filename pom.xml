@@ -144,6 +144,12 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>com.vaadin.external.google</groupId>
+          <artifactId>android-json</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -401,7 +407,6 @@
       <artifactId>sdk-core</artifactId>
       <version>2.21.1</version>
     </dependency>
-
     <!-- AWS SES -->
     <dependency>
       <groupId>software.amazon.awssdk</groupId>
@@ -423,6 +428,35 @@
       <version>2.21.1</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.xhtmlrenderer</groupId>
+      <artifactId>flying-saucer-pdf</artifactId>
+      <version>9.1.22</version>
+    </dependency>
+
+    <!-- POI EXCEL> -->
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi</artifactId>
+      <version>5.2.5</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi-ooxml</artifactId>
+      <version>5.2.5</version>
+    </dependency>
+    <dependency>
+      <groupId>com.azure</groupId>
+      <artifactId>azure-storage-blob</artifactId>
+      <version>12.32.0</version>
+    </dependency>
+
+    <!-- jsonb -->
+    <dependency>
+      <groupId>io.hypersistence</groupId>
+      <artifactId>hypersistence-utils-hibernate-63</artifactId>
+      <version>3.7.0</version>
+    </dependency>
 
   </dependencies>
 

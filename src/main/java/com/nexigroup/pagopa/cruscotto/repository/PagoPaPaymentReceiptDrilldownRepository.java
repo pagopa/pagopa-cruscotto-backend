@@ -14,7 +14,7 @@ import org.springframework.stereotype.Repository;
  * Spring Data repository for the PagoPaPaymentReceiptDrilldown entity.
  */
 @Repository
-public interface PagoPaPaymentReceiptDrilldownRepository 
+public interface PagoPaPaymentReceiptDrilldownRepository
     extends JpaRepository<PagoPaPaymentReceiptDrilldown, Long>, JpaSpecificationExecutor<PagoPaPaymentReceiptDrilldown> {
 
     /**
@@ -30,8 +30,8 @@ public interface PagoPaPaymentReceiptDrilldownRepository
            "AND d.analysisDate = :analysisDate " +
            "ORDER BY d.startTime ASC")
     List<PagoPaPaymentReceiptDrilldown> findByInstanceIdAndStationIdAndAnalysisDate(
-        @Param("instanceId") Long instanceId, 
-        @Param("stationId") Long stationId, 
+        @Param("instanceId") Long instanceId,
+        @Param("stationId") Long stationId,
         @Param("analysisDate") LocalDate analysisDate);
 
     /**
@@ -47,8 +47,8 @@ public interface PagoPaPaymentReceiptDrilldownRepository
            "AND d.evaluationDate = :evaluationDate " +
            "ORDER BY d.startTime ASC")
     List<PagoPaPaymentReceiptDrilldown> findByInstanceIdAndStationIdAndEvaluationDate(
-        @Param("instanceId") Long instanceId, 
-        @Param("stationId") Long stationId, 
+        @Param("instanceId") Long instanceId,
+        @Param("stationId") Long stationId,
         @Param("evaluationDate") LocalDate evaluationDate);
 
     /**
@@ -91,6 +91,22 @@ public interface PagoPaPaymentReceiptDrilldownRepository
            "AND d.evaluationDate = :evaluationDate " +
            "ORDER BY d.station.id ASC, d.startTime ASC")
     List<PagoPaPaymentReceiptDrilldown> findByInstanceIdAndEvaluationDate(
-        @Param("instanceId") Long instanceId, 
+        @Param("instanceId") Long instanceId,
         @Param("evaluationDate") LocalDate evaluationDate);
+
+
+    @Query("""
+        SELECT d
+        FROM PagoPaPaymentReceiptDrilldown d
+        WHERE d.instance.id = :instanceId
+          AND d.analysisDate = (
+              SELECT MAX(dd.analysisDate)
+              FROM PagoPaPaymentReceiptDrilldown dd
+              WHERE dd.instance.id = :instanceId
+          )
+        ORDER BY d.station.id ASC, d.startTime ASC
+    """)
+    List<PagoPaPaymentReceiptDrilldown> findLatestByInstanceId(
+        @Param("instanceId") Long instanceId
+    );
 }

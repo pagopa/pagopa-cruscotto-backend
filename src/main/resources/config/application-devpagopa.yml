@@ -170,12 +170,22 @@ application:
     clear-log-job:
       cron: 0 0/20 05-6 ? * MON,TUE,WED,THU,FRI,SAT,SUN *
       days: 7
+    report-generation-job:
+      enabled: true
+      cron: 0 */10 * * * ? # Every 10 minutes
 
   liquibase:
     async-start: false
-    dbVersion: 1.1.15
+    dbVersion: 1.1.16
 
 decorator:
   datasource:
     p6spy:
       enable-logging: false
+
+azure:
+  blob:
+    ${AZURE_BLOB_CONNECTION_STRING}
+    container-name: ${AZURE_BLOB_CONTAINER_NAME:report}
+
+

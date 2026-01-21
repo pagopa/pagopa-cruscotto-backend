@@ -41,4 +41,6 @@ public class JobConstant {
     public static final String CALCULATE_STATE_INSTANCE_JOB = "calculateStateInstanceJob";
 
     public static final String CLEAR_LOG_JOB = "clearLogJob";
+
+    public static final String REPORT_GENERATION_JOB = "reportGenerationJob";
 }

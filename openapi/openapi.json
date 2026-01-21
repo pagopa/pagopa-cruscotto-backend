@@ -3,10 +3,8 @@
   "info": {
     "title": "PagoPa Cruscotto Backend API",
     "description": "PagoPa Cruscotto Backend API documentation",
-    "termsOfService": "",
     "license": {
-      "name": "unlicensed",
-      "url": ""
+      "name": "unlicensed"
     },
     "version": "0.8.24"
   },
@@ -9054,6 +9052,384 @@
           }
         }
       }
+    },
+    "/api/reports/generate-async": {
+      "post": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "Generate report asynchronously (for large reports)",
+        "description": "Avvia la generazione asincrona di un report (grandi dimensioni).",
+        "operationId": "generateReportAsync",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportGenerationRequest"
+              },
+              "examples": {
+                "example1": {
+                  "value": {
+                    "instanceIds": [1, 2],
+                    "reportType": "DETAIL",
+                    "variant": "EXCEL_COMPLETE",
+                    "language": "IT",
+                    "startDate": "2024-01-01",
+                    "endDate": "2024-01-31",
+                    "parameters": {
+                      "includeSummary": true,
+                      "includeKoKpisDetail": false,
+                      "includeAllKpisDetail": true,
+                      "includeDrilldownExcel": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Accettata. Job creato per generazione asincrona.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportAsyncAccepted"
+                },
+                "examples": {
+                  "accepted": {
+                    "value": [
+                      { "key": "id", "value": 124 },
+                      { "key": "reportType", "value": "DETAIL" },
+                      { "key": "status", "value": "PENDING" },
+                      { "key": "requestedDate", "value": "2024-12-09T10:32:00Z" },
+                      { "key": "completionDate", "value": null },
+                      { "key": "downloadUrl", "value": null },
+                      { "key": "fileSizeBytes", "value": null },
+                      { "key": "fileName", "value": null },
+                      { "key": "packageContents", "value": null }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Richiesta non valida"
+          },
+          "401": {
+            "description": "Non autorizzato"
+          },
+          "409": {
+            "description": "Conflitto (ad es. job già in corso per gli stessi parametri)"
+          }
+        }
+      }
+    },
+    "/api/reports": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "List reports with pagination and filtering",
+        "description": "Restituisce l’elenco dei report con paginazione e filtri.",
+        "operationId": "listReports",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            },
+            "description": "Numero pagina (0-based)"
+          },
+          {
+            "in": "query",
+            "name": "size",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 20
+            },
+            "description": "Dimensione pagina"
+          },
+          {
+            "in": "query",
+            "name": "sort",
+            "schema": {
+              "type": "string",
+              "default": "requestedDate,desc"
+            },
+            "description": "Ordinamento (campo,ordine)"
+          },
+          {
+            "in": "query",
+            "name": "instanceId",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "ID istanza (filtro opzionale)"
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "$ref": "#/components/schemas/ReportStatusEnum"
+            },
+            "description": "Filtro per stato"
+          },
+          {
+            "in": "query",
+            "name": "reportType",
+            "schema": {
+              "$ref": "#/components/schemas/ReportTypeEnum"
+            },
+            "description": "Filtro per tipo di report"
+          },
+          {
+            "in": "query",
+            "name": "startDate",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Filtro per data inizio analisi"
+          },
+          {
+            "in": "query",
+            "name": "endDate",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Filtro per data fine analisi"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Elenco report paginato",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportPage"
+                },
+                "examples": {
+                  "pageExample": {
+                    "value": {
+                      "content": [
+                        {
+                          "id": 123,
+                          "instanceName": "Instance A",
+                          "reportType": "SUMMARY",
+                          "status": "COMPLETED",
+                          "requestedDate": "2024-12-09T10:30:00Z",
+                          "fileSizeBytes": 2847235,
+                          "fileName": "Instance_A_Summary_Jan2024.zip"
+                        }
+                      ],
+                      "pageable": {
+                        "pageNumber": 0,
+                        "pageSize": 20
+                      },
+                      "totalElements": 47,
+                      "totalPages": 3
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Non autorizzato"
+          }
+        }
+      }
+    },
+    "/api/reports/{id}": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "Get report metadata",
+        "description": "Restituisce i metadati completi di un report.",
+        "operationId": "getReportById",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "ID del report"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Metadati del report",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportMetadata"
+                },
+                "examples": {
+                  "metaExample": {
+                    "value": {
+                      "id": 123,
+                      "instanceId": 1,
+                      "instanceName": "Instance A",
+                      "configuration": {
+                        "includeSummary": true,
+                        "includeKoKpisDetail": false,
+                        "includeAllKpisDetail": true,
+                        "includeDrilldownExcel": true
+                      },
+                      "status": "COMPLETED",
+                      "language": "IT",
+                      "startDate": "2024-01-01",
+                      "endDate": "2024-01-31",
+                      "requestedDate": "2024-12-09T10:30:00Z",
+                      "generationStartDate": "2024-12-09T10:30:05Z",
+                      "completionDate": "2024-12-09T10:31:45Z",
+                      "requestedBy": "mario.rossi@example.com",
+                      "downloadUrl": "/api/reports/123/download",
+                      "fileSizeBytes": 2847235,
+                      "fileName": "Instance_A_Summary_Jan2024.zip",
+                      "packageContents": [
+                        "Summary_Report_InstanceA_Jan2024.pdf",
+                        "Summary_Report_InstanceA_Jan2024.xlsx",
+                        "metadata.json",
+                        "README.txt"
+                      ],
+                      "errorMessage": null
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Report non trovato"
+          },
+          "401": {
+            "description": "Non autorizzato"
+          }
+        }
+      }
+    },
+    "/api/reports/{id}/status": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "Get report generation status",
+        "description": "Restituisce lo stato della generazione (per polling).",
+        "operationId": "getReportStatus",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "ID del report"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stato della generazione",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ReportStatus"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ReportStatusRetry"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ReportStatusFailed"
+                    }
+                  ]
+                },
+                "examples": {
+                  "inProgress": {
+                    "value": {
+                      "id": 124,
+                      "status": "IN_PROGRESS",
+                      "progress": 65,
+                      "statusMessage": "Generating Excel worksheets...",
+                      "estimatedTimeRemaining": 45,
+                      "retryCount": 0,
+                      "lastRetryDate": null
+                    }
+                  },
+                  "retrying": {
+                    "value": {
+                      "id": 124,
+                      "status": "PENDING",
+                      "progress": 0,
+                      "statusMessage": "Retrying generation (attempt 2/3)...",
+                      "estimatedTimeRemaining": 300,
+                      "retryCount": 1,
+                      "lastRetryDate": "2024-12-09T10:35:00Z",
+                      "lastError": "Database connection timeout"
+                    }
+                  },
+                  "failed": {
+                    "value": {
+                      "id": 124,
+                      "status": "FAILED",
+                      "progress": 0,
+                      "statusMessage": "Report generation failed after 3 attempts",
+                      "estimatedTimeRemaining": null,
+                      "retryCount": 3,
+                      "lastRetryDate": "2024-12-09T10:45:00Z",
+                      "lastError": "Database connection timeout",
+                      "canRetry": false
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Report non trovato"
+          },
+          "401": {
+            "description": "Non autorizzato"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -13317,6 +13693,329 @@
             "type": "boolean"
           }
         }
+      },
+      "ReportTypeEnum": {
+        "type": "string",
+        "enum": [
+          "SUMMARY",
+          "DETAIL",
+          "ANALYTICS",
+          "DRILLDOWN"
+        ]
+      },
+      "ReportStatusEnum": {
+        "type": "string",
+        "enum": [
+          "PENDING",
+          "IN_PROGRESS",
+          "COMPLETED",
+          "FAILED"
+        ]
+      },
+      "ReportGenerationRequest": {
+        "type": "object",
+        "required": [
+          "instanceIds",
+          "reportType"
+        ],
+        "properties": {
+          "instanceIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "minItems": 1,
+            "maxItems": 10
+          },
+          "reportType": {
+            "$ref": "#/components/schemas/ReportTypeEnum"
+          },
+          "variant": {
+            "type": "string",
+            "description": "Eventuali varianti di generazione (es. EXCEL_COMPLETE)."
+          },
+          "language": {
+            "type": "string",
+            "example": "IT"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "parameters": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Parametri opzionali di configurazione"
+          }
+        }
+      },
+      "ReportAsyncAccepted": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "reportType": {
+            "$ref": "#/components/schemas/ReportTypeEnum"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ReportStatusEnum"
+          },
+          "requestedDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "completionDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "downloadUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "fileSizeBytes": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "fileName": {
+            "type": "string",
+            "nullable": true
+          },
+          "packageContents": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        }
+      },
+      "ReportListItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceName": {
+            "type": "string"
+          },
+          "reportType": {
+            "$ref": "#/components/schemas/ReportTypeEnum"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ReportStatusEnum"
+          },
+          "requestedDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fileSizeBytes": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "fileName": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ReportPage": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReportListItem"
+            }
+          },
+          "pageable": {
+            "type": "object",
+            "properties": {
+              "pageNumber": {
+                "type": "integer"
+              },
+              "pageSize": {
+                "type": "integer"
+              }
+            }
+          },
+          "totalElements": {
+            "type": "integer"
+          },
+          "totalPages": {
+            "type": "integer"
+          }
+        }
+      },
+      "ReportMetadata": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instanceName": {
+            "type": "string"
+          },
+          "configuration": {
+            "type": "object",
+            "properties": {
+              "includeSummary": {
+                "type": "boolean"
+              },
+              "includeKoKpisDetail": {
+                "type": "boolean"
+              },
+              "includeAllKpisDetail": {
+                "type": "boolean"
+              },
+              "includeDrilldownExcel": {
+                "type": "boolean"
+              }
+            }
+          },
+          "status": {
+            "$ref": "#/components/schemas/ReportStatusEnum"
+          },
+          "language": {
+            "type": "string",
+            "example": "IT"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "requestedDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "generationStartDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "completionDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "requestedBy": {
+            "type": "string",
+            "format": "email"
+          },
+          "downloadUrl": {
+            "type": "string"
+          },
+          "fileSizeBytes": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "fileName": {
+            "type": "string"
+          },
+          "packageContents": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "errorMessage": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ReportStatusBase": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ReportStatusEnum"
+          },
+          "progress": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "statusMessage": {
+            "type": "string",
+            "nullable": true
+          },
+          "estimatedTimeRemaining": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Tempo stimato rimanente (secondi)"
+          },
+          "retryCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "lastRetryDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
+      "ReportStatus": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ReportStatusBase"
+          }
+        ]
+      },
+      "ReportStatusRetry": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ReportStatusBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "lastError": {
+                "type": "string",
+                "nullable": true
+              }
+            }
+          }
+        ]
+      },
+      "ReportStatusFailed": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ReportStatusBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "lastError": {
+                "type": "string"
+              },
+              "canRetry": {
+                "type": "boolean"
+              }
+            }
+          }
+        ]
       }
     }
   }

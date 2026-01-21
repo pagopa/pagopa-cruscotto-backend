@@ -110,4 +110,19 @@ public interface KpiC1DetailResultRepository extends JpaRepository<KpiC1DetailRe
      * Elimina i risultati dettagliati più vecchi di una certa data
      */
     void deleteByReferenceDateBefore(LocalDate cutoffDate);
+
+    @Query("""
+        SELECT d
+        FROM KpiC1DetailResult d
+        WHERE d.instance.id = :instanceId
+          AND d.referenceDate = (
+              SELECT MAX(dd.referenceDate)
+              FROM KpiC1DetailResult dd
+              WHERE dd.instance.id = :instanceId
+          )
+        ORDER BY d.instanceModule.id ASC, d.cfInstitution ASC
+    """)
+    List<KpiC1DetailResult> findLatestByInstanceId(
+        @Param("instanceId") Long instanceId
+    );
 }
