@@ -3,10 +3,8 @@
   "info": {
     "title": "PagoPa Cruscotto Backend API",
     "description": "PagoPa Cruscotto Backend API documentation",
-    "termsOfService": "",
     "license": {
-      "name": "unlicensed",
-      "url": ""
+      "name": "unlicensed"
     },
     "version": "0.8.18"
   },
@@ -9121,9 +9119,8 @@
                 }
               }
             }
-          }
-        },
-        "400": {
+          },
+          "400": {
             "description": "Richiesta non valida"
           },
           "401": {
@@ -9371,65 +9368,57 @@
             "description": "Stato della generazione",
             "content": {
               "application/json": {
-                "oneOf": [
-                  {
-                    "schema": {
+                "schema": {
+                  "oneOf": [
+                    {
                       "$ref": "#/components/schemas/ReportStatus"
                     },
-                    "examples": {
-                      "inProgress": {
-                        "value": {
-                          "id": 124,
-                          "status": "IN_PROGRESS",
-                          "progress": 65,
-                          "statusMessage": "Generating Excel worksheets...",
-                          "estimatedTimeRemaining": 45,
-                          "retryCount": 0,
-                          "lastRetryDate": null
-                        }
-                      }
-                    }
-                  },
-                  {
-                    "schema": {
+                    {
                       "$ref": "#/components/schemas/ReportStatusRetry"
                     },
-                    "examples": {
-                      "retrying": {
-                        "value": {
-                          "id": 124,
-                          "status": "PENDING",
-                          "progress": 0,
-                          "statusMessage": "Retrying generation (attempt 2/3)...",
-                          "estimatedTimeRemaining": 300,
-                          "retryCount": 1,
-                          "lastRetryDate": "2024-12-09T10:35:00Z",
-                          "lastError": "Database connection timeout"
-                        }
-                      }
+                    {
+                      "$ref": "#/components/schemas/ReportStatusFailed"
+                    }
+                  ]
+                },
+                "examples": {
+                  "inProgress": {
+                    "value": {
+                      "id": 124,
+                      "status": "IN_PROGRESS",
+                      "progress": 65,
+                      "statusMessage": "Generating Excel worksheets...",
+                      "estimatedTimeRemaining": 45,
+                      "retryCount": 0,
+                      "lastRetryDate": null
                     }
                   },
-                  {
-                    "schema": {
-                      "$ref": "#/components/schemas/ReportStatusFailed"
-                    },
-                    "examples": {
-                      "failed": {
-                        "value": {
-                          "id": 124,
-                          "status": "FAILED",
-                          "progress": 0,
-                          "statusMessage": "Report generation failed after 3 attempts",
-                          "estimatedTimeRemaining": null,
-                          "retryCount": 3,
-                          "lastRetryDate": "2024-12-09T10:45:00Z",
-                          "lastError": "Database connection timeout",
-                          "canRetry": false
-                        }
-                      }
+                  "retrying": {
+                    "value": {
+                      "id": 124,
+                      "status": "PENDING",
+                      "progress": 0,
+                      "statusMessage": "Retrying generation (attempt 2/3)...",
+                      "estimatedTimeRemaining": 300,
+                      "retryCount": 1,
+                      "lastRetryDate": "2024-12-09T10:35:00Z",
+                      "lastError": "Database connection timeout"
+                    }
+                  },
+                  "failed": {
+                    "value": {
+                      "id": 124,
+                      "status": "FAILED",
+                      "progress": 0,
+                      "statusMessage": "Report generation failed after 3 attempts",
+                      "estimatedTimeRemaining": null,
+                      "retryCount": 3,
+                      "lastRetryDate": "2024-12-09T10:45:00Z",
+                      "lastError": "Database connection timeout",
+                      "canRetry": false
                     }
                   }
-                ]
+                }
               }
             }
           },
