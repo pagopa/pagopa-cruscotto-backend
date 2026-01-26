@@ -13,7 +13,7 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
 import java.util.List;
 
 import com.querydsl.jpa.JPQLQuery;
@@ -33,6 +33,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class PagoPaPaymentReceiptServiceImpl implements PagoPaPaymentReceiptService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PagoPaPaymentReceiptServiceImpl.class);
+
+    private static final String START_DATE = "startDate";
 
     private final QueryBuilder queryBuilder;
 
@@ -62,8 +64,8 @@ public class PagoPaPaymentReceiptServiceImpl implements PagoPaPaymentReceiptServ
             .where(
                 qPagoPaPaymentReceipt.cfPartner
                     .eq(fiscalCodePartner)
-                    .and(qPagoPaPaymentReceipt.startDate.goe(startDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
-                    .and(qPagoPaPaymentReceipt.endDate.loe(endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
+                    .and(qPagoPaPaymentReceipt.startDate.goe(startDateTime.atZone(ZoneId.systemDefault()).toInstant()))
+                    .and(qPagoPaPaymentReceipt.endDate.loe(endDateTime.atZone(ZoneId.systemDefault()).toInstant()))
             )
             .groupBy(qPagoPaPaymentReceipt.station)
             .orderBy(qPagoPaPaymentReceipt.station.asc())
@@ -90,7 +92,7 @@ public class PagoPaPaymentReceiptServiceImpl implements PagoPaPaymentReceiptServ
                     qPagoPaPaymentReceipt.id.as("id"),
                     qPagoPaPaymentReceipt.cfPartner.as("cfPartner"),
                     qPagoPaPaymentReceipt.station.as("station"),
-                    qPagoPaPaymentReceipt.startDate.as("startDate"),
+                    qPagoPaPaymentReceipt.startDate.as(START_DATE),
                     qPagoPaPaymentReceipt.endDate.as("endDate"),
                     qPagoPaPaymentReceipt.totRes.as("totRes"),
                     qPagoPaPaymentReceipt.resOk.as("resOk"),
@@ -102,10 +104,10 @@ public class PagoPaPaymentReceiptServiceImpl implements PagoPaPaymentReceiptServ
                 qPagoPaPaymentReceipt.cfPartner
                     .eq(fiscalCodePartner)
                     .and(qPagoPaPaymentReceipt.station.eq(station))
-                    .and(qPagoPaPaymentReceipt.startDate.goe(startDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
-                    .and(qPagoPaPaymentReceipt.startDate.lt(endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
+                    .and(qPagoPaPaymentReceipt.startDate.goe(startDateTime.atZone(ZoneId.systemDefault()).toInstant()))
+                    .and(qPagoPaPaymentReceipt.startDate.lt(endDateTime.atZone(ZoneId.systemDefault()).toInstant()))
             )
-            .orderBy(new OrderSpecifier<>(Order.ASC, Expressions.stringPath("startDate")))
+            .orderBy(new OrderSpecifier<>(Order.ASC, Expressions.stringPath(START_DATE)))
             .fetch();
     }
 
@@ -164,7 +166,7 @@ public class PagoPaPaymentReceiptServiceImpl implements PagoPaPaymentReceiptServ
             QPagoPaPaymentReceipt.pagoPaPaymentReceipt.id.as("id"),
             QPagoPaPaymentReceipt.pagoPaPaymentReceipt.cfPartner.as("cfPartner"),
             QPagoPaPaymentReceipt.pagoPaPaymentReceipt.station.as("station"),
-            QPagoPaPaymentReceipt.pagoPaPaymentReceipt.startDate.as("startDate"),
+            QPagoPaPaymentReceipt.pagoPaPaymentReceipt.startDate.as(START_DATE),
             QPagoPaPaymentReceipt.pagoPaPaymentReceipt.endDate.as("endDate"),
             QPagoPaPaymentReceipt.pagoPaPaymentReceipt.totRes.as("totRes"),
             QPagoPaPaymentReceipt.pagoPaPaymentReceipt.resOk.as("resOk"),

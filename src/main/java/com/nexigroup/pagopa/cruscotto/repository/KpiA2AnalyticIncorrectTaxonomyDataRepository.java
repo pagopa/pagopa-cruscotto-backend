@@ -11,6 +11,11 @@ import org.springframework.stereotype.Repository;
 public interface KpiA2AnalyticIncorrectTaxonomyDataRepository extends JpaRepository<KpiA2AnalyticIncorrectTaxonomyData, Long> {
 	List<KpiA2AnalyticIncorrectTaxonomyData> findByKpiA2AnalyticDataIdOrderByFromHourAsc(Long analyticDataId);
 
+	List<KpiA2AnalyticIncorrectTaxonomyData>
+    findByKpiA2AnalyticDataIdInOrderByFromHourAsc(
+        List<Long> analyticDataIds
+    );
+
 	@Modifying
 	@Query("DELETE FROM KpiA2AnalyticIncorrectTaxonomyData t WHERE t.kpiA2AnalyticDataId IN " +
 		"(SELECT a.id FROM KpiA2AnalyticData a WHERE a.instanceModule.id = :instanceModuleId)")

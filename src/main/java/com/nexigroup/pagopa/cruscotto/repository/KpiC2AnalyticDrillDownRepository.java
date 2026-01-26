@@ -34,4 +34,20 @@ public interface KpiC2AnalyticDrillDownRepository extends JpaRepository<KpiC2Ana
 
 
     List<KpiC2AnalyticDrillDown> findByInstanceIdAndAnalysisDate(Long instanceId, LocalDate analysisDate);
+
+    @Query("""
+    SELECT d
+    FROM KpiC2AnalyticDrillDown d
+    WHERE d.instance.id = :instanceId
+      AND d.analysisDate = (
+            SELECT MAX(dd.analysisDate)
+            FROM KpiC2AnalyticDrillDown dd
+            WHERE dd.instance.id = :instanceId
+      )
+    ORDER BY d.id
+""")
+    List<KpiC2AnalyticDrillDown> findLatestByInstanceId(
+        @Param("instanceId") Long instanceId
+    );
+
 }

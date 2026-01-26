@@ -29,7 +29,18 @@ public class OAuth2AuthorizedClientCustomRepository
         Authentication principal,
         HttpServletRequest request,
         HttpServletResponse response
-    ) {}
+    ) {
+
+        /*
+         * This method is intentionally unsupported for this repository implementation.
+         * Authorized clients are persisted into cookies via `storeIntoCookies` and are removed
+         * by clearing the cookie during the application's logout/session cleanup flow,
+         * which is implemented elsewhere. Throwing an exception makes it explicit to callers
+         * that removal must be performed through the application's logout mechanism.
+         */
+        throw new UnsupportedOperationException("removeAuthorizedClient is not supported by OAuth2AuthorizedClientCustomRepository");
+
+    }
 
     @Override
     public <T extends OAuth2AuthorizedClient> T loadAuthorizedClient(

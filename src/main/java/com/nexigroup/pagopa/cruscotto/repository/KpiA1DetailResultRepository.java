@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
  * Spring Data repository for the KpiA1DetailResult entity.
  */
@@ -17,4 +19,20 @@ public interface KpiA1DetailResultRepository extends JpaRepository<KpiA1DetailRe
     @Modifying
     @Query("DELETE KpiA1DetailResult kpiA1DetailResult WHERE kpiA1DetailResult.instanceModule.id = :instanceModuleId")
     int deleteAllByInstanceModuleId(@Param("instanceModuleId") Long instanceModuleId);
+
+    @Query("""
+        SELECT d
+        FROM KpiA1DetailResult d
+        WHERE d.instance.id = :instanceId
+          AND d.analysisDate = (
+              SELECT MAX(dd.analysisDate)
+              FROM KpiA1DetailResult dd
+              WHERE dd.instance.id = :instanceId
+          )
+        ORDER BY d.instanceModule.id ASC
+    """)
+    List<KpiA1DetailResult> findLatestByInstanceId(
+        @Param("instanceId") Long instanceId
+    );
+
 }

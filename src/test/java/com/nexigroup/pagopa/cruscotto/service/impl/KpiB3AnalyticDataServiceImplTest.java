@@ -165,4 +165,42 @@ class KpiB3AnalyticDataServiceImplTest {
         when(anagStationRepository.findById(anyLong())).thenReturn(Optional.empty());
         assertThrows(IllegalArgumentException.class, () -> service.save(dto));
     }
+
+    @Test
+    void saveAll_ShouldThrowException_WhenInstanceNotFound() {
+        when(instanceRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        KpiB3AnalyticDataDTO dto2 = new KpiB3AnalyticDataDTO();
+        dto2.setInstanceId(999L);
+        dto2.setInstanceModuleId(2L);
+        dto2.setKpiB3DetailResultId(3L);
+        dto2.setAnagStationId(4L);
+
+        List<KpiB3AnalyticDataDTO> dtos = List.of(dto, dto2);
+
+        assertThrows(IllegalArgumentException.class, () -> service.saveAll(dtos));
+
+        verify(kpiB3AnalyticDataRepository, never()).saveAll(anyList());
+    }
+
+    @Test
+    void saveAll_ShouldThrowException_WhenInstanceModuleNotFound() {
+        when(instanceRepository.findById(anyLong())).thenReturn(Optional.of(instance));
+        when(instanceModuleRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        List<KpiB3AnalyticDataDTO> dtos = List.of(dto);
+
+        assertThrows(IllegalArgumentException.class, () -> service.saveAll(dtos));
+    }
+
+    @Test
+    void saveAll_ShouldThrowException_WhenKpiB3DetailResultNotFound() {
+        when(instanceRepository.findById(anyLong())).thenReturn(Optional.of(instance));
+        when(instanceModuleRepository.findById(anyLong())).thenReturn(Optional.of(instanceModule));
+        when(kpiB3DetailResultRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        List<KpiB3AnalyticDataDTO> dtos = List.of(dto);
+
+        assertThrows(IllegalArgumentException.class, () -> service.saveAll(dtos));
+    }
 }

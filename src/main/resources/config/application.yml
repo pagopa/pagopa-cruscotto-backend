@@ -137,7 +137,7 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
         implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
   messages:
-    basename: i18n/messages
+    basename: i18n/messages,i18n/pdf
   main:
     allow-bean-definition-overriding: true
   mvc:
@@ -200,6 +200,11 @@ application:
   quartz:
     expose-scheduler-in-repository: false
     active-db-log: true
+
+azure:
+  blob:
+    connection-string: ${AZURE_BLOB_CONNECTION_STRING}
+    container-name: ${AZURE_BLOB_CONTAINER_NAME:report}
 
 jhipster:
   clientApp:

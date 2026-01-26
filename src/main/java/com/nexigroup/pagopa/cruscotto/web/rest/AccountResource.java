@@ -73,7 +73,7 @@ public class AccountResource {
     private final MailService mailService;
 
     private final ApplicationProperties properties;
-    
+
 
     public AccountResource(
         AuthUserService authUserService,
@@ -164,7 +164,7 @@ public class AccountResource {
         );
 
         String userLogin = SecurityUtils.getCurrentUserLogin()
-            .orElseThrow(() -> new AccountResourceException("Current user login not found"));
+            .orElseThrow(() -> new AccountResourceException(CURRENT_USER_LOGIN_NOT_FOUND));
         AuthUser existingUser = authUserRepository
             .findOneByEmailIgnoreCaseAndNotDeleted(authUserDTO.getEmail(), AuthenticationType.FORM_LOGIN)
             .orElse(null);
@@ -174,7 +174,7 @@ public class AccountResource {
         }
         AuthUser authUser = authUserRepository
             .findOneByLoginAndNotDeleted(userLogin, AuthenticationType.FORM_LOGIN)
-            .orElseThrow(() -> new AccountResourceException("User could not be found"));
+            .orElseThrow(() -> new AccountResourceException(USER_COULD_NOT_BE_FOUND));
 
         authUserService.updateUser(
             authUserDTO.getFirstName(),
@@ -185,7 +185,7 @@ public class AccountResource {
             AuthenticationType.FORM_LOGIN
         );
     }
-    
+
 	@PostMapping(path = "/account/change-password")
 	@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.PASSWORD_MODIFICATION + "\")")
 	public void changePassword(@Valid @RequestBody PasswordChangeRequestBean passwordChangeRequestBean) {
@@ -197,14 +197,14 @@ public class AccountResource {
         );
 
         String userLogin = SecurityUtils.getCurrentUserLogin()
-            .orElseThrow(() -> new AccountResourceException("Current user login not found"));
+            .orElseThrow(() -> new AccountResourceException(CURRENT_USER_LOGIN_NOT_FOUND));
 
         AuthUser authUser = authUserRepository
             .findOneByLoginAndNotDeleted(userLogin, AuthenticationType.FORM_LOGIN)
-            .orElseThrow(() -> new AccountResourceException("User could not be found"));
+            .orElseThrow(() -> new AccountResourceException(USER_COULD_NOT_BE_FOUND));
 
         if (!authUser.getActivated()) {
-            throw new AccountResourceException("User could not be found");
+            throw new AccountResourceException(USER_COULD_NOT_BE_FOUND);
         }
 
         passwordValidator.check(userLogin, passwordChangeRequestBean.getNewPassword(), authUser.getFirstName(), authUser.getLastName());
@@ -246,7 +246,7 @@ public class AccountResource {
     public void requestPasswordReset(@RequestBody String mail) {
         Optional<AuthUser> user = authUserService.requestPasswordResetByMail(mail, AuthenticationType.FORM_LOGIN);
         if (user.isPresent()) {
-            mailService.sendPasswordResetMail(user.orElseThrow(() -> new AccountResourceException("User could not be found")));
+            mailService.sendPasswordResetMail(user.orElseThrow(() -> new AccountResourceException(USER_COULD_NOT_BE_FOUND)));
         } else {
             // Pretend the request has been successful to prevent checking which emails really exist
             // but log that an invalid attempt has been made

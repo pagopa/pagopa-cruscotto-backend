@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component;
 public class LoadStandInDataJob extends QuartzJobBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoadStandInDataJob.class);
-    
+    private static final String ADD_TO_STANDIN = "ADD_TO_STANDIN";
     private static final DateTimeFormatter API_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     private final ApplicationProperties applicationProperties;
@@ -79,41 +79,41 @@ public class LoadStandInDataJob extends QuartzJobBean {
         String fromDateStr = context.getMergedJobDataMap().getString("fromDate");
         String toDateStr = context.getMergedJobDataMap().getString("toDate");
         String targetDateStr = context.getMergedJobDataMap().getString("targetDate");
-        
-        LOGGER.debug("Job parameters - fromDate: '{}', toDate: '{}', targetDate: '{}'", 
+
+        LOGGER.debug("Job parameters - fromDate: '{}', toDate: '{}', targetDate: '{}'",
                     fromDateStr, toDateStr, targetDateStr);
-        
+
         // Case 1: Date range specified (fromDate and toDate)
-        if (fromDateStr != null && !fromDateStr.trim().isEmpty() && 
+        if (fromDateStr != null && !fromDateStr.trim().isEmpty() &&
             toDateStr != null && !toDateStr.trim().isEmpty()) {
             try {
                 LocalDate fromDate = LocalDate.parse(fromDateStr.trim(), API_DATE_FORMATTER);
                 LocalDate toDate = LocalDate.parse(toDateStr.trim(), API_DATE_FORMATTER);
-                
+
                 if (fromDate.isAfter(toDate)) {
                     throw new IllegalArgumentException("fromDate must be before or equal to toDate");
                 }
-                
+
                 LOGGER.debug("Parsed date range: {} to {}", fromDate, toDate);
                 return new DateRange(fromDate, toDate, true);
-                
+
             } catch (Exception e) {
                 LOGGER.warn("Invalid date range (fromDate: '{}', toDate: '{}'), using fallback", fromDateStr, toDateStr);
             }
         }
-        
+
         // Case 2: Single target date specified
         if (targetDateStr != null && !targetDateStr.trim().isEmpty()) {
             try {
                 LocalDate targetDate = LocalDate.parse(targetDateStr.trim(), API_DATE_FORMATTER);
                 LOGGER.debug("Parsed target date: {}", targetDate);
                 return new DateRange(targetDate, targetDate, false);
-                
+
             } catch (Exception e) {
                 LOGGER.warn("Invalid target date '{}', using default", targetDateStr);
             }
         }
-        
+
         // Case 3: Default to previous day
         LocalDate yesterday = LocalDate.now().minusDays(1);
         LOGGER.debug("Using default date: {}", yesterday);
@@ -127,13 +127,13 @@ public class LoadStandInDataJob extends QuartzJobBean {
         private final LocalDate fromDate;
         private final LocalDate toDate;
         private final boolean isRange;
-        
+
         public DateRange(LocalDate fromDate, LocalDate toDate, boolean isRange) {
             this.fromDate = fromDate;
             this.toDate = toDate;
             this.isRange = isRange;
         }
-        
+
         public LocalDate getFromDate() { return fromDate; }
         public LocalDate getToDate() { return toDate; }
         public boolean isRange() { return isRange; }
@@ -149,62 +149,62 @@ public class LoadStandInDataJob extends QuartzJobBean {
         // Check if data for this date range already exists (for informational purposes only)
         LocalDateTime startOfRange = fromDate.atStartOfDay();
         LocalDateTime endOfRange = toDate.atTime(23, 59, 59);
-        
+
         List<PagopaNumeroStandin> existingData = pagopaNumeroStandinRepository.findByDateRange(startOfRange, endOfRange);
         if (!existingData.isEmpty()) {
-            LOGGER.debug("Data already exists for range {} to {} ({} records), will check for updates", 
+            LOGGER.debug("Data already exists for range {} to {} ({} records), will check for updates",
                        fromDate, toDate, existingData.size());
         }
 
         try {
             LOGGER.debug("Calling Stand-In API for range {} to {} with parameters: from={}, to={}", fromDate, toDate, fromDateStr, toDateStr);
-            
+
             StandInEventsResponse response;
             try {
                 response = pagoPaStandInClient.getStandInEvents(fromDateStr, toDateStr, null);
             } catch (Exception apiException) {
-                LOGGER.error("API call failed for range {} to {} with parameters from={}, to={}: {}", 
+                LOGGER.error("API call failed for range {} to {} with parameters from={}, to={}: {}",
                            fromDate, toDate, fromDateStr, toDateStr, apiException.getMessage(), apiException);
                 throw new RuntimeException("Stand-In API call failed for range " + fromDate + " to " + toDate, apiException);
             }
-            
+
             // API response validation
             if (response == null) {
                 LOGGER.warn("API returned null response for range {} to {}", fromDate, toDate);
                 return;
             }
-            
+
             LOGGER.debug("API response for range {} to {}: status={}, totalCount={}, events={}",
-                       fromDate, toDate, response.getStatus(), response.getTotalCount(), 
+                       fromDate, toDate, response.getStatus(), response.getTotalCount(),
                        response.getEvents() != null ? response.getEvents().size() : "null");
-            
+
             if (response.getEvents() == null) {
-                LOGGER.warn("API returned null events list for range {} to {} (status: {}, totalCount: {})", 
+                LOGGER.warn("API returned null events list for range {} to {} (status: {}, totalCount: {})",
                            fromDate, toDate, response.getStatus(), response.getTotalCount());
                 return;
             }
 
             List<StandInEvent> events = response.getEvents();
             if (events.isEmpty()) {
-                LOGGER.debug("No events found for range {} to {} (status: {}, totalCount: {})", 
+                LOGGER.debug("No events found for range {} to {} (status: {}, totalCount: {})",
                            fromDate, toDate, response.getStatus(), response.getTotalCount());
                 return;
             }
-            
+
             LOGGER.debug("Retrieved {} events for range {} to {}", events.size(), fromDate, toDate);
 
             // Log event types summary
             events.stream()
                 .collect(Collectors.groupingBy(StandInEvent::getEventType, Collectors.counting()))
-                .forEach((eventType, count) -> 
+                .forEach((eventType, count) ->
                     LOGGER.debug("Found {} events of type: {}", count, eventType));
 
             // Filter only ADD_TO_STANDIN events as per KPI B.3 specification
             List<StandInEvent> addToStandInEvents = events.stream()
-                .filter(event -> "ADD_TO_STANDIN".equals(event.getEventType()))
+                .filter(event -> ADD_TO_STANDIN.equals(event.getEventType()))
                 .collect(Collectors.toList());
 
-            LOGGER.debug("Filtered {} ADD_TO_STANDIN events from {} total events", 
+            LOGGER.debug("Filtered {} ADD_TO_STANDIN events from {} total events",
                         addToStandInEvents.size(), events.size());
 
             if (addToStandInEvents.isEmpty()) {
@@ -219,29 +219,29 @@ public class LoadStandInDataJob extends QuartzJobBean {
             LOGGER.debug("Events grouped into {} distinct dates", eventsByDate.size());
 
             List<PagopaNumeroStandin> allAggregatedData = new ArrayList<>();
-            
+
             for (Map.Entry<LocalDate, List<StandInEvent>> dateEntry : eventsByDate.entrySet()) {
                 LocalDate eventDate = dateEntry.getKey();
                 List<StandInEvent> dayEvents = dateEntry.getValue();
-                
+
                 LOGGER.debug("Processing {} events for {}", dayEvents.size(), eventDate);
-                
+
                 // Aggregate by quarter hours and by station for this specific day
                 List<PagopaNumeroStandin> dayAggregatedData = aggregateEventsByQuarterHourAndStation(
                     dayEvents, eventDate.atStartOfDay());
-                
+
                 allAggregatedData.addAll(dayAggregatedData);
             }
 
             // Save all aggregated data without duplicates
             if (!allAggregatedData.isEmpty()) {
                 int savedCount = saveWithoutDuplicates(allAggregatedData);
-                LOGGER.info("Saved {} new records for range {} to {} (skipped {} duplicates)", 
+                LOGGER.info("Saved {} new records for range {} to {} (skipped {} duplicates)",
                            savedCount, fromDate, toDate, allAggregatedData.size() - savedCount);
             }
 
         } catch (Exception e) {
-            LOGGER.error("Failed to load Stand-In data for range {} to {}: {}", 
+            LOGGER.error("Failed to load Stand-In data for range {} to {}: {}",
                         fromDate, toDate, e.getMessage(), e);
             throw e;
         }
@@ -249,7 +249,7 @@ public class LoadStandInDataJob extends QuartzJobBean {
 
     /**
      * Schedules a single job execution for a specific date
-     * 
+     *
      * @param targetDate the date to load Stand-In data for (format: yyyy-MM-dd)
      */
     public void scheduleJobForSpecificDate(String targetDate) {
@@ -277,50 +277,50 @@ public class LoadStandInDataJob extends QuartzJobBean {
 
         try {
             LOGGER.debug("Calling Stand-In API for date {} with parameters: from={}, to={}", targetDate, fromDate, toDate);
-            
+
             StandInEventsResponse response;
             try {
                 response = pagoPaStandInClient.getStandInEvents(fromDate, toDate, null);
             } catch (Exception apiException) {
-                LOGGER.error("API call failed for date {} with parameters from={}, to={}: {}", 
+                LOGGER.error("API call failed for date {} with parameters from={}, to={}: {}",
                            targetDate, fromDate, toDate, apiException.getMessage(), apiException);
                 throw new RuntimeException("Stand-In API call failed for date " + targetDate, apiException);
             }
-            
+
             // API response validation
             if (response == null) {
                 LOGGER.warn("API returned null response for date {}", targetDate);
                 return;
             }
-            
+
             LOGGER.debug("API response for date {}: status={}, totalCount={}, events={}",
-                       targetDate, response.getStatus(), response.getTotalCount(), 
+                       targetDate, response.getStatus(), response.getTotalCount(),
                        response.getEvents() != null ? response.getEvents().size() : "null");
-            
+
             if (response.getEvents() == null) {
-                LOGGER.warn("API returned null events list for date {} (status: {}, totalCount: {})", 
+                LOGGER.warn("API returned null events list for date {} (status: {}, totalCount: {})",
                            targetDate, response.getStatus(), response.getTotalCount());
                 return;
             }
 
             List<StandInEvent> events = response.getEvents();
             if (events.isEmpty()) {
-                LOGGER.debug("No events found for date {} (status: {}, totalCount: {})", 
+                LOGGER.debug("No events found for date {} (status: {}, totalCount: {})",
                            targetDate, response.getStatus(), response.getTotalCount());
                 return;
             }
-            
+
             LOGGER.debug("Retrieved {} events for date {}", events.size(), targetDate);
 
             // Log event types summary
             events.stream()
                 .collect(Collectors.groupingBy(StandInEvent::getEventType, Collectors.counting()))
-                .forEach((eventType, count) -> 
+                .forEach((eventType, count) ->
                     LOGGER.debug("Found {} events of type: {}", count, eventType));
 
             // Filter only ADD_TO_STANDIN events as per KPI B.3 specification
             List<StandInEvent> addToStandInEvents = events.stream()
-                .filter(event -> "ADD_TO_STANDIN".equals(event.getEventType()))
+                .filter(event -> ADD_TO_STANDIN.equals(event.getEventType()))
                 .collect(Collectors.toList());
 
             if (addToStandInEvents.isEmpty()) {
@@ -328,7 +328,7 @@ public class LoadStandInDataJob extends QuartzJobBean {
                 return;
             }
 
-            LOGGER.debug("Filtered {} ADD_TO_STANDIN events from {} total events", 
+            LOGGER.debug("Filtered {} ADD_TO_STANDIN events from {} total events",
                         addToStandInEvents.size(), events.size());
 
             // Aggregate by quarter hours and by station
@@ -338,7 +338,7 @@ public class LoadStandInDataJob extends QuartzJobBean {
             // Save aggregated data without duplicates
             if (!aggregatedData.isEmpty()) {
                 int savedCount = saveWithoutDuplicates(aggregatedData);
-                LOGGER.info("Saved {} new records for date {} (skipped {} duplicates)", 
+                LOGGER.info("Saved {} new records for date {} (skipped {} duplicates)",
                            savedCount, targetDate, aggregatedData.size() - savedCount);
             }
 
@@ -383,7 +383,7 @@ public class LoadStandInDataJob extends QuartzJobBean {
                     record.setIntervalStart(quarterStart);
                     record.setIntervalEnd(quarterEnd);
                     record.setStandInCount(totalStandInCount);
-                    record.setEventType("ADD_TO_STANDIN");
+                    record.setEventType(ADD_TO_STANDIN);
                     record.setDataDate(dataDate);
                     record.setLoadTimestamp(LocalDateTime.now());
 
@@ -392,7 +392,7 @@ public class LoadStandInDataJob extends QuartzJobBean {
             }
         }
 
-        LOGGER.debug("Aggregated {} events into {} quarter-hour records", 
+        LOGGER.debug("Aggregated {} events into {} quarter-hour records",
                     events.size(), aggregatedRecords.size());
 
         return aggregatedRecords;
@@ -404,7 +404,7 @@ public class LoadStandInDataJob extends QuartzJobBean {
     private LocalDateTime getQuarterHourInterval(LocalDateTime timestamp) {
         int minutes = timestamp.getMinute();
         int quarterMinutes = (minutes / 15) * 15; // 0, 15, 30, 45
-        
+
         return timestamp.withMinute(quarterMinutes).withSecond(0).withNano(0);
     }
 
@@ -416,31 +416,31 @@ public class LoadStandInDataJob extends QuartzJobBean {
     private int saveWithoutDuplicates(List<PagopaNumeroStandin> aggregatedData) {
         int savedCount = 0;
         int skippedCount = 0;
-        
+
         for (PagopaNumeroStandin record : aggregatedData) {
             // Check if record already exists
             List<PagopaNumeroStandin> existing = pagopaNumeroStandinRepository.findByBusinessKeys(
-                record.getStationCode(), 
-                record.getIntervalStart(), 
-                record.getDataDate(), 
+                record.getStationCode(),
+                record.getIntervalStart(),
+                record.getDataDate(),
                 record.getEventType());
-                
+
             if (existing.isEmpty()) {
                 // No duplicate found, save the record
                 pagopaNumeroStandinRepository.save(record);
                 savedCount++;
             } else {
                 // Duplicate found, log and skip
-                LOGGER.debug("Skipping duplicate record for station {} at interval {} on {}", 
+                LOGGER.debug("Skipping duplicate record for station {} at interval {} on {}",
                            record.getStationCode(), record.getIntervalStart(), record.getDataDate());
                 skippedCount++;
             }
         }
-        
+
         if (skippedCount > 0) {
             LOGGER.debug("Skipped {} duplicate records during save operation", skippedCount);
         }
-        
+
         return savedCount;
     }
 
