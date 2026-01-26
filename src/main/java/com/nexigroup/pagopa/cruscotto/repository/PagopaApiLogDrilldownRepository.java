@@ -112,4 +112,23 @@ public interface PagopaApiLogDrilldownRepository
     List<PagopaApiLogDrilldown> findByKpiB4AnalyticDataIdAndPartnerFiscalCode(
         @Param("analyticDataId") Long analyticDataId,
         @Param("partnerFiscalCode") String partnerFiscalCode);
+
+
+    @Query("SELECT d FROM PagopaApiLogDrilldown d " +
+        "WHERE d.instance.id = :instanceId " +
+        "AND d.kpiB4AnalyticData IS NOT NULL " +
+        "AND d.analysisDate = (" +
+        "   SELECT MAX(d2.analysisDate) FROM PagopaApiLogDrilldown d2 " +
+        "   WHERE d2.instance.id = :instanceId AND d2.kpiB4AnalyticData IS NOT NULL" +
+        ")")
+    List<PagopaApiLogDrilldown> findLatestB4ByInstanceId(@Param("instanceId") Long instanceId);
+
+    @Query("SELECT d FROM PagopaApiLogDrilldown d " +
+        "WHERE d.instance.id = :instanceId " +
+        "AND d.kpiB8AnalyticData IS NOT NULL " +
+        "AND d.analysisDate = (" +
+        "   SELECT MAX(d2.analysisDate) FROM PagopaApiLogDrilldown d2 " +
+        "   WHERE d2.instance.id = :instanceId AND d2.kpiB8AnalyticData IS NOT NULL" +
+        ")")
+    List<PagopaApiLogDrilldown> findLatestB8ByInstanceId(@Param("instanceId") Long instanceId);
 }

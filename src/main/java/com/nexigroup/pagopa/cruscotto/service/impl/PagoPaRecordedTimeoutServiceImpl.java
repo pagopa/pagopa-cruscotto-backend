@@ -8,13 +8,14 @@ import com.nexigroup.pagopa.cruscotto.service.filter.PagoPaRecordedTimeoutFilter
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QdslUtility;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +39,16 @@ public class PagoPaRecordedTimeoutServiceImpl implements PagoPaRecordedTimeoutSe
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PagoPaRecordedTimeoutServiceImpl.class);
 
+    private static final String CF_PARTNER = "cfPartner";
+    private static final String STATION = "station";
+    private static final String METHOD = "method";
+    private static final String START_DATE = "startDate";
+    private static final String END_DATE = "endDate";
+    private static final String TOT_REQ = "totReq";
+    private static final String REQ_OK = "reqOk";
+    private static final String REQ_TIMEOUT = "reqTimeout";
+    private static final String AVG_TIME = "avgTime";
+
     private final QueryBuilder queryBuilder;
 
     public PagoPaRecordedTimeoutServiceImpl(QueryBuilder queryBuilder) {
@@ -47,7 +58,7 @@ public class PagoPaRecordedTimeoutServiceImpl implements PagoPaRecordedTimeoutSe
     /**
      * Get all records for a partner on a specific period (all stations/methods).
      * @param fiscalCodePartner the fiscal code of a partner.
-     * @param day the day to filter.
+     * @param startDay the day to filter.
      * @return the list of PagoPaRecordedTimeoutDTO for that day and partner.
      */
     @Override
@@ -67,24 +78,24 @@ public class PagoPaRecordedTimeoutServiceImpl implements PagoPaRecordedTimeoutSe
                 Projections.fields(
                     PagoPaRecordedTimeoutDTO.class,
                     qPagoPaRecordedTimeout.id.as("id"),
-                    qPagoPaRecordedTimeout.cfPartner.as("cfPartner"),
-                    qPagoPaRecordedTimeout.station.as("station"),
-                    qPagoPaRecordedTimeout.method.as("method"),
-                    qPagoPaRecordedTimeout.startDate.as("startDate"),
-                    qPagoPaRecordedTimeout.endDate.as("endDate"),
-                    qPagoPaRecordedTimeout.totReq.as("totReq"),
-                    qPagoPaRecordedTimeout.reqOk.as("reqOk"),
-                    qPagoPaRecordedTimeout.reqTimeout.as("reqTimeout"),
-                    qPagoPaRecordedTimeout.avgTime.as("avgTime")
+                    qPagoPaRecordedTimeout.cfPartner.as(CF_PARTNER),
+                    qPagoPaRecordedTimeout.station.as(STATION),
+                    qPagoPaRecordedTimeout.method.as(METHOD),
+                    qPagoPaRecordedTimeout.startDate.as(START_DATE),
+                    qPagoPaRecordedTimeout.endDate.as(END_DATE),
+                    qPagoPaRecordedTimeout.totReq.as(TOT_REQ),
+                    qPagoPaRecordedTimeout.reqOk.as(REQ_OK),
+                    qPagoPaRecordedTimeout.reqTimeout.as(REQ_TIMEOUT),
+                    qPagoPaRecordedTimeout.avgTime.as(AVG_TIME)
                 )
             )
             .from(qPagoPaRecordedTimeout)
             .where(
                 qPagoPaRecordedTimeout.cfPartner.eq(fiscalCodePartner)
-                    .and(qPagoPaRecordedTimeout.startDate.goe(startDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
-                    .and(qPagoPaRecordedTimeout.startDate.loe(endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
+                    .and(qPagoPaRecordedTimeout.startDate.goe(startDateTime.atZone(ZoneId.systemDefault()).toInstant()))
+                    .and(qPagoPaRecordedTimeout.startDate.loe(endDateTime.atZone(ZoneId.systemDefault()).toInstant()))
             )
-            .orderBy(new OrderSpecifier<>(Order.ASC, Expressions.stringPath("startDate")))
+            .orderBy(new OrderSpecifier<>(Order.ASC, Expressions.stringPath(START_DATE)))
             .fetch();
     }
 
@@ -110,24 +121,24 @@ public class PagoPaRecordedTimeoutServiceImpl implements PagoPaRecordedTimeoutSe
                 Projections.fields(
                     PagoPaRecordedTimeoutDTO.class,
                     qPagoPaRecordedTimeout.id.as("id"),
-                    qPagoPaRecordedTimeout.cfPartner.as("cfPartner"),
-                    qPagoPaRecordedTimeout.station.as("station"),
-                    qPagoPaRecordedTimeout.method.as("method"),
-                    qPagoPaRecordedTimeout.startDate.as("startDate"),
-                    qPagoPaRecordedTimeout.endDate.as("endDate"),
-                    qPagoPaRecordedTimeout.totReq.as("totReq"),
-                    qPagoPaRecordedTimeout.reqOk.as("reqOk"),
-                    qPagoPaRecordedTimeout.reqTimeout.as("reqTimeout"),
-                    qPagoPaRecordedTimeout.avgTime.as("avgTime")
+                    qPagoPaRecordedTimeout.cfPartner.as(CF_PARTNER),
+                    qPagoPaRecordedTimeout.station.as(STATION),
+                    qPagoPaRecordedTimeout.method.as(METHOD),
+                    qPagoPaRecordedTimeout.startDate.as(START_DATE),
+                    qPagoPaRecordedTimeout.endDate.as(END_DATE),
+                    qPagoPaRecordedTimeout.totReq.as(TOT_REQ),
+                    qPagoPaRecordedTimeout.reqOk.as(REQ_OK),
+                    qPagoPaRecordedTimeout.reqTimeout.as(REQ_TIMEOUT),
+                    qPagoPaRecordedTimeout.avgTime.as(AVG_TIME)
                 )
             )
             .from(qPagoPaRecordedTimeout)
             .where(
                 qPagoPaRecordedTimeout.cfPartner.eq(fiscalCodePartner)
-                    .and(qPagoPaRecordedTimeout.startDate.goe(startDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
-                    .and(qPagoPaRecordedTimeout.startDate.loe(endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
+                    .and(qPagoPaRecordedTimeout.startDate.goe(startDateTime.atZone(ZoneId.systemDefault()).toInstant()))
+                    .and(qPagoPaRecordedTimeout.startDate.loe(endDateTime.atZone(ZoneId.systemDefault()).toInstant()))
             )
-            .orderBy(new OrderSpecifier<>(Order.ASC, Expressions.stringPath("startDate")))
+            .orderBy(new OrderSpecifier<>(Order.ASC, Expressions.stringPath(START_DATE)))
             .fetch();
     }
     /**
@@ -156,8 +167,8 @@ public class PagoPaRecordedTimeoutServiceImpl implements PagoPaRecordedTimeoutSe
             .where(
                 qPagoPaRecordedTimeout.cfPartner
                     .eq(fiscalCodePartner)
-                    .and(qPagoPaRecordedTimeout.startDate.goe(startDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
-                    .and(qPagoPaRecordedTimeout.endDate.loe(endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
+                    .and(qPagoPaRecordedTimeout.startDate.goe(startDateTime.atZone(ZoneId.systemDefault()).toInstant()))
+                    .and(qPagoPaRecordedTimeout.endDate.loe(endDateTime.atZone(ZoneId.systemDefault()).toInstant()))
             )
             .groupBy(qPagoPaRecordedTimeout.station, qPagoPaRecordedTimeout.method)
             .orderBy(qPagoPaRecordedTimeout.station.asc(), qPagoPaRecordedTimeout.method.asc())
@@ -199,8 +210,8 @@ public class PagoPaRecordedTimeoutServiceImpl implements PagoPaRecordedTimeoutSe
                     .eq(fiscalCodePartner)
                     .and(qPagoPaRecordedTimeout.station.eq(station))
                     .and(qPagoPaRecordedTimeout.method.eq(method))
-                    .and(qPagoPaRecordedTimeout.startDate.goe(startDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
-                    .and(qPagoPaRecordedTimeout.startDate.loe(endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
+                    .and(qPagoPaRecordedTimeout.startDate.goe(startDateTime.atZone(ZoneId.systemDefault()).toInstant()))
+                    .and(qPagoPaRecordedTimeout.startDate.loe(endDateTime.atZone(ZoneId.systemDefault()).toInstant()))
             )
             .fetchOne();
     }
@@ -226,8 +237,8 @@ public class PagoPaRecordedTimeoutServiceImpl implements PagoPaRecordedTimeoutSe
             .where(
                 qPagoPaRecordedTimeout.cfPartner
                     .eq(fiscalCodePartner)
-                    .and(qPagoPaRecordedTimeout.startDate.goe(startDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
-                    .and(qPagoPaRecordedTimeout.startDate.loe(endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
+                    .and(qPagoPaRecordedTimeout.startDate.goe(startDateTime.atZone(ZoneId.systemDefault()).toInstant()))
+                    .and(qPagoPaRecordedTimeout.startDate.loe(endDateTime.atZone(ZoneId.systemDefault()).toInstant()))
             )
             .fetchOne();
     }
@@ -253,15 +264,15 @@ public class PagoPaRecordedTimeoutServiceImpl implements PagoPaRecordedTimeoutSe
                 Projections.fields(
                     PagoPaRecordedTimeoutDTO.class,
                     qPagoPaRecordedTimeout.id.as("id"),
-                    qPagoPaRecordedTimeout.cfPartner.as("cfPartner"),
-                    qPagoPaRecordedTimeout.station.as("station"),
-                    qPagoPaRecordedTimeout.method.as("method"),
-                    qPagoPaRecordedTimeout.startDate.as("startDate"),
-                    qPagoPaRecordedTimeout.endDate.as("endDate"),
-                    qPagoPaRecordedTimeout.totReq.as("totReq"),
-                    qPagoPaRecordedTimeout.reqOk.as("reqOk"),
-                    qPagoPaRecordedTimeout.reqTimeout.as("reqTimeout"),
-                    qPagoPaRecordedTimeout.avgTime.as("avgTime")
+                    qPagoPaRecordedTimeout.cfPartner.as(CF_PARTNER),
+                    qPagoPaRecordedTimeout.station.as(STATION),
+                    qPagoPaRecordedTimeout.method.as(METHOD),
+                    qPagoPaRecordedTimeout.startDate.as(START_DATE),
+                    qPagoPaRecordedTimeout.endDate.as(END_DATE),
+                    qPagoPaRecordedTimeout.totReq.as(TOT_REQ),
+                    qPagoPaRecordedTimeout.reqOk.as(REQ_OK),
+                    qPagoPaRecordedTimeout.reqTimeout.as(REQ_TIMEOUT),
+                    qPagoPaRecordedTimeout.avgTime.as(AVG_TIME)
                 )
             )
             .from(qPagoPaRecordedTimeout)
@@ -270,10 +281,10 @@ public class PagoPaRecordedTimeoutServiceImpl implements PagoPaRecordedTimeoutSe
                     .eq(fiscalCodePartner)
                     .and(qPagoPaRecordedTimeout.station.eq(station))
                     .and(qPagoPaRecordedTimeout.method.eq(method))
-                    .and(qPagoPaRecordedTimeout.startDate.goe(startDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
-                    .and(qPagoPaRecordedTimeout.startDate.lt(endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
+                    .and(qPagoPaRecordedTimeout.startDate.goe(startDateTime.atZone(ZoneId.systemDefault()).toInstant()))
+                    .and(qPagoPaRecordedTimeout.startDate.lt(endDateTime.atZone(ZoneId.systemDefault()).toInstant()))
             )
-            .orderBy(new OrderSpecifier<>(Order.ASC, Expressions.stringPath("startDate")))
+            .orderBy(new OrderSpecifier<>(Order.ASC, Expressions.stringPath(START_DATE)))
             .fetch();
     }
 
@@ -300,16 +311,16 @@ public class PagoPaRecordedTimeoutServiceImpl implements PagoPaRecordedTimeoutSe
         if(filter.getStation() != null) {
             query.where(qPagoPaRecordedTimeout.station.eq(filter.getStation()));
         }
-        
+
         if(filter.getMethod() != null) {
         	query.where(qPagoPaRecordedTimeout.method.eq(filter.getMethod()));
         }
-        
+
         if(filter.getDay() != null) {
         	LocalDateTime startDateTime = filter.getDay().atStartOfDay();
             LocalDateTime endDateTime = filter.getDay().atTime(23, 59, 59, 0);
-            query.where(qPagoPaRecordedTimeout.startDate.goe(startDateTime.atZone(ZoneOffset.systemDefault()).toInstant()));
-            query.where(qPagoPaRecordedTimeout.endDate.loe(endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()));
+            query.where(qPagoPaRecordedTimeout.startDate.goe(startDateTime.atZone(ZoneId.systemDefault()).toInstant()));
+            query.where(qPagoPaRecordedTimeout.endDate.loe(endDateTime.atZone(ZoneId.systemDefault()).toInstant()));
         }
 
         long total = query.fetchCount();
@@ -325,7 +336,7 @@ public class PagoPaRecordedTimeoutServiceImpl implements PagoPaRecordedTimeoutSe
             .forEach(order -> {
                 jpqlQuery.orderBy(
                     new OrderSpecifier<>(
-                        order.isAscending() ? com.querydsl.core.types.Order.ASC : com.querydsl.core.types.Order.DESC,
+                        order.isAscending() ? Order.ASC : Order.DESC,
                         Expressions.stringPath(order.getProperty()),
                         QdslUtility.toQueryDslNullHandling(order.getNullHandling())
                     )
@@ -337,18 +348,18 @@ public class PagoPaRecordedTimeoutServiceImpl implements PagoPaRecordedTimeoutSe
         return new PageImpl<>(results, pageable, total);
     }
 
-    private com.querydsl.core.types.Expression<PagoPaRecordedTimeoutDTO> createPagoPaRecordedTimeoutProjection() {
+    private Expression<PagoPaRecordedTimeoutDTO> createPagoPaRecordedTimeoutProjection() {
         return Projections.fields(
             PagoPaRecordedTimeoutDTO.class,
             QPagoPaRecordedTimeout.pagoPaRecordedTimeout.id.as("id"),
-            QPagoPaRecordedTimeout.pagoPaRecordedTimeout.cfPartner.as("cfPartner"),
-            QPagoPaRecordedTimeout.pagoPaRecordedTimeout.station.as("station"),
-            QPagoPaRecordedTimeout.pagoPaRecordedTimeout.method.as("method"),
-            QPagoPaRecordedTimeout.pagoPaRecordedTimeout.startDate.as("startDate"),
-            QPagoPaRecordedTimeout.pagoPaRecordedTimeout.endDate.as("endDate"),
-            QPagoPaRecordedTimeout.pagoPaRecordedTimeout.totReq.as("totReq"),
-            QPagoPaRecordedTimeout.pagoPaRecordedTimeout.reqOk.as("reqOk"),
-            QPagoPaRecordedTimeout.pagoPaRecordedTimeout.avgTime.as("avgTime"),
-            QPagoPaRecordedTimeout.pagoPaRecordedTimeout.reqTimeout.as("reqTimeout"));
+            QPagoPaRecordedTimeout.pagoPaRecordedTimeout.cfPartner.as(CF_PARTNER),
+            QPagoPaRecordedTimeout.pagoPaRecordedTimeout.station.as(STATION),
+            QPagoPaRecordedTimeout.pagoPaRecordedTimeout.method.as(METHOD),
+            QPagoPaRecordedTimeout.pagoPaRecordedTimeout.startDate.as(START_DATE),
+            QPagoPaRecordedTimeout.pagoPaRecordedTimeout.endDate.as(END_DATE),
+            QPagoPaRecordedTimeout.pagoPaRecordedTimeout.totReq.as(TOT_REQ),
+            QPagoPaRecordedTimeout.pagoPaRecordedTimeout.reqOk.as(REQ_OK),
+            QPagoPaRecordedTimeout.pagoPaRecordedTimeout.avgTime.as(AVG_TIME),
+            QPagoPaRecordedTimeout.pagoPaRecordedTimeout.reqTimeout.as(REQ_TIMEOUT));
     }
 }

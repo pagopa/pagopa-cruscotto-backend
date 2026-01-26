@@ -1,5 +1,6 @@
 package com.nexigroup.pagopa.cruscotto.service.impl;
 
+import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -8,6 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.quartz.*;
+import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
 import java.util.*;
@@ -25,11 +27,17 @@ class JobServiceImplTest {
     @Mock
     private Scheduler scheduler;
 
+    @Mock
+    private QueryBuilder queryBuilder;
+
+    @Mock
+    private ApplicationContext applicationContext;
+
     @InjectMocks
     private JobServiceImpl jobService;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws SchedulerException {
         when(schedulerFactoryBean.getScheduler()).thenReturn(scheduler);
     }
 
@@ -40,6 +48,7 @@ class JobServiceImplTest {
         boolean result = jobService.updateCronJob("testJob", new Date(), "0 0/5 * * * ?");
 
         assertTrue(result);
+        verify(scheduler, times(1)).rescheduleJob(any(), any());
     }
 
     @Test
@@ -56,7 +65,9 @@ class JobServiceImplTest {
         doNothing().when(scheduler).pauseJob(any());
 
         boolean result = jobService.pauseJob("testJob");
+
         assertTrue(result);
+        verify(scheduler, times(1)).pauseJob(any(JobKey.class));
     }
 
     @Test
@@ -64,6 +75,7 @@ class JobServiceImplTest {
         doThrow(new SchedulerException("err")).when(scheduler).pauseJob(any());
 
         boolean result = jobService.pauseJob("testJob");
+
         assertFalse(result);
     }
 
@@ -72,37 +84,57 @@ class JobServiceImplTest {
         doNothing().when(scheduler).resumeJob(any());
 
         boolean result = jobService.resumeJob("testJob");
+
         assertTrue(result);
     }
 
     @Test
-    void testStartJobNow_success() throws Exception {
-        doNothing().when(scheduler).triggerJob(any());
+    void testResumeJob_exception() throws Exception {
+        doThrow(new SchedulerException("fail")).when(scheduler).resumeJob(any());
 
-        boolean result = jobService.startJobNow("testJob");
-        assertTrue(result);
-    }
+        boolean result = jobService.resumeJob("testJob");
 
-    @Test
-    void testStartJobNow_exception() throws Exception {
-        doThrow(new SchedulerException("fail")).when(scheduler).triggerJob(any());
-
-        boolean result = jobService.startJobNow("testJob");
         assertFalse(result);
     }
 
     @Test
-    void testCheckJobRunning_true() throws Exception {
-        JobExecutionContext ctx = mock(JobExecutionContext.class);
-        JobDetail detail = mock(JobDetail.class);
-        JobKey jobKey = new JobKey("testJob", "DEFAULT");
+    void testStartJobNow_success() throws Exception {
+        doNothing().when(scheduler).triggerJob(any(JobKey.class));
 
-        when(detail.getKey()).thenReturn(jobKey);
-        when(ctx.getJobDetail()).thenReturn(detail);
-        when(scheduler.getCurrentlyExecutingJobs()).thenReturn(List.of(ctx));
+        boolean result = jobService.startJobNow("testJob");
 
-        boolean result = jobService.checkJobRunning("testJob");
         assertTrue(result);
+        verify(scheduler, times(1)).triggerJob(any(JobKey.class));
+    }
+
+    @Test
+    void testStartJobNow_exception() throws Exception {
+        doThrow(new SchedulerException("fail")).when(scheduler).triggerJob(any(JobKey.class));
+
+        boolean result = jobService.startJobNow("testJob");
+
+        assertFalse(result);
+    }
+
+    @Test
+    void testStartJobNow_withParameters_success() throws Exception {
+        doNothing().when(scheduler).triggerJob(any(JobKey.class), any(JobDataMap.class));
+
+        Map<String, Object> params = Map.of("key", "value");
+
+        boolean result = jobService.startJobNow("testJob", params);
+
+        assertTrue(result);
+        verify(scheduler, times(1)).triggerJob(any(JobKey.class), any(JobDataMap.class));
+    }
+
+    @Test
+    void testStartJobNow_withParameters_exception() throws Exception {
+        doThrow(new SchedulerException("fail")).when(scheduler).triggerJob(any(JobKey.class), any(JobDataMap.class));
+
+        boolean result = jobService.startJobNow("testJob", Map.of("key", "value"));
+
+        assertFalse(result);
     }
 
     @Test
@@ -110,6 +142,7 @@ class JobServiceImplTest {
         when(scheduler.getCurrentlyExecutingJobs()).thenReturn(Collections.emptyList());
 
         boolean result = jobService.checkJobRunning("testJob");
+
         assertFalse(result);
     }
 
@@ -118,7 +151,9 @@ class JobServiceImplTest {
         when(scheduler.interrupt(any(JobKey.class))).thenReturn(true);
 
         boolean result = jobService.stopJob("testJob");
+
         assertTrue(result);
+        verify(scheduler, times(1)).interrupt(any(JobKey.class));
     }
 
     @Test
@@ -126,6 +161,7 @@ class JobServiceImplTest {
         when(scheduler.checkExists(any(JobKey.class))).thenReturn(true);
 
         boolean result = jobService.checkJobWithName("testJob");
+
         assertTrue(result);
     }
 
@@ -134,7 +170,16 @@ class JobServiceImplTest {
         when(scheduler.checkExists(any(JobKey.class))).thenReturn(false);
 
         boolean result = jobService.checkJobWithName("testJob");
+
         assertFalse(result);
     }
 
+    @Test
+    void testCheckJobWithName_exception() throws Exception {
+        when(scheduler.checkExists(any(JobKey.class))).thenThrow(new SchedulerException("fail"));
+
+        boolean result = jobService.checkJobWithName("testJob");
+
+        assertFalse(result);
+    }
 }

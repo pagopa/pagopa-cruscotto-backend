@@ -50,6 +50,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class KpiB5ServiceImpl implements KpiB5Service {
 
+    private static final String NON_ATTIVI = "NON_ATTIVI";
+    private static final String NO_ATTIVI = "NON ATTIVI";
     private final KpiB5ResultRepository kpiB5ResultRepository;
     private final KpiB5DetailResultRepository kpiB5DetailResultRepository;
     private final KpiB5AnalyticDataRepository kpiB5AnalyticDataRepository;
@@ -149,7 +151,7 @@ public class KpiB5ServiceImpl implements KpiB5Service {
     @Transactional(readOnly = true)
     public List<PagopaSpontaneiDTO> findDrillDownByAnalyticDataId(Long analyticDataId, String spontaneousPaymentsFilter) {
         log.debug("Request to get drill-down data by analyticDataId : {} with filter: {}", analyticDataId, spontaneousPaymentsFilter);
-        
+
         // Use historical snapshot data from SpontaneousDrilldown table
         return spontaneousDrilldownRepository.findByKpiB5AnalyticDataId(analyticDataId)
             .stream()
@@ -163,41 +165,38 @@ public class KpiB5ServiceImpl implements KpiB5Service {
                 dto.setPartnerFiscalCode(drillDown.getPartnerFiscalCode());
                 dto.setStationCode(drillDown.getStationCode());
                 dto.setFiscalCode(drillDown.getFiscalCode());
-                
+
                 // Use the enum's getValue() method to get the string representation
                 dto.setSpontaneousPayments(drillDown.getSpontaneousPayments().getValue());
-                
+
                 return dto;
             })
             .filter(dto -> {
                 // Apply filter based on spontaneousPaymentsFilter parameter
                 if (spontaneousPaymentsFilter == null || spontaneousPaymentsFilter.trim().isEmpty()) {
                     // Default: show only NON_ATTIVI
-                    return "NON_ATTIVI".equals(dto.getSpontaneousPayments()) || "NON ATTIVI".equals(dto.getSpontaneousPayments());
+                    return NON_ATTIVI.equals(dto.getSpontaneousPayments()) || NO_ATTIVI.equals(dto.getSpontaneousPayments());
                 }
-                
+
                 String filter = spontaneousPaymentsFilter.trim().toUpperCase();
-                switch (filter) {
-                    case "ATTIVI":
-                        return "ATTIVI".equals(dto.getSpontaneousPayments());
-                    case "NON_ATTIVI":
-                    case "NON ATTIVI":
-                        return "NON_ATTIVI".equals(dto.getSpontaneousPayments()) || "NON ATTIVI".equals(dto.getSpontaneousPayments());
-                    case "ALL":
-                    case "TUTTI":
-                        return true; // Show all records
-                    default:
+                return switch (filter) {
+                    case "ATTIVI" -> "ATTIVI".equals(dto.getSpontaneousPayments());
+                    case NON_ATTIVI, NO_ATTIVI ->
+                        NON_ATTIVI.equals(dto.getSpontaneousPayments()) || NO_ATTIVI.equals(dto.getSpontaneousPayments());
+                    case "ALL", "TUTTI" -> true; // Show all records
+                    default -> {
                         // Invalid filter: default to NON_ATTIVI
                         log.warn("Invalid spontaneousPaymentsFilter: {}. Defaulting to NON_ATTIVI", spontaneousPaymentsFilter);
-                        return "NON_ATTIVI".equals(dto.getSpontaneousPayments()) || "NON ATTIVI".equals(dto.getSpontaneousPayments());
-                }
+                        yield NON_ATTIVI.equals(dto.getSpontaneousPayments()) || NO_ATTIVI.equals(dto.getSpontaneousPayments());
+                    }
+                };
             })
             .toList();
     }
 
     @Override
     public OutcomeStatus calculateKpiB5(Long instanceId, Long instanceModuleId, LocalDate analysisDate) {
-        log.info("Starting KPI B.5 calculation for instanceId: {}, instanceModuleId: {}, analysisDate: {}", 
+        log.info("Starting KPI B.5 calculation for instanceId: {}, instanceModuleId: {}, analysisDate: {}",
                  instanceId, instanceModuleId, analysisDate);
 
         try {
@@ -223,9 +222,9 @@ public class KpiB5ServiceImpl implements KpiB5Service {
             long partnersWithoutSpontaneous = allPartners.stream()
                 .filter(partner -> Boolean.FALSE.equals(partner.getSpontaneousPayment()))
                 .count();
-            
+
             BigDecimal percentageWithoutSpontaneous = BigDecimal.ZERO;
-            if (allPartners.size() > 0) {
+            if (!allPartners.isEmpty()) {
                 percentageWithoutSpontaneous = BigDecimal.valueOf(partnersWithoutSpontaneous)
                     .multiply(BigDecimal.valueOf(100))
                     .divide(BigDecimal.valueOf(allPartners.size()), 2, RoundingMode.HALF_UP);
@@ -234,15 +233,15 @@ public class KpiB5ServiceImpl implements KpiB5Service {
             // 6. Recupera soglie dalla configurazione
             Double thresholdValue = configuration.getEligibilityThreshold(); // Soglia configurabile
             Double toleranceValue = configuration.getTolerance(); // Tolleranza configurabile
-            
+
             // Valori di default se non configurati (come negli altri KPI)
             BigDecimal thresholdIndex = thresholdValue != null ? BigDecimal.valueOf(thresholdValue) : BigDecimal.ZERO;
             BigDecimal toleranceIndex = toleranceValue != null ? BigDecimal.valueOf(toleranceValue) : BigDecimal.ZERO;
-            
+
             // 7. Determina outcome: OK se %_senza_spontanei <= (soglia + tolleranza)
             OutcomeStatus outcome = determineOutcomeWithThresholds(percentageWithoutSpontaneous, thresholdIndex, toleranceIndex);
-            
-            log.debug("KPI B.5 calculation for partner {}: stationsTotal={}, stationsWithoutSpontaneous={}, percentage={}%, threshold={}%, tolerance={}%, outcome={}", 
+
+            log.debug("KPI B.5 calculation for partner {}: stationsTotal={}, stationsWithoutSpontaneous={}, percentage={}%, threshold={}%, tolerance={}%, outcome={}",
                      partnerFiscalCode, allPartners.size(), partnersWithoutSpontaneous, percentageWithoutSpontaneous, thresholdValue, toleranceValue, outcome);
 
             // 8. Crea risultato principale
@@ -252,7 +251,7 @@ public class KpiB5ServiceImpl implements KpiB5Service {
             createDetailResult(mainResult, instanceId, instanceModuleId, allPartners, analysisDate);
 
             log.info("KPI B.5 calculation completed successfully for instanceModuleId: {} with outcome: {}", instanceModuleId, outcome);
-            
+
             return outcome;
 
         } catch (Exception e) {
@@ -266,15 +265,15 @@ public class KpiB5ServiceImpl implements KpiB5Service {
         return percentage.compareTo(maxAllowed) <= 0 ? OutcomeStatus.OK : OutcomeStatus.KO;
     }
 
-    private KpiB5Result createMainResult(Long instanceId, Long instanceModuleId, LocalDate analysisDate, 
+    private KpiB5Result createMainResult(Long instanceId, Long instanceModuleId, LocalDate analysisDate,
                                         BigDecimal thresholdIndex, BigDecimal toleranceIndex, OutcomeStatus outcome) {
-        
+
         // Recupera le entità Instance e InstanceModule
         Instance instance = instanceRepository.findById(instanceId)
             .orElseThrow(() -> new RuntimeException("Instance not found with id: " + instanceId));
         InstanceModule instanceModule = instanceModuleRepository.findById(instanceModuleId)
             .orElseThrow(() -> new RuntimeException("InstanceModule not found with id: " + instanceModuleId));
-        
+
         KpiB5Result result = new KpiB5Result();
         result.setInstance(instance);
         result.setInstanceModule(instanceModule);
@@ -286,15 +285,15 @@ public class KpiB5ServiceImpl implements KpiB5Service {
         return kpiB5ResultRepository.save(result);
     }
 
-    private void createDetailResult(KpiB5Result mainResult, Long instanceId, Long instanceModuleId, 
+    private void createDetailResult(KpiB5Result mainResult, Long instanceId, Long instanceModuleId,
                                    List<PagopaSpontaneous> allPartners, LocalDate analysisDate) {
         // Conta stazioni senza pagamenti spontanei
         int stationsWithoutSpontaneous = (int) allPartners.stream()
             .filter(partner -> Boolean.FALSE.equals(partner.getSpontaneousPayment()))
             .count();
-        
+
         BigDecimal percentageNoSpontaneous = BigDecimal.ZERO;
-        if (allPartners.size() > 0) {
+        if (!allPartners.isEmpty()) {
             percentageNoSpontaneous = BigDecimal.valueOf(stationsWithoutSpontaneous)
                 .multiply(BigDecimal.valueOf(100))
                 .divide(BigDecimal.valueOf(allPartners.size()), 2, RoundingMode.HALF_UP);
@@ -302,8 +301,8 @@ public class KpiB5ServiceImpl implements KpiB5Service {
 
         // Usa la stessa logica del risultato principale per determinare l'esito
         OutcomeStatus detailOutcome = determineOutcomeWithThresholds(
-            percentageNoSpontaneous, 
-            mainResult.getThresholdIndex(), 
+            percentageNoSpontaneous,
+            mainResult.getThresholdIndex(),
             mainResult.getToleranceIndex()
         );
 
@@ -339,7 +338,7 @@ public class KpiB5ServiceImpl implements KpiB5Service {
 
         // Crea drill-down per ogni partner (legacy)
         createDrillDownData(analyticData, allPartners);
-        
+
         // Crea snapshot dei dati per drill-down storico
         createSpontaneousSnapshot(analyticData, allPartners);
     }
@@ -347,16 +346,16 @@ public class KpiB5ServiceImpl implements KpiB5Service {
     private void createDrillDownData(KpiB5AnalyticData analyticData, List<PagopaSpontaneous> partners) {
         for (PagopaSpontaneous partner : partners) {
             KpiB5AnalyticDrillDown drillDown = new KpiB5AnalyticDrillDown();
-            
+
             // Imposta la relazione con KpiB5AnalyticData
             drillDown.setKpiB5AnalyticData(analyticData);
-            
+
             // Copia i dati dal partner come snapshot
             drillDown.setPartnerFiscalCode(partner.getCfPartner());
             drillDown.setStationCode(partner.getStation());
             drillDown.setFiscalCode(partner.getStation());
             drillDown.setSpontaneousPayment(partner.getSpontaneousPayment());
-            
+
             // Determina l'enum dal boolean
             if (Boolean.TRUE.equals(partner.getSpontaneousPayment())) {
                 drillDown.setSpontaneousPayments(SpontaneousPayments.ATTIVI);
@@ -373,17 +372,17 @@ public class KpiB5ServiceImpl implements KpiB5Service {
      * This ensures that drilldown data remains consistent over time even if the original data changes.
      */
     private void createSpontaneousSnapshot(KpiB5AnalyticData analyticData, List<PagopaSpontaneous> partners) {
-        log.debug("Creating spontaneous snapshot for analyticData: {}, partners count: {}", 
+        log.debug("Creating spontaneous snapshot for analyticData: {}, partners count: {}",
                   analyticData.getId(), partners.size());
-        
+
         for (PagopaSpontaneous partner : partners) {
             SpontaneousDrilldown snapshot = new SpontaneousDrilldown();
-            
+
             // Link to all related entities for consistency and cleanup
             snapshot.setInstance(analyticData.getInstance());
             snapshot.setInstanceModule(analyticData.getInstanceModule());
             snapshot.setKpiB5AnalyticData(analyticData);
-            
+
             // Copy current state as snapshot
             snapshot.setPartnerId(partner.getId());
             snapshot.setPartnerName(null); // PagopaSpontaneous doesn't have partnerName
@@ -391,13 +390,13 @@ public class KpiB5ServiceImpl implements KpiB5Service {
             snapshot.setStationCode(partner.getStation());
             snapshot.setFiscalCode(partner.getStation());
             snapshot.setSpontaneousPayment(partner.getSpontaneousPayment());
-            
+
             // Note: getSpontaneousPayments() is a @Transient method that derives enum from boolean
             // No need to set enum separately as it's computed from spontaneousPayment boolean
 
             spontaneousDrilldownRepository.save(snapshot);
         }
-        
+
         log.debug("Spontaneous snapshot created successfully for {} partners", partners.size());
     }
 }

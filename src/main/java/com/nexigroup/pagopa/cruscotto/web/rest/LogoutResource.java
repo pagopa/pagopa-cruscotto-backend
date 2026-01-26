@@ -44,8 +44,7 @@ public class LogoutResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and a body with a global logout URL and ID token.
      */
     @PostMapping("/api/logout")
-    public ResponseEntity<?> logout(HttpServletResponse response, Principal principal) {
-        String idToken = null;
+    public ResponseEntity<Map<String, String>> logout(HttpServletResponse response, Principal principal) {        String idToken = null;
         String logoutUrl = null;
 
         //        if (principal instanceof JwtAuthenticationToken) {

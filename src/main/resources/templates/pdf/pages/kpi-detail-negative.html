@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div class="page" th:classappend="${p.pageBreakBefore} ? ' page-break' : ''" th:fragment="page(p)">
+
+  <!-- Header KPI SOLO se firstPage -->
+  <div class="kpi-header" th:if="${p.firstPage}">
+    <h2 class="kpi-detail-title">
+      KPI <span th:text="${p.kpi.code}"></span>
+    </h2>
+
+    <h3 class="kpi-subtitle"
+        th:text="#{${'pdf.kpi.' + p.kpi.code + '.title'}}">
+    </h3>
+
+    <p class="kpi-description"
+       th:text="#{${'pdf.kpi.' + p.kpi.code + '.description'}}">
+    </p>
+
+    <div class="kpi-detail-outcome">
+      <span class="kpi-pill ko">NON CONFORME</span>
+    </div>
+  </div>
+
+   <!-- PARAMETERS PLACEHOLDER -->
+  <div class="kpi-parameters">
+    <div class="kpi-parameters-title" th:text="#{pdf.kpi.parameters.title}">
+      Parametri di analisi utilizzati
+    </div>
+
+    <!-- TODO: parametri dinamici -->
+    <div class="kpi-parameters-placeholder">
+      <!-- gestiti da service -->
+    </div>
+  </div>
+
+  <!-- Tabella -->
+  <div th:if="${p.table != null}">
+    <div th:replace="pdf/fragments/kpi-table :: kpiTable(${p.table})"></div>
+  </div>
+</div>
+
+</body>
+</html>

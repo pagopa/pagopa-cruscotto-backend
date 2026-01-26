@@ -14,7 +14,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface KpiB5DetailResultRepository extends JpaRepository<KpiB5DetailResult, Long>, JpaSpecificationExecutor<KpiB5DetailResult> {
-    
+
     @Modifying
     @Query("DELETE KpiB5DetailResult kpiB5DetailResult WHERE kpiB5DetailResult.instanceModule.id = :instanceModuleId")
     int deleteAllByInstanceModuleId(@Param("instanceModuleId") Long instanceModuleId);
@@ -24,4 +24,19 @@ public interface KpiB5DetailResultRepository extends JpaRepository<KpiB5DetailRe
 
     @Query("SELECT b FROM KpiB5DetailResult b WHERE b.kpiB5Result.id = :kpiB5ResultId")
     List<KpiB5DetailResult> selectByKpiB5ResultId(@Param("kpiB5ResultId") Long kpiB5ResultId);
+
+    @Query("""
+        SELECT d
+        FROM KpiB5DetailResult d
+        WHERE d.instance.id = :instanceId
+          AND d.analysisDate = (
+              SELECT MAX(dd.analysisDate)
+              FROM KpiB5DetailResult dd
+              WHERE dd.instance.id = :instanceId
+          )
+        ORDER BY d.instanceModule.id ASC
+    """)
+    List<KpiB5DetailResult> findLatestByInstanceId(
+        @Param("instanceId") Long instanceId
+    );
 }

@@ -237,9 +237,9 @@ public class AuthFunctionServiceImpl implements AuthFunctionService {
             Projections.fields(
                 AuthFunctionDTO.class,
                 QAuthFunction.authFunction.id.as("id"),
-                QAuthFunction.authFunction.modulo.as("modulo"),
+                QAuthFunction.authFunction.modulo.as(MODULO),
                 QAuthFunction.authFunction.nome.as("nome"),
-                QAuthFunction.authFunction.descrizione.as("descrizione")
+                QAuthFunction.authFunction.descrizione.as(DESCRIZIONE)
             )
         );
 

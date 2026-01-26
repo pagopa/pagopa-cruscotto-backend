@@ -10,6 +10,7 @@ import com.nexigroup.pagopa.cruscotto.service.mapper.KpiB8ResultMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -202,7 +203,13 @@ class KpiB8ServiceImplTest {
 
     @Test
     void testCreateDetailResultsNoStations() throws Exception {
-        when(anagStationRepository.findByAnagPartnerFiscalCode(instance.getPartner().getFiscalCode()))
+        // Ensure the partner is set
+        AnagPartner partner = new AnagPartner();
+        partner.setFiscalCode("12345678901");
+        instance.setPartner(partner);
+
+        // Return empty list of stations
+        lenient().when(anagStationRepository.findByAnagPartnerFiscalCode(anyString()))
             .thenReturn(Collections.emptyList());
 
         KpiB8Result result = new KpiB8Result();
@@ -210,7 +217,6 @@ class KpiB8ServiceImplTest {
         result.setInstanceModule(new InstanceModule());
         result.setAnalysisDate(LocalDate.now());
 
-        // Usa reflection per invocare il metodo privato
         Method method = KpiB8ServiceImpl.class.getDeclaredMethod(
             "createAndSaveDetailResults",
             KpiB8Result.class,
@@ -219,8 +225,17 @@ class KpiB8ServiceImplTest {
         method.setAccessible(true);
         method.invoke(kpiB8Service, result, instance);
 
-        // Nessuna eccezione = test ok
-        verify(anagStationRepository).findByAnagPartnerFiscalCode(anyString());
+        // Capture saved detail results
+        ArgumentCaptor<KpiB8DetailResult> captor = ArgumentCaptor.forClass(KpiB8DetailResult.class);
+        verify(kpiB8DetailResultRepository, atLeastOnce()).save(captor.capture());
+
+        // Assertions: check that totals are correct even with no stations
+        List<KpiB8DetailResult> savedResults = captor.getAllValues();
+        assertFalse(savedResults.isEmpty(), "Expected some detail results to be saved");
+        savedResults.forEach(dr -> {
+            assertEquals(0, dr.getTotReq(), "Total requests should be 0 when no stations");
+            assertEquals(0, dr.getReqKO(), "KO requests should be 0 when no stations");
+        });
     }
 
     @Test

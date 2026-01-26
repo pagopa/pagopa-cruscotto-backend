@@ -16,7 +16,7 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -43,6 +43,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class PagoPaTaxonomyAggregatePositionServiceImpl implements PagoPaTaxonomyAggregatePositionService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PagoPaTaxonomyAggregatePositionServiceImpl.class);
+    private static final String ID = "id";
+    private static final String CF_PARTNER = "cfPartner";
+    private static final String STATION = "station";
+    private static final String START_DATE = "startDate";
+    private static final String END_DATE = "endDate";
+    private static final String TRANSFER_CATEGORY = "transferCategory";
+    private static final String TOTAL = "total";
+    private static final String FROM_HOUR = "fromHour";
+    private static final String END_HOUR = "endHour";
 
     private final QueryBuilder queryBuilder;
     private final TaxonomyService taxonomyService;
@@ -68,23 +77,23 @@ public class PagoPaTaxonomyAggregatePositionServiceImpl implements PagoPaTaxonom
             .select(
                 Projections.fields(
                     PagoPaTaxonomyAggregatePositionDTO.class,
-                    qPagoPaTaxonomyAggregatePosition.id.as("id"),
-                    qPagoPaTaxonomyAggregatePosition.cfPartner.as("cfPartner"),
-                    qPagoPaTaxonomyAggregatePosition.station.as("station"),
-                    qPagoPaTaxonomyAggregatePosition.transferCategory.as("transferCategory"),
-                    qPagoPaTaxonomyAggregatePosition.startDate.as("startDate"),
-                    qPagoPaTaxonomyAggregatePosition.endDate.as("endDate"),
-                    qPagoPaTaxonomyAggregatePosition.total.as("total")
+                    qPagoPaTaxonomyAggregatePosition.id.as(ID),
+                    qPagoPaTaxonomyAggregatePosition.cfPartner.as(CF_PARTNER),
+                    qPagoPaTaxonomyAggregatePosition.station.as(STATION),
+                    qPagoPaTaxonomyAggregatePosition.transferCategory.as(TRANSFER_CATEGORY),
+                    qPagoPaTaxonomyAggregatePosition.startDate.as(START_DATE),
+                    qPagoPaTaxonomyAggregatePosition.endDate.as(END_DATE),
+                    qPagoPaTaxonomyAggregatePosition.total.as(TOTAL)
                 )
             )
             .from(qPagoPaTaxonomyAggregatePosition)
             .where(
                 qPagoPaTaxonomyAggregatePosition.cfPartner
                     .eq(fiscalCodePartner)
-                    .and(qPagoPaTaxonomyAggregatePosition.startDate.goe(startDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
-                    .and(qPagoPaTaxonomyAggregatePosition.startDate.loe(endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
+                    .and(qPagoPaTaxonomyAggregatePosition.startDate.goe(startDateTime.atZone(ZoneId.systemDefault()).toInstant()))
+                    .and(qPagoPaTaxonomyAggregatePosition.startDate.loe(endDateTime.atZone(ZoneId.systemDefault()).toInstant()))
             )
-            .orderBy(new OrderSpecifier<>(Order.ASC, Expressions.stringPath("startDate")))
+            .orderBy(new OrderSpecifier<>(Order.ASC, Expressions.stringPath(START_DATE)))
             .fetch();
     }
 
@@ -140,13 +149,13 @@ public class PagoPaTaxonomyAggregatePositionServiceImpl implements PagoPaTaxonom
     private com.querydsl.core.types.Expression<PagoPaTaxonomyAggregatePositionDTO> createPagoPaTaxonomyAggregatePositionProjection() {
         return Projections.fields(
             PagoPaTaxonomyAggregatePositionDTO.class,
-            QPagoPaTaxonomyAggregatePosition.pagoPaTaxonomyAggregatePosition.id.as("id"),
-            QPagoPaTaxonomyAggregatePosition.pagoPaTaxonomyAggregatePosition.cfPartner.as("cfPartner"),
-            QPagoPaTaxonomyAggregatePosition.pagoPaTaxonomyAggregatePosition.station.as("station"),
-            QPagoPaTaxonomyAggregatePosition.pagoPaTaxonomyAggregatePosition.transferCategory.as("transferCategory"),
-            QPagoPaTaxonomyAggregatePosition.pagoPaTaxonomyAggregatePosition.startDate.as("startDate"),
-            QPagoPaTaxonomyAggregatePosition.pagoPaTaxonomyAggregatePosition.endDate.as("endDate"),
-            QPagoPaTaxonomyAggregatePosition.pagoPaTaxonomyAggregatePosition.total.as("total"));
+            QPagoPaTaxonomyAggregatePosition.pagoPaTaxonomyAggregatePosition.id.as(ID),
+            QPagoPaTaxonomyAggregatePosition.pagoPaTaxonomyAggregatePosition.cfPartner.as(CF_PARTNER),
+            QPagoPaTaxonomyAggregatePosition.pagoPaTaxonomyAggregatePosition.station.as(STATION),
+            QPagoPaTaxonomyAggregatePosition.pagoPaTaxonomyAggregatePosition.transferCategory.as(TRANSFER_CATEGORY),
+            QPagoPaTaxonomyAggregatePosition.pagoPaTaxonomyAggregatePosition.startDate.as(START_DATE),
+            QPagoPaTaxonomyAggregatePosition.pagoPaTaxonomyAggregatePosition.endDate.as(END_DATE),
+            QPagoPaTaxonomyAggregatePosition.pagoPaTaxonomyAggregatePosition.total.as(TOTAL));
     }
 
     @Override
@@ -160,7 +169,7 @@ public class PagoPaTaxonomyAggregatePositionServiceImpl implements PagoPaTaxonom
             return List.of();
         }
 
-        QPagoPaTaxonomyAggregatePosition qPagoPaTaxonomyAggregatePosition = 
+        QPagoPaTaxonomyAggregatePosition qPagoPaTaxonomyAggregatePosition =
             QPagoPaTaxonomyAggregatePosition.pagoPaTaxonomyAggregatePosition;
 
         LocalDateTime startDateTime = day.atStartOfDay();
@@ -173,17 +182,17 @@ public class PagoPaTaxonomyAggregatePositionServiceImpl implements PagoPaTaxonom
             .select(
                 Projections.fields(
                     PagoPaTaxonomyIncorrectDTO.class,
-                    qPagoPaTaxonomyAggregatePosition.startDate.min().as("fromHour"),
-                    qPagoPaTaxonomyAggregatePosition.endDate.max().as("endHour"),
-                    qPagoPaTaxonomyAggregatePosition.transferCategory.as("transferCategory"),
-                    qPagoPaTaxonomyAggregatePosition.total.sum().as("total")
+                    qPagoPaTaxonomyAggregatePosition.startDate.min().as(FROM_HOUR),
+                    qPagoPaTaxonomyAggregatePosition.endDate.max().as(END_HOUR),
+                    qPagoPaTaxonomyAggregatePosition.transferCategory.as(TRANSFER_CATEGORY),
+                    qPagoPaTaxonomyAggregatePosition.total.sum().as(TOTAL)
                 )
             )
             .from(qPagoPaTaxonomyAggregatePosition)
             .where(
                 qPagoPaTaxonomyAggregatePosition.cfPartner.eq(fiscalCodePartner)
-                .and(qPagoPaTaxonomyAggregatePosition.startDate.goe(startDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
-                .and(qPagoPaTaxonomyAggregatePosition.startDate.loe(endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()))
+                .and(qPagoPaTaxonomyAggregatePosition.startDate.goe(startDateTime.atZone(ZoneId.systemDefault()).toInstant()))
+                .and(qPagoPaTaxonomyAggregatePosition.startDate.loe(endDateTime.atZone(ZoneId.systemDefault()).toInstant()))
             )
             .groupBy(qPagoPaTaxonomyAggregatePosition.transferCategory)
             .orderBy(qPagoPaTaxonomyAggregatePosition.transferCategory.asc())

@@ -38,7 +38,7 @@ public class CookieHelper {
 
     public static Cookie generateCookie(String name, String value, Duration maxAge) {
         Cookie cookie = new Cookie(name, value);
-        if (!"localhost".equals(COOKIE_DOMAIN)) {
+        if (!COOKIE_DOMAIN.equals(COOKIE_DOMAIN)) {
             cookie.setDomain(COOKIE_DOMAIN);
         }
         cookie.setHttpOnly(HTTP_ONLY);

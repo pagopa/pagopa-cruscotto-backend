@@ -87,6 +87,8 @@ public class ApplicationProperties {
         private LoadStandInDataJob loadStandInDataJob = new LoadStandInDataJob();
 
         private ClearLogJob clearLogJob = new ClearLogJob();
+
+        private ReportGenerationJob reportGenerationJob = new ReportGenerationJob();
     }
 
     @Getter
@@ -314,6 +316,15 @@ public class ApplicationProperties {
         private Integer delayBetweenChunkStartsMs = 1000; // Default: 1 secondo di delay tra l'avvio di ogni chunk (per evitare rate limiting)
 
         private Integer pollingIntervalMs = 2000; // Default: 2 seconds (2000ms) polling interval to check job status
+    }
+
+    @Setter
+    @Getter
+    public static class ReportGenerationJob {
+
+        private boolean enabled = true;
+
+        private String cron = "0 */10 * * * ?"; // Every 10 minutes
     }
 
     @Setter

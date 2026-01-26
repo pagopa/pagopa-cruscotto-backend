@@ -157,15 +157,15 @@ public class InstanceModuleServiceImpl implements InstanceModuleService {
                     Projections.fields(
                         InstanceModuleDTO.class,
                         QInstanceModule.instanceModule.id.as("id"),
-                        QInstanceModule.instanceModule.moduleCode.as("moduleCode"),
-                        QInstanceModule.instanceModule.analysisType.as("analysisType"),
-                        QInstanceModule.instanceModule.allowManualOutcome.as("allowManualOutcome"),
-                        QInstanceModule.instanceModule.automaticOutcomeDate.as("automaticOutcomeDate"),
-                        QInstanceModule.instanceModule.automaticOutcome.as("automaticOutcome"),
-                        QInstanceModule.instanceModule.manualOutcome.as("manualOutcome"),
-                        QInstanceModule.instanceModule.manualOutcomeDate.as("manualOutcomeDate"),
-                        QInstanceModule.instanceModule.status.as("status"),
-                        QInstanceModule.instanceModule.manualOutcomeUser.id.as("assignedUserId"),
+                        QInstanceModule.instanceModule.moduleCode.as(MODULE_CODE_FIELD),
+                        QInstanceModule.instanceModule.analysisType.as(ANALYSIS_TYPE_FILED),
+                        QInstanceModule.instanceModule.allowManualOutcome.as(ALLOW_MANUAL_OUTCOME_FIELD),
+                        QInstanceModule.instanceModule.automaticOutcomeDate.as(AUTOMATIC_OUTCOME_DATE_FIELD),
+                        QInstanceModule.instanceModule.automaticOutcome.as(AUTOMATIC_OUTCOME_FIELD),
+                        QInstanceModule.instanceModule.manualOutcome.as(MANUAL_OUTCOME_FIELD),
+                        QInstanceModule.instanceModule.manualOutcomeDate.as(MANUAL_OUTCOME_DATE_FIELD),
+                        QInstanceModule.instanceModule.status.as(STATUS_FIELD),
+                        QInstanceModule.instanceModule.manualOutcomeUser.id.as(ASSIGNED_USER_ID_FIELD),
                         QInstanceModule.instanceModule.manualOutcomeUser.firstName.as("assignedUserFirstName"),
                         QInstanceModule.instanceModule.manualOutcomeUser.lastName.as("assignedUserLastName")
                     )
@@ -204,10 +204,10 @@ public class InstanceModuleServiceImpl implements InstanceModuleService {
         		instanceModule.setStatus(status);
                 instanceModule.setAllowManualOutcome(allowManualOutcome);
                 instanceModule.setLastModifiedDate(Instant.now());
-                instanceModuleRepository.save(instanceModule);	
+                instanceModuleRepository.save(instanceModule);
         	}
-            
-		
+
+
 	}*/
 
 	/**
@@ -216,7 +216,7 @@ public class InstanceModuleServiceImpl implements InstanceModuleService {
 	 * Business rules:
 	 * - status and allowManualOutcome can only be updated when instance is in BOZZA status
 	 * - manualOutcome can only be updated when allowManualOutcome is true AND analysisType is AUTOMATICA
-	 * 
+	 *
 	 * @param instanceModuleDTO the DTO containing the fields to update
 	 * @param currentUser the user performing the update (used for manualOutcomeUser assignment)
 	 * @return the updated InstanceModuleDTO reflecting the current state
@@ -229,14 +229,14 @@ public class InstanceModuleServiceImpl implements InstanceModuleService {
 		InstanceModule instanceModule = instanceModuleRepository
                 .findById(instanceModuleDTO.getId())
                 .orElseThrow(() -> new IllegalArgumentException("InstanceModule not found"));
-		
+
 		// Check if the parent instance is in draft status
 		boolean isInstanceInDraft = InstanceStatus.BOZZA == instanceModule.getInstance().getStatus();
 		boolean hasChanges = false;
-		
+
 		// Store original allowManualOutcome value for manualOutcome validation
 		boolean originalAllowManualOutcome = instanceModule.isAllowManualOutcome();
-		
+
 		// Update status if provided and instance is in draft
 		if (instanceModuleDTO.getStatus() != null && instanceModule.getStatus() != instanceModuleDTO.getStatus()) {
 			if (!isInstanceInDraft) {
@@ -245,7 +245,7 @@ public class InstanceModuleServiceImpl implements InstanceModuleService {
 			instanceModule.setStatus(instanceModuleDTO.getStatus());
 			hasChanges = true;
 		}
-		
+
 		// Update allowManualOutcome if provided and instance is in draft
 		if (instanceModuleDTO.getAllowManualOutcome() != null && instanceModule.isAllowManualOutcome() != instanceModuleDTO.getAllowManualOutcome()) {
 			if (!isInstanceInDraft) {
@@ -254,7 +254,7 @@ public class InstanceModuleServiceImpl implements InstanceModuleService {
 			instanceModule.setAllowManualOutcome(instanceModuleDTO.getAllowManualOutcome());
 			hasChanges = true;
 		}
-		
+
 		// Update manualOutcome if provided and conditions are met
 		if (instanceModuleDTO.getManualOutcome() != null && instanceModule.getManualOutcome() != instanceModuleDTO.getManualOutcome()) {
 			if (!originalAllowManualOutcome) {
@@ -270,13 +270,13 @@ public class InstanceModuleServiceImpl implements InstanceModuleService {
 			instanceModule.setManualOutcomeUser(currentUser);
 			hasChanges = true;
 		}
-		
+
 		// Save only if there were changes
 		if (hasChanges) {
 			instanceModule.setLastModifiedDate(Instant.now());
 			instanceModuleRepository.save(instanceModule);
 		}
-		
+
 		// Build and return the updated DTO without re-querying the database
 		InstanceModuleDTO result = new InstanceModuleDTO();
 		result.setId(instanceModule.getId());
@@ -296,7 +296,7 @@ public class InstanceModuleServiceImpl implements InstanceModuleService {
 			result.setAssignedUserFirstName(instanceModule.getManualOutcomeUser().getFirstName());
 			result.setAssignedUserLastName(instanceModule.getManualOutcomeUser().getLastName());
 		}
-		
+
 		return result;
 	}
 }

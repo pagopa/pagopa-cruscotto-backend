@@ -128,4 +128,19 @@ public interface KpiC2DetailResultRepository extends JpaRepository<KpiC2DetailRe
      */
     @Query("SELECT COUNT(kdr) > 0 FROM KpiC2DetailResult kdr WHERE kdr.kpiC2Result.id = :resultId AND kdr.outcome = 'KO'")
     boolean existsKoOutcomeByResultId(@Param("resultId") Long resultId);
+
+    @Query("""
+        SELECT d
+        FROM KpiC2DetailResult d
+        WHERE d.instanceId = :instanceId
+          AND d.analysisDate = (
+              SELECT MAX(dd.analysisDate)
+              FROM KpiC2DetailResult dd
+              WHERE dd.instanceId = :instanceId
+          )
+        ORDER BY d.instanceModuleId ASC
+    """)
+    List<KpiC2DetailResult> findLatestByInstanceId(
+        @Param("instanceId") Long instanceId
+    );
 }

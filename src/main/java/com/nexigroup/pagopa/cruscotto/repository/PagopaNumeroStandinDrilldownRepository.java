@@ -14,7 +14,7 @@ import org.springframework.stereotype.Repository;
  * Spring Data repository for the PagopaNumeroStandinDrilldown entity.
  */
 @Repository
-public interface PagopaNumeroStandinDrilldownRepository 
+public interface PagopaNumeroStandinDrilldownRepository
     extends JpaRepository<PagopaNumeroStandinDrilldown, Long>, JpaSpecificationExecutor<PagopaNumeroStandinDrilldown> {
 
     /**
@@ -49,7 +49,7 @@ public interface PagopaNumeroStandinDrilldownRepository
     /**
      * Find all drilldown records for a specific instance and station on analysis date
      * @param instanceId the instance ID
-     * @param stationId the station ID  
+     * @param stationId the station ID
      * @param analysisDate the analysis date (when the analysis was performed)
      * @return list of drilldown records ordered by data ora evento
      */
@@ -59,8 +59,8 @@ public interface PagopaNumeroStandinDrilldownRepository
            "AND d.analysisDate = :analysisDate " +
            "ORDER BY d.dataOraEvento ASC")
     List<PagopaNumeroStandinDrilldown> findByInstanceIdAndStationIdAndAnalysisDate(
-        @Param("instanceId") Long instanceId, 
-        @Param("stationId") Long stationId, 
+        @Param("instanceId") Long instanceId,
+        @Param("stationId") Long stationId,
         @Param("analysisDate") LocalDate analysisDate);
 
     /**
@@ -72,8 +72,14 @@ public interface PagopaNumeroStandinDrilldownRepository
 
     /**
      * Count total records for a specific analytic data ID
-     * @param analyticDataId the analytic data ID  
+     * @param analyticDataId the analytic data ID
      * @return count of records
      */
     long countByKpiB3AnalyticDataId(Long analyticDataId);
+
+    @Query("SELECT d FROM PagopaNumeroStandinDrilldown d " +
+        "WHERE d.instance.id = :instanceId " +
+        "AND d.analysisDate = (SELECT MAX(dd.analysisDate) FROM PagopaNumeroStandinDrilldown dd WHERE dd.instance.id = :instanceId)")
+    List<PagopaNumeroStandinDrilldown> findLatestByInstanceId(@Param("instanceId") Long instanceId);
+
 }

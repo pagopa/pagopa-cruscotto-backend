@@ -189,4 +189,85 @@ class KpiB9AnalyticDataServiceImplTest {
         assertThat(dto.getResKoReal()).isEqualTo(1);
         assertThat(dto.getResKoValid()).isEqualTo(1);
     }
+
+    @Test
+    void saveAll_shouldThrowException_whenInstanceModuleMissing() {
+        KpiB9AnalyticDataDTO dto = new KpiB9AnalyticDataDTO();
+        dto.setInstanceId(1L);
+        dto.setInstanceModuleId(2L);
+
+        Instance instance = new Instance();
+        instance.setId(1L);
+
+        when(instanceRepository.findById(1L)).thenReturn(Optional.of(instance));
+        when(instanceModuleRepository.findById(2L)).thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class, () -> service.saveAll(List.of(dto)));
+    }
+
+    @Test
+    void saveAll_shouldThrowException_whenStationMissing() {
+        KpiB9AnalyticDataDTO dto = new KpiB9AnalyticDataDTO();
+        dto.setInstanceId(1L);
+        dto.setInstanceModuleId(2L);
+        dto.setStationId(3L);
+
+        Instance instance = new Instance();
+        instance.setId(1L);
+        InstanceModule module = new InstanceModule();
+        module.setId(2L);
+
+        when(instanceRepository.findById(1L)).thenReturn(Optional.of(instance));
+        when(instanceModuleRepository.findById(2L)).thenReturn(Optional.of(module));
+        when(anagStationRepository.findById(3L)).thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class, () -> service.saveAll(List.of(dto)));
+    }
+
+    @Test
+    void saveAll_shouldThrowException_whenDetailResultMissing() {
+        KpiB9AnalyticDataDTO dto = new KpiB9AnalyticDataDTO();
+        dto.setInstanceId(1L);
+        dto.setInstanceModuleId(2L);
+        dto.setStationId(3L);
+        dto.setKpiB9DetailResultId(4L);
+
+        Instance instance = new Instance();
+        instance.setId(1L);
+        InstanceModule module = new InstanceModule();
+        module.setId(2L);
+        AnagStation station = new AnagStation();
+        station.setId(3L);
+
+        when(instanceRepository.findById(1L)).thenReturn(Optional.of(instance));
+        when(instanceModuleRepository.findById(2L)).thenReturn(Optional.of(module));
+        when(anagStationRepository.findById(3L)).thenReturn(Optional.of(station));
+        when(kpiB9DetailResultRepository.findById(4L)).thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class, () -> service.saveAll(List.of(dto)));
+    }
+
+    @Test
+    void testGetkpiB9AnalyticDataDTO_withNullFields() throws Exception {
+        KpiB9AnalyticData entity = new KpiB9AnalyticData();
+        entity.setId(100L);
+        entity.setAnalysisDate(LocalDate.of(2025, 9, 18));
+        entity.setEvaluationDate(LocalDate.of(2025, 9, 19));
+        entity.setTotRes(10L);
+        entity.setResOk(8L);
+        entity.setResKoReal(1L);
+        entity.setResKoValid(1L);
+
+        Method method = KpiB9AnalyticDataServiceImpl.class
+            .getDeclaredMethod("getkpiB9AnalyticDataDTO", KpiB9AnalyticData.class);
+        method.setAccessible(true);
+
+        KpiB9AnalyticDataDTO dto = (KpiB9AnalyticDataDTO) method.invoke(null, entity);
+
+        assertThat(dto.getInstanceId()).isNull();
+        assertThat(dto.getInstanceModuleId()).isNull();
+        assertThat(dto.getStationId()).isNull();
+        assertThat(dto.getKpiB9DetailResultId()).isNull();
+        assertThat(dto.getTotRes()).isEqualTo(10L);
+    }
 }

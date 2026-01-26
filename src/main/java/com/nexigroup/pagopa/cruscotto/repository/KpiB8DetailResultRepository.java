@@ -1,5 +1,6 @@
 package com.nexigroup.pagopa.cruscotto.repository;
 
+import com.nexigroup.pagopa.cruscotto.domain.KpiA2DetailResult;
 import com.nexigroup.pagopa.cruscotto.domain.KpiB8DetailResult;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -128,4 +129,8 @@ public interface KpiB8DetailResultRepository extends JpaRepository<KpiB8DetailRe
      */
     @Query("SELECT COUNT(kdr) > 0 FROM KpiB8DetailResult kdr WHERE kdr.kpiB8Result.id = :resultId AND kdr.outcome = 'KO'")
     boolean existsKoOutcomeByResultId(@Param("resultId") Long resultId);
+
+    List<KpiB8DetailResult> findLatestByInstanceId(
+        @Param("instanceId") Long instanceId
+    );
 }

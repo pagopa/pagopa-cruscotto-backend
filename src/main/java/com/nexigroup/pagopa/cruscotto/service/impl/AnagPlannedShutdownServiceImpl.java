@@ -55,6 +55,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownService {
 
     private static final String ANAG_PLANNED_SHUTODOWN = "shutdown";
+    private static final String ANAG_PLANNED_TYPE = "typePlanned";
+    private static final String ANAG_PLANNED_SHUTDOWN_START_DATE = "shutdownStartDate";
+    private static final String ANAG_PLANNED_SHUTDOWN_END_DATE = "shutdownEndDate";
+    private static final String ANAG_PLANNED_EXTERNAL_ID = "externalId";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AnagPlannedShutdownServiceImpl.class);
 
@@ -129,13 +133,13 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
             builder.and(
                 QAnagPlannedShutdown.anagPlannedShutdown.shutdownStartDate
                     .between(
-                        startDateTime.atZone(ZoneOffset.systemDefault()).toInstant(),
-                        endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()
+                        startDateTime.atZone(ZoneId.systemDefault()).toInstant(),
+                        endDateTime.atZone(ZoneId.systemDefault()).toInstant()
                     )
                     .or(
                         QAnagPlannedShutdown.anagPlannedShutdown.shutdownEndDate.between(
-                            startDateTime.atZone(ZoneOffset.systemDefault()).toInstant(),
-                            endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()
+                            startDateTime.atZone(ZoneId.systemDefault()).toInstant(),
+                            endDateTime.atZone(ZoneId.systemDefault()).toInstant()
                         )
                     )
             );
@@ -152,12 +156,12 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
             Projections.fields(
                 AnagPlannedShutdownDTO.class,
                 QAnagPlannedShutdown.anagPlannedShutdown.id.as("id"),
-                QAnagPlannedShutdown.anagPlannedShutdown.typePlanned.as("typePlanned"),
-                QAnagPlannedShutdown.anagPlannedShutdown.shutdownStartDate.as("shutdownStartDate"),
-                QAnagPlannedShutdown.anagPlannedShutdown.shutdownEndDate.as("shutdownEndDate"),
+                QAnagPlannedShutdown.anagPlannedShutdown.typePlanned.as(ANAG_PLANNED_TYPE),
+                QAnagPlannedShutdown.anagPlannedShutdown.shutdownStartDate.as(ANAG_PLANNED_SHUTDOWN_START_DATE),
+                QAnagPlannedShutdown.anagPlannedShutdown.shutdownEndDate.as(ANAG_PLANNED_SHUTDOWN_END_DATE),
                 QAnagPlannedShutdown.anagPlannedShutdown.standInd.as("standIn"),
                 QAnagPlannedShutdown.anagPlannedShutdown.year.as("year"),
-                QAnagPlannedShutdown.anagPlannedShutdown.externalId.as("externalId"),
+                QAnagPlannedShutdown.anagPlannedShutdown.externalId.as(ANAG_PLANNED_EXTERNAL_ID),
                 QAnagPlannedShutdown.anagPlannedShutdown.anagPartner.id.as("partnerId"),
                 QAnagPlannedShutdown.anagPlannedShutdown.anagPartner.fiscalCode.as("partnerFiscalCode"),
                 QAnagPlannedShutdown.anagPlannedShutdown.anagPartner.name.as("partnerName"),
@@ -170,7 +174,7 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
         jpqlSelected.limit(pageable.getPageSize());
 
         pageable
-            .getSortOr(Sort.by(Sort.Direction.ASC, "shutdownStartDate"))
+            .getSortOr(Sort.by(Sort.Direction.ASC, ANAG_PLANNED_SHUTDOWN_START_DATE))
             .forEach(order -> {
                 jpqlSelected.orderBy(
                     new OrderSpecifier<>(
@@ -436,12 +440,12 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
                 Projections.fields(
                     AnagPlannedShutdownDTO.class,
                     anagPlannedShutdown.id.as("id"),
-                    anagPlannedShutdown.typePlanned.as("typePlanned"),
+                    anagPlannedShutdown.typePlanned.as(ANAG_PLANNED_TYPE),
                     anagPlannedShutdown.standInd.as("standInd"),
-                    anagPlannedShutdown.shutdownStartDate.as("shutdownStartDate"),
-                    anagPlannedShutdown.shutdownEndDate.as("shutdownEndDate"),
+                    anagPlannedShutdown.shutdownStartDate.as(ANAG_PLANNED_SHUTDOWN_START_DATE),
+                    anagPlannedShutdown.shutdownEndDate.as(ANAG_PLANNED_SHUTDOWN_END_DATE),
                     anagPlannedShutdown.year.as("year"),
-                    anagPlannedShutdown.externalId.as("externalId")
+                    anagPlannedShutdown.externalId.as(ANAG_PLANNED_EXTERNAL_ID)
                 )
             )
             .from(anagPlannedShutdown)
@@ -453,13 +457,13 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
                     .and(
                         anagPlannedShutdown.shutdownStartDate
                             .between(
-                                startDateTime.atZone(ZoneOffset.systemDefault()).toInstant(),
-                                endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()
+                                startDateTime.atZone(ZoneId.systemDefault()).toInstant(),
+                                endDateTime.atZone(ZoneId.systemDefault()).toInstant()
                             )
                             .or(
                                 anagPlannedShutdown.shutdownEndDate.between(
-                                    startDateTime.atZone(ZoneOffset.systemDefault()).toInstant(),
-                                    endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()
+                                    startDateTime.atZone(ZoneId.systemDefault()).toInstant(),
+                                    endDateTime.atZone(ZoneId.systemDefault()).toInstant()
                                 )
                             )
                     )
@@ -488,12 +492,12 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
                 Projections.fields(
                     AnagPlannedShutdownDTO.class,
                     anagPlannedShutdown.id.as("id"),
-                    anagPlannedShutdown.typePlanned.as("typePlanned"),
+                    anagPlannedShutdown.typePlanned.as(ANAG_PLANNED_TYPE),
                     anagPlannedShutdown.standInd.as("standInd"),
-                    anagPlannedShutdown.shutdownStartDate.as("shutdownStartDate"),
-                    anagPlannedShutdown.shutdownEndDate.as("shutdownEndDate"),
+                    anagPlannedShutdown.shutdownStartDate.as(ANAG_PLANNED_SHUTDOWN_START_DATE),
+                    anagPlannedShutdown.shutdownEndDate.as(ANAG_PLANNED_SHUTDOWN_END_DATE),
                     anagPlannedShutdown.year.as("year"),
-                    anagPlannedShutdown.externalId.as("externalId"),
+                    anagPlannedShutdown.externalId.as(ANAG_PLANNED_EXTERNAL_ID),
                     anagPlannedShutdown.anagStation.name.as("stationName")
                 )
             )
@@ -505,13 +509,13 @@ public class AnagPlannedShutdownServiceImpl implements AnagPlannedShutdownServic
                     .and(
                         anagPlannedShutdown.shutdownStartDate
                             .between(
-                                startDateTime.atZone(ZoneOffset.systemDefault()).toInstant(),
-                                endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()
+                                startDateTime.atZone(ZoneId.systemDefault()).toInstant(),
+                                endDateTime.atZone(ZoneId.systemDefault()).toInstant()
                             )
                             .or(
                                 anagPlannedShutdown.shutdownEndDate.between(
-                                    startDateTime.atZone(ZoneOffset.systemDefault()).toInstant(),
-                                    endDateTime.atZone(ZoneOffset.systemDefault()).toInstant()
+                                    startDateTime.atZone(ZoneId.systemDefault()).toInstant(),
+                                    endDateTime.atZone(ZoneId.systemDefault()).toInstant()
                                 )
                             )
                     )

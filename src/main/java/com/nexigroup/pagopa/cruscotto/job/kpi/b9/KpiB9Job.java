@@ -11,10 +11,7 @@ import com.nexigroup.pagopa.cruscotto.service.*;
 import com.nexigroup.pagopa.cruscotto.service.dto.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.YearMonth;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -162,11 +159,11 @@ public class KpiB9Job extends QuartzJobBean {
                             // Batch collection for optimized drilldown processing
                             final List<PagoPaPaymentReceiptDrilldown> drilldownBatch = new ArrayList<>();
                             final LocalDate analysisDate = LocalDate.now();
-                            
+
                             // Map to aggregate data by month and year: Map<YearMonth, [totRes, totResKo]>
                             Map<YearMonth, long[]> monthlyAggregatedData = new HashMap<>();
                             Map<YearMonth, List<KpiB9AnalyticDataDTO>> monthlyAnalyticData = new HashMap<>();
-                            
+
                             // Aggregate all data from all stations by month
                             stations.forEach(station -> {
                                 LOGGER.debug("Processing station: {}", station);
@@ -217,12 +214,12 @@ public class KpiB9Job extends QuartzJobBean {
                                         long sumResOkDaily = 0;
                                         long sumRealResKoDaily = 0;
                                         long sumValidResKoDaily = 0;
-                                        
+
                                         // Track non-excluded records for drilldown (following KpiA1Job logic)
                                         List<PagoPaPaymentReceiptDTO> validPagoPaPaymentReceiptDTOS = new ArrayList<>();
 
                                         for (PagoPaPaymentReceiptDTO pagoPaPaymentReceiptDTO : pagoPaPaymentReceiptDTOS) {
-                                            
+
                                             boolean exclude = maintenance
                                                 .stream()
                                                 .map(anagPlannedShutdownDTO -> {
@@ -240,7 +237,7 @@ public class KpiB9Job extends QuartzJobBean {
                                                     return excludePlanned;
                                                 })
                                                 .anyMatch(Boolean::booleanValue);
-                                            
+
                                             // Only count ResKo for KPI calculation if not in maintenance period
                                             if (!exclude) {
                                                 validPagoPaPaymentReceiptDTOS.add(pagoPaPaymentReceiptDTO);
@@ -279,7 +276,7 @@ public class KpiB9Job extends QuartzJobBean {
                                                 Instance instanceEntity = instanceModuleService.findById(instanceModuleDTO.getId()).orElseThrow().getInstance();
                                                 InstanceModule instanceModuleEntity = instanceModuleService.findById(instanceModuleDTO.getId()).orElseThrow();
                                                 AnagStation stationEntity = anagStationService.findOneByName(station).orElse(null);
-                                                
+
                                                 if (stationEntity != null) {
                                                     drilldownService.addToBatch(
                                                         drilldownBatch,
@@ -293,7 +290,7 @@ public class KpiB9Job extends QuartzJobBean {
                                                     LOGGER.debug("Added drilldown data to batch for station {} on date {}", station, date);
                                                 }
                                             } catch (Exception e) {
-                                                LOGGER.error("Error adding drilldown data to batch for station {} on date {}: {}", 
+                                                LOGGER.error("Error adding drilldown data to batch for station {} on date {}: {}",
                                                            station, date, e.getMessage());
                                             }
                                         }
@@ -318,7 +315,7 @@ public class KpiB9Job extends QuartzJobBean {
 
                                 LocalDate firstDayOfMonth = yearMonth.atDay(1);
                                 LocalDate lastDayOfMonth = yearMonth.atEndOfMonth();
-                                
+
                                 // Ensure dates are within the analysis period range
                                 if (firstDayOfMonth.isBefore(instanceDTO.getAnalysisPeriodStartDate())) {
                                     firstDayOfMonth = instanceDTO.getAnalysisPeriodStartDate();
@@ -327,7 +324,7 @@ public class KpiB9Job extends QuartzJobBean {
                                     lastDayOfMonth = instanceDTO.getAnalysisPeriodEndDate();
                                 }
 
-                                double percResKoMonth = totResMonth > 0 
+                                double percResKoMonth = totResMonth > 0
                                     ? (double) (totResKoMonth * 100) / totResMonth
                                     : 0.0;
 
@@ -369,7 +366,7 @@ public class KpiB9Job extends QuartzJobBean {
                             }
 
                             // Create aggregated result for the entire period
-                            double percResKoPeriod = totalResPeriod > 0 
+                            double percResKoPeriod = totalResPeriod > 0
                                 ? (double) (totalResKoPeriod * 100) / totalResPeriod
                                 : 0.0;
 
@@ -400,7 +397,7 @@ public class KpiB9Job extends QuartzJobBean {
 
                             LOGGER.info("Final outcome for analysis: {}", kpiB9ResultFinalOutcome.get());
                             kpiB9ResultService.updateKpiB9ResultOutcome(kpiB9ResultRef.get().getId(), kpiB9ResultFinalOutcome.get());
-                            
+
                             // Save all drilldown data in a single batch for optimal performance
                             if (!drilldownBatch.isEmpty()) {
                                 try {
@@ -411,7 +408,7 @@ public class KpiB9Job extends QuartzJobBean {
                                 }
                             }
                         }
-                        
+
                         instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(), kpiB9ResultFinalOutcome.get());
 
                         // Trigger next job in the workflow
@@ -452,10 +449,10 @@ public class KpiB9Job extends QuartzJobBean {
 
     private boolean isInstantInRangeInclusive(Instant instantToCheck, Instant startInstant, Instant endInstant) {
         return (
-            (instantToCheck.atZone(ZoneOffset.systemDefault()).isEqual(startInstant.atZone(ZoneOffset.systemDefault())) ||
-                instantToCheck.atZone(ZoneOffset.systemDefault()).isAfter(startInstant.atZone(ZoneOffset.systemDefault()))) &&
-            (instantToCheck.atZone(ZoneOffset.systemDefault()).isEqual(endInstant.atZone(ZoneOffset.systemDefault())) ||
-                instantToCheck.atZone(ZoneOffset.systemDefault()).isBefore(endInstant.atZone(ZoneOffset.systemDefault())))
+            (instantToCheck.atZone(ZoneId.systemDefault()).isEqual(startInstant.atZone(ZoneId.systemDefault())) ||
+                instantToCheck.atZone(ZoneId.systemDefault()).isAfter(startInstant.atZone(ZoneId.systemDefault()))) &&
+            (instantToCheck.atZone(ZoneId.systemDefault()).isEqual(endInstant.atZone(ZoneId.systemDefault())) ||
+                instantToCheck.atZone(ZoneId.systemDefault()).isBefore(endInstant.atZone(ZoneId.systemDefault())))
         );
     }
 }

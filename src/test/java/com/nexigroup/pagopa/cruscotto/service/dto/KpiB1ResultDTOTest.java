@@ -42,7 +42,7 @@ class KpiB1ResultDTOTest {
         // Test Lombok-generated methods
         assertNotNull(dto.toString());
         assertEquals(dto, dto); // equals self
-        assertNotNull(dto.hashCode());
+        assertNotNull(dto);
     }
 
     @Test

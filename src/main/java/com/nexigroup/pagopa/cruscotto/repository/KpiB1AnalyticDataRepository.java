@@ -14,11 +14,25 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface KpiB1AnalyticDataRepository extends JpaRepository<KpiB1AnalyticData, Long>, JpaSpecificationExecutor<KpiB1AnalyticData> {
-    
+
     @Modifying
     @Query("DELETE KpiB1AnalyticData kpiB1AnalyticData WHERE kpiB1AnalyticData.instanceModule.id = :instanceModuleId")
     int deleteAllByInstanceModuleId(@Param("instanceModuleId") Long instanceModuleId);
 
     @Query("SELECT b FROM KpiB1AnalyticData b WHERE b.instanceModule.id = :instanceModuleId")
     List<KpiB1AnalyticData> selectByInstanceModuleId(@Param("instanceModuleId") Long instanceModuleId);
+
+    @Query("""
+        SELECT d.id
+        FROM KpiB1AnalyticData d
+        WHERE d.instance.id = :instanceId
+          AND d.analysisDate = (
+                SELECT MAX(dd.analysisDate)
+                FROM KpiB1AnalyticData dd
+                WHERE dd.instance.id = :instanceId
+          )
+    """)
+    List<Long> findLatestAnalyticDataIdsByInstanceId(
+        @Param("instanceId") Long instanceId
+    );
 }

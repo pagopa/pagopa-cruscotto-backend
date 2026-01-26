@@ -55,13 +55,14 @@ public class JobServiceImpl implements JobService {
     private static final String END_FIRED_TIME_FIELD = "endFiredTime";
     private static final String STATE_FIELD_FIELD = "state";
     private static final String MESSAGE_EXCEPTION_FIELD = "messageException";
+    private static final String DEFAULT_GROUP_KEY = "DEFAULT";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JobServiceImpl.class);
 
     private final SchedulerFactoryBean schedulerFactoryBean;
 
     private final QueryBuilder queryBuilder;
-    
+
     private final ApplicationContext applicationContext;
 
     public JobServiceImpl(SchedulerFactoryBean schedulerFactoryBean, QueryBuilder queryBuilder, ApplicationContext applicationContext) {
@@ -97,7 +98,7 @@ public class JobServiceImpl implements JobService {
     public boolean pauseJob(String jobName) {
         LOGGER.debug("Request received for pausing job.");
 
-        String groupKey = "DEFAULT";
+        String groupKey = DEFAULT_GROUP_KEY;
         JobKey jobkey = new JobKey(jobName, groupKey);
         LOGGER.debug("Parameters received for pausing job : jobKey :{}, groupKey :{}", jobName, groupKey);
 
@@ -118,7 +119,7 @@ public class JobServiceImpl implements JobService {
     public boolean resumeJob(String jobName) {
         LOGGER.debug("Request received for resuming job.");
 
-        String groupKey = "DEFAULT";
+        String groupKey = DEFAULT_GROUP_KEY;
 
         JobKey jobKey = new JobKey(jobName, groupKey);
         LOGGER.debug("Parameters received for resuming job : jobKey :{}", jobName);
@@ -139,7 +140,7 @@ public class JobServiceImpl implements JobService {
     public boolean startJobNow(String jobName) {
         LOGGER.debug("Request received for starting job now.");
 
-        String groupKey = "DEFAULT";
+        String groupKey = DEFAULT_GROUP_KEY;
         JobKey jobKey = new JobKey(jobName, groupKey);
         LOGGER.debug("Parameters received for starting job now : jobKey :{}", jobName);
         try {
@@ -159,7 +160,7 @@ public class JobServiceImpl implements JobService {
     public boolean startJobNow(String jobName, Map<String, Object> jobData) {
         LOGGER.debug("Request received for starting job now with parameters.");
 
-        String groupKey = "DEFAULT";
+        String groupKey = DEFAULT_GROUP_KEY;
         JobKey jobKey = new JobKey(jobName, groupKey);
         LOGGER.debug("Parameters received for starting job now : jobKey :{}, data: {}", jobName, jobData);
         try {
@@ -180,7 +181,7 @@ public class JobServiceImpl implements JobService {
     public boolean checkJobRunning(String jobName) {
         LOGGER.debug("Request received to check if job is running");
 
-        String groupKey = "DEFAULT";
+        String groupKey = "DEFAULT_GROUP_KEY";
 
         LOGGER.debug("Parameters received for checking job is running now : jobKey :{}", jobName);
         try {
@@ -208,7 +209,7 @@ public class JobServiceImpl implements JobService {
     public boolean stopJob(String jobName) {
         LOGGER.debug("JobServiceImpl.stopJob()");
         try {
-            String groupKey = "DEFAULT";
+            String groupKey = DEFAULT_GROUP_KEY;
 
             Scheduler scheduler = schedulerFactoryBean.getScheduler();
             JobKey jobKey = new JobKey(jobName, groupKey);
@@ -226,7 +227,7 @@ public class JobServiceImpl implements JobService {
     @Override
     public boolean checkJobWithName(String jobName) {
         try {
-            String groupKey = "DEFAULT";
+            String groupKey = DEFAULT_GROUP_KEY;
             JobKey jobKey = new JobKey(jobName, groupKey);
             Scheduler scheduler = schedulerFactoryBean.getScheduler();
             if (scheduler.checkExists(jobKey)) {
@@ -303,7 +304,7 @@ public class JobServiceImpl implements JobService {
         LOGGER.debug("JobServiceImpl.getJobState()");
 
         try {
-            String groupKey = "DEFAULT";
+            String groupKey = DEFAULT_GROUP_KEY;
             JobKey jobKey = new JobKey(jobName, groupKey);
 
             Scheduler scheduler = schedulerFactoryBean.getScheduler();
@@ -371,7 +372,7 @@ public class JobServiceImpl implements JobService {
         jpql.limit(pageable.getPageSize());
 
         pageable
-            .getSortOr(Sort.by(Sort.Direction.DESC, "scheduledTime"))
+            .getSortOr(Sort.by(Sort.Direction.DESC, SCHEDULED_TIME_FIELD))
             .forEach(order -> {
                 jpql.orderBy(
                     new OrderSpecifier<>(

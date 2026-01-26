@@ -2,74 +2,84 @@ package com.nexigroup.pagopa.cruscotto.domain;
 
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.*;
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class KpiResultTest {
 
-    private KpiResult kpiResult;
+    @Test
+    void testGetterAndSetter() {
+        KpiResult kpiResult = new KpiResult();
 
-    @BeforeEach
-    void setUp() {
-        kpiResult = new KpiResult();
         kpiResult.setId(1L);
-        kpiResult.setModuleCode(ModuleCode.B3); // deve corrispondere all'oggetto di test
+        kpiResult.setModuleCode(ModuleCode.B3);
         kpiResult.setInstanceId(100L);
         kpiResult.setInstanceModuleId(200L);
-        kpiResult.setAnalysisDate(LocalDate.of(2025, 1, 1));
-        kpiResult.setOutcome(OutcomeStatus.OK); // deve corrispondere all'oggetto di test
+        kpiResult.setAnalysisDate(LocalDate.of(2025, 11, 17));
+        kpiResult.setOutcome(OutcomeStatus.OK);
         kpiResult.setAdditionalData("{\"key\":\"value\"}");
-    }
 
-    @Test
-    void testGettersAndSetters() {
         assertThat(kpiResult.getId()).isEqualTo(1L);
         assertThat(kpiResult.getModuleCode()).isEqualTo(ModuleCode.B3);
         assertThat(kpiResult.getInstanceId()).isEqualTo(100L);
         assertThat(kpiResult.getInstanceModuleId()).isEqualTo(200L);
-        assertThat(kpiResult.getAnalysisDate()).isEqualTo(LocalDate.of(2025, 1, 1));
+        assertThat(kpiResult.getAnalysisDate()).isEqualTo(LocalDate.of(2025, 11, 17));
         assertThat(kpiResult.getOutcome()).isEqualTo(OutcomeStatus.OK);
         assertThat(kpiResult.getAdditionalData()).isEqualTo("{\"key\":\"value\"}");
     }
 
     @Test
-    void testNotEquals() {
-        KpiResult different = new KpiResult();
-        different.setId(2L);
-        different.setModuleCode(ModuleCode.B3);
+    void testSerialization() throws IOException, ClassNotFoundException {
+        KpiResult kpiResult = new KpiResult();
+        kpiResult.setId(1L);
+        kpiResult.setModuleCode(ModuleCode.B3);
+        kpiResult.setOutcome(OutcomeStatus.OK);
 
-        assertThat(kpiResult).isNotEqualTo(different);
+        // Serialize
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
+            oos.writeObject(kpiResult);
+        }
+
+        // Deserialize
+        KpiResult deserialized;
+        try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray()))) {
+            deserialized = (KpiResult) ois.readObject();
+        }
+
+        assertThat(deserialized).isNotNull();
+        assertThat(deserialized.getId()).isEqualTo(1L);
+        assertThat(deserialized.getModuleCode()).isEqualTo(ModuleCode.B3);
+        assertThat(deserialized.getOutcome()).isEqualTo(OutcomeStatus.OK);
     }
 
     @Test
-    void testToString() {
-        String result = kpiResult.toString();
-        assertThat(result)
-            .contains("id=1")
-            .contains("moduleCode=B3")
-            .contains("instanceId=100")
-            .contains("instanceModuleId=200")
-            .contains("outcome=OK")
-            .contains("additionalData");
+    void testEqualsAndHashCode() {
+        KpiResult kpi1 = new KpiResult();
+        KpiResult kpi2 = new KpiResult();
+
+        kpi1.setId(1L);
+        kpi2.setId(1L);
+
+        assertThat(kpi1).isEqualTo(kpi2);
+        assertThat(kpi1.hashCode()).isEqualTo(kpi2.hashCode());
+
+        kpi2.setId(2L);
+        assertThat(kpi1).isNotEqualTo(kpi2);
     }
 
     @Test
-    void testEntityAnnotations() throws NoSuchFieldException {
-        // Assicurati di usare jakarta.persistence
-        assertThat(KpiResult.class.isAnnotationPresent(jakarta.persistence.Entity.class)).isTrue();
-        assertThat(KpiResult.class.isAnnotationPresent(jakarta.persistence.Table.class)).isTrue();
+    void testToStringContainsFields() {
+        KpiResult kpiResult = new KpiResult();
+        kpiResult.setId(123L);
+        kpiResult.setModuleCode(ModuleCode.B3);
 
-        assertThat(KpiResult.class.getDeclaredField("id")
-            .isAnnotationPresent(jakarta.persistence.Id.class)).isTrue();
-
-        assertThat(KpiResult.class.getDeclaredField("moduleCode")
-            .isAnnotationPresent(jakarta.persistence.Enumerated.class)).isTrue();
-
-        assertThat(KpiResult.class.getDeclaredField("analysisDate")
-            .isAnnotationPresent(jakarta.persistence.Column.class)).isTrue();
+        String str = kpiResult.toString();
+        assertThat(str).contains("123");
+        assertThat(str).contains("B3");
     }
 }

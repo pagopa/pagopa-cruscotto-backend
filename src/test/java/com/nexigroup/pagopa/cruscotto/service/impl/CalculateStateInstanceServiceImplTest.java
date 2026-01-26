@@ -4,6 +4,7 @@ import com.nexigroup.pagopa.cruscotto.domain.AuthUser;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisOutcome;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleStatus;
+import com.nexigroup.pagopa.cruscotto.job.config.JobConstant;
 import com.nexigroup.pagopa.cruscotto.service.AnagPartnerService;
 import com.nexigroup.pagopa.cruscotto.service.InstanceModuleService;
 import com.nexigroup.pagopa.cruscotto.service.InstanceService;
@@ -166,5 +167,69 @@ class CalculateStateInstanceServiceImplTest {
         calculateStateInstanceService.calculateStateInstance(instanceDTO, "testUser");
 
         verify(anagPartnerService).changePartnerQualified(100L, Boolean.TRUE);
+    }
+
+    @Test
+    @DisplayName("calculateStateInstance with single parameter triggers update when no modules")
+    void testCalculateStateInstance_SingleParameter() {
+        InstanceDTO instanceDTO = new InstanceDTO();
+        instanceDTO.setId(1L);
+        instanceDTO.setPartnerId(100L);
+
+        when(instanceModuleService.findAllByInstanceId(1L)).thenReturn(List.of());
+
+        calculateStateInstanceService.calculateStateInstance(instanceDTO);
+
+        // Poiché non ci sono moduli, viene comunque aggiornato con OK
+        verify(instanceService).updateExecuteStateAndLastAnalysis(
+            eq(1L), any(Instant.class), eq(AnalysisOutcome.OK), eq(JobConstant.CALCULATE_STATE_INSTANCE_JOB)
+        );
+        verify(anagPartnerService).updateLastAnalysisDate(eq(100L), any(Instant.class));
+    }
+
+    @Test
+    @DisplayName("calculateStateInstance with empty module list triggers update with OK")
+    void testCalculateStateInstance_NoModules() {
+        InstanceDTO instanceDTO = new InstanceDTO();
+        instanceDTO.setId(1L);
+        instanceDTO.setPartnerId(100L);
+
+        when(instanceModuleService.findAllByInstanceId(1L)).thenReturn(List.of());
+
+        calculateStateInstanceService.calculateStateInstance(instanceDTO, "testUser");
+
+        // Poiché non ci sono moduli, la logica esegue comunque l'update con OK
+        verify(instanceService).updateExecuteStateAndLastAnalysis(
+            eq(1L), any(Instant.class), eq(AnalysisOutcome.OK), eq("testUser")
+        );
+        verify(anagPartnerService).updateLastAnalysisDate(eq(100L), any(Instant.class));
+    }
+
+    @Test
+    @DisplayName("calculateStateInstance automatic OK with manual KO increments KO")
+    void testCalculateStateInstance_AutomaticOKManualKO() {
+        InstanceDTO instanceDTO = new InstanceDTO();
+        instanceDTO.setId(1L);
+        instanceDTO.setPartnerId(100L);
+
+        // Modulo automatico con outcome OK ma manual KO
+        InstanceModuleDTO moduleDTO = new InstanceModuleDTO();
+        moduleDTO.setModuleCode("MOD1");
+        moduleDTO.setStatus(ModuleStatus.ATTIVO);
+        moduleDTO.setAnalysisType(AnalysisType.AUTOMATICA);
+        moduleDTO.setAutomaticOutcome(AnalysisOutcome.OK);
+        moduleDTO.setManualOutcome(AnalysisOutcome.KO);
+
+        when(instanceModuleService.findAllByInstanceId(1L)).thenReturn(List.of(moduleDTO));
+
+        calculateStateInstanceService.calculateStateInstance(instanceDTO, "testUser");
+
+        ArgumentCaptor<AnalysisOutcome> outcomeCaptor = ArgumentCaptor.forClass(AnalysisOutcome.class);
+        verify(instanceService).updateExecuteStateAndLastAnalysis(
+            eq(1L), any(Instant.class), outcomeCaptor.capture(), eq("testUser")
+        );
+
+        // Deve risultare KO a causa del manual outcome
+        assertEquals(AnalysisOutcome.KO, outcomeCaptor.getValue());
     }
 }

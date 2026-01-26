@@ -17,12 +17,13 @@ import java.io.Serializable;
 @Table(name = "kpi_analytic_data")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class KpiAnalyticData extends AbstractAuditingEntity<Long> implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @Id
+    @EqualsAndHashCode.Include
     @Column(name = "co_id")
     @SequenceGenerator(name = "SQCRUSC8_KPIANALYTICDATA", sequenceName = "SQCRUSC8_KPIANALYTICDATA", allocationSize = 1)
     @GeneratedValue(generator = "SQCRUSC8_KPIANALYTICDATA", strategy = GenerationType.SEQUENCE)

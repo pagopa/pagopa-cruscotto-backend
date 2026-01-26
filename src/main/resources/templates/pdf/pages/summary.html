@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div class="page" th:fragment="page">
+
+    <div class="title-block">
+        <h1 th:text="#{pdf.summary.title}">Qualificazione Partner tecnologici pagoPA</h1>
+    </div>
+
+    <table class="info-grid">
+        <tr>
+            <td>
+                <strong th:text="#{pdf.partner}">Partner:</strong>
+                <span th:text="${partner}">Partner</span>
+            </td>
+            <td class="text-right">
+                <strong th:text="#{pdf.outcome}">Esito:</strong>
+                <span class="outcome"
+                      th:text="${esito}"
+                      th:classappend="' ' + ${esitoClass}">
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <strong th:text="#{pdf.period}">Periodo:</strong>
+                <span th:text="${periodo}"></span>
+            </td>
+        </tr>
+    </table>
+
+    <h2 class="kpi-title" th:text="#{pdf.kpi.title}">Requisiti Tecnologici Qualificazione</h2>
+
+    <table class="kpi-table">
+        <tbody>
+        <tr th:each="kpi : ${kpis}">
+            <td class="kpi-code" th:text="${kpi.code}"></td>
+            <td th:text="${kpi.title}"></td>
+            <td class="kpi-esito" th:classappend="${kpi.compliant} ? ' ok' : ' ko'">
+                <span th:if="${kpi.compliant}" th:text="#{pdf.kpi.compliant}">CONFORME</span>
+                <span th:unless="${kpi.compliant}" th:text="#{pdf.kpi.nonCompliant}">NON CONFORME</span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+</div>
+
+</body>
+</html>

@@ -6,7 +6,6 @@ import static org.mockito.Mockito.*;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import com.nexigroup.pagopa.cruscotto.job.cache.CreditorInstitution;
 import com.nexigroup.pagopa.cruscotto.repository.AnagInstitutionRepository;
@@ -62,7 +61,7 @@ class AnagInstitutionServiceImplTest {
         ci.setBusinessName("Test Business");
         ci.setEnabled(true);
 
-        when(repository.findOne(any())).thenReturn(Optional.empty());
+        // removed unnecessary stubbing of repository.findOne(...)
         when(repository.saveAll(any())).thenReturn(Collections.emptyList());
 
         service.saveAll(Collections.singletonList(ci));

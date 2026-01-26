@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
@@ -66,7 +67,7 @@ public class KpiB2Job extends QuartzJobBean {
      List<PagoPaRecordedTimeoutDTO> filteredPeriodRecords,
      LocalDate detailResultEvaluationStartDate,
      LocalDate detailResultEvaluationEndDate) {
-     
+
        return filteredPeriodRecords.stream().map(record -> {
                                         KpiB2AnalyticDrillDownDTO dto = new KpiB2AnalyticDrillDownDTO();
                                         dto.setKpiB2AnalyticDataId(kpiB2AnalyticDataRef.get().getId());
@@ -78,11 +79,11 @@ public class KpiB2Job extends QuartzJobBean {
                                         return dto;
                                     })
                                     .collect(java.util.stream.Collectors.toList());
-    
-    
-    
+
+
+
     }
-    
+
     private List<KpiB2AnalyticDataDTO> aggregateKpiB2AnalyticData(InstanceDTO instanceDTO,
      InstanceModuleDTO instanceModuleDTO,
      double averageTimeLimit,
@@ -111,7 +112,7 @@ public class KpiB2Job extends QuartzJobBean {
                 for (LocalDate date = detailResultEvaluationStartDate; !date.isAfter(detailResultEvaluationEndDate); date = date.plusDays(1)) {
                     final LocalDate currentDate = date;
                     List<PagoPaRecordedTimeoutDTO> dailyRecords = records.stream()
-                        .filter(r -> r.getStartDate().atZone(ZoneOffset.systemDefault()).toLocalDate().isEqual(currentDate))
+                        .filter(r -> r.getStartDate().atZone(ZoneId.systemDefault()).toLocalDate().isEqual(currentDate))
                         .collect(java.util.stream.Collectors.toList());
                     long sumTotReqDaily = dailyRecords.stream().mapToLong(PagoPaRecordedTimeoutDTO::getTotReq).sum();
                     long sumReqOkDaily = dailyRecords.stream().mapToLong(PagoPaRecordedTimeoutDTO::getReqOk).sum();
@@ -175,7 +176,7 @@ public class KpiB2Job extends QuartzJobBean {
 
             List<PagoPaRecordedTimeoutDTO> monthPeriodRecords = filteredPeriodRecords.stream()
                     .filter(record -> {
-                        final LocalDate recordDate = record.getStartDate().atZone(ZoneOffset.systemDefault())
+                        final LocalDate recordDate = record.getStartDate().atZone(ZoneId.systemDefault())
                                 .toLocalDate();
                         return !recordDate.isBefore(firstDayOfMonth) && !recordDate.isAfter(lastDayOfMonth);
                     })
@@ -310,7 +311,7 @@ public class KpiB2Job extends QuartzJobBean {
                 kpiB2AnalyticDataService.deleteAllByInstanceModule(instanceModuleDTO.getId());
                 kpiB2DetailResultService.deleteAllByInstanceModule(instanceModuleDTO.getId());
                 kpiB2ResultService.deleteAllByInstanceModule(instanceModuleDTO.getId());
-                
+
                 List<AnagPlannedShutdownDTO> maintenance = new ArrayList<>();
                 if (BooleanUtils.toBooleanDefaultIfNull(kpiConfigurationDTO.getExcludePlannedShutdown(), false)) {
                                 maintenance.addAll(
@@ -393,7 +394,7 @@ public class KpiB2Job extends QuartzJobBean {
                             kpiB2DetailResultRef,
                             filteredPeriodRecords.stream()
                                     .filter(record -> {
-                                        LocalDate recordDate = record.getStartDate().atZone(ZoneOffset.systemDefault())
+                                        LocalDate recordDate = record.getStartDate().atZone(ZoneId.systemDefault())
                                                 .toLocalDate();
                                         return !recordDate.isBefore(detailResult.getEvaluationStartDate())
                                                 && !recordDate.isAfter(detailResult.getEvaluationEndDate());
@@ -402,16 +403,16 @@ public class KpiB2Job extends QuartzJobBean {
                             detailResult.getEvaluationStartDate(),
                             detailResult.getEvaluationEndDate());
 
-                    
+
                     for (KpiB2AnalyticDataDTO analyticData : analyticDataList) {
-                         AtomicReference<KpiB2AnalyticDataDTO> kpiB2AnalyticDataRef = new AtomicReference<>(kpiB2AnalyticDataService.save(analyticData));      
-                         
+                         AtomicReference<KpiB2AnalyticDataDTO> kpiB2AnalyticDataRef = new AtomicReference<>(kpiB2AnalyticDataService.save(analyticData));
+
                          // --- Aggregation: DrillDown ---
                         List<KpiB2AnalyticDrillDownDTO> drillDowns = aggregateKpiB2AnalyticDataDrillDown(
                             kpiB2AnalyticDataRef,
                             filteredPeriodRecords.stream()
                                 .filter(record ->
-                                    record.getStartDate().atZone(ZoneOffset.systemDefault()).toLocalDate().isEqual(analyticData.getEvaluationDate()) &&
+                                    record.getStartDate().atZone(ZoneId.systemDefault()).toLocalDate().isEqual(analyticData.getEvaluationDate()) &&
                                     record.getStation().equals(analyticData.getStationName()) &&
                                     record.getMethod().equals(analyticData.getMethod())
                                 )
@@ -419,15 +420,15 @@ public class KpiB2Job extends QuartzJobBean {
                             detailResult.getEvaluationStartDate(),
                             detailResult.getEvaluationEndDate()
                         );
-                        kpiB2AnalyticDrillDownService.saveAll(drillDowns);    
+                        kpiB2AnalyticDrillDownService.saveAll(drillDowns);
                     }
                 }}
-                
+
                 // Final outcome update
                 LOGGER.info("Final outcome {}", kpiB2ResultFinalOutcome.get());
                 kpiB2ResultService.updateKpiB2ResultOutcome(kpiB2ResultRef.get().getId(), kpiB2ResultFinalOutcome.get());
                 instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(), kpiB2ResultFinalOutcome.get());
-                
+
                 // Trigger
                 JobDetail job = scheduler.getJobDetail(JobKey.jobKey(JobConstant.CALCULATE_STATE_INSTANCE_JOB, "DEFAULT"));
                 Trigger trigger = TriggerBuilder.newTrigger()
@@ -475,10 +476,10 @@ public class KpiB2Job extends QuartzJobBean {
 
     private boolean isInstantInRangeInclusive(Instant instantToCheck, Instant startInstant, Instant endInstant) {
         return (
-            (instantToCheck.atZone(ZoneOffset.systemDefault()).isEqual(startInstant.atZone(ZoneOffset.systemDefault())) ||
-                instantToCheck.atZone(ZoneOffset.systemDefault()).isAfter(startInstant.atZone(ZoneOffset.systemDefault()))) &&
-            (instantToCheck.atZone(ZoneOffset.systemDefault()).isEqual(endInstant.atZone(ZoneOffset.systemDefault())) ||
-                instantToCheck.atZone(ZoneOffset.systemDefault()).isBefore(endInstant.atZone(ZoneOffset.systemDefault())))
+            (instantToCheck.atZone(ZoneId.systemDefault()).isEqual(startInstant.atZone(ZoneId.systemDefault())) ||
+                instantToCheck.atZone(ZoneId.systemDefault()).isAfter(startInstant.atZone(ZoneId.systemDefault()))) &&
+            (instantToCheck.atZone(ZoneId.systemDefault()).isEqual(endInstant.atZone(ZoneId.systemDefault())) ||
+                instantToCheck.atZone(ZoneId.systemDefault()).isBefore(endInstant.atZone(ZoneId.systemDefault())))
         );
     }
 }

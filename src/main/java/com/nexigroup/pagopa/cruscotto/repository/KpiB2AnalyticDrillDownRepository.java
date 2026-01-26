@@ -8,4 +8,8 @@ public interface KpiB2AnalyticDrillDownRepository extends JpaRepository<KpiB2Ana
     List<KpiB2AnalyticDrillDown> findByKpiB2AnalyticDataIdOrderByFromHourAsc(Long kpiB2AnalyticDataId);
 
     void deleteByKpiB2AnalyticDataIdIn(List<Long> analyticDataIds);
+
+    List<KpiB2AnalyticDrillDown>findByKpiB2AnalyticDataIdIn(List<Long> analyticDataIds);
+
+
 }

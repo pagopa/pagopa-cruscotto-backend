@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<table class="header" th:fragment="pdfHeader">
+    <tr>
+        <td>
+            <div class="header-inner">
+                <img class="logo" src="logo_pagopa.png" alt="PagoPA"/>
+                <span class="header-title" th:text="#{pdf.header.title}">
+                    Cruscotto PagoPA
+                </span>
+            </div>
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>

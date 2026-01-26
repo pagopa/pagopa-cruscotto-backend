@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
  * Spring Data repository for the KpiA2AnalyticData entity.
  */
@@ -17,4 +19,18 @@ public interface KpiA2AnalyticDataRepository extends JpaRepository<KpiA2Analytic
     @Modifying
     @Query("DELETE KpiA2AnalyticData kpiA2AnalyticData WHERE kpiA2AnalyticData.instanceModule.id = :instanceModuleId")
     int deleteAllByInstanceModuleId(@Param("instanceModuleId") Long instanceModuleId);
+
+    @Query("""
+    SELECT d.id
+    FROM KpiA2AnalyticData d
+    WHERE d.instance.id = :instanceId
+      AND d.analysisDate = (
+            SELECT MAX(dd.analysisDate)
+            FROM KpiA2AnalyticData dd
+            WHERE dd.instance.id = :instanceId
+      )
+""")
+    List<Long> findLatestAnalyticDataIdByInstanceId(
+        @Param("instanceId") Long instanceId
+    );
 }
