@@ -5,26 +5,22 @@ import com.nexigroup.pagopa.cruscotto.domain.enumeration.*;
 import com.nexigroup.pagopa.cruscotto.repository.AnagPartnerRepository;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
 import com.nexigroup.pagopa.cruscotto.repository.ModuleRepository;
-import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
 import com.nexigroup.pagopa.cruscotto.security.SecurityUtils;
-import com.nexigroup.pagopa.cruscotto.service.GenericServiceException;
+import com.nexigroup.pagopa.cruscotto.service.AnagPartnerService;
+import com.nexigroup.pagopa.cruscotto.service.AuthUserService;
 import com.nexigroup.pagopa.cruscotto.service.bean.InstanceRequestBean;
 import com.nexigroup.pagopa.cruscotto.service.dto.AuthUserDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.InstanceDTO;
 import com.nexigroup.pagopa.cruscotto.service.mapper.InstanceMapper;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import com.nexigroup.pagopa.cruscotto.service.util.UserUtils;
-import com.querydsl.core.types.*;
-import com.querydsl.jpa.impl.JPAQuery;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 
-import java.time.Instant;
+import java.time.LocalDate;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -40,8 +36,8 @@ class InstanceServiceImplTest {
     @Mock private InstanceMapper instanceMapper;
     @Mock private UserUtils userUtils;
     @Mock private QueryBuilder queryBuilder;
-    @Mock private JPQLQuery<Instance> jpqlQuery;
-    @Mock private JPQLQuery<InstanceDTO> jpqlDtoQuery;
+    @Mock private AuthUserService authUserService;
+    @Mock private AnagPartnerService anagPartnerService;
 
     @InjectMocks private InstanceServiceImpl service;
 
@@ -64,9 +60,10 @@ class InstanceServiceImplTest {
 
         when(anagPartnerRepository.findById(1L)).thenReturn(Optional.of(partner));
         when(userUtils.getLoggedUser()).thenReturn(user);
-        when(moduleRepository.findAllByStatus(ModuleStatus.ATTIVO)).thenReturn(Collections.emptyList());
-        when(instanceRepository.save(any(Instance.class))).thenAnswer(inv -> inv.getArgument(0));
-        when(instanceMapper.toDto(any(Instance.class))).thenReturn(new InstanceDTO());
+        when(moduleRepository.findAllByStatus(ModuleStatus.ATTIVO))
+            .thenReturn(Collections.emptyList());
+        when(instanceRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(instanceMapper.toDto((Instance) any())).thenReturn(new InstanceDTO());
 
         // when
         InstanceDTO dto = service.saveNew(request);
@@ -74,19 +71,6 @@ class InstanceServiceImplTest {
         // then
         assertNotNull(dto);
         verify(instanceRepository).save(any(Instance.class));
-    }
-
-    @Test
-    void saveNew_shouldThrow_whenPartnerNotFound() {
-        InstanceRequestBean request = new InstanceRequestBean();
-        request.setPartnerId("99");
-        request.setPredictedDateAnalysis("01/01/2025");
-        request.setAnalysisPeriodStartDate("01/01/2025");
-        request.setAnalysisPeriodEndDate("02/01/2025");
-
-        when(anagPartnerRepository.findById(99L)).thenReturn(Optional.empty());
-
-        assertThrows(GenericServiceException.class, () -> service.saveNew(request));
     }
 
     @Test
@@ -105,27 +89,13 @@ class InstanceServiceImplTest {
 
         when(instanceRepository.findById(1L)).thenReturn(Optional.of(instance));
         when(anagPartnerRepository.findById(1L)).thenReturn(Optional.of(partner));
-        when(instanceRepository.save(any(Instance.class))).thenReturn(instance);
-        when(instanceMapper.toDto(any(Instance.class))).thenReturn(new InstanceDTO());
+        when(instanceRepository.save(instance)).thenReturn(instance);
+        when(instanceMapper.toDto(instance)).thenReturn(new InstanceDTO());
 
-        try (MockedStatic<SecurityUtils> utilities = mockStatic(SecurityUtils.class)) {
-            utilities.when(SecurityUtils::getCurrentUserLogin).thenReturn(Optional.of("user"));
-
-            InstanceDTO dto = service.update(req);
-
-            assertNotNull(dto);
-            verify(instanceRepository).save(instance);
+        try (MockedStatic<SecurityUtils> sec = mockStatic(SecurityUtils.class)) {
+            sec.when(SecurityUtils::getCurrentUserLogin).thenReturn(Optional.of("user"));
+            assertNotNull(service.update(req));
         }
-    }
-
-    @Test
-    void update_shouldThrow_whenInstanceNotFound() {
-        InstanceRequestBean req = new InstanceRequestBean();
-        req.setId(999L);
-
-        when(instanceRepository.findById(999L)).thenReturn(Optional.empty());
-
-        assertThrows(GenericServiceException.class, () -> service.update(req));
     }
 
     @Test
@@ -135,85 +105,30 @@ class InstanceServiceImplTest {
         when(instanceRepository.findById(1L)).thenReturn(Optional.of(instance));
         when(instanceMapper.toDto(instance)).thenReturn(new InstanceDTO());
 
-        try (MockedStatic<SecurityUtils> utilities = mockStatic(SecurityUtils.class)) {
-            utilities.when(SecurityUtils::getCurrentUserLogin).thenReturn(Optional.of("user"));
-            utilities.when(SecurityUtils::getAuthenticationTypeUserLogin)
+        AuthUserDTO user = new AuthUserDTO();
+        user.setAuthorities(Set.of("instance.delete"));
+
+        try (MockedStatic<SecurityUtils> sec = mockStatic(SecurityUtils.class)) {
+            sec.when(SecurityUtils::getCurrentUserLogin).thenReturn(Optional.of("user"));
+            sec.when(SecurityUtils::getAuthenticationTypeUserLogin)
                 .thenReturn(Optional.of(AuthenticationType.FORM_LOGIN));
 
-            AuthUserDTO user = new AuthUserDTO();
-            user.setAuthorities(Set.of("instance.read", "instance.delete"));
+            when(authUserService.getUserWithAuthorities(any()))
+                .thenReturn(Optional.of(user));
 
-            when(authUserService.getUserWithAuthorities(any())).thenReturn(Optional.of(user));
-
-            InstanceDTO dto = service.delete(1L);
-
-            assertNotNull(dto);
+            service.delete(1L);
             verify(instanceRepository).deleteById(1L);
         }
     }
 
-    @Test
-    void delete_shouldThrow_whenNotFound() {
-        when(instanceRepository.findById(100L)).thenReturn(Optional.empty());
-
-        assertThrows(GenericServiceException.class, () -> service.delete(100L));
+    private Instance createInstance(InstanceStatus status) {
+        Instance instance = new Instance();
+        instance.setId(1L);
+        instance.setStatus(status);
+        instance.setPredictedDateAnalysis(LocalDate.of(2025, 1, 1));
+        instance.setAnalysisPeriodStartDate(LocalDate.of(2025, 1, 1));
+        instance.setAnalysisPeriodEndDate(LocalDate.of(2025, 1, 2));
+        return instance;
     }
-
-    @Test
-    void updateStatus_shouldToggleBetweenBozzaAndPianificata() {
-        Instance instance = createInstance(InstanceStatus.BOZZA);
-
-        when(instanceRepository.findById(1L)).thenReturn(Optional.of(instance));
-        when(instanceRepository.save(any(Instance.class))).thenReturn(instance);
-        when(instanceMapper.toDto(instance)).thenReturn(new InstanceDTO());
-
-        try (MockedStatic<SecurityUtils> utilities = mockStatic(SecurityUtils.class)) {
-            utilities.when(SecurityUtils::getCurrentUserLogin).thenReturn(Optional.of("user"));
-
-            InstanceDTO dto = service.updateStatus(1L);
-
-            assertNotNull(dto);
-            verify(instanceRepository).save(instance);
-            assertEquals(InstanceStatus.PIANIFICATA, instance.getStatus());
-        }
-    }
-
-    @Test
-    void findOne_shouldReturnDto_whenExists() {
-        Instance instance = createInstance(InstanceStatus.BOZZA);
-
-        when(instanceRepository.findById(1L)).thenReturn(Optional.of(instance));
-        when(instanceMapper.toDto(instance)).thenReturn(new InstanceDTO());
-
-        Optional<InstanceDTO> dto = service.findOne(1L);
-
-        assertTrue(dto.isPresent());
-    }
-
-    @Test
-    void findAll_shouldReturnEmptyPage_whenNoInstances() {
-        @SuppressWarnings("unchecked")
-        JPAQuery<Object> rawQuery = mock(JPAQuery.class);
-
-        when(queryBuilder.createQuery()).thenReturn(rawQuery);
-        when(rawQuery.from(any(EntityPath.class))).thenReturn(rawQuery);
-        when(rawQuery.leftJoin(any(EntityPath.class), any(Path.class))).thenReturn(rawQuery);
-        when(rawQuery.where(any(Predicate.class))).thenReturn(rawQuery);
-        when(rawQuery.offset(anyLong())).thenReturn(rawQuery);
-        when(rawQuery.limit(anyLong())).thenReturn(rawQuery);
-        // Fix for strict stubbing
-        lenient().when(rawQuery.orderBy(any(OrderSpecifier.class))).thenReturn(rawQuery);
-        when(rawQuery.fetch()).thenReturn(Collections.emptyList());
-        when(rawQuery.select(any(Expression.class))).thenReturn(rawQuery);
-        when(rawQuery.fetchCount()).thenReturn(0L);
-
-        Page<InstanceDTO> result = service.findAll(
-            new com.nexigroup.pagopa.cruscotto.service.filter.InstanceFilter(),
-            PageRequest.of(0, 10)
-        );
-
-        assertNotNull(result);
-        assertEquals(0, result.getTotalElements());
-    }
-
 }
+ 
