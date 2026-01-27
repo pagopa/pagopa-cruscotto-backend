@@ -6,7 +6,7 @@
     "license": {
       "name": "unlicensed"
     },
-    "version": "0.9.0"
+    "version": "0.9.0-1-dev"
   },
   "servers": [
     {
@@ -9076,7 +9076,10 @@
               "examples": {
                 "example1": {
                   "value": {
-                    "instanceIds": [1, 2],
+                    "instanceIds": [
+                      1,
+                      2
+                    ],
                     "reportType": "DETAIL",
                     "variant": "EXCEL_COMPLETE",
                     "language": "IT",
@@ -9105,15 +9108,42 @@
                 "examples": {
                   "accepted": {
                     "value": [
-                      { "key": "id", "value": 124 },
-                      { "key": "reportType", "value": "DETAIL" },
-                      { "key": "status", "value": "PENDING" },
-                      { "key": "requestedDate", "value": "2024-12-09T10:32:00Z" },
-                      { "key": "completionDate", "value": null },
-                      { "key": "downloadUrl", "value": null },
-                      { "key": "fileSizeBytes", "value": null },
-                      { "key": "fileName", "value": null },
-                      { "key": "packageContents", "value": null }
+                      {
+                        "key": "id",
+                        "value": 124
+                      },
+                      {
+                        "key": "reportType",
+                        "value": "DETAIL"
+                      },
+                      {
+                        "key": "status",
+                        "value": "PENDING"
+                      },
+                      {
+                        "key": "requestedDate",
+                        "value": "2024-12-09T10:32:00Z"
+                      },
+                      {
+                        "key": "completionDate",
+                        "value": null
+                      },
+                      {
+                        "key": "downloadUrl",
+                        "value": null
+                      },
+                      {
+                        "key": "fileSizeBytes",
+                        "value": null
+                      },
+                      {
+                        "key": "fileName",
+                        "value": null
+                      },
+                      {
+                        "key": "packageContents",
+                        "value": null
+                      }
                     ]
                   }
                 }
