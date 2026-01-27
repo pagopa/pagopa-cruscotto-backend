@@ -9063,11 +9063,7 @@
         "summary": "Generate report asynchronously (for large reports)",
         "description": "Avvia la generazione asincrona di un report (grandi dimensioni).",
         "operationId": "generateReportAsync",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
+
         "requestBody": {
           "required": true,
           "content": {
@@ -9172,11 +9168,7 @@
         "summary": "List reports with pagination and filtering",
         "description": "Restituisce l’elenco dei report con paginazione e filtri.",
         "operationId": "listReports",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
+
         "parameters": [
           {
             "in": "query",
@@ -9300,11 +9292,7 @@
         "summary": "Get report metadata",
         "description": "Restituisce i metadati completi di un report.",
         "operationId": "getReportById",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
+
         "parameters": [
           {
             "in": "path",
@@ -9378,11 +9366,7 @@
         "summary": "Get report generation status",
         "description": "Restituisce lo stato della generazione (per polling).",
         "operationId": "getReportStatus",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
+
         "parameters": [
           {
             "in": "path",
@@ -13659,33 +13643,6 @@
           },
           "fiscalCode": {
             "type": "string"
-          }
-        }
-      },
-      "AnagPartnerFilterDTO": {
-        "type": "object",
-        "properties": {
-          "partnerId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "analyzed": {
-            "type": "boolean"
-          },
-          "qualified": {
-            "type": "boolean"
-          },
-          "lastAnalysisDate": {
-            "type": "string"
-          },
-          "analysisPeriodStartDate": {
-            "type": "string"
-          },
-          "analysisPeriodEndDate": {
-            "type": "string"
-          },
-          "showNotActive": {
-            "type": "boolean"
           }
         }
       },
