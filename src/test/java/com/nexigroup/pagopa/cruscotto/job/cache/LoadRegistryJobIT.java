@@ -3,6 +3,7 @@ package com.nexigroup.pagopa.cruscotto.job.cache;
 import com.nexigroup.pagopa.cruscotto.service.AnagInstitutionService;
 import com.nexigroup.pagopa.cruscotto.service.AnagPartnerService;
 import com.nexigroup.pagopa.cruscotto.service.AnagStationService;
+import com.nexigroup.pagopa.cruscotto.service.AzureBlobStorageService;
 import org.junit.jupiter.api.Test;
 import org.quartz.JobExecutionContext;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,6 +11,7 @@ import org.mockito.Mock;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
@@ -18,15 +20,18 @@ import static org.mockito.Mockito.times;
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 public class LoadRegistryJobIT {
-    
+
     @Mock
     private AnagPartnerService anagPartnerService;
-    
+
     @Mock
     private AnagStationService anagStationService;
-    
+
     @Mock
     private AnagInstitutionService anagInstitutionService;
+
+    @MockitoBean
+    private AzureBlobStorageService azureBlobStorageService;
 
     private LoadRegistryJob loadRegistryJob;
 

@@ -54,6 +54,9 @@ class AuthUserServiceIT {
     private AuthUserService userService;
 
     @MockitoBean
+    private AzureBlobStorageService azureBlobStorageService;
+
+    @MockitoBean
     private DateTimeProvider dateTimeProvider;
 
     private AuthUser user;
