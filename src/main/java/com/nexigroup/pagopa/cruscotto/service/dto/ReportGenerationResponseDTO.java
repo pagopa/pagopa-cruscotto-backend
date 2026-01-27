@@ -30,6 +30,7 @@ public class ReportGenerationResponseDTO implements Serializable {
     private Long fileSizeBytes;
     private String fileName;
     private List<String> packageContents;
+    private DownloadInfoDTO downloadInfo;
 
     // Getters and Setters
 
@@ -175,6 +176,14 @@ public class ReportGenerationResponseDTO implements Serializable {
 
     public void setPackageContents(List<String> packageContents) {
         this.packageContents = packageContents;
+    }
+
+    public DownloadInfoDTO getDownloadInfo() {
+        return downloadInfo;
+    }
+
+    public void setDownloadInfo(DownloadInfoDTO downloadInfo) {
+        this.downloadInfo = downloadInfo;
     }
 
     @Override
