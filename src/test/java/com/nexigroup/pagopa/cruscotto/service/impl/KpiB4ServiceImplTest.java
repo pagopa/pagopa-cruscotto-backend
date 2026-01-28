@@ -113,6 +113,11 @@ class KpiB4ServiceImplTest {
             dto.setOutcome(r.getOutcome());
             return dto;
         });
+        when(pagopaApiLogRepository.calculateTotalGpdAcaRequests(any(), any(), any()))
+            .thenReturn(10L);
+
+        when(pagopaApiLogRepository.calculateTotalPaCreateRequests(any(), any(), any()))
+            .thenReturn(5L);
 
         KpiB4ResultDTO dto = kpiB4Service.executeKpiB4Calculation(instance);
 
@@ -183,6 +188,11 @@ class KpiB4ServiceImplTest {
         when(instanceModuleService.findOne(instance.getId(), moduleB4.getId())).thenReturn(Optional.of(instanceModuleDTO));
         when(instanceModuleService.findById(instanceModuleDTO.getId())).thenReturn(Optional.of(new InstanceModule()));
         when(kpiB4ResultMapper.toDto(any(KpiB4Result.class))).thenAnswer(inv -> new KpiB4ResultDTO());
+        when(pagopaApiLogRepository.calculateTotalGpdAcaRequests(any(), any(), any()))
+            .thenReturn(10L);
+
+        when(pagopaApiLogRepository.calculateTotalPaCreateRequests(any(), any(), any()))
+            .thenReturn(5L);
 
         KpiB4ResultDTO dto = kpiB4Service.recalculateKpiB4("1");
         assertNotNull(dto);

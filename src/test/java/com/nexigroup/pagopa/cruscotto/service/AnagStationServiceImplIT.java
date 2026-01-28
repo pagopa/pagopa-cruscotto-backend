@@ -22,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -39,6 +40,9 @@ class AnagStationServiceImplIT {
 
     @Autowired
     private AnagPartnerRepository anagPartnerRepository;
+
+    @MockitoBean
+    private AzureBlobStorageService azureBlobStorageService;
 
     private AnagPartner testPartner1;
     private AnagPartner testPartner2;
@@ -61,16 +65,16 @@ class AnagStationServiceImplIT {
         testPartner2 = anagPartnerRepository.save(testPartner2);
 
         // Create test stations
-        activeStation1 = createTestStation("ACTIVE_STATION_1", testPartner1, StationStatus.ATTIVA, 
+        activeStation1 = createTestStation("ACTIVE_STATION_1", testPartner1, StationStatus.ATTIVA,
             LocalDate.now().minusDays(30), null, "SYNC", 1, true, 5);
-        
-        activeStation2 = createTestStation("ACTIVE_STATION_2", testPartner1, StationStatus.ATTIVA, 
+
+        activeStation2 = createTestStation("ACTIVE_STATION_2", testPartner1, StationStatus.ATTIVA,
             LocalDate.now().minusDays(15), null, "ASYNC", 2, false, 3);
-        
-        inactiveStation1 = createTestStation("INACTIVE_STATION_1", testPartner2, StationStatus.NON_ATTIVA, 
+
+        inactiveStation1 = createTestStation("INACTIVE_STATION_1", testPartner2, StationStatus.NON_ATTIVA,
             LocalDate.now().minusDays(60), LocalDate.now().minusDays(10), "SYNC", 1, true, 0);
-        
-        inactiveStation2 = createTestStation("INACTIVE_STATION_2", testPartner2, StationStatus.NON_ATTIVA, 
+
+        inactiveStation2 = createTestStation("INACTIVE_STATION_2", testPartner2, StationStatus.NON_ATTIVA,
             LocalDate.now().minusDays(45), LocalDate.now().minusDays(5), "ASYNC", 2, false, 2);
 
         activeStation1 = anagStationRepository.save(activeStation1);
@@ -99,7 +103,7 @@ class AnagStationServiceImplIT {
         assertThat(result.getContent()).hasSize(2);
         assertThat(result.getTotalElements()).isEqualTo(2);
         assertThat(result.getTotalPages()).isEqualTo(1);
-        
+
         List<AnagStationDTO> stations = result.getContent();
         assertThat(stations).allMatch(station -> station.getStatus() == StationStatus.ATTIVA);
         assertThat(stations).extracting(AnagStationDTO::getName)
@@ -120,7 +124,7 @@ class AnagStationServiceImplIT {
         assertThat(result).isNotNull();
         assertThat(result.getContent()).hasSize(4);
         assertThat(result.getTotalElements()).isEqualTo(4);
-        
+
         List<AnagStationDTO> stations = result.getContent();
         assertThat(stations).extracting(AnagStationDTO::getName)
             .containsExactlyInAnyOrder("ACTIVE_STATION_1", "ACTIVE_STATION_2", "INACTIVE_STATION_1", "INACTIVE_STATION_2");
@@ -140,7 +144,7 @@ class AnagStationServiceImplIT {
         assertThat(result).isNotNull();
         assertThat(result.getContent()).hasSize(2);
         assertThat(result.getTotalElements()).isEqualTo(2);
-        
+
         List<AnagStationDTO> stations = result.getContent();
         assertThat(stations).allMatch(station -> station.getStatus() == StationStatus.ATTIVA);
     }
@@ -160,7 +164,7 @@ class AnagStationServiceImplIT {
         assertThat(result).isNotNull();
         assertThat(result.getContent()).hasSize(2);
         assertThat(result.getTotalElements()).isEqualTo(2);
-        
+
         List<AnagStationDTO> stations = result.getContent();
         assertThat(stations).allMatch(station -> station.getPartnerId().equals(testPartner1.getId()));
         assertThat(stations).extracting(AnagStationDTO::getName)
@@ -182,7 +186,7 @@ class AnagStationServiceImplIT {
         assertThat(result).isNotNull();
         assertThat(result.getContent()).hasSize(1);
         assertThat(result.getTotalElements()).isEqualTo(1);
-        
+
         AnagStationDTO station = result.getContent().get(0);
         assertThat(station.getId()).isEqualTo(activeStation1.getId());
         assertThat(station.getName()).isEqualTo("ACTIVE_STATION_1");
@@ -204,7 +208,7 @@ class AnagStationServiceImplIT {
         assertThat(result).isNotNull();
         assertThat(result.getContent()).hasSize(1);
         assertThat(result.getTotalElements()).isEqualTo(1);
-        
+
         AnagStationDTO station = result.getContent().get(0);
         assertThat(station.getId()).isEqualTo(inactiveStation1.getId());
         assertThat(station.getName()).isEqualTo("INACTIVE_STATION_1");
@@ -244,11 +248,11 @@ class AnagStationServiceImplIT {
         // Then
         assertThat(result).isNotNull();
         assertThat(result.getContent()).hasSize(4);
-        
+
         List<String> stationNames = result.getContent().stream()
             .map(AnagStationDTO::getName)
             .toList();
-        
+
         // Should be sorted in descending order by name
         assertThat(stationNames).containsExactly("INACTIVE_STATION_2", "INACTIVE_STATION_1", "ACTIVE_STATION_2", "ACTIVE_STATION_1");
     }
@@ -284,9 +288,9 @@ class AnagStationServiceImplIT {
         // Then
         assertThat(result).isNotNull();
         assertThat(result.getContent()).hasSize(1);
-        
+
         AnagStationDTO station = result.getContent().get(0);
-        
+
         // Verify all fields are properly mapped
         assertThat(station.getId()).isEqualTo(activeStation1.getId());
         assertThat(station.getName()).isEqualTo("ACTIVE_STATION_1");
@@ -300,7 +304,7 @@ class AnagStationServiceImplIT {
         assertThat(station.getAssociatedInstitutes()).isEqualTo(5);
         assertThat(station.getStatus()).isEqualTo(StationStatus.ATTIVA);
         assertThat(station.getDeactivationDate()).isNull();
-        
+
         // Verify audit fields are included
         assertThat(station.getCreatedBy()).isNotNull();
         assertThat(station.getCreatedDate()).isNotNull();
@@ -335,8 +339,8 @@ class AnagStationServiceImplIT {
         return partner;
     }
 
-    private AnagStation createTestStation(String name, AnagPartner partner, StationStatus status, 
-            LocalDate activationDate, LocalDate deactivationDate, String typeConnection, 
+    private AnagStation createTestStation(String name, AnagPartner partner, StationStatus status,
+            LocalDate activationDate, LocalDate deactivationDate, String typeConnection,
             Integer primitiveVersion, Boolean paymentOption, Integer associatedInstitutes) {
         AnagStation station = new AnagStation();
         station.setName(name);

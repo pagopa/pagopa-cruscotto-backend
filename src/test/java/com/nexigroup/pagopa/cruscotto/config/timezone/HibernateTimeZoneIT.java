@@ -8,12 +8,15 @@ import com.nexigroup.pagopa.cruscotto.repository.timezone.DateTimeWrapper;
 import com.nexigroup.pagopa.cruscotto.repository.timezone.DateTimeWrapperRepository;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+
+import com.nexigroup.pagopa.cruscotto.service.AzureBlobStorageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -33,6 +36,9 @@ class HibernateTimeZoneIT {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @MockitoBean
+    private AzureBlobStorageService azureBlobStorageService;
 
     @Value("${spring.jpa.properties.hibernate.jdbc.time_zone:UTC}")
     private String zoneId;
