@@ -1,14 +1,11 @@
 package com.nexigroup.pagopa.cruscotto.service;
 
 import com.nexigroup.pagopa.cruscotto.service.dto.ReportAsyncAcceptedDTO;
-import com.nexigroup.pagopa.cruscotto.service.dto.ReportFilterDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.ReportGenerationRequestDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.ReportGenerationResponseDTO;
 import com.nexigroup.pagopa.cruscotto.service.exception.DuplicateReportException;
 import com.nexigroup.pagopa.cruscotto.service.exception.ReportGenerationException;
 import java.util.List;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 /**
  * Service Interface for managing report generation.

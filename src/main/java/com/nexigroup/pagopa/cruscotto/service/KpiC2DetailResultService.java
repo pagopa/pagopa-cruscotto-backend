@@ -2,7 +2,6 @@ package com.nexigroup.pagopa.cruscotto.service;
 
 import com.nexigroup.pagopa.cruscotto.domain.KpiB4DetailResult;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
-import com.nexigroup.pagopa.cruscotto.service.dto.KpiB4DetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiC2DetailResultDTO;
 
 import java.util.List;
