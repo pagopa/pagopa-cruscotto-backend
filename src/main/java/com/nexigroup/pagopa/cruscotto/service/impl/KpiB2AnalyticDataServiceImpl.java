@@ -4,7 +4,6 @@ import com.nexigroup.pagopa.cruscotto.domain.*;
 import com.nexigroup.pagopa.cruscotto.repository.*;
 import com.nexigroup.pagopa.cruscotto.service.KpiB2AnalyticDataService;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2AnalyticDataDTO;
-import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2DetailResultDTO;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPQLQuery;
@@ -182,7 +181,7 @@ public class KpiB2AnalyticDataServiceImpl implements KpiB2AnalyticDataService {
             );
         return query.fetch();
     }
-    
+
     /**
      * Find all KpiB2AnalyticDataDTO by instanceModuleId.
      * @param instanceModuleId the instance module id
