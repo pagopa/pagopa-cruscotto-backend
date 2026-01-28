@@ -49,6 +49,9 @@ class MailServiceIT {
     @MockitoBean
     private JavaMailSender javaMailSender;
 
+    @MockitoBean
+    private AzureBlobStorageService azureBlobStorageService;
+
     @Captor
     private ArgumentCaptor<MimeMessage> messageCaptor;
 
