@@ -15,6 +15,7 @@ import com.nexigroup.pagopa.cruscotto.service.report.pdf.PDFReportGenerator;
 import com.nexigroup.pagopa.cruscotto.service.report.pdf.wrapper.WrapperPdfFiles;
 import com.nexigroup.pagopa.cruscotto.service.ReportGenerationService;
 import com.nexigroup.pagopa.cruscotto.service.ReportPackagingService;
+import com.nexigroup.pagopa.cruscotto.service.dto.DownloadInfoDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.ExcelFile;
 import com.nexigroup.pagopa.cruscotto.service.dto.ReportAsyncAcceptedDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.ReportFilterDTO;
@@ -440,14 +441,27 @@ public class ReportGenerationServiceImpl implements ReportGenerationService {
             dto.setFileName(file.getFileName());
             dto.setPackageContents(file.getPackageContents());
 
-            // Generate download URL if report is completed
-            // if (report.getStatus() == ReportStatus.COMPLETED) {
-            //     try {
-            //         dto.setDownloadUrl(blobStorageService.generateSasUrl(file.getBlobContainer(), file.getBlobName(), Duration.ofHours(1)));
-            //     } catch (Exception e) {
-            //         log.warn("Failed to generate download URL for report: {}", report.getId(), e);
-            //     }
-            // }
+            // Generate download information if report is completed
+            if (report.getStatus() == ReportStatus.COMPLETED) {
+                try {
+                    Duration sasUrlValidity = Duration.ofHours(1);
+                    String downloadUrl = blobStorageService.generateSasUrl(
+                        file.getBlobContainer(), 
+                        file.getBlobName(), 
+                        sasUrlValidity
+                    );
+                    
+                    DownloadInfoDTO downloadInfo = new DownloadInfoDTO(
+                        downloadUrl,
+                        file.getFileName(),
+                        file.getFileSizeBytes(),
+                        LocalDateTime.now().plus(sasUrlValidity)
+                    );
+                    dto.setDownloadInfo(downloadInfo);
+                } catch (Exception e) {
+                    log.warn("Failed to generate download URL for report: {}", report.getId(), e);
+                }
+            }
         }
 
         return dto;
