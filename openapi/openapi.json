@@ -3,10 +3,8 @@
   "info": {
     "title": "PagoPa Cruscotto Backend API",
     "description": "PagoPa Cruscotto Backend API documentation",
-    "termsOfService": "",
     "license": {
-      "name": "unlicensed",
-      "url": ""
+      "name": "unlicensed"
     },
     "version": "0.9.3"
   },
@@ -9063,7 +9061,6 @@
         "summary": "Generate report asynchronously (for large reports)",
         "description": "Avvia la generazione asincrona di un report (grandi dimensioni).",
         "operationId": "generateReportAsync",
-
         "requestBody": {
           "required": true,
           "content": {
@@ -9168,7 +9165,6 @@
         "summary": "List reports with pagination and filtering",
         "description": "Restituisce l’elenco dei report con paginazione e filtri.",
         "operationId": "listReports",
-
         "parameters": [
           {
             "in": "query",
@@ -9292,7 +9288,6 @@
         "summary": "Get report metadata",
         "description": "Restituisce i metadati completi di un report.",
         "operationId": "getReportById",
-
         "parameters": [
           {
             "in": "path",
@@ -9358,80 +9353,92 @@
         }
       }
     },
-    "/api/reports/{id}/status": {
+    "/api/reports/{reportId}/status": {
       "get": {
         "tags": [
           "Reports"
         ],
-        "summary": "Get report generation status",
-        "description": "Restituisce lo stato della generazione (per polling).",
+        "summary": "Get report status with download information",
+        "description": "Retrieves the current status of a report. When the report is COMPLETED, the response includes downloadInfo with a time-limited SAS URL (1-hour expiry).",
         "operationId": "getReportStatus",
-
         "parameters": [
           {
+            "name": "reportId",
             "in": "path",
-            "name": "id",
             "required": true,
+            "description": "Report ID",
             "schema": {
               "type": "integer",
-              "format": "int64"
-            },
-            "description": "ID del report"
+              "format": "int64",
+              "example": 123
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "Stato della generazione",
+            "description": "Report status retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "oneOf": [
-                    {
-                      "$ref": "#/components/schemas/ReportStatus"
-                    },
-                    {
-                      "$ref": "#/components/schemas/ReportStatusRetry"
-                    },
-                    {
-                      "$ref": "#/components/schemas/ReportStatusFailed"
-                    }
-                  ]
+                  "$ref": "#/components/schemas/ReportGenerationResponseDTO"
                 },
                 "examples": {
-                  "inProgress": {
+                  "completed": {
+                    "summary": "Completed report with download info",
                     "value": {
-                      "id": 124,
-                      "status": "IN_PROGRESS",
-                      "progress": 65,
-                      "statusMessage": "Generating Excel worksheets...",
-                      "estimatedTimeRemaining": 45,
+                      "id": 123,
+                      "instanceId": 456,
+                      "instanceName": "Instance A",
+                      "status": "COMPLETED",
+                      "language": "IT",
+                      "startDate": "2024-01-01",
+                      "endDate": "2024-01-31",
+                      "requestedDate": "2024-01-15T14:00:00Z",
+                      "generationStartDate": "2024-01-15T14:05:00Z",
+                      "generationEndDate": "2024-01-15T14:30:00Z",
+                      "requestedBy": "john.doe@example.com",
+                      "errorMessage": null,
                       "retryCount": 0,
-                      "lastRetryDate": null
+                      "lastRetryDate": null,
+                      "downloadUrl": "https://storageaccount.blob.core.windows.net/reports/123/file.zip?sv=2021-06-08&...",
+                      "fileSizeBytes": 15728640,
+                      "fileName": "Report_InstanceA_20240101_20240131.zip",
+                      "packageContents": [
+                        "Summary_Report.pdf",
+                        "Drilldown.xlsx",
+                        "metadata.json",
+                        "README.txt"
+                      ],
+                      "downloadInfo": {
+                        "downloadUrl": "https://storageaccount.blob.core.windows.net/reports/123/file.zip?sv=2021-06-08&...",
+                        "fileName": "Report_InstanceA_20240101_20240131.zip",
+                        "fileSizeBytes": 15728640,
+                        "expiresAt": "2024-01-15T15:30:00Z"
+                      }
                     }
                   },
-                  "retrying": {
+                  "inProgress": {
+                    "summary": "Report in progress without download info",
                     "value": {
                       "id": 124,
-                      "status": "PENDING",
-                      "progress": 0,
-                      "statusMessage": "Retrying generation (attempt 2/3)...",
-                      "estimatedTimeRemaining": 300,
-                      "retryCount": 1,
-                      "lastRetryDate": "2024-12-09T10:35:00Z",
-                      "lastError": "Database connection timeout"
-                    }
-                  },
-                  "failed": {
-                    "value": {
-                      "id": 124,
-                      "status": "FAILED",
-                      "progress": 0,
-                      "statusMessage": "Report generation failed after 3 attempts",
-                      "estimatedTimeRemaining": null,
-                      "retryCount": 3,
-                      "lastRetryDate": "2024-12-09T10:45:00Z",
-                      "lastError": "Database connection timeout",
-                      "canRetry": false
+                      "instanceId": 456,
+                      "instanceName": "Instance A",
+                      "status": "IN_PROGRESS",
+                      "language": "IT",
+                      "startDate": "2024-01-01",
+                      "endDate": "2024-01-31",
+                      "requestedDate": "2024-01-15T14:00:00Z",
+                      "generationStartDate": "2024-01-15T14:05:00Z",
+                      "generationEndDate": null,
+                      "requestedBy": "john.doe@example.com",
+                      "errorMessage": null,
+                      "retryCount": 0,
+                      "lastRetryDate": null,
+                      "downloadUrl": null,
+                      "fileSizeBytes": null,
+                      "fileName": null,
+                      "packageContents": null,
+                      "downloadInfo": null
                     }
                   }
                 }
@@ -9439,15 +9446,36 @@
             }
           },
           "404": {
-            "description": "Report non trovato"
+            "description": "Report not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2024-01-15T14:30:00Z",
+                  "status": 404,
+                  "error": "Not Found",
+                  "message": "Report not found with ID: 123",
+                  "path": "/api/reports/123/status"
+                }
+              }
+            }
           },
-          "401": {
-            "description": "Non autorizzato"
+          "500": {
+            "description": "Internal server error (e.g., Azure Blob Storage error during SAS URL generation)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
       }
     }
-  },
+  },  
   "components": {
     "schemas": {
       "ProblemDetailWithCause": {
@@ -13646,6 +13674,33 @@
           }
         }
       },
+      "AnagPartnerFilterDTO": {
+        "type": "object",
+        "properties": {
+          "partnerId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "analyzed": {
+            "type": "boolean"
+          },
+          "qualified": {
+            "type": "boolean"
+          },
+          "lastAnalysisDate": {
+            "type": "string"
+          },
+          "analysisPeriodStartDate": {
+            "type": "string"
+          },
+          "analysisPeriodEndDate": {
+            "type": "string"
+          },
+          "showNotActive": {
+            "type": "boolean"
+          }
+        }
+      },
       "AnagInstitutionDTO": {
         "type": "object",
         "properties": {
@@ -14005,7 +14060,191 @@
             }
           }
         ]
+      },
+      "ReportGenerationResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Report ID",
+            "example": 123
+          },
+          "instanceId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Instance ID",
+            "example": 456
+          },
+          "instanceName": {
+            "type": "string",
+            "description": "Instance name",
+            "example": "Instance A"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["PENDING", "IN_PROGRESS", "COMPLETED", "FAILED"],
+            "description": "Report generation status",
+            "example": "COMPLETED"
+          },
+          "language": {
+            "type": "string",
+            "description": "Report language",
+            "example": "IT"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Report period start date",
+            "example": "2024-01-01"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Report period end date",
+            "example": "2024-01-31"
+          },
+          "requestedDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the report was requested",
+            "example": "2024-01-15T14:00:00Z"
+          },
+          "generationStartDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "When report generation started",
+            "example": "2024-01-15T14:05:00Z"
+          },
+          "generationEndDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "When report generation completed",
+            "example": "2024-01-15T14:30:00Z"
+          },
+          "requestedBy": {
+            "type": "string",
+            "description": "User who requested the report",
+            "example": "john.doe@example.com"
+          },
+          "errorMessage": {
+            "type": "string",
+            "nullable": true,
+            "description": "Error message if generation failed"
+          },
+          "retryCount": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of retry attempts",
+            "example": 0
+          },
+          "lastRetryDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Last retry attempt date"
+          },
+          "downloadUrl": {
+            "type": "string",
+            "nullable": true,
+            "description": "Direct download URL (deprecated - use downloadInfo.downloadUrl instead)",
+            "example": "https://storageaccount.blob.core.windows.net/reports/123/file.zip?sv=2021-06-08&..."
+          },
+          "fileSizeBytes": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "File size in bytes",
+            "example": 15728640
+          },
+          "fileName": {
+            "type": "string",
+            "nullable": true,
+            "description": "Report file name",
+            "example": "Report_InstanceA_20240101_20240131.zip"
+          },
+          "packageContents": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "string"
+            },
+            "description": "List of files contained in the ZIP package",
+            "example": ["Summary_Report.pdf", "Drilldown.xlsx", "metadata.json", "README.txt"]
+          },
+          "downloadInfo": {
+            "nullable": true,
+            "description": "Download information (only present when status is COMPLETED)",
+            "$ref": "#/components/schemas/DownloadInfoDTO"
+          }
+        },
+        "required": ["id", "instanceId", "instanceName", "status", "language", "startDate", "endDate", "requestedDate", "requestedBy", "retryCount"]
+      },
+      "DownloadInfoDTO": {
+        "type": "object",
+        "description": "Download information for completed reports",
+        "properties": {
+          "downloadUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "Time-limited SAS URL for downloading the report (expires in 1 hour)",
+            "example": "https://storageaccount.blob.core.windows.net/reports/123/file.zip?sv=2021-06-08&se=2024-01-15T15:30:00Z&sr=b&sp=r&sig=..."
+          },
+          "fileName": {
+            "type": "string",
+            "description": "Report file name",
+            "example": "Report_InstanceA_20240101_20240131.zip"
+          },
+          "fileSizeBytes": {
+            "type": "integer",
+            "format": "int64",
+            "description": "File size in bytes",
+            "example": 15728640
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the SAS URL expires (typically 1 hour from generation)",
+            "example": "2024-01-15T15:30:00Z"
+          }
+        },
+        "required": ["downloadUrl", "fileName", "fileSizeBytes", "expiresAt"]
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Error timestamp",
+            "example": "2024-01-15T14:30:00Z"
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "description": "HTTP status code",
+            "example": 404
+          },
+          "error": {
+            "type": "string",
+            "description": "Error name",
+            "example": "Not Found"
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message",
+            "example": "Report not found with ID: 123"
+          },
+          "path": {
+            "type": "string",
+            "description": "Request path",
+            "example": "/api/reports/123/status"
+          }
+        },
+        "required": ["timestamp", "status", "error", "message", "path"]
       }
     }
   }
-}
+}  
