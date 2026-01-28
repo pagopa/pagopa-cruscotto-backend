@@ -45,4 +45,13 @@ public interface ReportGenerationRepository extends JpaRepository<ReportGenerati
      */
     @Query("SELECT rg FROM ReportGeneration rg WHERE rg.instance.id = :instanceId ORDER BY rg.requestedDate DESC")
     List<ReportGeneration> findAllByInstanceId(@Param("instanceId") Long instanceId);
+
+    /**
+     * Find the most recent completed report for an instance.
+     * Used to populate latestCompletedReportId in InstanceDTO.
+     */
+    @Query(
+        "SELECT rg.id FROM ReportGeneration rg WHERE rg.instance.id = :instanceId AND rg.status = :status ORDER BY rg.generationEndDate DESC"
+    )
+    Optional<Long> findLatestCompletedReportIdByInstanceId(@Param("instanceId") Long instanceId, @Param("status") ReportStatus status);
 }
