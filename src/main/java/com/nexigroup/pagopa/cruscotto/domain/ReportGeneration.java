@@ -47,11 +47,10 @@ public class ReportGeneration implements Serializable {
     @Column(name = "language", length = 5, nullable = false)
     private String language;
 
-    @NotNull
+
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 
-    @NotNull
     @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
