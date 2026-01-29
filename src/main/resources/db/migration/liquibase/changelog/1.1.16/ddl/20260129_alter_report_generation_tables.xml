@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+  <changeSet id="20260129-1-make-start-end-date-nullable" author="system">
+    <preConditions onFail="MARK_RAN">
+      <tableExists tableName="report_generation"/>
+      <columnExists tableName="report_generation" columnName="start_date"/>
+      <columnExists tableName="report_generation" columnName="end_date"/>
+    </preConditions>
+
+    <dropNotNullConstraint
+      tableName="report_generation"
+      columnName="start_date"
+      columnDataType="date"/>
+
+    <dropNotNullConstraint
+      tableName="report_generation"
+      columnName="end_date"
+      columnDataType="date"/>
+  </changeSet>
+
+</databaseChangeLog>
