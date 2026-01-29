@@ -1,6 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.job.kpi.b3;
 
 import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.job.config.JobConstant;
@@ -208,6 +209,7 @@ public class KpiB3Job extends QuartzJobBean {
                         AtomicReference<OutcomeStatus> kpiB3ResultFinalOutcome = new AtomicReference<>(OutcomeStatus.OK);
 
                         OutcomeStatus outcome = calculateKpiB3Outcome(
+                            kpiConfigurationDTO.getEvaluationType(),
                             filteredStandInData,
                             eligibilityThreshold,
                             instanceDTO
@@ -370,6 +372,7 @@ public class KpiB3Job extends QuartzJobBean {
      * Calculates KPI B.3 outcome based on Stand-In data and configured threshold
      */
     private OutcomeStatus calculateKpiB3Outcome(
+        EvaluationType evaluationType,
             List<PagopaNumeroStandin> filteredStandInData,
             Double eligibilityThreshold,
             InstanceDTO instanceDTO) {
@@ -381,10 +384,19 @@ public class KpiB3Job extends QuartzJobBean {
                 return OutcomeStatus.OK;
             }
 
-            // Calculate total Stand-In events for all partner stations
             int totalStandInEvents = filteredStandInData.stream()
                 .mapToInt(PagopaNumeroStandin::getStandInCount)
                 .sum();
+
+            if (evaluationType.equals(EvaluationType.MESE)){
+                totalStandInEvents = filteredStandInData.stream()
+                    .mapToInt(PagopaNumeroStandin::getStandInCount)
+                    .max()
+                    .orElse(0);
+            }
+
+            // Calculate total Stand-In events for all partner stations
+
 
             LOGGER.info("Total Stand-In events for partner {} in period {} to {}: {}",
                        instanceDTO.getPartnerFiscalCode(),
