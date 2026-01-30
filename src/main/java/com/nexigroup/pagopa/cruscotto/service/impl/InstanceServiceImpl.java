@@ -8,9 +8,11 @@ import com.nexigroup.pagopa.cruscotto.domain.enumeration.AuthenticationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.InstanceStatus;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleStatus;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.ReportStatus;
 import com.nexigroup.pagopa.cruscotto.repository.AnagPartnerRepository;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
 import com.nexigroup.pagopa.cruscotto.repository.ModuleRepository;
+import com.nexigroup.pagopa.cruscotto.repository.ReportGenerationRepository;
 import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
 import com.nexigroup.pagopa.cruscotto.security.SecurityUtils;
 import com.nexigroup.pagopa.cruscotto.service.AnagPartnerService;
@@ -106,6 +108,8 @@ public class InstanceServiceImpl implements InstanceService {
 
     private final AnagPartnerService anagPartnerService;
 
+    private final ReportGenerationRepository reportGenerationRepository;
+
     public InstanceServiceImpl(
         InstanceRepository instanceRepository,
         AnagPartnerRepository anagPartnerRepository,
@@ -114,7 +118,8 @@ public class InstanceServiceImpl implements InstanceService {
         QueryBuilder queryBuilder,
         UserUtils userUtils,
         AuthUserService authUserService,
-        AnagPartnerService anagPartnerService
+        AnagPartnerService anagPartnerService,
+        ReportGenerationRepository reportGenerationRepository
     ) {
         this.instanceRepository = instanceRepository;
         this.anagPartnerRepository = anagPartnerRepository;
@@ -124,6 +129,7 @@ public class InstanceServiceImpl implements InstanceService {
         this.userUtils = userUtils;
         this.authUserService = authUserService;
         this.anagPartnerService = anagPartnerService;
+        this.reportGenerationRepository = reportGenerationRepository;
     }
 
     /**
@@ -214,12 +220,30 @@ public class InstanceServiceImpl implements InstanceService {
 
         List<InstanceDTO> list = jpqlSelected.fetch();
 
+        // Populate latestCompletedReportId for each instance
+        list.forEach(this::populateLatestCompletedReportId);
+
         return new PageImpl<>(list, pageable, size);
     }
 
     @Override
     public Optional<InstanceDTO> findOne(Long id) {
-        return instanceRepository.findById(id).map(instanceMapper::toDto);
+        return instanceRepository.findById(id).map(instanceMapper::toDto).map(dto -> {
+            populateLatestCompletedReportId(dto);
+            return dto;
+        });
+    }
+
+    /**
+     * Populates the latestCompletedReportId field in the InstanceDTO.
+     * This is used by the frontend to enable the download button.
+     */
+    private void populateLatestCompletedReportId(InstanceDTO instanceDTO) {
+        if (instanceDTO != null && instanceDTO.getId() != null) {
+            Optional<Long> latestReportId = reportGenerationRepository
+                .findLatestCompletedReportIdByInstanceId(instanceDTO.getId(), ReportStatus.COMPLETED);
+            latestReportId.ifPresent(instanceDTO::setLatestCompletedReportId);
+        }
     }
 
     /**
