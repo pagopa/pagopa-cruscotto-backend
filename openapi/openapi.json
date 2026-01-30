@@ -6,7 +6,7 @@
     "license": {
       "name": "unlicensed"
     },
-    "version": "0.9.3"
+    "version": "0.9.3-1-dev"
   },
   "servers": [
     {
@@ -9487,7 +9487,7 @@
         }
       }
     }
-  },  
+  },
   "components": {
     "schemas": {
       "ProblemDetailWithCause": {
@@ -14100,7 +14100,12 @@
           },
           "status": {
             "type": "string",
-            "enum": ["PENDING", "IN_PROGRESS", "COMPLETED", "FAILED"],
+            "enum": [
+              "PENDING",
+              "IN_PROGRESS",
+              "COMPLETED",
+              "FAILED"
+            ],
             "description": "Report generation status",
             "example": "COMPLETED"
           },
@@ -14189,7 +14194,12 @@
               "type": "string"
             },
             "description": "List of files contained in the ZIP package",
-            "example": ["Summary_Report.pdf", "Drilldown.xlsx", "metadata.json", "README.txt"]
+            "example": [
+              "Summary_Report.pdf",
+              "Drilldown.xlsx",
+              "metadata.json",
+              "README.txt"
+            ]
           },
           "downloadInfo": {
             "nullable": true,
@@ -14197,7 +14207,18 @@
             "$ref": "#/components/schemas/DownloadInfoDTO"
           }
         },
-        "required": ["id", "instanceId", "instanceName", "status", "language", "startDate", "endDate", "requestedDate", "requestedBy", "retryCount"]
+        "required": [
+          "id",
+          "instanceId",
+          "instanceName",
+          "status",
+          "language",
+          "startDate",
+          "endDate",
+          "requestedDate",
+          "requestedBy",
+          "retryCount"
+        ]
       },
       "DownloadInfoDTO": {
         "type": "object",
@@ -14227,7 +14248,12 @@
             "example": "2024-01-15T15:30:00Z"
           }
         },
-        "required": ["downloadUrl", "fileName", "fileSizeBytes", "expiresAt"]
+        "required": [
+          "downloadUrl",
+          "fileName",
+          "fileSizeBytes",
+          "expiresAt"
+        ]
       },
       "ErrorResponse": {
         "type": "object",
@@ -14260,8 +14286,14 @@
             "example": "/api/reports/123/status"
           }
         },
-        "required": ["timestamp", "status", "error", "message", "path"]
+        "required": [
+          "timestamp",
+          "status",
+          "error",
+          "message",
+          "path"
+        ]
       }
     }
   }
-}  
+}
