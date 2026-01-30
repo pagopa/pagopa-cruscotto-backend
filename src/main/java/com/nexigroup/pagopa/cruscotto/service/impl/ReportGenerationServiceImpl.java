@@ -377,7 +377,7 @@ public class ReportGenerationServiceImpl implements ReportGenerationService {
     private String generateBlobName(ReportGeneration report) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
         String timestamp = LocalDateTime.now().format(formatter);
-        return String.format("reports/%d/%s_report_%d.zip", report.getInstance().getId(), timestamp, report.getId());
+        return String.format("%d/%s_report_%d.zip", report.getInstance().getId(), timestamp, report.getId());
     }
 
     private String generateFileName(ReportGeneration report) {
