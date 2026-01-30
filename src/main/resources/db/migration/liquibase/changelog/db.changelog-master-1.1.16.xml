@@ -13,5 +13,7 @@
 
     <!-- Report Generation System -->
     <include file="1.1.16/ddl/20241219_create_report_generation_tables.xml" relativeToChangelogFile="true"/>
+    <include file="1.1.16/ddl/20260129_alter_report_generation_tables.xml" relativeToChangelogFile="true"/>
+
 
 </databaseChangeLog>

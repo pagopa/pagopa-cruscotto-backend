@@ -24,6 +24,7 @@ public interface InstanceMapper extends EntityMapper<InstanceDTO, Instance> {
     @Mapping(source = "assignedUser.id", target = "assignedUserId")
     @Mapping(source = "assignedUser.firstName", target = "assignedFirstName")
     @Mapping(source = "assignedUser.lastName", target = "assignedLastName")
+    @Mapping(target = "latestCompletedReportId", ignore = true)
     InstanceDTO toDto(Instance instance);
 
     default Instance fromId(Long id) {

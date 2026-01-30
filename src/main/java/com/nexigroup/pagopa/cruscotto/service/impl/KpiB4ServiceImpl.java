@@ -323,11 +323,11 @@ public class KpiB4ServiceImpl implements KpiB4Service {
 
                 // Calcola percentuale CP per questo mese
                 BigDecimal monthlyPercentageCp = BigDecimal.ZERO;
-                //if (monthlyGpdCalls > 0) {
+                if (monthlyGpdCalls +monthlyCpCalls > 0) {
                     monthlyPercentageCp = new BigDecimal(monthlyCpCalls)
                         .multiply(new BigDecimal("100"))
                         .divide(new BigDecimal(monthlyGpdCalls + monthlyCpCalls), 2, RoundingMode.HALF_UP);
-                //}
+                }
 
                 // Crea record mensile (PARTNER LEVEL - aggregato per tutto il partner)
                 KpiB4DetailResult monthlyDetailResult = new KpiB4DetailResult();
@@ -358,12 +358,12 @@ public class KpiB4ServiceImpl implements KpiB4Service {
             if (totalCpCalls == null) totalCpCalls = 0L;
 
             // Calcola percentuale CP per l'intero periodo
-            //BigDecimal totalPercentageCp = BigDecimal.ZERO;
-            //if (totalGpdCalls > 0) {
-            BigDecimal totalPercentageCp = new BigDecimal(totalCpCalls)
+            BigDecimal totalPercentageCp = BigDecimal.ZERO;
+            if (totalGpdCalls+totalCpCalls > 0) {
+               totalPercentageCp = new BigDecimal(totalCpCalls)
                     .multiply(new BigDecimal("100"))
                     .divide(new BigDecimal(totalGpdCalls+totalCpCalls), 2, RoundingMode.HALF_UP);
-            //}
+            }
 
             // Crea record totale (intero periodo di analisi, livello partner)
             KpiB4DetailResult totalDetailResult = new KpiB4DetailResult();

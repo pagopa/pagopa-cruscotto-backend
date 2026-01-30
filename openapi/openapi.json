@@ -704,6 +704,18 @@
                   "items": {
                     "$ref": "#/components/schemas/InstanceDTO"
                   }
+                },
+                "example": {
+                  "content": [
+                    {
+                      "id": 456,
+                      "instanceIdentification": "INST-2024-001",
+                      "partnerName": "Partner A",
+                      "status": "ESEGUITA",
+                      "latestCompletedReportId": 123
+                    }
+                  ],
+                  "totalElements": 1
                 }
               }
             }
@@ -10070,6 +10082,11 @@
           },
           "changePartnerQualified": {
             "type": "boolean"
+          },
+          "latestCompletedReportId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "ID of the most recent completed report. Null if no completed reports exist. Used by frontend to enable download button."
           }
         }
       },
