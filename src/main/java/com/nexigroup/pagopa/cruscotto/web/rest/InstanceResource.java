@@ -22,7 +22,11 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
 import com.nexigroup.pagopa.cruscotto.service.InstanceService;
 import com.nexigroup.pagopa.cruscotto.service.bean.InstanceRequestBean;
+import com.nexigroup.pagopa.cruscotto.service.dto.ArchiveRequestDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.ArchiveResponseDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.InstanceDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.RestoreRequestDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.RestoreResponseDTO;
 import com.nexigroup.pagopa.cruscotto.service.filter.InstanceFilter;
 import com.nexigroup.pagopa.cruscotto.web.rest.errors.BadRequestAlertException;
 
@@ -164,5 +168,43 @@ public class InstanceResource {
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, result.getInstanceIdentification()))
             .build();
+    }
+
+    /**
+     * {@code POST  /instances/archive} : Archive instances.
+     *
+     * @param request the archive request containing instance IDs to archive.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the archive response containing success/failure counts.
+     */
+    @PostMapping("/instances/archive")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTANCE_ARCHIVING + "\")")
+    public ResponseEntity<ArchiveResponseDTO> archiveInstances(@Valid @RequestBody ArchiveRequestDTO request) {
+        log.info("REST request to archive {} instances", request.getInstanceIds().size());
+        
+        ArchiveResponseDTO response = instanceService.archiveInstances(request);
+        
+        return ResponseEntity.ok()
+            .headers(HeaderUtil.createAlert(applicationName, "instanceManagement.archived", 
+                String.valueOf(response.getSuccessCount())))
+            .body(response);
+    }
+
+    /**
+     * {@code POST  /instances/restore} : Restore archived instances.
+     *
+     * @param request the restore request containing instance IDs to restore.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the restore response containing success/failure counts.
+     */
+    @PostMapping("/instances/restore")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTANCE_ARCHIVING + "\")")
+    public ResponseEntity<RestoreResponseDTO> restoreInstances(@Valid @RequestBody RestoreRequestDTO request) {
+        log.info("REST request to restore {} instances", request.getInstanceIds().size());
+        
+        RestoreResponseDTO response = instanceService.restoreInstances(request);
+        
+        return ResponseEntity.ok()
+            .headers(HeaderUtil.createAlert(applicationName, "instanceManagement.restored", 
+                String.valueOf(response.getSuccessCount())))
+            .body(response);
     }
 }

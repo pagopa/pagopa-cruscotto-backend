@@ -619,7 +619,8 @@
                 "BOZZA",
                 "PIANIFICATA",
                 "IN_ESECUZIONE",
-                "ESEGUITA"
+                "ESEGUITA",
+                "ARCHIVIATA"
               ]
             }
           },
@@ -859,6 +860,106 @@
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/instances/archive": {
+      "post": {
+        "tags": [
+          "instance-resource"
+        ],
+        "operationId": "archiveInstances",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ArchiveRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArchiveResponseDTO"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/instances/restore": {
+      "post": {
+        "tags": [
+          "instance-resource"
+        ],
+        "operationId": "restoreInstances",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RestoreRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestoreResponseDTO"
+                }
+              }
+            }
           },
           "4XX": {
             "description": "Client error codes",
@@ -9490,6 +9591,128 @@
   },
   "components": {
     "schemas": {
+      "ArchiveRequestDTO": {
+        "required": [
+          "instanceIds"
+        ],
+        "type": "object",
+        "properties": {
+          "instanceIds": {
+            "maxItems": 100,
+            "minItems": 1,
+            "type": "array",
+            "description": "List of instance IDs to archive (max 100)",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        },
+        "description": "Request DTO for archiving instances"
+      },
+      "ArchiveResponseDTO": {
+        "type": "object",
+        "properties": {
+          "successCount": {
+            "type": "integer",
+            "description": "Number of successfully archived instances",
+            "format": "int32"
+          },
+          "failureCount": {
+            "type": "integer",
+            "description": "Number of instances that failed to archive",
+            "format": "int32"
+          },
+          "results": {
+            "type": "array",
+            "description": "Detailed results per instance",
+            "items": {
+              "$ref": "#/components/schemas/InstanceArchiveResult"
+            }
+          }
+        },
+        "description": "Response DTO for archiving instances"
+      },
+      "InstanceArchiveResult": {
+        "type": "object",
+        "properties": {
+          "instanceId": {
+            "type": "integer",
+            "description": "Instance ID",
+            "format": "int64"
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Whether the operation succeeded"
+          },
+          "errorMessage": {
+            "type": "string",
+            "description": "Error message if operation failed"
+          }
+        },
+        "description": "Result of archiving a single instance"
+      },
+      "RestoreRequestDTO": {
+        "required": [
+          "instanceIds"
+        ],
+        "type": "object",
+        "properties": {
+          "instanceIds": {
+            "maxItems": 100,
+            "minItems": 1,
+            "type": "array",
+            "description": "List of instance IDs to restore (max 100)",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        },
+        "description": "Request DTO for restoring instances"
+      },
+      "RestoreResponseDTO": {
+        "type": "object",
+        "properties": {
+          "successCount": {
+            "type": "integer",
+            "description": "Number of successfully restored instances",
+            "format": "int32"
+          },
+          "failureCount": {
+            "type": "integer",
+            "description": "Number of instances that failed to restore",
+            "format": "int32"
+          },
+          "results": {
+            "type": "array",
+            "description": "Detailed results per instance",
+            "items": {
+              "$ref": "#/components/schemas/InstanceRestoreResult"
+            }
+          }
+        },
+        "description": "Response DTO for restoring instances"
+      },
+      "InstanceRestoreResult": {
+        "type": "object",
+        "properties": {
+          "instanceId": {
+            "type": "integer",
+            "description": "Instance ID",
+            "format": "int64"
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Whether the operation succeeded"
+          },
+          "errorMessage": {
+            "type": "string",
+            "description": "Error message if operation failed"
+          }
+        },
+        "description": "Result of restoring a single instance"
+      },
       "ProblemDetailWithCause": {
         "type": "object",
         "properties": {
@@ -10058,7 +10281,8 @@
               "BOZZA",
               "PIANIFICATA",
               "IN_ESECUZIONE",
-              "ESEGUITA"
+              "ESEGUITA",
+              "ARCHIVIATA"
             ]
           },
           "lastAnalysisDate": {
