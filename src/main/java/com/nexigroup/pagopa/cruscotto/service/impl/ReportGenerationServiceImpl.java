@@ -105,7 +105,7 @@ public class ReportGenerationServiceImpl implements ReportGenerationService {
         Optional<ReportGeneration> completed = reportGenerationRepository.findByInstanceIdAndStatusIn(instanceId, completedStatus);
         
         if (completed.isPresent()) {
-            ReportGeneration report = completed.get();
+            ReportGeneration report = completed.orElseThrow();
             ReportFile reportFile = report.getReportFile();
             
             // Defensive: if reportFile or expiryDate is null, treat as not expired (blocking)
@@ -139,7 +139,7 @@ public class ReportGenerationServiceImpl implements ReportGenerationService {
         Optional<ReportGeneration> inProgress = reportGenerationRepository.findByInstanceIdAndStatusIn(instanceId, inProgressStatuses);
         
         if (inProgress.isPresent()) {
-            return mapToResponseDTO(inProgress.get());
+            return mapToResponseDTO(inProgress.orElseThrow());
         }
         
         // Check for COMPLETED reports - return only if not expired
@@ -147,7 +147,7 @@ public class ReportGenerationServiceImpl implements ReportGenerationService {
         Optional<ReportGeneration> completed = reportGenerationRepository.findByInstanceIdAndStatusIn(instanceId, completedStatus);
         
         if (completed.isPresent()) {
-            ReportGeneration report = completed.get();
+            ReportGeneration report = completed.orElseThrow();
             ReportFile reportFile = report.getReportFile();
             
             // If no expiryDate, treat as active
