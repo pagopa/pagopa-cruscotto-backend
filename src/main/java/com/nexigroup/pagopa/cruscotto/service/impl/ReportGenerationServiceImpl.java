@@ -90,19 +90,83 @@ public class ReportGenerationServiceImpl implements ReportGenerationService {
     @Transactional(readOnly = true)
     public boolean activeReportExistsForInstance(Long instanceId) {
         log.debug("Checking for active report for instance: {}", instanceId);
-        List<ReportStatus> activeStatuses = Arrays.asList(ReportStatus.PENDING, ReportStatus.IN_PROGRESS, ReportStatus.COMPLETED);
-        return reportGenerationRepository.findByInstanceIdAndStatusIn(instanceId, activeStatuses).isPresent();
+        
+        // Check for PENDING or IN_PROGRESS reports (always blocking)
+        List<ReportStatus> inProgressStatuses = Arrays.asList(ReportStatus.PENDING, ReportStatus.IN_PROGRESS);
+        Optional<ReportGeneration> inProgress = reportGenerationRepository.findByInstanceIdAndStatusIn(instanceId, inProgressStatuses);
+        
+        if (inProgress.isPresent()) {
+            log.debug("Found active report in PENDING/IN_PROGRESS status for instance: {}", instanceId);
+            return true;
+        }
+        
+        // Check for COMPLETED reports - only blocking if not expired
+        List<ReportStatus> completedStatus = Arrays.asList(ReportStatus.COMPLETED);
+        Optional<ReportGeneration> completed = reportGenerationRepository.findByInstanceIdAndStatusIn(instanceId, completedStatus);
+        
+        if (completed.isPresent()) {
+            ReportGeneration report = completed.get();
+            ReportFile reportFile = report.getReportFile();
+            
+            // Defensive: if reportFile or expiryDate is null, treat as not expired (blocking)
+            if (reportFile == null || reportFile.getExpiryDate() == null) {
+                log.debug("COMPLETED report found but no expiryDate available - treating as active (blocking) for instance: {}", instanceId);
+                return true;
+            }
+            
+            // Check if report is still within retention period
+            LocalDateTime now = LocalDateTime.now();
+            if (now.isBefore(reportFile.getExpiryDate()) || now.isEqual(reportFile.getExpiryDate())) {
+                log.debug("COMPLETED report found and not expired (expiryDate: {}) - blocking for instance: {}", reportFile.getExpiryDate(), instanceId);
+                return true;
+            }
+            
+            log.debug("COMPLETED report found but expired (expiryDate: {}) - allowing new generation for instance: {}", reportFile.getExpiryDate(), instanceId);
+            return false;
+        }
+        
+        log.debug("No active report found for instance: {}", instanceId);
+        return false;
     }
 
     @Override
     @Transactional(readOnly = true)
     public ReportGenerationResponseDTO getActiveReportByInstance(Long instanceId) {
         log.debug("Getting active report for instance: {}", instanceId);
-        List<ReportStatus> activeStatuses = Arrays.asList(ReportStatus.PENDING, ReportStatus.IN_PROGRESS, ReportStatus.COMPLETED);
-        return reportGenerationRepository
-            .findByInstanceIdAndStatusIn(instanceId, activeStatuses)
-            .map(this::mapToResponseDTO)
-            .orElse(null);
+        
+        // Check for PENDING or IN_PROGRESS reports first
+        List<ReportStatus> inProgressStatuses = Arrays.asList(ReportStatus.PENDING, ReportStatus.IN_PROGRESS);
+        Optional<ReportGeneration> inProgress = reportGenerationRepository.findByInstanceIdAndStatusIn(instanceId, inProgressStatuses);
+        
+        if (inProgress.isPresent()) {
+            return mapToResponseDTO(inProgress.get());
+        }
+        
+        // Check for COMPLETED reports - return only if not expired
+        List<ReportStatus> completedStatus = Arrays.asList(ReportStatus.COMPLETED);
+        Optional<ReportGeneration> completed = reportGenerationRepository.findByInstanceIdAndStatusIn(instanceId, completedStatus);
+        
+        if (completed.isPresent()) {
+            ReportGeneration report = completed.get();
+            ReportFile reportFile = report.getReportFile();
+            
+            // If no expiryDate, treat as active
+            if (reportFile == null || reportFile.getExpiryDate() == null) {
+                return mapToResponseDTO(report);
+            }
+            
+            // Return only if not expired
+            LocalDateTime now = LocalDateTime.now();
+            if (now.isBefore(reportFile.getExpiryDate()) || now.isEqual(reportFile.getExpiryDate())) {
+                return mapToResponseDTO(report);
+            }
+            
+            // Report expired - return null
+            log.debug("COMPLETED report expired for instance: {}", instanceId);
+            return null;
+        }
+        
+        return null;
     }
 
     @Override
