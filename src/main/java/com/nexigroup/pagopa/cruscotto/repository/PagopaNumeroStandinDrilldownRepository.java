@@ -77,9 +77,22 @@ public interface PagopaNumeroStandinDrilldownRepository
      */
     long countByKpiB3AnalyticDataId(Long analyticDataId);
 
-    @Query("SELECT d FROM PagopaNumeroStandinDrilldown d " +
-        "WHERE d.instance.id = :instanceId " +
-        "AND d.analysisDate = (SELECT MAX(dd.analysisDate) FROM PagopaNumeroStandinDrilldown dd WHERE dd.instance.id = :instanceId)")
-    List<PagopaNumeroStandinDrilldown> findLatestByInstanceId(@Param("instanceId") Long instanceId);
+    @Query("""
+    SELECT d
+    FROM PagopaNumeroStandinDrilldown d
+    WHERE d.instance.id = :instanceId
+      AND d.kpiB3AnalyticData.kpiB3DetailResult.id IN (:kpiB3AnalyticDatas)
+      AND d.analysisDate = (
+            SELECT MAX(dd.analysisDate)
+            FROM PagopaNumeroStandinDrilldown dd
+            WHERE dd.instance.id = d.instance.id
+              AND dd.kpiB3AnalyticData.kpiB3DetailResult.id =
+                  d.kpiB3AnalyticData.kpiB3DetailResult.id
+      )
+""")
+    List<PagopaNumeroStandinDrilldown> findLatestByInstanceIdAndKpiB3AnalyticDataIn(
+        @Param("instanceId") Long instanceId,
+        @Param("kpiB3AnalyticDatas") List<Long> kpiB3AnalyticDatas
+    );
 
 }
