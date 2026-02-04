@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-public class KpiB3AnalyticDrillDownExporter implements DrillDownExcelExporter {
+public class KpiB3AnalyticDrillDownExporter implements DrillDownExcelExporter<PagopaNumeroStandinDTO> {
 
     private final PagopaNumeroStandinDrilldownRepository drilldownRepository;
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -65,7 +65,7 @@ public class KpiB3AnalyticDrillDownExporter implements DrillDownExcelExporter {
         return dto;
     }
     @Override
-    public void writeSheet(Sheet sheet, List<?> data) {
+    public void writeSheet(Sheet sheet, List<PagopaNumeroStandinDTO> data) {
         Row header = sheet.createRow(0);
         String[] columns = {"ID", "Analysis Date", "Station Code", "Interval Start", "Interval End", "StandIn Count", "Event Type"};
         for (int i = 0; i < columns.length; i++) {
