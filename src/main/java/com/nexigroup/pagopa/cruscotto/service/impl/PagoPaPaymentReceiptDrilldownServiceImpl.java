@@ -245,7 +245,7 @@ public class PagoPaPaymentReceiptDrilldownServiceImpl implements PagoPaPaymentRe
         LocalDateTime startOfDay = date.atStartOfDay();
 
         for (int i = 0; i < 96; i++) { // 24 hours * 4 quarters = 96 slots
-            LocalDateTime slotStart = startOfDay.plusMinutes(i * 15);
+            LocalDateTime slotStart = startOfDay.plusMinutes(i * 15L);
             slots.put(slotStart, new long[]{0L, 0L, 0L}); // [totRes, resOk, resKo]
         }
 
