@@ -57,12 +57,12 @@ public class AuthGroupResource {
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
-    @Autowired
-    private AuthFunctionService authFunctionService;
+    private final AuthFunctionService authFunctionService;
 
     private final AuthGroupService authGroupService;
 
-    public AuthGroupResource(AuthGroupService authGroupService) {
+    public AuthGroupResource(AuthFunctionService authFunctionService, AuthGroupService authGroupService) {
+        this.authFunctionService = authFunctionService;
         this.authGroupService = authGroupService;
     }
 

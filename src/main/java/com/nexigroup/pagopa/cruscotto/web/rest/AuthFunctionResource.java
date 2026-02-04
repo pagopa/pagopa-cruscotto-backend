@@ -57,12 +57,12 @@ public class AuthFunctionResource {
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
-    @Autowired
-    private AuthPermissionService authPermissionService;
+    private final AuthPermissionService authPermissionService;
 
     private final AuthFunctionService authFunctionService;
 
-    public AuthFunctionResource(AuthFunctionService authFunctionService) {
+    public AuthFunctionResource(AuthFunctionService authFunctionService, AuthPermissionService authPermissionService) {
+        this.authPermissionService = authPermissionService;
         this.authFunctionService = authFunctionService;
     }
 
