@@ -339,9 +339,10 @@ public class PDFReportGenerator {
     private PdfKpiSummaryItem buildFromOutcome(String code, Locale locale, List<?> outcomes) {
         boolean compliant = outcomes.stream().allMatch(this::isCompliantOutcome);
 
-        String descriptionKey = "pdf.kpi." + code + ".shortDescription";
-        String fallbackKey = "pdf.kpi." + code + ".description";
-        String titleKey = "pdf.kpi." + code + ".title";
+        String pdfKpi = "pdf.kpi.";
+        String descriptionKey = pdfKpi + code + ".shortDescription";
+        String fallbackKey = pdfKpi + code + ".description";
+        String titleKey = pdfKpi + code + ".title";
 
         String title = msg(locale, titleKey, null);
         if (title == null || title.isBlank()) {
