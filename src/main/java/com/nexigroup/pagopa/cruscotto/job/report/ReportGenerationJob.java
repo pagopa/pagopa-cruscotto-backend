@@ -1,13 +1,13 @@
 package com.nexigroup.pagopa.cruscotto.job.report;
 
 import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
+import com.nexigroup.pagopa.cruscotto.domain.ReportGeneration;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ReportStatus;
 import com.nexigroup.pagopa.cruscotto.repository.ReportGenerationRepository;
 import com.nexigroup.pagopa.cruscotto.service.ReportGenerationService;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.quartz.DisallowConcurrentExecution;
@@ -75,8 +75,7 @@ public class ReportGenerationJob extends QuartzJobBean {
                         }
                     })
                 )
-                .collect(Collectors.toList());
-
+                .toList();
             // Aspetta ESPLICITAMENTE che TUTTI i CompletableFuture siano completati
             CompletableFuture<Void> allOf = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
 
@@ -103,8 +102,8 @@ public class ReportGenerationJob extends QuartzJobBean {
     protected List<Long> queryPendingReports() {
         return reportGenerationRepository.findByStatus(ReportStatus.PENDING)
             .stream()
-            .map(reportGeneration -> reportGeneration.getId())
-            .collect(Collectors.toList());
+            .map(ReportGeneration::getId)
+            .toList();
     }
 
 
