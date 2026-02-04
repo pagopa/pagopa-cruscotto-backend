@@ -73,6 +73,16 @@ public class KpiC2DetailResultDTO implements Serializable {
 
     private Long kpiC2ResultId;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof KpiC2DetailResultDTO)) {
+            return false;
+        }
+        return id != null && id.equals(((KpiC2DetailResultDTO) o).id);
+    }
 
     @Override
     public int hashCode() {
