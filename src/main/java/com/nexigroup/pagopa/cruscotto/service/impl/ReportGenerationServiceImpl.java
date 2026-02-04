@@ -445,9 +445,7 @@ public class ReportGenerationServiceImpl implements ReportGenerationService {
     }
 
     private String generateFileName(ReportGeneration report) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-        String dateRange = report.getStartDate().format(formatter) + "_" + report.getEndDate().format(formatter);
-        return String.format("Report_%s_%s.zip", report.getInstance().getInstanceIdentification().replaceAll("[^a-zA-Z0-9]", "_"), dateRange);
+        return String.format("Report_%s.zip", report.getInstance().getInstanceIdentification().replaceAll("[^a-zA-Z0-9]", "_"));
     }
 
     private String calculateChecksum(byte[] content) {
