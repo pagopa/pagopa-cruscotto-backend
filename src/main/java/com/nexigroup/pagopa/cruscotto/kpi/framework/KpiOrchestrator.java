@@ -25,7 +25,6 @@ public class KpiOrchestrator {
     private static final Logger LOGGER = LoggerFactory.getLogger(KpiOrchestrator.class);
 
     private final Map<String, KpiProcessor<?, ?, ?>> kpiProcessors;
-    private final InstanceService instanceService;
     private final InstanceModuleService instanceModuleService;
     private final GenericKpiResultService genericKpiResultService;
     private final GenericKpiDetailResultService genericKpiDetailResultService;
@@ -39,7 +38,6 @@ public class KpiOrchestrator {
                           GenericKpiAnalyticDataService genericKpiAnalyticDataService) {
         this.kpiProcessors = processors.stream()
                 .collect(Collectors.toMap(KpiProcessor::getModuleCode, Function.identity()));
-        this.instanceService = instanceService;
         this.instanceModuleService = instanceModuleService;
         this.genericKpiResultService = genericKpiResultService;
         this.genericKpiDetailResultService = genericKpiDetailResultService;
@@ -83,7 +81,7 @@ public class KpiOrchestrator {
                     genericKpiAnalyticDataService.saveAll(
                             analyticData.stream()
                                     .map(data -> (KpiAnalyticDataDTO) data)
-                                    .collect(Collectors.toList())
+                                    .toList()
                     );
                 }
             }
