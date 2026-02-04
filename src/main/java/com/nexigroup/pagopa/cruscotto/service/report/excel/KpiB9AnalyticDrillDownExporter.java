@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-public class KpiB9AnalyticDrillDownExporter implements DrillDownExcelExporter {
+public class KpiB9AnalyticDrillDownExporter implements DrillDownExcelExporter<PagoPaPaymentReceiptDrilldownDTO> {
 
     private final PagoPaPaymentReceiptDrilldownRepository repository;
 
@@ -82,7 +82,7 @@ public class KpiB9AnalyticDrillDownExporter implements DrillDownExcelExporter {
 
     @Override
     @SuppressWarnings("unchecked")
-    public void writeSheet(Sheet sheet, List<?> data) {
+    public void writeSheet(Sheet sheet, List<PagoPaPaymentReceiptDrilldownDTO> data) {
 
         // ===== HEADER =====
         Row header = sheet.createRow(0);

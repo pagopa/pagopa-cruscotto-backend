@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-public class KpiB5AnalyticDrillDownExporter implements DrillDownExcelExporter {
+public class KpiB5AnalyticDrillDownExporter implements DrillDownExcelExporter<PagopaSpontaneiDTO> {
 
     private final KpiB5AnalyticDrillDownRepository repository;
 
@@ -69,7 +69,7 @@ public class KpiB5AnalyticDrillDownExporter implements DrillDownExcelExporter {
     }
 
     @Override
-    public void writeSheet(Sheet sheet, List<?> data) {
+    public void writeSheet(Sheet sheet, List<PagopaSpontaneiDTO> data) {
 
         @SuppressWarnings("unchecked")        int rowIdx = 0;
         if (data == null || data.isEmpty()) {

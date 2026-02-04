@@ -4,7 +4,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 
 import java.util.List;
 
-public interface DrillDownExcelExporter {
+public interface DrillDownExcelExporter<T> {
 
     /** Nome dello sheet */
     String getSheetName();
@@ -13,9 +13,9 @@ public interface DrillDownExcelExporter {
     int getOrder();
 
     /** Recupero dati (input generico: instanceId o codice) */
-    List<?> loadData(String instanceCode);
+    List<T> loadData(String instanceCode);
 
     /** Scrittura sheet */
-    void writeSheet(Sheet sheet, List<?> data);
+    void writeSheet(Sheet sheet, List<T> data);
 }
 
