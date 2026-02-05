@@ -1,5 +1,6 @@
 package com.nexigroup.pagopa.cruscotto.repository;
 
+import com.nexigroup.pagopa.cruscotto.domain.KpiC1Result;
 import com.nexigroup.pagopa.cruscotto.domain.KpiResult;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import org.springframework.data.domain.Page;
@@ -99,4 +100,11 @@ public interface KpiResultRepository extends JpaRepository<KpiResult, Long>, Jpa
      * Check if result exists for instance module and module code
      */
     boolean existsByInstanceModuleIdAndModuleCode(Long instanceModuleId, ModuleCode moduleCode);
+
+
+    @Query("""
+    SELECT k
+    FROM KpiResult k
+    WHERE k.instanceId = :instanceId AND k.moduleCode = :moduleCode """)
+    List<KpiResult> findByInstanceId(@Param("instanceId") Long instanceId, @Param("moduleCode") ModuleCode moduleCode);
 }
