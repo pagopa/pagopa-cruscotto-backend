@@ -282,7 +282,7 @@ public class ReportGenerationServiceImpl implements ReportGenerationService {
             List<ExcelFile> excelFiles = new ArrayList<>();
 
             ExcelFile drilldownFile = new ExcelFile();
-            drilldownFile.setFileName("Drilldown.xlsx");
+            drilldownFile.setFileName(context.getInstanceName() + ".xlsx");
             drilldownFile.setContent(drilldownExcel);
             drilldownFile.setDescription("Detailed drill-down data");
             excelFiles.add(drilldownFile);
