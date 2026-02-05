@@ -23,7 +23,7 @@ public class KpiB9PdfTableConfig extends CommonConfig {
             new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.to"), "evaluationEndDate"),
 
             new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.totRes"), "totRes"),
-            new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.resKo"), "resKo"),
+            new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.totalRes"), "totRes"),
             new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.resKoPercentage"), "resKoPercentage"),
 
             new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.outcome"), "outcome")
@@ -63,7 +63,7 @@ public class KpiB9PdfTableConfig extends CommonConfig {
                     e.getResKo() != null ? INT_FMT.format(e.getResKo()) : "0");
 
                 row.put("resKoPercentage",
-                    e.getResKoPercentage() != null ? DEC_FMT.format(e.getResKoPercentage())+ "%" :   "");
+                    e.getResKoPercentage() != null ? DEC_FMT.format(e.getResKoPercentage()) + "%" :   PERCENTAGE_0);
 
                 row.put("outcome",
                     e.getOutcome() != null ? e.getOutcome().name() : "");
