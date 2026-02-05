@@ -18,4 +18,5 @@ public class CommonConfig {
         "#,##0.00",
         DecimalFormatSymbols.getInstance(Locale.ITALY)
     );
+    public static String PERCENTAGE_0 ="0.00%";
 }

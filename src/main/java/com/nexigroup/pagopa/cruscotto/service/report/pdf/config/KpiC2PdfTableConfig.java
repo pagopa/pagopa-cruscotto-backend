@@ -67,7 +67,7 @@ public class KpiC2PdfTableConfig extends CommonConfig {
                     e.getTotalInstitutionSend() != null ? INT_FMT.format(e.getTotalInstitutionSend()) : "0");
 
                 row.put("percentInstitutionSend",
-                    e.getPercentInstitutionSend() != null ? DEC_FMT.format(e.getPercentInstitutionSend()) : "0,00");
+                    e.getPercentInstitutionSend() != null ? DEC_FMT.format(e.getPercentInstitutionSend()) : PERCENTAGE_0);
 
                 row.put("totalPayment",
                     e.getTotalPayment() != null ? INT_FMT.format(e.getTotalPayment()) : "0");
@@ -76,7 +76,7 @@ public class KpiC2PdfTableConfig extends CommonConfig {
                     e.getTotalNotification() != null ? INT_FMT.format(e.getTotalNotification()) : "0");
 
                 row.put("percentEntiOk",
-                    e.getPercentEntiOk() != null ? DEC_FMT.format(e.getPercentEntiOk()) : "0,00");
+                    e.getPercentEntiOk() != null ? DEC_FMT.format(e.getPercentEntiOk()) : PERCENTAGE_0);
 
                 row.put("outcome",
                     e.getOutcome() != null ? e.getOutcome().name() : "");
