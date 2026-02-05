@@ -104,8 +104,8 @@ public class InstanceDTO implements Serializable {
             instanceModules +
             ", changePartnerQualified=" +
             changePartnerQualified +
-            ", latestCompletedReportId=" +
-            latestCompletedReportId +
+            ", latestRequestedReportId=" +
+            latestRequestedReportId +
             '}'
         );
     }
