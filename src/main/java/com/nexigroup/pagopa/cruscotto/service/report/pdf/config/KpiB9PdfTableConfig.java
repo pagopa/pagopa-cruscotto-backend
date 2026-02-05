@@ -22,7 +22,7 @@ public class KpiB9PdfTableConfig extends CommonConfig {
             new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.from"), "evaluationStartDate"),
             new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.to"), "evaluationEndDate"),
 
-            new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.totalRes"), "totRes"),
+            new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.totRes"), "totRes"),
             new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.resKo"), "resKo"),
             new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.resKoPercentage"), "resKoPercentage"),
 
