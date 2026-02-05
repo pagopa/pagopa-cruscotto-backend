@@ -9,8 +9,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nexigroup.pagopa.cruscotto.domain.*;
 import com.nexigroup.pagopa.cruscotto.service.report.pdf.config.*;
+import lombok.AllArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
@@ -18,13 +20,12 @@ import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.service.report.pdf.model.PdfKpiTableDescriptor;
 
 @Service
+@AllArgsConstructor
 public class PdfKpiTableFactory {
 
     private final MessageSource messageSource;
+    private final ObjectMapper objectMapper;
 
-    public PdfKpiTableFactory(MessageSource messageSource) {
-        this.messageSource = messageSource;
-    }
 
     private static final int MAX_ROWS_PER_PAGE = 25;
 
@@ -108,6 +109,14 @@ public class PdfKpiTableFactory {
         );
     }
 
+    // ========================= B6 =========================
+    public PdfKpiTableDescriptor buildB6(List<KpiDetailResult> rows, Locale locale) {
+        return new PdfKpiTableDescriptor(
+            "B.6",
+            KpiB6PdfTableConfig.columns(messageSource, locale),
+            KpiB6PdfTableConfig.mapB6Rows(rows, objectMapper)
+        );
+    }
     // ========================= B8 =========================
     public PdfKpiTableDescriptor buildB8(List<KpiB8DetailResult> rows, Locale locale) {
         return new PdfKpiTableDescriptor(

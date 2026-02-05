@@ -69,7 +69,7 @@ public class KpiC1PdfTableConfig extends CommonConfig {
                     e.getSentMessages() != null ? INT_FMT.format(e.getSentMessages()) : "0");
 
                 row.put("sendingPercentage",
-                    e.getSendingPercentage() != null ? DEC_FMT.format(e.getSendingPercentage()) : "0,00");
+                    e.getSendingPercentage() != null ? DEC_FMT.format(e.getSendingPercentage()) + "%" :   PERCENTAGE_0);
 
                 row.put("configuredThreshold",
                     e.getConfiguredThreshold() != null ? DEC_FMT.format(e.getConfiguredThreshold()) : "0,00");

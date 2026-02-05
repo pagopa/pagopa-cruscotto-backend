@@ -63,7 +63,7 @@ public class KpiB9PdfTableConfig extends CommonConfig {
                     e.getResKo() != null ? INT_FMT.format(e.getResKo()) : "0");
 
                 row.put("resKoPercentage",
-                    e.getResKoPercentage() != null ? DEC_FMT.format(e.getResKoPercentage()) : "0,00");
+                    e.getResKoPercentage() != null ? DEC_FMT.format(e.getResKoPercentage())+ "%" :   "");
 
                 row.put("outcome",
                     e.getOutcome() != null ? e.getOutcome().name() : "");

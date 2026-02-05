@@ -48,7 +48,7 @@ public class KpiA1PdfTableConfig extends CommonConfig{
             row.put("totReq", e.getTotReq() != null ? INT_FMT.format(e.getTotReq()) : "0");
             row.put("reqTimeout", e.getReqTimeout() != null ? INT_FMT.format(e.getReqTimeout()) : "0");
             row.put("timeoutPercentage",
-                e.getTimeoutPercentage() != null ? PERC_FMT.format(e.getTimeoutPercentage()) + "%" : "");
+                e.getTimeoutPercentage() != null ? PERC_FMT.format(e.getTimeoutPercentage()) + "%" : PERCENTAGE_0);
             row.put("outcome", e.getOutcome() != null ? e.getOutcome().name() : "");
             return row;
         }).toList();
