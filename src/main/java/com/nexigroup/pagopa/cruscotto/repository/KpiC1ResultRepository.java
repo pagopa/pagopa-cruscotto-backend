@@ -1,5 +1,6 @@
 package com.nexigroup.pagopa.cruscotto.repository;
 
+import com.nexigroup.pagopa.cruscotto.domain.KpiB9Result;
 import com.nexigroup.pagopa.cruscotto.domain.KpiC1Result;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -92,4 +93,6 @@ public interface KpiC1ResultRepository extends JpaRepository<KpiC1Result, Long> 
      * Elimina i risultati più vecchi di una certa data
      */
     void deleteByReferenceDateBefore(LocalDate cutoffDate);
+
+
 }

@@ -56,10 +56,10 @@ public class InstanceDTO implements Serializable {
     private Boolean changePartnerQualified;
 
     /**
-     * ID of the latest completed report for this instance.
+     * ID of the latest requested report for this instance.
      * Used by frontend to enable download button and fetch download URL.
      */
-    private Long latestCompletedReportId;
+    private Long latestRequestedReportId;
 
     @Override
     public String toString() {
@@ -104,8 +104,8 @@ public class InstanceDTO implements Serializable {
             instanceModules +
             ", changePartnerQualified=" +
             changePartnerQualified +
-            ", latestCompletedReportId=" +
-            latestCompletedReportId +
+            ", latestRequestedReportId=" +
+            latestRequestedReportId +
             '}'
         );
     }

@@ -1,5 +1,6 @@
 package com.nexigroup.pagopa.cruscotto.repository;
 
+import com.nexigroup.pagopa.cruscotto.domain.KpiB2Result;
 import com.nexigroup.pagopa.cruscotto.domain.KpiB3Result;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,4 +24,10 @@ public interface KpiB3ResultRepository extends JpaRepository<KpiB3Result, Long>,
         "SELECT kpiB3Result FROM KpiB3Result kpiB3Result WHERE kpiB3Result.instanceModule.id = :instanceModuleId ORDER BY kpiB3Result.analysisDate DESC"
     )
     List<KpiB3Result> findAllByInstanceModuleIdOrderByAnalysisDateDesc(@Param("instanceModuleId") Long instanceModuleId);
+
+    @Query("""
+    SELECT k
+    FROM KpiB3Result k
+    WHERE k.instance.id = :instanceId""")
+    List<KpiB3Result> findByInstanceId(@Param("instanceId") Long instanceId);
 }

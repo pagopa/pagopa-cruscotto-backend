@@ -152,7 +152,59 @@ public class KpiA1Job extends QuartzJobBean {
                         AtomicReference<OutcomeStatus> kpiA1ResultFinalOutcome = new AtomicReference<>(OutcomeStatus.OK);
 
                         if (stations.isEmpty()) {
-                            LOGGER.info("No stations found");
+                            LOGGER.info("No stations found - creating empty detail results");
+                            
+                            // Create monthly detail results
+                            Map<Month, LocalDate> monthlyStartDate = new HashMap<>();
+                            Map<Month, LocalDate> monthlyEndDate = new HashMap<>();
+                            
+                            instanceDTO.getAnalysisPeriodStartDate()
+                                .datesUntil(instanceDTO.getAnalysisPeriodEndDate().plusDays(1))
+                                .forEach(date -> {
+                                    Month currentMonth = date.getMonth();
+                                    monthlyStartDate.putIfAbsent(currentMonth, 
+                                        date.equals(instanceDTO.getAnalysisPeriodStartDate()) 
+                                            ? instanceDTO.getAnalysisPeriodStartDate() 
+                                            : date.with(TemporalAdjusters.firstDayOfMonth()));
+                                    monthlyEndDate.put(currentMonth, 
+                                        currentMonth.equals(instanceDTO.getAnalysisPeriodEndDate().getMonth()) 
+                                            ? instanceDTO.getAnalysisPeriodEndDate() 
+                                            : date.with(TemporalAdjusters.lastDayOfMonth()));
+                                });
+                            
+                            // Create detail result for each month
+                            for (Month month : monthlyStartDate.keySet()) {
+                                KpiA1DetailResultDTO monthlyDetail = new KpiA1DetailResultDTO();
+                                monthlyDetail.setInstanceId(instanceDTO.getId());
+                                monthlyDetail.setInstanceModuleId(instanceModuleDTO.getId());
+                                monthlyDetail.setAnalysisDate(LocalDate.now());
+                                monthlyDetail.setEvaluationType(EvaluationType.MESE);
+                                monthlyDetail.setEvaluationStartDate(monthlyStartDate.get(month));
+                                monthlyDetail.setEvaluationEndDate(monthlyEndDate.get(month));
+                                monthlyDetail.setTotReq(0L);
+                                monthlyDetail.setReqTimeout(0L);
+                                monthlyDetail.setTimeoutPercentage(0.0);
+                                monthlyDetail.setKpiA1ResultId(kpiA1ResultRef.get().getId());
+                                monthlyDetail.setOutcome(OutcomeStatus.OK);
+                                
+                                kpiA1DetailResultService.save(monthlyDetail);
+                            }
+                            
+                            // Create empty detail result for TOTALE period
+                            KpiA1DetailResultDTO kpiA1DetailResultDTO = new KpiA1DetailResultDTO();
+                            kpiA1DetailResultDTO.setInstanceId(instanceDTO.getId());
+                            kpiA1DetailResultDTO.setInstanceModuleId(instanceModuleDTO.getId());
+                            kpiA1DetailResultDTO.setAnalysisDate(LocalDate.now());
+                            kpiA1DetailResultDTO.setEvaluationType(EvaluationType.TOTALE);
+                            kpiA1DetailResultDTO.setEvaluationStartDate(instanceDTO.getAnalysisPeriodStartDate());
+                            kpiA1DetailResultDTO.setEvaluationEndDate(instanceDTO.getAnalysisPeriodEndDate());
+                            kpiA1DetailResultDTO.setTotReq(0L);
+                            kpiA1DetailResultDTO.setReqTimeout(0L);
+                            kpiA1DetailResultDTO.setTimeoutPercentage(0.0);
+                            kpiA1DetailResultDTO.setKpiA1ResultId(kpiA1ResultRef.get().getId());
+                            kpiA1DetailResultDTO.setOutcome(OutcomeStatus.OK);
+                            
+                            kpiA1DetailResultService.save(kpiA1DetailResultDTO);
                         } else {
                             // Aggregazione per periodo (mese) - tutti i dati saranno aggregati senza considerare stationId e method
                             Map<Month, Long> monthlyTotReq = new HashMap<>();
