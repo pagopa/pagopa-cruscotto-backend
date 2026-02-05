@@ -517,7 +517,8 @@ public class ReportGenerationServiceImpl implements ReportGenerationService {
                     String downloadUrl = blobStorageService.generateSasUrl(
                         blobPath, 
                         blobFileName, 
-                        sasUrlValidity
+                        sasUrlValidity,
+                        file.getFileName()
                     );
                     
                     DownloadInfoDTO downloadInfo = new DownloadInfoDTO(
