@@ -9,6 +9,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import com.nexigroup.pagopa.cruscotto.domain.*;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.repository.*;
 import com.nexigroup.pagopa.cruscotto.service.report.pdf.factory.PdfKpiTableFactory;
 import com.nexigroup.pagopa.cruscotto.service.report.pdf.model.PdfKpiPage;
@@ -43,6 +44,8 @@ public class PDFReportGenerator {
     private final KpiB3DetailResultRepository kpiB3DetailResultRepository;
     private final KpiB4DetailResultRepository kpiB4DetailResultRepository;
     private final KpiB5DetailResultRepository kpiB5DetailResultRepository;
+    private final KpiDetailResultRepository   kpiB6DetailResultRepository;
+
     private final KpiB8DetailResultRepository kpiB8DetailResultRepository;
     private final KpiB9DetailResultRepository kpiB9DetailResultRepository;
     private final KpiC1DetailResultRepository kpiC1DetailResultRepository;
@@ -61,6 +64,7 @@ public class PDFReportGenerator {
         KpiB3DetailResultRepository kpiB3DetailResultRepository,
         KpiB4DetailResultRepository kpiB4DetailResultRepository,
         KpiB5DetailResultRepository kpiB5DetailResultRepository,
+        KpiDetailResultRepository   kpiB6DetailResultRepository,
         KpiB8DetailResultRepository kpiB8DetailResultRepository,
         KpiB9DetailResultRepository kpiB9DetailResultRepository,
         KpiC1DetailResultRepository kpiC1DetailResultRepository,
@@ -79,6 +83,7 @@ public class PDFReportGenerator {
         this.kpiB3DetailResultRepository = kpiB3DetailResultRepository;
         this.kpiB4DetailResultRepository = kpiB4DetailResultRepository;
         this.kpiB5DetailResultRepository = kpiB5DetailResultRepository;
+        this.kpiB6DetailResultRepository = kpiB6DetailResultRepository;
         this.kpiB8DetailResultRepository = kpiB8DetailResultRepository;
         this.kpiB9DetailResultRepository = kpiB9DetailResultRepository;
         this.kpiC1DetailResultRepository = kpiC1DetailResultRepository;
@@ -90,8 +95,8 @@ public class PDFReportGenerator {
         // Temp WorkDir
         Path workDir = Files.createTempDirectory("pdf-preview-");
 
-        Map<String, Object> baseVars = new HashMap<>();
-        Map<String, List<PdfKpiTableDescriptor>> kpiTables = new HashMap<>();
+        Map<String, Object> baseVars = new LinkedHashMap<>();
+        Map<String, List<PdfKpiTableDescriptor>> kpiTables =  new LinkedHashMap<>();
         Instance instance = instanceRepository.findByIdWithPartner(instanceId);
         if(instance==null){
             throw new EntityNotFoundException();
@@ -116,7 +121,7 @@ public class PDFReportGenerator {
          * =========================
          */
 
-        List<PdfKpiSummaryItem> kpis = new ArrayList<>();
+        List<PdfKpiSummaryItem> kpis = new LinkedList<>();
 
 
         /* =========================
@@ -201,6 +206,19 @@ public class PDFReportGenerator {
             PdfKpiTableDescriptor rawTableB5 = pdfKpiTableFactory.buildB5(b5, effectiveLocale);
             kpiTables.put("B.5", pdfKpiTableFactory.splitTable(rawTableB5));
         }
+
+
+                /* =========================
+               KPI B.6 DATA
+        ========================= */
+        List<KpiDetailResult> b6 = kpiB6DetailResultRepository.findLatestByInstanceIdAndModuleCode(instanceId, ModuleCode.B6);
+        if (!b6.isEmpty()) {
+            kpis.add(buildFromOutcome("B.6", effectiveLocale, b6.stream().map(KpiDetailResult::getOutcome).toList()));
+            baseVars.put("kpiB6Table", pdfKpiTableFactory.buildB6(b6, effectiveLocale));
+            PdfKpiTableDescriptor rawTableB6 = pdfKpiTableFactory.buildB6(b6, effectiveLocale);
+            kpiTables.put("B.6", pdfKpiTableFactory.splitTable(rawTableB6));
+        }
+
 
         /* =========================
                KPI B.8 DATA
@@ -299,7 +317,7 @@ public class PDFReportGenerator {
            ========================= */
 
 
-        List<WrapperPdfFiles> listPdfFiles = new ArrayList<>();
+        List<WrapperPdfFiles> listPdfFiles = new LinkedList<>();
 
         // 1) Summary
         String htmlSummary = generationService.render("pdf/layouts/summary-only", baseVars, effectiveLocale);
