@@ -62,7 +62,7 @@ public class KpiB4PdfTableConfig extends CommonConfig {
                     e.getSumTotCp() != null ? INT_FMT.format(e.getSumTotCp()) : "0");
 
                 row.put("perApiCp",
-                    e.getPerApiCp() != null ? PERC_FMT.format(e.getPerApiCp()) : "0");
+                    e.getPerApiCp() != null ? PERC_FMT.format(e.getPerApiCp()) + "%" :   PERCENTAGE_0);
 
                 row.put("outcome",
                     e.getOutcome() != null ? e.getOutcome().name() : "");

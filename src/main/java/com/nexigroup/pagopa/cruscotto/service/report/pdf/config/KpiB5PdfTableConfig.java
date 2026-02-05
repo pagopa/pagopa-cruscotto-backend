@@ -47,8 +47,7 @@ public class KpiB5PdfTableConfig extends CommonConfig {
 
                 row.put("percentageNoSpontaneous",
                     e.getPercentageNoSpontaneous() != null
-                        ? PERC_FMT.format(e.getPercentageNoSpontaneous())
-                        : "0");
+                        ? PERC_FMT.format(e.getPercentageNoSpontaneous())+ "%" :   PERCENTAGE_0);
 
                 row.put("outcome",
                     e.getOutcome() != null ? e.getOutcome().name() : "");
