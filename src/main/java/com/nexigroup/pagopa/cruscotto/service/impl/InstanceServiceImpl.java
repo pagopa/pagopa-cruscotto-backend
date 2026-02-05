@@ -220,8 +220,8 @@ public class InstanceServiceImpl implements InstanceService {
 
         List<InstanceDTO> list = jpqlSelected.fetch();
 
-        // Populate latestCompletedReportId for each instance
-        list.forEach(this::populateLatestCompletedReportId);
+        // Populate latestRequestedReportId for each instance
+        list.forEach(this::populateLatestRequestedReportId);
 
         return new PageImpl<>(list, pageable, size);
     }
@@ -229,20 +229,20 @@ public class InstanceServiceImpl implements InstanceService {
     @Override
     public Optional<InstanceDTO> findOne(Long id) {
         return instanceRepository.findById(id).map(instanceMapper::toDto).map(dto -> {
-            populateLatestCompletedReportId(dto);
+            populateLatestRequestedReportId(dto);
             return dto;
         });
     }
 
     /**
-     * Populates the latestCompletedReportId field in the InstanceDTO.
+     * Populates the latestRequestedReportId field in the InstanceDTO.
      * This is used by the frontend to enable the download button.
      */
-    private void populateLatestCompletedReportId(InstanceDTO instanceDTO) {
+    private void populateLatestRequestedReportId(InstanceDTO instanceDTO) {
         if (instanceDTO != null && instanceDTO.getId() != null) {
             Optional<Long> latestReportId = reportGenerationRepository
-                .findLatestCompletedReportIdByInstanceId(instanceDTO.getId(), ReportStatus.COMPLETED);
-            latestReportId.ifPresent(instanceDTO::setLatestCompletedReportId);
+                .findLatestRequestedReportIdByInstanceId(instanceDTO.getId());
+            latestReportId.ifPresent(instanceDTO::setLatestRequestedReportId);
         }
     }
 
