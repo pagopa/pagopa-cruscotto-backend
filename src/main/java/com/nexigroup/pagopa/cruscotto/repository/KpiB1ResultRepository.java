@@ -1,5 +1,6 @@
 package com.nexigroup.pagopa.cruscotto.repository;
 
+import com.nexigroup.pagopa.cruscotto.domain.KpiA1Result;
 import com.nexigroup.pagopa.cruscotto.domain.KpiB1Result;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,11 +15,17 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface KpiB1ResultRepository extends JpaRepository<KpiB1Result, Long>, JpaSpecificationExecutor<KpiB1Result> {
-    
+
     @Modifying
     @Query("DELETE KpiB1Result kpiB1Result WHERE kpiB1Result.instanceModule.id = :instanceModuleId")
     int deleteAllByInstanceModuleId(@Param("instanceModuleId") Long instanceModuleId);
 
     @Query("SELECT b FROM KpiB1Result b WHERE b.instanceModule.id = :instanceModuleId")
     List<KpiB1Result> selectByInstanceModuleId(@Param("instanceModuleId") Long instanceModuleId);
+
+    @Query("""
+    SELECT k
+    FROM KpiB1Result k
+    WHERE k.instance.id = :instanceId""")
+    List<KpiB1Result> findByInstanceId(@Param("instanceId") Long instanceId);
 }
