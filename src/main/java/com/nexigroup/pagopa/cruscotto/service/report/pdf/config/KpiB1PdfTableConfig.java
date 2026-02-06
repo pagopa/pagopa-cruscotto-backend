@@ -68,8 +68,7 @@ public class KpiB1PdfTableConfig extends CommonConfig {
 
                 row.put("institutionDifferencePercentage",
                     e.getInstitutionDifferencePercentage() != null
-                        ? DEC_FMT.format(e.getInstitutionDifferencePercentage())
-                        : "0");
+                        ? DEC_FMT.format(e.getInstitutionDifferencePercentage()) + "%" :   PERCENTAGE_0);
 
                 row.put("institutionOutcome",
                     e.getInstitutionOutcome() != null ? e.getInstitutionOutcome().name() : "");
