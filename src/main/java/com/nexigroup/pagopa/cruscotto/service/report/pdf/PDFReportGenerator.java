@@ -299,12 +299,15 @@ public class PDFReportGenerator {
 
 
         List<WrapperPdfFiles> listPdfFiles = new LinkedList<>();
+        
+        // Use instance identification for file names
+        String instanceName = instance.getInstanceIdentification();
 
         // 1) Summary
         String htmlSummary = generationService.render("pdf/layouts/summary-only", baseVars, effectiveLocale);
         listPdfFiles.add(WrapperPdfFiles.builder()
                 .content(rendererService.renderToBytes(htmlSummary, workDir))
-                .name("report-summary.pdf")
+                .name(instanceName + "_summary.pdf")
                 .build());
 
         // 2) Summary + Negativi
@@ -313,7 +316,7 @@ public class PDFReportGenerator {
         String htmlNeg = generationService.render("pdf/layouts/summary-plus-negative", baseVars, effectiveLocale);
         listPdfFiles.add(WrapperPdfFiles.builder()
             .content(rendererService.renderToBytes(htmlNeg, workDir))
-            .name("report-negative.pdf")
+            .name(instanceName + "_negative.pdf")
             .build());
 
 
@@ -321,7 +324,7 @@ public class PDFReportGenerator {
         String htmlFull = generationService.render("pdf/layouts/full-report", baseVars, effectiveLocale);
         listPdfFiles.add(WrapperPdfFiles.builder()
             .content(rendererService.renderToBytes(htmlFull, workDir))
-            .name("report-complete.pdf")
+            .name(instanceName + "_complete.pdf")
             .build());
 
 
