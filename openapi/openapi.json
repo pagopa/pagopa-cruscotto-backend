@@ -712,7 +712,7 @@
                       "instanceIdentification": "INST-2024-001",
                       "partnerName": "Partner A",
                       "status": "ESEGUITA",
-                      "latestCompletedReportId": 123
+                      "latestRequestedReportId": 123
                     }
                   ],
                   "totalElements": 1
@@ -10083,10 +10083,10 @@
           "changePartnerQualified": {
             "type": "boolean"
           },
-          "latestCompletedReportId": {
+          "latestRequestedReportId": {
             "type": "integer",
             "format": "int64",
-            "description": "ID of the most recent completed report. Null if no completed reports exist. Used by frontend to enable download button."
+            "description": "ID of the most recent requested report (any state). Null if no reports exist. Used by frontend to enable download button."
           }
         }
       },
