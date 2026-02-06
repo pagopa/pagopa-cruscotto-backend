@@ -21,11 +21,9 @@ public class KpiB9AnalyticDrillDownExporter implements DrillDownExcelExporter {
 
     private final PagoPaPaymentReceiptDrilldownRepository repository;
 
-    private static final DateTimeFormatter DATE_FORMAT =
-        DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     private static final DateTimeFormatter TIME_FORMAT =
-        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        DateTimeFormatter.ofPattern("HH:mm")
             .withZone(ZoneId.systemDefault());
 
     @Override
@@ -87,14 +85,10 @@ public class KpiB9AnalyticDrillDownExporter implements DrillDownExcelExporter {
         // ===== HEADER =====
         Row header = sheet.createRow(0);
         String[] columns = {
-            "Analysis Date",
-            "Evaluation Date",
-            "Station ID",
-            "Start Time",
-            "End Time",
-            "Total Responses",
-            "OK Responses",
-            "KO Responses"
+            "From hour",
+            "To Hour",
+            "Total response",
+            "KO response"
         };
 
         for (int i = 0; i < columns.length; i++) {
@@ -119,15 +113,11 @@ public class KpiB9AnalyticDrillDownExporter implements DrillDownExcelExporter {
         int rowIdx = 1;
         for (PagoPaPaymentReceiptDrilldownDTO d : records) {
             Row row = sheet.createRow(rowIdx++);
-
-            row.createCell(0).setCellValue(d.getAnalysisDate().format(DATE_FORMAT));
-            row.createCell(1).setCellValue(d.getEvaluationDate().format(DATE_FORMAT));
-            row.createCell(2).setCellValue(d.getStationId());
-            row.createCell(3).setCellValue(TIME_FORMAT.format(d.getStartTime()));
-            row.createCell(4).setCellValue(TIME_FORMAT.format(d.getEndTime()));
-            row.createCell(5).setCellValue(d.getTotRes());
-            row.createCell(6).setCellValue(d.getResOk());
-            row.createCell(7).setCellValue(d.getResKo());
+            int count =0;
+            row.createCell(count++).setCellValue(TIME_FORMAT.format(d.getStartTime()));
+            row.createCell(count++).setCellValue(TIME_FORMAT.format(d.getEndTime()));
+            row.createCell(count++).setCellValue(d.getTotRes());
+            row.createCell(count++).setCellValue(d.getResKo());
         }
     }
 }

@@ -84,11 +84,10 @@ public class KpiB1AnalyticDrillDownExcelExporter
 
         // ===== HEADER =====
         Row header = sheet.createRow(rowIdx++);
-        header.createCell(0).setCellValue("Data Date");
-        header.createCell(1).setCellValue("Partner Fiscal Code");
+        header.createCell(0).setCellValue("Date");
+        header.createCell(1).setCellValue("Station Code");
         header.createCell(2).setCellValue("Institution Fiscal Code");
         header.createCell(3).setCellValue("Transaction Count");
-        header.createCell(4).setCellValue("Station Code");
 
         // ===== NO DATA =====
         if (data == null || data.isEmpty()) {
@@ -105,14 +104,12 @@ public class KpiB1AnalyticDrillDownExcelExporter
         for (KpiB1AnalyticDrillDownDTO r : rows) {
             Row row = sheet.createRow(rowIdx++);
             row.createCell(0).setCellValue(
-                r.getDataDate() != null ? r.getDataDate().format(DATE_FMT) : ""
+                r.getDataDate() != null ? r.getDataDate().format(dateFormatter) : ""
             );
-            row.createCell(1).setCellValue(r.getPartnerFiscalCode());
+            row.createCell(1).setCellValue(r.getStationCode());
             row.createCell(2).setCellValue(r.getInstitutionFiscalCode());
             row.createCell(3).setCellValue(r.getTransactionCount());
-            row.createCell(4).setCellValue(
-                r.getStationCode() != null ? r.getStationCode() : ""
-            );
+
         }
 
         // Autosize colonne
