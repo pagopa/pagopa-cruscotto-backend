@@ -24,7 +24,7 @@ public class KpiA1AnalyticDrillDownExporter implements DrillDownExcelExporter {
     private final KpiA1AnalyticDataRepository analyticDataRepository;
 
     private static final DateTimeFormatter HOUR_FMT =
-        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+        DateTimeFormatter.ofPattern("HH:mm")
             .withZone(ZoneId.systemDefault());
 
     public KpiA1AnalyticDrillDownExporter(

@@ -80,6 +80,8 @@ public interface PagopaNumeroStandinDrilldownRepository
     @Query("""
     SELECT d
     FROM PagopaNumeroStandinDrilldown d
+    JOIN FETCH d.station s
+    JOIN FETCH s.anagPartner
     WHERE d.instance.id = :instanceId
       AND d.kpiB3AnalyticData.kpiB3DetailResult.id IN (:kpiB3AnalyticDatas)
       AND d.analysisDate = (

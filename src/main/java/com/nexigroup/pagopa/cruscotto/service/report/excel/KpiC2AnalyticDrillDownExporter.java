@@ -70,6 +70,20 @@ public class KpiC2AnalyticDrillDownExporter implements DrillDownExcelExporter {
     public void writeSheet(Sheet sheet, List<?> data) {
 
         int rowIdx = 0;
+        // Header
+        Row header = sheet.createRow(rowIdx++);
+        String[] columns = {
+            "Analysis Date",
+            "Date",
+            "CF Institution",
+            "Total Payment",
+            "Total Notification",
+            "Percentage Notification"
+        };
+
+        for (int i = 0; i < columns.length; i++) {
+            header.createCell(i).setCellValue(columns[i]);
+        }
         if (data == null || data.isEmpty()) {
             Row row = sheet.createRow(rowIdx);
             row.createCell(0).setCellValue("NO DATA FOUND");
@@ -79,28 +93,17 @@ public class KpiC2AnalyticDrillDownExporter implements DrillDownExcelExporter {
         @SuppressWarnings("unchecked")
         List<KpiC2AnalyticDrillDownDTO> rows = (List<KpiC2AnalyticDrillDownDTO>) data;
 
-
-        // Header
-        Row header = sheet.createRow(rowIdx++);
-        header.createCell(0).setCellValue("Institution CF");
-        header.createCell(1).setCellValue("Num Payment");
-        header.createCell(2).setCellValue("Num Notification");
-        header.createCell(3).setCellValue("% Notification");
-
-
         // Body
         for (KpiC2AnalyticDrillDownDTO r : rows) {
             Row row = sheet.createRow(rowIdx++);
-            row.createCell(0).setCellValue(r.getInstitutionCf());
-            row.createCell(1).setCellValue(
-                r.getNumPayment() != null ? r.getNumPayment() : 0
-            );
-            row.createCell(2).setCellValue(
-                r.getNumNotification() != null ? r.getNumNotification() : 0
-            );
-            row.createCell(3).setCellValue(
-                r.getPercentNotification() != null ? r.getPercentNotification().doubleValue() : 0
-            );
+            int count =0;
+            row.createCell(count++).setCellValue(r.getAnalysisDate() != null ? r.getAnalysisDate().format(dateFormatter) : "");
+            row.createCell(count++).setCellValue(r.getEvaluationDate() != null ? r.getEvaluationDate().format(dateFormatter) : "");
+            row.createCell(count++).setCellValue(r.getInstitutionCf());
+            row.createCell(count++).setCellValue(r.getNumPayment() != null ? r.getNumPayment() : 0);
+            row.createCell(count++).setCellValue(r.getNumNotification() != null ? r.getNumNotification() : 0);
+            row.createCell(count++).setCellValue(r.getPercentNotification() != null ? r.getPercentNotification().doubleValue() +"%" : "0.0%");
+
         }
     }
 }
