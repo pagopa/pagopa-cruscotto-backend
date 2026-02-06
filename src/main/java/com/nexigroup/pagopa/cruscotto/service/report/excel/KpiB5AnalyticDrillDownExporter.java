@@ -49,7 +49,7 @@ public class KpiB5AnalyticDrillDownExporter implements DrillDownExcelExporter {
         }
 
         // richiesto: excel del primo record trovato
-        return List.of(result.get(0));
+        return result;
     }
 
     private PagopaSpontaneiDTO toDto(KpiB5AnalyticDrillDown drillDown) {
@@ -70,33 +70,31 @@ public class KpiB5AnalyticDrillDownExporter implements DrillDownExcelExporter {
 
     @Override
     public void writeSheet(Sheet sheet, List<?> data) {
+        int rowIdx = 0;
+        // ===== HEADER =====
 
-        @SuppressWarnings("unchecked")        int rowIdx = 0;
+        Row header = sheet.createRow(rowIdx++);
+        header.createCell(0).setCellValue("Partner Fiscal Code");
+        header.createCell(1).setCellValue("Station Code");
+        header.createCell(2).setCellValue("Spontaneous Payments");
+
         if (data == null || data.isEmpty()) {
             Row row = sheet.createRow(rowIdx);
             row.createCell(0).setCellValue("NO DATA FOUND");
             return;
         }
 
-        List<PagopaSpontaneiDTO> rows =
-            (List<PagopaSpontaneiDTO>) data;
+        List<PagopaSpontaneiDTO> rows =(List<PagopaSpontaneiDTO>) data;
 
 
-        // ===== HEADER =====
-        Row header = sheet.createRow(rowIdx++);
 
-        header.createCell(0).setCellValue("Partner Fiscal Code");
-        header.createCell(1).setCellValue("Station Code");
-        header.createCell(2).setCellValue("Fiscal Code");
-        header.createCell(3).setCellValue("Spontaneous Payments");
 
         // ===== DATA (1 record) =====
         for (PagopaSpontaneiDTO r : rows) {
             Row row = sheet.createRow(rowIdx++);
             row.createCell(0).setCellValue(r.getPartnerFiscalCode());
             row.createCell(1).setCellValue(r.getStationCode());
-            row.createCell(2).setCellValue(r.getFiscalCode());
-            row.createCell(3).setCellValue(r.getSpontaneousPayments() );
+            row.createCell(2).setCellValue(r.getSpontaneousPayments() );
         }
     }
 }
