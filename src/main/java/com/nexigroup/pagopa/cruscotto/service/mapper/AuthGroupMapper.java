@@ -1,7 +1,6 @@
 package com.nexigroup.pagopa.cruscotto.service.mapper;
 
 import com.nexigroup.pagopa.cruscotto.domain.AuthGroup;
-import com.nexigroup.pagopa.cruscotto.service.dto.AuthFunctionDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.AuthGroupDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

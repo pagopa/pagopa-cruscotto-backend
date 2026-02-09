@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @Order(4) // ordine dopo B1
 @AllArgsConstructor
 public class KpiB2AnalyticDrillDownExcelExporter
-    implements DrillDownExcelExporter {
+    implements DrillDownExcelExporter<KpiB2AnalyticDrillDownDTO> {
 
 
     private static final DateTimeFormatter HOUR_FMT =
@@ -49,7 +49,7 @@ public class KpiB2AnalyticDrillDownExcelExporter
 
 
     @Override
-    public void writeSheet(Sheet sheet, List<?> data) {
+    public void writeSheet(Sheet sheet, List<KpiB2AnalyticDrillDownDTO> data) {
 
         int rowIdx = 0;
 

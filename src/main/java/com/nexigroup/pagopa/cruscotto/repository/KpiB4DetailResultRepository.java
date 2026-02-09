@@ -4,7 +4,6 @@ import com.nexigroup.pagopa.cruscotto.domain.KpiB4DetailResult;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.nexigroup.pagopa.cruscotto.domain.KpiB4Result;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

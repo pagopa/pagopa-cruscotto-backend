@@ -3,7 +3,6 @@ package com.nexigroup.pagopa.cruscotto.service;
 import com.nexigroup.pagopa.cruscotto.domain.KpiC2Result;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiC2ResultDTO;
-import com.nexigroup.pagopa.cruscotto.service.dto.KpiC2ResultDTO;
 
 import java.util.List;
 

@@ -30,31 +30,34 @@ import tech.jhipster.web.util.PaginationUtil;
 @RestController
 @RequestMapping("/api")
 public class InstitutionResource {
-	
+
 	private final Logger log = LoggerFactory.getLogger(InstitutionResource.class);
-	
-	@Autowired
-	private AnagInstitutionService institutionService; 
-	
+
+	private final AnagInstitutionService institutionService;
+
+    public InstitutionResource(AnagInstitutionService institutionService) {
+        this.institutionService = institutionService;
+    }
+
 	@GetMapping("/institutions")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTITUTION_LIST + "\")")
     public ResponseEntity<List<InstitutionIdentificationDTO>> getInstitutionsLookup(
     		@Parameter(description = "Filter", required = false) @Valid @ParameterObject InstitutionFilter filter,
 	        @Parameter(description = "Pageable", required = true) @ParameterObject Pageable pageable
     		) {
-        
+
 		log.debug("REST request to get Stations");
 		Page<InstitutionIdentificationDTO> page = institutionService.findAll(filter, pageable);
 		HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
-	
+
 	@GetMapping("/anag-institutions")
 	@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTITUTION_LIST + "\")")
 	public ResponseEntity<List<AnagInstitutionDTO>> getAllInstitutions(
 			@Parameter(description = "Filter", required = false) @Valid @ParameterObject AnagInstitutionFilter filter,
 	        @Parameter(description = "Pageable", required = true) @ParameterObject Pageable pageable) {
-		
+
 		Page<AnagInstitutionDTO> page = institutionService.findAll(filter, pageable);
 		HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());

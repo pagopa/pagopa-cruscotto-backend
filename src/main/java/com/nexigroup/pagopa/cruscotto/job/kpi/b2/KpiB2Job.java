@@ -78,7 +78,7 @@ public class KpiB2Job extends QuartzJobBean {
                                         dto.setEndHour(record.getEndDate());
                                         return dto;
                                     })
-                                    .collect(java.util.stream.Collectors.toList());
+                                    .toList();
 
 
 
@@ -113,7 +113,7 @@ public class KpiB2Job extends QuartzJobBean {
                     final LocalDate currentDate = date;
                     List<PagoPaRecordedTimeoutDTO> dailyRecords = records.stream()
                         .filter(r -> r.getStartDate().atZone(ZoneId.systemDefault()).toLocalDate().isEqual(currentDate))
-                        .collect(java.util.stream.Collectors.toList());
+                        .toList();
                     long sumTotReqDaily = dailyRecords.stream().mapToLong(PagoPaRecordedTimeoutDTO::getTotReq).sum();
                     long sumReqOkDaily = dailyRecords.stream().mapToLong(PagoPaRecordedTimeoutDTO::getReqOk).sum();
                     long sumReqTimeoutDaily = dailyRecords.stream().mapToLong(PagoPaRecordedTimeoutDTO::getReqTimeout).sum();
@@ -180,7 +180,7 @@ public class KpiB2Job extends QuartzJobBean {
                                 .toLocalDate();
                         return !recordDate.isBefore(firstDayOfMonth) && !recordDate.isAfter(lastDayOfMonth);
                     })
-                    .collect(java.util.stream.Collectors.toList());
+                    .toList();
 
             totRecordMonth.set(monthPeriodRecords.stream()
                     .mapToLong(PagoPaRecordedTimeoutDTO::getReqOk)
@@ -364,7 +364,7 @@ public class KpiB2Job extends QuartzJobBean {
                                             anagPlannedShutdownDTO.getShutdownEndDate())
 
                             )
-                            .anyMatch(Boolean::booleanValue);
+                            .anyMatch(b->b);
                     if (!exclude) {
                         filteredPeriodRecords.add(record);
                     }
@@ -399,7 +399,7 @@ public class KpiB2Job extends QuartzJobBean {
                                         return !recordDate.isBefore(detailResult.getEvaluationStartDate())
                                                 && !recordDate.isAfter(detailResult.getEvaluationEndDate());
                                     })
-                                    .collect(java.util.stream.Collectors.toList()),
+                                    .toList(),
                             detailResult.getEvaluationStartDate(),
                             detailResult.getEvaluationEndDate());
 
@@ -416,7 +416,7 @@ public class KpiB2Job extends QuartzJobBean {
                                     record.getStation().equals(analyticData.getStationName()) &&
                                     record.getMethod().equals(analyticData.getMethod())
                                 )
-                                .collect(java.util.stream.Collectors.toList()),
+                                .toList(),
                             detailResult.getEvaluationStartDate(),
                             detailResult.getEvaluationEndDate()
                         );

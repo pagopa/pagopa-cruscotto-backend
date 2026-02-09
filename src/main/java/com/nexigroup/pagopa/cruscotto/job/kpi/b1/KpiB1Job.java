@@ -28,12 +28,12 @@ import org.springframework.stereotype.Component;
 
 /**
  * Job for calculating KPI B.1: "Numero enti intermediati o transazioni gestite"
- * 
+ *
  * Business Rule: È richiesta l'intermediazione di oltre 5 enti o almeno 250.000 transazioni nel periodo di riferimento
  * (More than 5 Institutions OR at least 250,000 transactions in the reference period)
- * 
+ *
  * Note: KpiB1Result.institutionCount contains the THRESHOLD from configuration (e.g., 5).
- * Analysis aggregations (monthly, daily) use actual master data institution counts from AnagPartner entity 
+ * Analysis aggregations (monthly, daily) use actual master data institution counts from AnagPartner entity
  * for comparison values instead of counting from transaction records.
  */
 @Component
@@ -161,7 +161,7 @@ public class KpiB1Job extends QuartzJobBean {
                         LocalDate recordDate = record.getDate();
                         return !recordDate.isBefore(firstDayOfMonth) && !recordDate.isAfter(lastDayOfMonth);
                     })
-                    .collect(Collectors.toList());
+                    .toList();
 
             // Calculate monthly totals
             long monthlyTotalTransactions = monthPeriodRecords.stream()
@@ -183,19 +183,19 @@ public class KpiB1Job extends QuartzJobBean {
             detailResult.setEvaluationEndDate(lastDayOfMonth);
             detailResult.setTotalInstitutions(monthlyUniqueInstitutions);
             detailResult.setTotalTransactions((int) monthlyTotalTransactions);
-            
+
             // Calculate differences: monthly actual - overall result values
             int institutionDifference = monthlyUniqueInstitutions - kpiB1ResultRef.get().getInstitutionCount();
             int transactionDifference = (int) (monthlyTotalTransactions - kpiB1ResultRef.get().getTransactionCount());
-            
+
             // Calculate percentages: (monthly - overall) / overall * 100
-            BigDecimal institutionDifferencePercentage = kpiB1ResultRef.get().getInstitutionCount() != 0 ? 
+            BigDecimal institutionDifferencePercentage = kpiB1ResultRef.get().getInstitutionCount() != 0 ?
                 BigDecimal.valueOf((double) institutionDifference / kpiB1ResultRef.get().getInstitutionCount() * 100) : BigDecimal.ZERO;
-            BigDecimal transactionDifferencePercentage = kpiB1ResultRef.get().getTransactionCount() != 0 ? 
+            BigDecimal transactionDifferencePercentage = kpiB1ResultRef.get().getTransactionCount() != 0 ?
                 BigDecimal.valueOf((double) transactionDifference / kpiB1ResultRef.get().getTransactionCount() * 100) : BigDecimal.ZERO;
-            
+
             // Determine separate outcomes for institutions and transactions using tolerance against difference percentages
-            OutcomeStatus institutionOutcome = monthlyUniqueInstitutions > institutionThreshold ? OutcomeStatus.OK : 
+            OutcomeStatus institutionOutcome = monthlyUniqueInstitutions > institutionThreshold ? OutcomeStatus.OK :
                 (institutionDifferencePercentage.abs().compareTo(institutionTolerance.abs()) <= 0 ? OutcomeStatus.OK : OutcomeStatus.KO);
             OutcomeStatus transactionOutcome = monthlyTotalTransactions >= transactionThreshold ? OutcomeStatus.OK :
                 (transactionDifferencePercentage.abs().compareTo(transactionTolerance.abs()) <= 0 ? OutcomeStatus.OK : OutcomeStatus.KO);
@@ -207,7 +207,7 @@ public class KpiB1Job extends QuartzJobBean {
             detailResult.setInstitutionOutcome(institutionOutcome);
             detailResult.setTransactionOutcome(transactionOutcome);
 
-            OutcomeStatus monthlyOutcome = (institutionOutcome == OutcomeStatus.OK || transactionOutcome == OutcomeStatus.OK) 
+            OutcomeStatus monthlyOutcome = (institutionOutcome == OutcomeStatus.OK || transactionOutcome == OutcomeStatus.OK)
                              ? OutcomeStatus.OK : OutcomeStatus.KO;
 
             detailResults.add(detailResult);
@@ -232,23 +232,23 @@ public class KpiB1Job extends QuartzJobBean {
         totalDetailResult.setEvaluationEndDate(analysisEnd);
         totalDetailResult.setTotalInstitutions(totalUniqueInstitutionsAcrossPeriod);
         totalDetailResult.setTotalTransactions((int) totalTransactionsForPeriod);
-        
+
         // Calculate differences for total period: total actual - overall result values (should be 0)
         int totalInstitutionDifference = totalUniqueInstitutionsAcrossPeriod - kpiB1ResultRef.get().getInstitutionCount();
         int totalTransactionDifference = (int) (totalTransactionsForPeriod - kpiB1ResultRef.get().getTransactionCount());
-        
+
         // Calculate percentages for total period: (total - overall) / overall * 100
-        BigDecimal totalInstitutionDifferencePercentage = kpiB1ResultRef.get().getInstitutionCount() != 0 ? 
+        BigDecimal totalInstitutionDifferencePercentage = kpiB1ResultRef.get().getInstitutionCount() != 0 ?
             BigDecimal.valueOf((double) totalInstitutionDifference / kpiB1ResultRef.get().getInstitutionCount() * 100) : BigDecimal.ZERO;
-        BigDecimal totalTransactionDifferencePercentage = kpiB1ResultRef.get().getTransactionCount() != 0 ? 
+        BigDecimal totalTransactionDifferencePercentage = kpiB1ResultRef.get().getTransactionCount() != 0 ?
             BigDecimal.valueOf((double) totalTransactionDifference / kpiB1ResultRef.get().getTransactionCount() * 100) : BigDecimal.ZERO;
-        
+
         // Determine separate outcomes for institutions and transactions for total period using tolerance against difference percentages
-        OutcomeStatus totalInstitutionOutcome = totalUniqueInstitutionsAcrossPeriod > institutionThreshold ? OutcomeStatus.OK : 
+        OutcomeStatus totalInstitutionOutcome = totalUniqueInstitutionsAcrossPeriod > institutionThreshold ? OutcomeStatus.OK :
             (totalInstitutionDifferencePercentage.abs().compareTo(institutionTolerance.abs()) <= 0 ? OutcomeStatus.OK : OutcomeStatus.KO);
         OutcomeStatus totalTransactionOutcome = totalTransactionsForPeriod >= transactionThreshold ? OutcomeStatus.OK :
             (totalTransactionDifferencePercentage.abs().compareTo(transactionTolerance.abs()) <= 0 ? OutcomeStatus.OK : OutcomeStatus.KO);
-        
+
         totalDetailResult.setInstitutionDifference(totalInstitutionDifference);
         totalDetailResult.setInstitutionDifferencePercentage(totalInstitutionDifferencePercentage);
         totalDetailResult.setTransactionDifference(totalTransactionDifference);
@@ -257,7 +257,7 @@ public class KpiB1Job extends QuartzJobBean {
         totalDetailResult.setTransactionOutcome(totalTransactionOutcome);
 
         // Calculate total outcome using tolerance-adjusted results
-        OutcomeStatus totalOutcomeStatus = (totalInstitutionOutcome == OutcomeStatus.OK || totalTransactionOutcome == OutcomeStatus.OK) 
+        OutcomeStatus totalOutcomeStatus = (totalInstitutionOutcome == OutcomeStatus.OK || totalTransactionOutcome == OutcomeStatus.OK)
                                            ? OutcomeStatus.OK : OutcomeStatus.KO;
 
         // Only update final outcome for TOTALE evaluation type
@@ -274,22 +274,22 @@ public class KpiB1Job extends QuartzJobBean {
 
     /**
      * Aggregates KpiB1Result with configuration thresholds
-     * 
+     *
      * Note: institutionCount in KpiB1Result represents the THRESHOLD for evaluation (e.g., "5 institutions"),
      * not the actual partner's institution count. The actual counts are used separately in analysis aggregations.
      */
     private KpiB1ResultDTO aggregateKpiB1Result(
-            InstanceDTO instanceDTO, 
-            InstanceModuleDTO instanceModuleDTO, 
-            KpiConfigurationDTO kpiConfigurationDTO, 
+            InstanceDTO instanceDTO,
+            InstanceModuleDTO instanceModuleDTO,
+            KpiConfigurationDTO kpiConfigurationDTO,
             List<PagopaTransactionDTO> records) {
 
         // Use institutionCount from kpiConfigurationDTO as threshold (not master data)
         // This represents the threshold for KPI evaluation (e.g., "more than 5 institutions")
-        int institutionCount = kpiConfigurationDTO.getInstitutionCount() != null ? 
+        int institutionCount = kpiConfigurationDTO.getInstitutionCount() != null ?
             kpiConfigurationDTO.getInstitutionCount() : 0;
-        
-        int transactionCount = kpiConfigurationDTO.getTransactionCount() != null ? 
+
+        int transactionCount = kpiConfigurationDTO.getTransactionCount() != null ?
             kpiConfigurationDTO.getTransactionCount() : 0;
 
         KpiB1ResultDTO kpiB1ResultDTO = new KpiB1ResultDTO();
@@ -299,9 +299,9 @@ public class KpiB1Job extends QuartzJobBean {
         kpiB1ResultDTO.setEvaluationType(kpiConfigurationDTO.getEvaluationType());
         kpiB1ResultDTO.setInstitutionCount(institutionCount);
         kpiB1ResultDTO.setTransactionCount(transactionCount);
-        kpiB1ResultDTO.setInstitutionTolerance(kpiConfigurationDTO.getInstitutionTolerance() != null ? 
+        kpiB1ResultDTO.setInstitutionTolerance(kpiConfigurationDTO.getInstitutionTolerance() != null ?
             kpiConfigurationDTO.getInstitutionTolerance() : BigDecimal.ZERO);
-        kpiB1ResultDTO.setTransactionTolerance(kpiConfigurationDTO.getTransactionTolerance() != null ? 
+        kpiB1ResultDTO.setTransactionTolerance(kpiConfigurationDTO.getTransactionTolerance() != null ?
             kpiConfigurationDTO.getTransactionTolerance() : BigDecimal.ZERO);
         kpiB1ResultDTO.setOutcome(!records.isEmpty() ? OutcomeStatus.STANDBY : OutcomeStatus.OK);
 
@@ -359,7 +359,7 @@ public class KpiB1Job extends QuartzJobBean {
                         .findByInstanceModuleId(instanceModuleDTO.getId());
                 List<Long> analyticDataIds = analyticDataListToDelete.stream()
                         .map(KpiB1AnalyticDataDTO::getId)
-                        .collect(Collectors.toList());
+                        .toList();
 
                 kpiB1AnalyticDrillDownService.deleteByKpiB1AnalyticDataIds(analyticDataIds);
                 LOGGER.info("Deleted kpiB1AnalyticDrillDown records for analyticDataIds: {}", analyticDataIds);
@@ -378,7 +378,7 @@ public class KpiB1Job extends QuartzJobBean {
                 LOGGER.info("Found {} transaction records for analysis period", periodRecords.size());
 
                 // --- Aggregation: KpiB1Result ---
-                KpiB1ResultDTO kpiB1ResultDTO = aggregateKpiB1Result(instanceDTO, instanceModuleDTO, 
+                KpiB1ResultDTO kpiB1ResultDTO = aggregateKpiB1Result(instanceDTO, instanceModuleDTO,
                         kpiConfigurationDTO, periodRecords);
                 AtomicReference<KpiB1ResultDTO> kpiB1ResultRef = new AtomicReference<>(
                         kpiB1ResultService.save(kpiB1ResultDTO));
@@ -426,7 +426,7 @@ public class KpiB1Job extends QuartzJobBean {
                                             return !recordDate.isBefore(detailResult.getEvaluationStartDate())
                                                     && !recordDate.isAfter(detailResult.getEvaluationEndDate());
                                         })
-                                        .collect(Collectors.toList()),
+                                        .toList(),
                                 detailResult.getEvaluationStartDate(),
                                 detailResult.getEvaluationEndDate(),
                                 masterDataInstitutionCount); // Use master data institution count for analysis
@@ -444,7 +444,7 @@ public class KpiB1Job extends QuartzJobBean {
                                                 return !recordDate.isBefore(analyticData.getDataDate()) &&
                                                        !recordDate.isAfter(analyticData.getDataDate());
                                             })
-                                            .collect(Collectors.toList())
+                                            .toList()
                             );
                             kpiB1AnalyticDrillDownService.saveAll(drillDowns);
                         }
@@ -453,9 +453,9 @@ public class KpiB1Job extends QuartzJobBean {
 
                 // Final outcome update
                 LOGGER.info("Final outcome {}", kpiB1ResultFinalOutcome.get());
-                kpiB1ResultService.updateKpiB1ResultOutcome(kpiB1ResultRef.get().getId(), 
+                kpiB1ResultService.updateKpiB1ResultOutcome(kpiB1ResultRef.get().getId(),
                         kpiB1ResultFinalOutcome.get());
-                instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(), 
+                instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(),
                         kpiB1ResultFinalOutcome.get());
 
                 // Trigger state calculation job
