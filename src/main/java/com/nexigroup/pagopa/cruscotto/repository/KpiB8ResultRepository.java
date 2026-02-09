@@ -1,6 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.repository;
 
 import com.nexigroup.pagopa.cruscotto.domain.Instance;
+import com.nexigroup.pagopa.cruscotto.domain.KpiB4Result;
 import com.nexigroup.pagopa.cruscotto.domain.KpiB8Result;
 import java.time.LocalDate;
 import java.util.List;
@@ -92,4 +93,10 @@ public interface KpiB8ResultRepository extends JpaRepository<KpiB8Result, Long> 
      * @return the list of KpiB8Result
      */
     List<KpiB8Result> findAllByInstanceModuleIdOrderByAnalysisDateDesc(Long instanceModuleId);
+
+    @Query("""
+    SELECT k
+    FROM KpiB8Result k
+    WHERE k.instance.id = :instanceId""")
+    List<KpiB8Result> findByInstanceId(@Param("instanceId") Long instanceId);
 }

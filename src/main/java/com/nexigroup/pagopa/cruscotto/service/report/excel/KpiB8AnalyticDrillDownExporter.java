@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 public class KpiB8AnalyticDrillDownExporter implements DrillDownExcelExporter<PagopaAPILogDTO> {
 
     private final PagopaApiLogDrilldownRepository drilldownRepository;
-    private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private final PagopaApiLogDrilldownMapper pagopaApiLogDrilldownMapper;
 
     @Override
@@ -61,7 +60,7 @@ public class KpiB8AnalyticDrillDownExporter implements DrillDownExcelExporter<Pa
     public void writeSheet(Sheet sheet, List<PagopaAPILogDTO> data) {
         // Header
         Row header = sheet.createRow(0);
-        String[] columns = {"Data", "Partner Fiscal Code", "Station Code", "Fiscal Code", "API", "Total Requests", "OK Requests", "KO Requests"};
+        String[] columns = {"Partner Fiscal Code","Data",  "Station Code", "Fiscal Code", "API", "Total Requests", "OK Requests", "KO Requests"};
         for (int i = 0; i < columns.length; i++) {
             header.createCell(i).setCellValue(columns[i]);
         }
@@ -85,14 +84,15 @@ public class KpiB8AnalyticDrillDownExporter implements DrillDownExcelExporter<Pa
         int rowIdx = 1;
         for (PagopaAPILogDTO d : records) {
             Row row = sheet.createRow(rowIdx++);
-            row.createCell(0).setCellValue(d.getDate().format(dateFormatter));
-            row.createCell(1).setCellValue(d.getCfPartner());
-            row.createCell(2).setCellValue(d.getStation());
-            row.createCell(3).setCellValue(d.getCfEnte());
-            row.createCell(4).setCellValue(d.getApi());
-            row.createCell(5).setCellValue(d.getTotReq());
-            row.createCell(6).setCellValue(d.getReqOk());
-            row.createCell(7).setCellValue(d.getReqKo());
+            int count =0;
+            row.createCell(count++).setCellValue(d.getCfPartner());
+            row.createCell(count++).setCellValue(d.getDate().format(dateFormatter));
+            row.createCell(count++).setCellValue(d.getStation());
+            row.createCell(count++).setCellValue(d.getCfEnte());
+            row.createCell(count++).setCellValue(d.getApi());
+            row.createCell(count++).setCellValue(d.getTotReq());
+            row.createCell(count++).setCellValue(d.getReqOk());
+            row.createCell(count++).setCellValue(d.getReqKo());
         }
     }
 }

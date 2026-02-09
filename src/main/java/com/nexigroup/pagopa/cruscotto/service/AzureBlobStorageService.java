@@ -133,14 +133,15 @@ public class AzureBlobStorageService {
      * Generates a Shared Access Signature (SAS) URL for a blob.
      * The SAS URL provides temporary access to download the blob without authentication.
      *
-     * @param blobPath    The path (including folders) where the file is stored in the container.
-     * @param fileName    The name of the file.
-     * @param duration    The duration for which the SAS URL is valid.
+     * @param blobPath         The path (including folders) where the file is stored in the container.
+     * @param fileName         The name of the file.
+     * @param duration         The duration for which the SAS URL is valid.
+     * @param downloadFileName The friendly filename to set in Content-Disposition header.
      * @return The SAS URL for downloading the blob.
      * @throws IllegalArgumentException if blobPath or fileName is null or empty.
      * @throws RuntimeException if SAS URL generation fails.
      */
-    public String generateSasUrl(String blobPath, String fileName, Duration duration) {
+    public String generateSasUrl(String blobPath, String fileName, Duration duration, String downloadFileName) {
         if(blobPath == null || blobPath.trim().isEmpty()) {
             throw new IllegalArgumentException("Blob path cannot be null or empty");
         }
@@ -166,14 +167,19 @@ public class AzureBlobStorageService {
             // Set expiry time
             OffsetDateTime expiryTime = OffsetDateTime.now().plus(duration);
 
-            // Create SAS signature values
+            // Create SAS signature values with Content-Disposition header
             BlobServiceSasSignatureValues sasValues = new BlobServiceSasSignatureValues(expiryTime, sasPermission);
+            
+            // Set Content-Disposition header to force download with friendly filename
+            if (downloadFileName != null && !downloadFileName.trim().isEmpty()) {
+                sasValues.setContentDisposition("attachment; filename=\"" + downloadFileName + "\"");
+            }
 
             // Generate the SAS URL
             String sasUrl = blobClient.generateSas(sasValues);
             String fullSasUrl = blobClient.getBlobUrl() + "?" + sasUrl;
 
-            log.info("Generated SAS URL for blob at path: {}, expires at: {}", fullPath, expiryTime);
+            log.info("Generated SAS URL for blob at path: {}, expires at: {}, download as: {}", fullPath, expiryTime, downloadFileName);
             return fullSasUrl;
         } catch (RuntimeException e) {
             throw e;

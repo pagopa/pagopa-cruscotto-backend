@@ -24,7 +24,7 @@ public class KpiA2AnalyticIncorrectTaxonomyDrillDownExporter
     private final KpiA2AnalyticDataRepository analyticDataRepository;
 
     private static final DateTimeFormatter HOUR_FMT =
-        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+        DateTimeFormatter.ofPattern("HH:mm")
             .withZone(ZoneId.systemDefault());
 
     public KpiA2AnalyticIncorrectTaxonomyDrillDownExporter(
@@ -84,10 +84,10 @@ public class KpiA2AnalyticIncorrectTaxonomyDrillDownExporter
         // ===== HEADER =====
         Row header = sheet.createRow(rowIdx++);
         header.createCell(0).setCellValue("From Hour");
-        header.createCell(1).setCellValue("End Hour");
+        header.createCell(1).setCellValue("To Hour");
         header.createCell(2).setCellValue("Transfer Category");
-        header.createCell(3).setCellValue("Total Payments");
-        header.createCell(4).setCellValue("Incorrect Payments");
+        header.createCell(3).setCellValue("Total Transfer");
+        header.createCell(4).setCellValue("Incorrect Transfer");
 
         // ===== NO DATA =====
         if (data == null || data.isEmpty()) {

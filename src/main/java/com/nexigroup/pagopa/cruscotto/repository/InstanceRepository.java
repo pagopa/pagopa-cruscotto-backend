@@ -21,4 +21,10 @@ public interface InstanceRepository extends JpaRepository<Instance, Long>, JpaSp
     @Query("SELECT i FROM Instance i JOIN FETCH i.partner WHERE i.id = :id")
     Instance findByIdWithPartner(@Param("id") Long id);
 
+    @Query("SELECT COUNT(i) FROM Instance i WHERE i.partner.id = :partnerId AND i.status = :status")
+    long countByPartnerIdAndStatus(@Param("partnerId") Long partnerId, @Param("status") InstanceStatus status);
+
+    @Query("SELECT i.id FROM Instance i WHERE i.partner.id = :partnerId AND i.status = :status ORDER BY i.lastAnalysisDate DESC LIMIT 1")
+    Long findMostRecentExecutedInstanceIdByPartnerId(@Param("partnerId") Long partnerId, @Param("status") InstanceStatus status);
+
 }
