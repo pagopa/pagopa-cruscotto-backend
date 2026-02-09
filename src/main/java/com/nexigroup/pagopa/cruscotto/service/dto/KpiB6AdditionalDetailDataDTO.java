@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class KpiB6AdditionalDataDTO implements Serializable {
+public class KpiB6AdditionalDetailDataDTO implements Serializable {
 
     private int activeStations;
     private int stationsWithPaymentOptions;

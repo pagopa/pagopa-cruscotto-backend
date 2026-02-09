@@ -60,7 +60,7 @@ public class KpiB8AnalyticDrillDownExporter implements DrillDownExcelExporter<Pa
     public void writeSheet(Sheet sheet, List<PagopaAPILogDTO> data) {
         // Header
         Row header = sheet.createRow(0);
-        String[] columns = {"Partner Fiscal Code","Data",  "Station Code", "Fiscal Code", "API", "Total Requests", "OK Requests", "KO Requests"};
+        String[] columns = {"Date","Partner Fiscal Code",  "Station Code", "Fiscal Code", "API", "Total Requests", "OK Requests", "KO Requests"};
         for (int i = 0; i < columns.length; i++) {
             header.createCell(i).setCellValue(columns[i]);
         }
@@ -85,8 +85,8 @@ public class KpiB8AnalyticDrillDownExporter implements DrillDownExcelExporter<Pa
         for (PagopaAPILogDTO d : records) {
             Row row = sheet.createRow(rowIdx++);
             int count =0;
-            row.createCell(count++).setCellValue(d.getCfPartner());
             row.createCell(count++).setCellValue(d.getDate().format(dateFormatter));
+            row.createCell(count++).setCellValue(d.getCfPartner());
             row.createCell(count++).setCellValue(d.getStation());
             row.createCell(count++).setCellValue(d.getCfEnte());
             row.createCell(count++).setCellValue(d.getApi());

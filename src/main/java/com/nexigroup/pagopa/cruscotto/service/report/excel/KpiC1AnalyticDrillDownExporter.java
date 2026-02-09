@@ -64,7 +64,6 @@ public class KpiC1AnalyticDrillDownExporter implements DrillDownExcelExporter<Io
         // ===== HEADER =====
         Row header = sheet.createRow(0);
         String[] columns = {
-            "Analysis Date",
             "Date",
             "CF Institution",
             "Positions Count",
@@ -94,7 +93,6 @@ public class KpiC1AnalyticDrillDownExporter implements DrillDownExcelExporter<Io
         for (IoDrilldownDTO d : records) {
             Row row = sheet.createRow(rowIdx++);
             int count =0;
-            row.createCell(count++).setCellValue(d.getReferenceDate() != null ? d.getReferenceDate().format(dateFormatter) : "");
             row.createCell(count++).setCellValue(d.getDataDate() != null ? d.getDataDate().format(dateFormatter) : "");
             row.createCell(count++).setCellValue(d.getCfInstitution());
             row.createCell(count++).setCellValue(d.getPositionsCount());

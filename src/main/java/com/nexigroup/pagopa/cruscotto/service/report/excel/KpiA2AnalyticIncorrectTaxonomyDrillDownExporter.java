@@ -5,6 +5,9 @@ import com.nexigroup.pagopa.cruscotto.repository.KpiA2AnalyticDataRepository;
 import com.nexigroup.pagopa.cruscotto.repository.KpiA2AnalyticIncorrectTaxonomyDataRepository;
 
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA2AnalyticIncorrectTaxonomyDataDTO;
+import com.nexigroup.pagopa.cruscotto.service.report.excel.dto.KpiA2ResultReportExcelDTO;
+import com.nexigroup.pagopa.cruscotto.service.report.repository.QueryReportRepository;
+import lombok.AllArgsConstructor;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.core.annotation.Order;
@@ -17,23 +20,17 @@ import java.util.stream.Collectors;
 
 @Component
 @Order(2) // ordine nello sheet finale
+@AllArgsConstructor
 public class KpiA2AnalyticIncorrectTaxonomyDrillDownExporter
-    implements DrillDownExcelExporter<KpiA2AnalyticIncorrectTaxonomyDataDTO> {
+    implements DrillDownExcelExporter<KpiA2ResultReportExcelDTO> {
 
-    private final KpiA2AnalyticIncorrectTaxonomyDataRepository drillDownRepository;
-    private final KpiA2AnalyticDataRepository analyticDataRepository;
+    QueryReportRepository queryReportRepository;
 
     private static final DateTimeFormatter HOUR_FMT =
         DateTimeFormatter.ofPattern("HH:mm")
             .withZone(ZoneId.systemDefault());
 
-    public KpiA2AnalyticIncorrectTaxonomyDrillDownExporter(
-        KpiA2AnalyticIncorrectTaxonomyDataRepository drillDownRepository,
-        KpiA2AnalyticDataRepository analyticDataRepository
-    ) {
-        this.drillDownRepository = drillDownRepository;
-        this.analyticDataRepository = analyticDataRepository;
-    }
+
 
     @Override
     public String getSheetName() {
@@ -46,48 +43,29 @@ public class KpiA2AnalyticIncorrectTaxonomyDrillDownExporter
     }
 
     @Override
-    public List<KpiA2AnalyticIncorrectTaxonomyDataDTO> loadData(String instanceCode) {
+    public List<KpiA2ResultReportExcelDTO> loadData(String instanceCode) {
 
         Long instanceId = Long.valueOf(instanceCode);
-        List<Long> latestAnalyticDataIdByInstanceId = analyticDataRepository.findLatestAnalyticDataIdByInstanceId(instanceId);
 
 
-        if (latestAnalyticDataIdByInstanceId == null || latestAnalyticDataIdByInstanceId.isEmpty() ){
-            return List.of();
-        }
-
-        return drillDownRepository
-            .findByKpiA2AnalyticDataIdInOrderByFromHourAsc(latestAnalyticDataIdByInstanceId)
-            .stream()
-            .map(this::toDto)
-            .collect(Collectors.toList());
+        return queryReportRepository.findKpiA2DrilldownForExcel(instanceId);
 
     }
 
-    private KpiA2AnalyticIncorrectTaxonomyDataDTO toDto(KpiA2AnalyticIncorrectTaxonomyData entity) {
-        KpiA2AnalyticIncorrectTaxonomyDataDTO dto = new KpiA2AnalyticIncorrectTaxonomyDataDTO();
-        dto.setId(entity.getId());
-        dto.setKpiA2AnalyticDataId(entity.getKpiA2AnalyticDataId());
-        dto.setTransferCategory(entity.getTransferCategory());
-        dto.setTotPayments(entity.getTotPayments());
-        dto.setTotIncorrectPayments(entity.getTotIncorrectPayments());
-        dto.setFromHour(entity.getFromHour());
-        dto.setEndHour(entity.getEndHour());
-        return dto;
-    }
 
     @Override
-    public void writeSheet(Sheet sheet, List<KpiA2AnalyticIncorrectTaxonomyDataDTO> data) {
+    public void writeSheet(Sheet sheet, List<KpiA2ResultReportExcelDTO> data) {
 
         int rowIdx = 0;
 
         // ===== HEADER =====
         Row header = sheet.createRow(rowIdx++);
-        header.createCell(0).setCellValue("From Hour");
-        header.createCell(1).setCellValue("To Hour");
-        header.createCell(2).setCellValue("Transfer Category");
-        header.createCell(3).setCellValue("Total Transfer");
-        header.createCell(4).setCellValue("Incorrect Transfer");
+        header.createCell(0).setCellValue("Period");
+        header.createCell(1).setCellValue("From Hour");
+        header.createCell(2).setCellValue("To Hour");
+        header.createCell(3).setCellValue("Transfer Category");
+        header.createCell(4).setCellValue("Total Transfer");
+        header.createCell(5).setCellValue("Incorrect Transfer");
 
         // ===== NO DATA =====
         if (data == null || data.isEmpty()) {
@@ -97,21 +75,19 @@ public class KpiA2AnalyticIncorrectTaxonomyDrillDownExporter
         }
 
         @SuppressWarnings("unchecked")
-        List<KpiA2AnalyticIncorrectTaxonomyDataDTO> rows =
-            (List<KpiA2AnalyticIncorrectTaxonomyDataDTO>) data;
+        List<KpiA2ResultReportExcelDTO> rows =
+            (List<KpiA2ResultReportExcelDTO>) data;
 
         // ===== DATA =====
-        for (KpiA2AnalyticIncorrectTaxonomyDataDTO r : rows) {
+        for (KpiA2ResultReportExcelDTO r : rows) {
             Row row = sheet.createRow(rowIdx++);
-            row.createCell(0).setCellValue(
-                r.getFromHour() != null ? HOUR_FMT.format(r.getFromHour()) : ""
-            );
-            row.createCell(1).setCellValue(
-                r.getEndHour() != null ? HOUR_FMT.format(r.getEndHour()) : ""
-            );
-            row.createCell(2).setCellValue(r.getTransferCategory());
-            row.createCell(3).setCellValue(r.getTotPayments());
-            row.createCell(4).setCellValue(r.getTotIncorrectPayments());
+            int count =0;
+            row.createCell(count++).setCellValue(DrillDownExcelExporter.formatDateFromInstant(r.getFromHour()));
+            row.createCell(count++).setCellValue(r.getFromHour() != null ? HOUR_FMT.format(r.getFromHour()) : "");
+            row.createCell(count++).setCellValue(r.getEndHour() != null ? HOUR_FMT.format(r.getEndHour()) : "");
+            row.createCell(count++).setCellValue(r.getTransferCategory());
+            row.createCell(count++).setCellValue(r.getTotPayments());
+            row.createCell(count++).setCellValue(r.getTotIncorrectPayments());
         }
     }
 }
