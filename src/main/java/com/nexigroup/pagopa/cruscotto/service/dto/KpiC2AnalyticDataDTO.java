@@ -1,20 +1,12 @@
 package com.nexigroup.pagopa.cruscotto.service.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.nexigroup.pagopa.cruscotto.domain.Instance;
-import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
-import com.nexigroup.pagopa.cruscotto.domain.KpiC2AnalyticData;
-import com.nexigroup.pagopa.cruscotto.domain.KpiC2DetailResult;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Objects;
 
 /**
  * A DTO for the {@link com.nexigroup.pagopa.cruscotto.domain.KpiC2AnalyticData} entity.

@@ -7,7 +7,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 /**
  * Entity che rappresenta la tabella PAGOPA_SEND.

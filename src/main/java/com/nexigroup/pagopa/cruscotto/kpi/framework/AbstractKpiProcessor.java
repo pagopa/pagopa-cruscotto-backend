@@ -14,36 +14,36 @@ import java.util.List;
  * Abstract base class providing common KPI processing functionality
  * Uses composition to allow flexible strategy injection
  */
-public abstract class AbstractKpiProcessor<R extends KpiResult, D extends KpiDetailResult, A extends KpiAnalyticData> 
+public abstract class AbstractKpiProcessor<R extends KpiResult, D extends KpiDetailResult, A extends KpiAnalyticData>
         implements KpiProcessor<R, D, A> {
-    
+
     protected final Logger logger = LoggerFactory.getLogger(getClass());
-    
+
     protected final KpiEvaluationStrategy<Number> evaluationStrategy;
-    
+
     protected AbstractKpiProcessor(KpiEvaluationStrategy<Number> evaluationStrategy) {
         this.evaluationStrategy = evaluationStrategy;
     }
-    
+
     @Override
     public OutcomeStatus calculateFinalOutcome(KpiExecutionContext context, R kpiResult, List<D> detailResults) {
         EvaluationType evaluationType = context.getConfiguration().getEvaluationType();
-        
+
         if (evaluationType == EvaluationType.MESE) {
             // For monthly evaluation, any KO month results in final KO
             return detailResults.stream()
-                    .anyMatch(detail -> getDetailOutcome(detail) == OutcomeStatus.KO) 
+                    .anyMatch(detail -> getDetailOutcome(detail) == OutcomeStatus.KO)
                     ? OutcomeStatus.KO : OutcomeStatus.OK;
         } else {
             // For total evaluation, use the total period result
             return detailResults.stream()
-                    .filter(detail -> isDetailResultForTotalPeriod(detail))
+                    .filter(this::isDetailResultForTotalPeriod)
                     .findFirst()
                     .map(this::getDetailOutcome)
                     .orElse(OutcomeStatus.KO);
         }
     }
-    
+
     /**
      * Calculate percentage difference: (actual - expected) / expected * 100
      */
@@ -51,18 +51,18 @@ public abstract class AbstractKpiProcessor<R extends KpiResult, D extends KpiDet
         if (expected == null || expected.doubleValue() == 0) {
             return BigDecimal.ZERO;
         }
-        
+
         double difference = actual.doubleValue() - expected.doubleValue();
         double percentage = (difference / expected.doubleValue()) * 100.0;
-        
+
         return BigDecimal.valueOf(percentage).setScale(2, RoundingMode.HALF_UP);
     }
-    
+
     /**
      * Template method for subclasses to extract outcome from detail result
      */
     protected abstract OutcomeStatus getDetailOutcome(D detailResult);
-    
+
     /**
      * Template method for subclasses to identify total period results
      */

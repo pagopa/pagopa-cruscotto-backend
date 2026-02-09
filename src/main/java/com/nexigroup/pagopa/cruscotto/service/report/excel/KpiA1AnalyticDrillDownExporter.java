@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 @Component
 @Order(1)
-public class KpiA1AnalyticDrillDownExporter implements DrillDownExcelExporter {
+public class KpiA1AnalyticDrillDownExporter implements DrillDownExcelExporter<KpiA1AnalyticDrillDownDTO> {
 
     private final KpiA1AnalyticDrillDownRepository drillDownRepository;
     private final KpiA1AnalyticDataRepository analyticDataRepository;
@@ -76,7 +76,7 @@ public class KpiA1AnalyticDrillDownExporter implements DrillDownExcelExporter {
     }
 
     @Override
-    public void writeSheet(Sheet sheet, List<?> data) {
+    public void writeSheet(Sheet sheet, List<KpiA1AnalyticDrillDownDTO> data) {
 
         int rowIdx = 0;
 

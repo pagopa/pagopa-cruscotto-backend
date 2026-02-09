@@ -22,7 +22,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.quartz.DisallowConcurrentExecution;
@@ -171,7 +170,7 @@ public class KpiB3Job extends QuartzJobBean {
                         // Create list of station codes for filtering
                         List<String> partnerStationCodes = partnerStations.stream()
                             .map(AnagStation::getName)
-                            .collect(Collectors.toList());
+                            .toList();
 
                         LOGGER.info("Partner {} has {} stations: {}",
                                    instanceDTO.getPartnerFiscalCode(), partnerStations.size(), partnerStationCodes);
@@ -190,7 +189,7 @@ public class KpiB3Job extends QuartzJobBean {
                         // Filter to include only events for partner stations
                         List<PagopaNumeroStandin> standInData = allStandInData.stream()
                             .filter(event -> partnerStationCodes.contains(event.getStationCode()))
-                            .collect(Collectors.toList());
+                            .toList();
 
                         LOGGER.info("Found {} total Stand-In records, {} for partner {} stations",
                                    allStandInData.size(), standInData.size(), instanceDTO.getPartnerFiscalCode());

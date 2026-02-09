@@ -11,14 +11,13 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.stereotype.Component;
 
-import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-public class KpiB3AnalyticDrillDownExporter implements DrillDownExcelExporter  {
+public class KpiB3AnalyticDrillDownExporter implements DrillDownExcelExporter<PagopaNumeroStandinDTO> {
 
     private final PagopaNumeroStandinDrilldownRepository drilldownRepository;
 
@@ -79,7 +78,7 @@ public class KpiB3AnalyticDrillDownExporter implements DrillDownExcelExporter  {
         return dto;
     }
     @Override
-    public void writeSheet(Sheet sheet, List<?> data) {
+    public void writeSheet(Sheet sheet, List<PagopaNumeroStandinDTO> data) {
         Row header = sheet.createRow(0);
         String[] columns = {"Partner Fiscal Code",  "Start period", "End period", "Station Code", "Standin number"};
         for (int i = 0; i < columns.length; i++) {

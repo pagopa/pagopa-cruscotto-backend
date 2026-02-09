@@ -1,5 +1,6 @@
 package com.nexigroup.pagopa.cruscotto.service.validation;
 
+import com.nexigroup.pagopa.cruscotto.domain.AuthGroup;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AuthenticationType;
 import com.nexigroup.pagopa.cruscotto.security.SecurityUtils;
 import com.nexigroup.pagopa.cruscotto.service.AuthGroupService;
@@ -13,8 +14,11 @@ public class ValidAuthGroupValidator implements ConstraintValidator<ValidAuthGro
 
     private final Logger logger = LoggerFactory.getLogger(ValidAuthGroupValidator.class);
 
-    @Autowired
-    private AuthGroupService authGroupService;
+    private final AuthGroupService authGroupService;
+
+    public ValidAuthGroupValidator(AuthGroupService authGroupService) {
+        this.authGroupService = authGroupService;
+    }
 
     @Override
     public boolean isValid(Long valueForValidation, ConstraintValidatorContext constraintValidatorContext) {

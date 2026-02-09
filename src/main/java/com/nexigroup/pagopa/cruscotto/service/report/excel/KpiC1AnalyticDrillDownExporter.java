@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-public class KpiC1AnalyticDrillDownExporter implements DrillDownExcelExporter {
+public class KpiC1AnalyticDrillDownExporter implements DrillDownExcelExporter<IoDrilldownDTO> {
 
     private final IoDrilldownRepository ioDrilldownRepository;
 
@@ -59,7 +59,7 @@ public class KpiC1AnalyticDrillDownExporter implements DrillDownExcelExporter {
 
     @Override
     @SuppressWarnings("unchecked")
-    public void writeSheet(Sheet sheet, List<?> data) {
+    public void writeSheet(Sheet sheet, List<IoDrilldownDTO> data) {
 
         // ===== HEADER =====
         Row header = sheet.createRow(0);

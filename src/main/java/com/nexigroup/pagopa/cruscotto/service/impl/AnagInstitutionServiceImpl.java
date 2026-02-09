@@ -5,7 +5,6 @@ import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -54,14 +53,19 @@ public class AnagInstitutionServiceImpl implements AnagInstitutionService {
 
 	private final Logger log = LoggerFactory.getLogger(AnagInstitutionServiceImpl.class);
 
-    @Autowired
-    private AnagInstitutionRepository anagInstitutionRepository;
+    private final AnagInstitutionRepository anagInstitutionRepository;
+    private final QueryBuilder queryBuilder;
+    private final PagoPaCacheClient pagoPaCacheClient;
 
-    @Autowired
-    private QueryBuilder queryBuilder;
-
-    @Autowired
-    private PagoPaCacheClient pagoPaCacheClient;
+    public AnagInstitutionServiceImpl(
+        AnagInstitutionRepository anagInstitutionRepository,
+        QueryBuilder queryBuilder,
+        PagoPaCacheClient pagoPaCacheClient
+    ) {
+        this.anagInstitutionRepository = anagInstitutionRepository;
+        this.queryBuilder = queryBuilder;
+        this.pagoPaCacheClient = pagoPaCacheClient;
+    }
 
     @Override
     public AnagInstitution findByInstitutionCode(String institutionCode) {

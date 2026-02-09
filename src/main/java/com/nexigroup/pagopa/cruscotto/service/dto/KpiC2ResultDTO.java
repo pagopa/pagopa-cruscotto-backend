@@ -2,13 +2,11 @@ package com.nexigroup.pagopa.cruscotto.service.dto;
 
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
-import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
