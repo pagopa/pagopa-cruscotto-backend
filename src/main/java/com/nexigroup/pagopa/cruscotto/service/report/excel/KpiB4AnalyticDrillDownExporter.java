@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-public class KpiB4AnalyticDrillDownExporter implements DrillDownExcelExporter {
+public class KpiB4AnalyticDrillDownExporter implements DrillDownExcelExporter<PagopaAPILogDTO> {
 
     private final PagopaApiLogDrilldownRepository drilldownRepository;
     private final PagopaApiLogDrilldownMapper pagopaApiLogDrilldownMapper;
@@ -55,7 +55,7 @@ public class KpiB4AnalyticDrillDownExporter implements DrillDownExcelExporter {
     }
 
     @Override
-    public void writeSheet(Sheet sheet, List<?> data) {
+    public void writeSheet(Sheet sheet, List<PagopaAPILogDTO> data) {
         // Header
         Row header = sheet.createRow(0);
         String[] columns = {"Date","Partner Fiscal Code",  "Station Code", "Fiscal Code", "API", "Total Requests", "OK Requests", "KO Requests"};

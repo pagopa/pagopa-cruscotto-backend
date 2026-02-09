@@ -620,8 +620,8 @@ public class KpiC2ServiceImpl implements KpiC2Service {
                 String cfInstitution = (String) logData[1];
                 LocalDate date = ((LocalDateTime) logData[2]).toLocalDate();
 
-                Long paymentsNumber =  ((Long) logData[3]).longValue();
-                Long notificationNumber = ((Long) logData[4]).longValue();
+                Long paymentsNumber = (Long) logData[3];
+                Long notificationNumber = (Long) logData[4];
 
                 // Trova la stazione corrispondente al station code
 

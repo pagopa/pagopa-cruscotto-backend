@@ -288,7 +288,7 @@ public class KpiB9Job extends QuartzJobBean {
                                                         );
                                                     return excludePlanned;
                                                 })
-                                                .anyMatch(Boolean::booleanValue);
+                                                .anyMatch(b->b);
 
                                             // Only count ResKo for KPI calculation if not in maintenance period
                                             if (!exclude) {

@@ -27,6 +27,11 @@ public class PagopaTransactionDTO {
     private Integer transactionTotal;
 
     public PagopaTransactionDTO() {
+        this.cfPartner = "";
+        this.cfInstitution = "";
+        this.date = LocalDate.now();
+        this.station = "";
+        this.transactionTotal = 0;
     }
 
     public PagopaTransactionDTO(String cfPartner, String cfInstitution, LocalDate date, String station, Integer transactionTotal) {

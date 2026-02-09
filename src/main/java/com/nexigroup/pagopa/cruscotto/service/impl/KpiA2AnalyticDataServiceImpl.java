@@ -6,13 +6,11 @@ import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
 import com.nexigroup.pagopa.cruscotto.repository.KpiA2AnalyticDataRepository;
 import com.nexigroup.pagopa.cruscotto.repository.KpiA2DetailResultRepository;
 import com.nexigroup.pagopa.cruscotto.service.KpiA2AnalyticDataService;
-import com.nexigroup.pagopa.cruscotto.service.dto.KpiA1AnalyticDataDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA2AnalyticDataDTO;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPQLQuery;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,7 +77,7 @@ public class KpiA2AnalyticDataServiceImpl implements KpiA2AnalyticDataService {
 
         KpiA2AnalyticData saved = kpiA2AnalyticDataRepository.save(kpiA2AnalyticData);
 
-        
+
         kpiA2AnalyticDataDTO.setId(saved.getId());
 
         return kpiA2AnalyticDataDTO;

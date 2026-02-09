@@ -244,7 +244,7 @@ public class KpiA2Job extends QuartzJobBean {
                                         record.setKpiA2AnalyticDataId(kpiA2AnalyticData.getId());
                                         return record;
                                     })
-                                    .collect(java.util.stream.Collectors.toList());
+                                    .toList();
 
                                 kpiA2AnalyticIncorrectTaxonomyDataService.saveAll(incorrectTaxonomyDataList);
                             });

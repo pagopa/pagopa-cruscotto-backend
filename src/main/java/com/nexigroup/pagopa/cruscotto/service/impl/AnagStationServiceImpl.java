@@ -65,7 +65,7 @@ public class AnagStationServiceImpl implements AnagStationService {
     private final AnagStationRepository anagStationRepository;
 
     private final AnagPartnerRepository anagPartnerRepository;
-    
+
     private final AnagStationAnagInstitutionRepository anagStationAnagInstitutionRepository;
 
     private final AnagInstitutionRepository anagInstitutionRepository;
@@ -261,13 +261,13 @@ public class AnagStationServiceImpl implements AnagStationService {
         BooleanBuilder builder = new BooleanBuilder();
 
         if (filter.getPartnerId() != null) {
-            builder.and(QAnagStation.anagStation.anagPartner.id.eq(Long.valueOf(filter.getPartnerId())));
+            builder.and(QAnagStation.anagStation.anagPartner.id.eq(filter.getPartnerId()));
         }
-        
+
         if (filter.getStationId() != null) {
-            builder.and(QAnagStation.anagStation.id.eq(Long.valueOf(filter.getStationId())));
+            builder.and(QAnagStation.anagStation.id.eq(filter.getStationId()));
         }
-        
+
         if (filter.getShowNotActive() == null ||  (filter.getShowNotActive() != null && !filter.getShowNotActive().booleanValue())) {
             builder.and(QAnagStation.anagStation.status.stringValue().eq(StationStatus.ATTIVA.name()));
         }
@@ -321,29 +321,29 @@ public class AnagStationServiceImpl implements AnagStationService {
 	@Override
 	public void updateAllStationsAssociatedInstitutionsCount() {
 		 log.debug("updateAllStationsAssociatedInstitutionsCount START");
-	        
+
 	        // get all counts by station
 	        List<Object[]> institutionCounts = anagStationAnagInstitutionRepository.countInstitutionsByStation();
-	        
+
 	        // result to map
 	        Map<Long, Long> countsByStationId = institutionCounts.stream()
 	            .collect(Collectors.toMap(
 	                result -> (Long) result[0],  // stationId
 	                result -> (Long) result[1]   // count
 	            ));
-	        
+
 	        // update each station
 	        countsByStationId.forEach((stationId, count) -> {
 	            try {
 	                anagStationRepository.updateAssociatedInstitutesCount(stationId, count.intValue());
-	                
+
 	            } catch (Exception e) {
 	                log.error("can not update station {}: {}", stationId, e.getMessage());
 	            }
 	        });
-	        
+
 	        log.debug("updateAllStationsAssociatedInstitutionsCount END");
-		
+
 	}
 
     @Override

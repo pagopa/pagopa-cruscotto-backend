@@ -146,7 +146,7 @@ class AnagStationServiceImplIT {
         assertThat(result.getTotalElements()).isEqualTo(2);
 
         List<AnagStationDTO> stations = result.getContent();
-        assertThat(stations).allMatch(station -> station.getStatus() == StationStatus.ATTIVA);
+        assertThat(stations).isNotEmpty().allMatch(station -> station.getStatus() == StationStatus.ATTIVA);
     }
 
     @Test

@@ -9,12 +9,11 @@ import org.apache.poi.ss.usermodel.Sheet;
 
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-public class KpiC2AnalyticDrillDownExporter implements DrillDownExcelExporter {
+public class KpiC2AnalyticDrillDownExporter implements DrillDownExcelExporter<KpiC2AnalyticDrillDownDTO> {
 
     private final KpiC2AnalyticDrillDownRepository repository;
 
@@ -67,7 +66,7 @@ public class KpiC2AnalyticDrillDownExporter implements DrillDownExcelExporter {
     }
 
     @Override
-    public void writeSheet(Sheet sheet, List<?> data) {
+    public void writeSheet(Sheet sheet, List<KpiC2AnalyticDrillDownDTO> data) {
 
         int rowIdx = 0;
         // Header

@@ -15,7 +15,6 @@ import com.nexigroup.pagopa.cruscotto.job.cache.Partner;
 import com.nexigroup.pagopa.cruscotto.job.client.PagoPaCacheClient;
 import com.nexigroup.pagopa.cruscotto.service.dto.PartnerIdentificationDTO;
 import com.nexigroup.pagopa.cruscotto.service.validation.ValidationGroups;
-import com.querydsl.jpa.JPAExpressions;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -37,11 +36,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.nexigroup.pagopa.cruscotto.domain.AnagPartner;
 import com.nexigroup.pagopa.cruscotto.domain.QAnagPartner;
 import com.nexigroup.pagopa.cruscotto.domain.QAnagStation;
-import com.nexigroup.pagopa.cruscotto.domain.enumeration.PartnerStatus;
 import com.nexigroup.pagopa.cruscotto.repository.AnagPartnerRepository;
 import com.nexigroup.pagopa.cruscotto.service.AnagPartnerService;
 import com.nexigroup.pagopa.cruscotto.service.dto.AnagPartnerDTO;
-import com.nexigroup.pagopa.cruscotto.service.dto.PartnerIdentificationDTO;
 import com.nexigroup.pagopa.cruscotto.service.mapper.AnagPartnerMapper;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QdslUtility;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
@@ -107,7 +104,7 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
         if (fiscalCode != null && !fiscalCode.isEmpty()) {
             predicate.or(QAnagPartner.anagPartner.fiscalCode.likeIgnoreCase("%" + fiscalCode + "%"));
         }
-        
+
         jpql.where(predicate);
 
         long size = jpql.fetchCount();
@@ -286,7 +283,7 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
                             QAnagPartner.anagPartner.fiscalCode.as("fiscalCode"),
                             QAnagPartner.anagPartner.name.as("name")
                         ).as("partnerIdentification"),
-            		
+
                     QAnagPartner.anagPartner.status.as("status"),
                     QAnagPartner.anagPartner.qualified.as("qualified"),
                     QAnagPartner.anagPartner.deactivationDate.as("deactivationDate"),
@@ -295,8 +292,8 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
                     QAnagPartner.anagPartner.analysisPeriodEndDate.as("analysisPeriodEndDate"),
                     QAnagPartner.anagPartner.stationsCount.as("stationsCount"),
                     QAnagPartner.anagPartner.institutionsCount.as("associatedInstitutes")
-//                    
-  
+//
+
             )
         );
 
@@ -317,7 +314,7 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
         log.debug("findAll END");
         return new PageImpl<>(result, pageable, total);
 	}
-    
+
     @Override
     public void updateInstitutionsCount(Long partnerId, Long institutionsCount) {
         anagPartnerRepository.findById(partnerId).ifPresent(partner -> {
@@ -329,7 +326,7 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
     @Override
     public void updateAllPartnersInstitutionsCount() {
         log.debug("updateAllPartnersInstitutionsCount START");
-        
+
         // Query per ottenere tutti i partner con le loro stazioni e relative istituzioni associate
         // Per ogni partner, somma il numero di istituzioni associate a tutte le sue stazioni
         JPQLQuery<Tuple> query = queryBuilder.<Tuple>createQuery()
@@ -343,7 +340,7 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
             .groupBy(QAnagPartner.anagPartner.id);
 
         List<Tuple> results = query.fetch();
-        
+
         // Aggiorna il count per ogni partner
         results.forEach(result -> {
             Long partnerId = result.get(QAnagPartner.anagPartner.id);
@@ -356,10 +353,10 @@ public class AnagPartnerServiceImpl implements AnagPartnerService {
                 log.error("Failed to update institutions count for partner {}: {}", partnerId, e.getMessage());
             }
         });
-        
+
         log.debug("updateAllPartnersInstitutionsCount END");
     }
-    
+
     @Override
     public Optional<AnagPartnerDTO> findOneByFiscalCode(String fiscalCode) {
         return anagPartnerRepository.findOneByFiscalCode(fiscalCode)

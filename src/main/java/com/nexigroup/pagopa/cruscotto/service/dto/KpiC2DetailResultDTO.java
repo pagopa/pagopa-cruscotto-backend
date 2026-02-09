@@ -1,13 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.service.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.nexigroup.pagopa.cruscotto.domain.Instance;
-import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
-import com.nexigroup.pagopa.cruscotto.domain.KpiC2DetailResult;
-import com.nexigroup.pagopa.cruscotto.domain.KpiC2Result;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -79,6 +73,16 @@ public class KpiC2DetailResultDTO implements Serializable {
 
     private Long kpiC2ResultId;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof KpiC2DetailResultDTO)) {
+            return false;
+        }
+        return id != null && id.equals(((KpiC2DetailResultDTO) o).id);
+    }
 
     @Override
     public int hashCode() {

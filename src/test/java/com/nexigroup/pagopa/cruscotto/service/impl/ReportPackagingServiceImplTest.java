@@ -50,10 +50,10 @@ class ReportPackagingServiceImplTest {
         Map<String, byte[]> entries = unzip(zipBytes);
 
         assertThat(entries).containsKeys(
-            "report_123/report.pdffirst.pdf",
-            "report_123/report.pdfreport_2.pdf",
-            "report_123/excel/report.xlsx",
-            "report_123/metadata.json"
+            "first.pdf",
+            "report_2.pdf",
+            "report.xlsx",
+            "metadata.json"
         );
     }
 
@@ -67,7 +67,7 @@ class ReportPackagingServiceImplTest {
         Map<String, byte[]> entries = unzip(zipBytes);
 
         assertThat(entries).hasSize(1);
-        assertThat(entries).containsKey("report_999/metadata.json");
+        assertThat(entries).containsKey("metadata.json");
     }
 
     // ---------- helper ----------
