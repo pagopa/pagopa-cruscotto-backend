@@ -85,6 +85,7 @@ public class KpiB9AnalyticDrillDownExporter implements DrillDownExcelExporter {
         // ===== HEADER =====
         Row header = sheet.createRow(0);
         String[] columns = {
+            "Period",
             "From hour",
             "To Hour",
             "Total response",
@@ -114,6 +115,7 @@ public class KpiB9AnalyticDrillDownExporter implements DrillDownExcelExporter {
         for (PagoPaPaymentReceiptDrilldownDTO d : records) {
             Row row = sheet.createRow(rowIdx++);
             int count =0;
+            row.createCell(count++).setCellValue(d.getEvaluationDate() != null ? d.getEvaluationDate().format(dateFormatter) : "");
             row.createCell(count++).setCellValue(TIME_FORMAT.format(d.getStartTime()));
             row.createCell(count++).setCellValue(TIME_FORMAT.format(d.getEndTime()));
             row.createCell(count++).setCellValue(d.getTotRes());

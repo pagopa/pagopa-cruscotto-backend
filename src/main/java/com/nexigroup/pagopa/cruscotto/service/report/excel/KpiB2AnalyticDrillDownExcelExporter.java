@@ -4,6 +4,9 @@ import com.nexigroup.pagopa.cruscotto.domain.KpiB2AnalyticDrillDown;
 import com.nexigroup.pagopa.cruscotto.repository.KpiB2AnalyticDataRepository;
 import com.nexigroup.pagopa.cruscotto.repository.KpiB2AnalyticDrillDownRepository;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB2AnalyticDrillDownDTO;
+import com.nexigroup.pagopa.cruscotto.service.report.excel.dto.KpiB2ResultReportExcelDTO;
+import com.nexigroup.pagopa.cruscotto.service.report.repository.QueryReportRepository;
+import lombok.AllArgsConstructor;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.core.annotation.Order;
@@ -16,23 +19,16 @@ import java.util.stream.Collectors;
 
 @Component
 @Order(4) // ordine dopo B1
+@AllArgsConstructor
 public class KpiB2AnalyticDrillDownExcelExporter
     implements DrillDownExcelExporter {
 
-    private final KpiB2AnalyticDataRepository analyticDataRepository;
-    private final KpiB2AnalyticDrillDownRepository drillDownRepository;
 
     private static final DateTimeFormatter HOUR_FMT =
         DateTimeFormatter.ofPattern("HH:mm")
             .withZone(ZoneId.systemDefault());
 
-    public KpiB2AnalyticDrillDownExcelExporter(
-        KpiB2AnalyticDataRepository analyticDataRepository,
-        KpiB2AnalyticDrillDownRepository drillDownRepository
-    ) {
-        this.analyticDataRepository = analyticDataRepository;
-        this.drillDownRepository = drillDownRepository;
-    }
+    QueryReportRepository queryReportRepository;
 
     @Override
     public String getSheetName() {
@@ -45,35 +41,11 @@ public class KpiB2AnalyticDrillDownExcelExporter
     }
 
     @Override
-    public List<KpiB2AnalyticDrillDownDTO> loadData(String instanceCode) {
-
+    public List<KpiB2ResultReportExcelDTO> loadData(String instanceCode) {
         Long instanceId = Long.valueOf(instanceCode);
-
-        List<Long> analyticDataIds =
-            analyticDataRepository.findLatestAnalyticDataIdsByInstanceId(instanceId);
-
-        if (analyticDataIds == null || analyticDataIds.isEmpty()) {
-            return List.of();
-        }
-
-        return drillDownRepository
-            .findByKpiB2AnalyticDataIdIn(analyticDataIds)
-            .stream()
-            .map(this::toDto)
-            .collect(Collectors.toList());
+        return queryReportRepository.findKpiB2DrilldownForExcel(instanceId);
     }
 
-    private  KpiB2AnalyticDrillDownDTO toDto(KpiB2AnalyticDrillDown entity) {
-        KpiB2AnalyticDrillDownDTO dto = new KpiB2AnalyticDrillDownDTO();
-        dto.setId(entity.getId());
-        dto.setKpiB2AnalyticDataId(entity.getKpiB2AnalyticDataId());
-        dto.setFromHour(entity.getFromHour());
-        dto.setEndHour(entity.getEndHour());
-        dto.setTotalRequests(entity.getTotalRequests());
-        dto.setOkRequests(entity.getOkRequests());
-        dto.setAverageTimeMs(entity.getAverageTimeMs());
-        return dto;
-    }
 
 
     @Override
@@ -83,11 +55,12 @@ public class KpiB2AnalyticDrillDownExcelExporter
 
         // ===== HEADER =====
         Row header = sheet.createRow(rowIdx++);
-        header.createCell(0).setCellValue("From Hour");
-        header.createCell(1).setCellValue("To Hour");
-        header.createCell(2).setCellValue("Total Requests");
-        header.createCell(3).setCellValue("OK Requests");
-        header.createCell(4).setCellValue("Average Time (ms)");
+        header.createCell(0).setCellValue("Period");
+        header.createCell(1).setCellValue("From Hour");
+        header.createCell(2).setCellValue("To Hour");
+        header.createCell(3).setCellValue("Total Requests");
+        header.createCell(4).setCellValue("OK Requests");
+        header.createCell(5).setCellValue("Average Time (ms)");
 
         // ===== NO DATA =====
         if (data == null || data.isEmpty()) {
@@ -97,23 +70,19 @@ public class KpiB2AnalyticDrillDownExcelExporter
         }
 
         @SuppressWarnings("unchecked")
-        List<KpiB2AnalyticDrillDownDTO> rows =
-            (List<KpiB2AnalyticDrillDownDTO>) data;
+        List<KpiB2ResultReportExcelDTO> rows =
+            (List<KpiB2ResultReportExcelDTO>) data;
 
         // ===== DATA =====
-        for (KpiB2AnalyticDrillDownDTO r : rows) {
+        for (KpiB2ResultReportExcelDTO r : rows) {
             Row row = sheet.createRow(rowIdx++);
-            row.createCell(0).setCellValue(
-                r.getFromHour() != null ? HOUR_FMT.format(r.getFromHour()) : ""
-            );
-            row.createCell(1).setCellValue(
-                r.getEndHour() != null ? HOUR_FMT.format(r.getEndHour()) : ""
-            );
-            row.createCell(2).setCellValue(r.getTotalRequests());
-            row.createCell(3).setCellValue(r.getOkRequests());
-            row.createCell(4).setCellValue(
-                r.getAverageTimeMs() != null ? r.getAverageTimeMs() : 0d
-            );
+            int count =0;
+            row.createCell(count++).setCellValue(DrillDownExcelExporter.formatDateFromInstant(r.getFromHour()));
+            row.createCell(count++).setCellValue(r.getFromHour() != null ? HOUR_FMT.format(r.getFromHour()) : "");
+            row.createCell(count++).setCellValue(r.getEndHour() != null ? HOUR_FMT.format(r.getEndHour()) : "");
+            row.createCell(count++).setCellValue(r.getTotalRequests());
+            row.createCell(count++).setCellValue(r.getOkRequests());
+            row.createCell(count++).setCellValue(r.getAverageTimeMs() != null ? r.getAverageTimeMs() : 0d);
         }
 
         // Autosize colonne

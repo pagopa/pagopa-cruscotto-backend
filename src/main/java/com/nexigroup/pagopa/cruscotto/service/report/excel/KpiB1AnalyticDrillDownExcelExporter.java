@@ -4,6 +4,9 @@ import com.nexigroup.pagopa.cruscotto.domain.KpiB1AnalyticDrillDown;
 import com.nexigroup.pagopa.cruscotto.repository.KpiB1AnalyticDataRepository;
 import com.nexigroup.pagopa.cruscotto.repository.KpiB1AnalyticDrillDownRepository;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiB1AnalyticDrillDownDTO;
+import com.nexigroup.pagopa.cruscotto.service.report.excel.dto.KpiB1ResultReportExcelDTO;
+import com.nexigroup.pagopa.cruscotto.service.report.repository.QueryReportRepository;
+import lombok.AllArgsConstructor;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.core.annotation.Order;
@@ -15,22 +18,16 @@ import java.util.stream.Collectors;
 
 @Component
 @Order(3) // ordine nello sheet finale
+@AllArgsConstructor
 public class KpiB1AnalyticDrillDownExcelExporter
     implements DrillDownExcelExporter {
 
-    private final KpiB1AnalyticDataRepository analyticDataRepository;
-    private final KpiB1AnalyticDrillDownRepository drillDownRepository;
+    QueryReportRepository queryReportRepository;
 
     private static final DateTimeFormatter DATE_FMT =
         DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    public KpiB1AnalyticDrillDownExcelExporter(
-        KpiB1AnalyticDataRepository analyticDataRepository,
-        KpiB1AnalyticDrillDownRepository drillDownRepository
-    ) {
-        this.analyticDataRepository = analyticDataRepository;
-        this.drillDownRepository = drillDownRepository;
-    }
+
 
     @Override
     public String getSheetName() {
@@ -43,39 +40,12 @@ public class KpiB1AnalyticDrillDownExcelExporter
     }
 
     @Override
-    public List<KpiB1AnalyticDrillDownDTO> loadData(String instanceCode) {
+    public List<KpiB1ResultReportExcelDTO> loadData(String instanceCode) {
 
         Long instanceId = Long.valueOf(instanceCode);
-
-        List<Long> analyticDataIds =
-            analyticDataRepository
-                .findLatestAnalyticDataIdsByInstanceId(instanceId);
-
-        if (analyticDataIds == null || analyticDataIds.isEmpty()) {
-            return List.of();
-        }
-
-        return drillDownRepository
-            .findByKpiB1AnalyticDataIds(analyticDataIds)
-            .stream()
-            .map(this::toDto)
-            .collect(Collectors.toList());
+        return queryReportRepository.findKpiB1DrilldownForExcel(instanceId);
     }
 
-    private KpiB1AnalyticDrillDownDTO toDto(KpiB1AnalyticDrillDown entity) {
-
-        KpiB1AnalyticDrillDownDTO dto = new KpiB1AnalyticDrillDownDTO();
-        dto.setId(entity.getId());
-        dto.setDataDate(entity.getDataDate());
-        dto.setPartnerFiscalCode(entity.getPartnerFiscalCode());
-        dto.setInstitutionFiscalCode(entity.getInstitutionFiscalCode());
-        dto.setTransactionCount(entity.getTransactionCount());
-        dto.setStationCode(entity.getStationCode());
-        dto.setKpiB1AnalyticDataId(entity.getKpiB1AnalyticData().getId());
-
-        return dto;
-
-    }
 
     @Override
     public void writeSheet(Sheet sheet, List<?> data) {
@@ -97,18 +67,17 @@ public class KpiB1AnalyticDrillDownExcelExporter
         }
 
         @SuppressWarnings("unchecked")
-        List<KpiB1AnalyticDrillDownDTO> rows =
-            (List<KpiB1AnalyticDrillDownDTO>) data;
+        List<KpiB1ResultReportExcelDTO> rows =
+            (List<KpiB1ResultReportExcelDTO>) data;
 
         // ===== DATA =====
-        for (KpiB1AnalyticDrillDownDTO r : rows) {
+        for (KpiB1ResultReportExcelDTO r : rows) {
             Row row = sheet.createRow(rowIdx++);
-            row.createCell(0).setCellValue(
-                r.getDataDate() != null ? r.getDataDate().format(dateFormatter) : ""
-            );
-            row.createCell(1).setCellValue(r.getStationCode());
-            row.createCell(2).setCellValue(r.getInstitutionFiscalCode());
-            row.createCell(3).setCellValue(r.getTransactionCount());
+            int count=0;
+            row.createCell(count++).setCellValue(r.getDataDate() != null ? r.getDataDate().format(dateFormatter) : "");
+            row.createCell(count++).setCellValue(r.getStationCode());
+            row.createCell(count++).setCellValue(r.getInstitutionFiscalCode());
+            row.createCell(count++).setCellValue(r.getTransactionCount());
 
         }
 

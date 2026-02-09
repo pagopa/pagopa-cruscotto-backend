@@ -81,7 +81,7 @@ public class KpiB3AnalyticDrillDownExporter implements DrillDownExcelExporter  {
     @Override
     public void writeSheet(Sheet sheet, List<?> data) {
         Row header = sheet.createRow(0);
-        String[] columns = {"Partner Fiscal Code",  "Start period", "End period", "Station Code", "Standin number"};
+        String[] columns = {"Period","Partner Fiscal Code",  "Start period", "End period", "Station Code", "Standin number"};
         for (int i = 0; i < columns.length; i++) {
             header.createCell(i).setCellValue(columns[i]);
         }
@@ -98,6 +98,7 @@ public class KpiB3AnalyticDrillDownExporter implements DrillDownExcelExporter  {
         for (PagopaNumeroStandinDTO d : records) {
             Row row = sheet.createRow(rowIdx++);
             int count =0;
+            row.createCell(count++).setCellValue(d.getIntervalStart().format(dateFormatter));
             row.createCell(count++).setCellValue(d.getPartnerFiscalCode());
             row.createCell(count++).setCellValue(d.getIntervalStart().format(timeFormatter));
             row.createCell(count++).setCellValue(d.getIntervalEnd().format(timeFormatter));
