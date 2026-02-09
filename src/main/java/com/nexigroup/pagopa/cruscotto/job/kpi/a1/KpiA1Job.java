@@ -9,10 +9,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.*;
 import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.BooleanUtils;
@@ -302,23 +299,19 @@ public class KpiA1Job extends QuartzJobBean {
                                             for (PagoPaRecordedTimeoutDTO pagoPaRecordedTimeoutDTO : pagoPaRecordedTimeoutDTOS) {
                                                 LOGGER.debug("PagoPaRecordedTimeoutDTO: {}", pagoPaRecordedTimeoutDTO);
 
-                                                boolean exclude = maintenance
-                                                    .stream()
-                                                    .map(anagPlannedShutdownDTO -> {
-                                                        Boolean excludePlanned =
-                                                            isInstantInRangeInclusive(
-                                                                pagoPaRecordedTimeoutDTO.getStartDate(),
-                                                                anagPlannedShutdownDTO.getShutdownStartDate(),
-                                                                anagPlannedShutdownDTO.getShutdownEndDate()
-                                                            ) &&
+                                                boolean exclude = maintenance.stream()
+                                                    .anyMatch(anagPlannedShutdownDTO ->
+                                                        isInstantInRangeInclusive(
+                                                            pagoPaRecordedTimeoutDTO.getStartDate(),
+                                                            anagPlannedShutdownDTO.getShutdownStartDate(),
+                                                            anagPlannedShutdownDTO.getShutdownEndDate()
+                                                        ) &&
                                                             isInstantInRangeInclusive(
                                                                 pagoPaRecordedTimeoutDTO.getEndDate(),
                                                                 anagPlannedShutdownDTO.getShutdownStartDate(),
                                                                 anagPlannedShutdownDTO.getShutdownEndDate()
-                                                            );
-                                                        return excludePlanned;
-                                                    })
-                                                    .anyMatch(Boolean::booleanValue);
+                                                            )
+                                                    );
 
                                                 if (!exclude) {
                                                     pagoPaRecordedTimeoutMap.computeIfAbsent(date, k -> new ArrayList<>()).add(pagoPaRecordedTimeoutDTO);
@@ -415,7 +408,7 @@ public class KpiA1Job extends QuartzJobBean {
                             // Associa ogni KpiA1AnalyticData al detailResult corrispondente al suo mese
                             if (!monthlyDetailResults.isEmpty() && !allKpiA1AnalyticDataDTOS.isEmpty()) {
                                 // Crea una mappa per associare ogni mese al suo detailResult
-                                Map<Month, KpiA1DetailResultDTO> monthToDetailResult = new HashMap<>();
+                                EnumMap<Month, KpiA1DetailResultDTO> monthToDetailResult = new EnumMap<>(Month.class);
                                 for (KpiA1DetailResultDTO detailResult : monthlyDetailResults) {
                                     Month month = detailResult.getEvaluationStartDate().getMonth();
                                     monthToDetailResult.put(month, detailResult);
@@ -453,7 +446,7 @@ public class KpiA1Job extends QuartzJobBean {
                                                 dto.setToHour(record.getEndDate());
                                                 return dto;
                                             })
-                                            .collect(java.util.stream.Collectors.toList());
+                                            .toList();
 
                                     kpiA1AnalyticDrillDownService.saveAll(drillDownList);
 

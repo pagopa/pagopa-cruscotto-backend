@@ -5,10 +5,8 @@ import com.nexigroup.pagopa.cruscotto.service.dto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Service interface for managing KPI C2 calculations and results.
