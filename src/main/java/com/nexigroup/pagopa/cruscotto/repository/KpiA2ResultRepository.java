@@ -21,4 +21,11 @@ public interface KpiA2ResultRepository extends JpaRepository<KpiA2Result, Long>,
 
     @Query("SELECT a FROM KpiA2Result a WHERE a.instanceModule.id = :instanceModuleId")
     List<KpiA2Result> selectByInstanceModuleId(@Param("instanceModuleId") Long instanceModuleId);
+
+    @Query("""
+    SELECT k
+    FROM KpiA2Result k
+    WHERE k.instance.id = :instanceId
+""")
+    List<KpiA2Result> findByInstanceId(@Param("instanceId") Long instanceId);
 }

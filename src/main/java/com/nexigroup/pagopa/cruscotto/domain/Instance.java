@@ -95,6 +95,20 @@ public class Instance extends AbstractAuditingEntity<Long> implements Serializab
     @Column(name = "FL_CHANGE_PARTNER_QUALIFIED", nullable = false)
     private Boolean changePartnerQualified = false;
 
+    @Column(name = "DT_ARCHIVED_DATE")
+    private Instant archivedDate;
+
+    @Size(max = 50)
+    @Column(name = "TE_ARCHIVED_BY", length = 50)
+    private String archivedBy;
+
+    @Column(name = "DT_RESTORED_DATE")
+    private Instant restoredDate;
+
+    @Size(max = 50)
+    @Column(name = "TE_RESTORED_BY", length = 50)
+    private String restoredBy;
+
     @JsonIgnore
     @OneToMany(mappedBy = "instance", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<InstanceModule> instanceModules = new HashSet<>();

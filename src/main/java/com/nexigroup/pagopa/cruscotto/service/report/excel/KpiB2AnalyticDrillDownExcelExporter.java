@@ -23,7 +23,7 @@ public class KpiB2AnalyticDrillDownExcelExporter
     private final KpiB2AnalyticDrillDownRepository drillDownRepository;
 
     private static final DateTimeFormatter HOUR_FMT =
-        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+        DateTimeFormatter.ofPattern("HH:mm")
             .withZone(ZoneId.systemDefault());
 
     public KpiB2AnalyticDrillDownExcelExporter(
@@ -84,7 +84,7 @@ public class KpiB2AnalyticDrillDownExcelExporter
         // ===== HEADER =====
         Row header = sheet.createRow(rowIdx++);
         header.createCell(0).setCellValue("From Hour");
-        header.createCell(1).setCellValue("End Hour");
+        header.createCell(1).setCellValue("To Hour");
         header.createCell(2).setCellValue("Total Requests");
         header.createCell(3).setCellValue("OK Requests");
         header.createCell(4).setCellValue("Average Time (ms)");

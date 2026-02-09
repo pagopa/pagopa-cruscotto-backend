@@ -2,6 +2,7 @@ package com.nexigroup.pagopa.cruscotto.service.report.excel;
 
 import org.apache.poi.ss.usermodel.Sheet;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public interface DrillDownExcelExporter<T> {
@@ -17,5 +18,8 @@ public interface DrillDownExcelExporter<T> {
 
     /** Scrittura sheet */
     void writeSheet(Sheet sheet, List<T> data);
+
+    DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 }
 

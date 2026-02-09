@@ -6,7 +6,7 @@
     "license": {
       "name": "unlicensed"
     },
-    "version": "0.9.3"
+    "version": "0.9.3-7-dev"
   },
   "servers": [
     {
@@ -619,7 +619,8 @@
                 "BOZZA",
                 "PIANIFICATA",
                 "IN_ESECUZIONE",
-                "ESEGUITA"
+                "ESEGUITA",
+                "ARCHIVIATA"
               ]
             }
           },
@@ -704,6 +705,18 @@
                   "items": {
                     "$ref": "#/components/schemas/InstanceDTO"
                   }
+                },
+                "example": {
+                  "content": [
+                    {
+                      "id": 456,
+                      "instanceIdentification": "INST-2024-001",
+                      "partnerName": "Partner A",
+                      "status": "ESEGUITA",
+                      "latestRequestedReportId": 123
+                    }
+                  ],
+                  "totalElements": 1
                 }
               }
             }
@@ -847,6 +860,106 @@
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/instances/archive": {
+      "post": {
+        "tags": [
+          "instance-resource"
+        ],
+        "operationId": "archiveInstances",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ArchiveRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArchiveResponseDTO"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailWithCause"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/instances/restore": {
+      "post": {
+        "tags": [
+          "instance-resource"
+        ],
+        "operationId": "restoreInstances",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RestoreRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestoreResponseDTO"
+                }
+              }
+            }
           },
           "4XX": {
             "description": "Client error codes",
@@ -9475,9 +9588,131 @@
         }
       }
     }
-  },  
+  },
   "components": {
     "schemas": {
+      "ArchiveRequestDTO": {
+        "required": [
+          "instanceIds"
+        ],
+        "type": "object",
+        "properties": {
+          "instanceIds": {
+            "maxItems": 100,
+            "minItems": 1,
+            "type": "array",
+            "description": "List of instance IDs to archive (max 100)",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        },
+        "description": "Request DTO for archiving instances"
+      },
+      "ArchiveResponseDTO": {
+        "type": "object",
+        "properties": {
+          "successCount": {
+            "type": "integer",
+            "description": "Number of successfully archived instances",
+            "format": "int32"
+          },
+          "failureCount": {
+            "type": "integer",
+            "description": "Number of instances that failed to archive",
+            "format": "int32"
+          },
+          "results": {
+            "type": "array",
+            "description": "Detailed results per instance",
+            "items": {
+              "$ref": "#/components/schemas/InstanceArchiveResult"
+            }
+          }
+        },
+        "description": "Response DTO for archiving instances"
+      },
+      "InstanceArchiveResult": {
+        "type": "object",
+        "properties": {
+          "instanceId": {
+            "type": "integer",
+            "description": "Instance ID",
+            "format": "int64"
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Whether the operation succeeded"
+          },
+          "errorMessage": {
+            "type": "string",
+            "description": "Error message if operation failed"
+          }
+        },
+        "description": "Result of archiving a single instance"
+      },
+      "RestoreRequestDTO": {
+        "required": [
+          "instanceIds"
+        ],
+        "type": "object",
+        "properties": {
+          "instanceIds": {
+            "maxItems": 100,
+            "minItems": 1,
+            "type": "array",
+            "description": "List of instance IDs to restore (max 100)",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        },
+        "description": "Request DTO for restoring instances"
+      },
+      "RestoreResponseDTO": {
+        "type": "object",
+        "properties": {
+          "successCount": {
+            "type": "integer",
+            "description": "Number of successfully restored instances",
+            "format": "int32"
+          },
+          "failureCount": {
+            "type": "integer",
+            "description": "Number of instances that failed to restore",
+            "format": "int32"
+          },
+          "results": {
+            "type": "array",
+            "description": "Detailed results per instance",
+            "items": {
+              "$ref": "#/components/schemas/InstanceRestoreResult"
+            }
+          }
+        },
+        "description": "Response DTO for restoring instances"
+      },
+      "InstanceRestoreResult": {
+        "type": "object",
+        "properties": {
+          "instanceId": {
+            "type": "integer",
+            "description": "Instance ID",
+            "format": "int64"
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Whether the operation succeeded"
+          },
+          "errorMessage": {
+            "type": "string",
+            "description": "Error message if operation failed"
+          }
+        },
+        "description": "Result of restoring a single instance"
+      },
       "ProblemDetailWithCause": {
         "type": "object",
         "properties": {
@@ -10046,7 +10281,8 @@
               "BOZZA",
               "PIANIFICATA",
               "IN_ESECUZIONE",
-              "ESEGUITA"
+              "ESEGUITA",
+              "ARCHIVIATA"
             ]
           },
           "lastAnalysisDate": {
@@ -10070,6 +10306,11 @@
           },
           "changePartnerQualified": {
             "type": "boolean"
+          },
+          "latestRequestedReportId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "ID of the most recent requested report (any state). Null if no reports exist. Used by frontend to enable download button."
           }
         }
       },
@@ -14083,7 +14324,12 @@
           },
           "status": {
             "type": "string",
-            "enum": ["PENDING", "IN_PROGRESS", "COMPLETED", "FAILED"],
+            "enum": [
+              "PENDING",
+              "IN_PROGRESS",
+              "COMPLETED",
+              "FAILED"
+            ],
             "description": "Report generation status",
             "example": "COMPLETED"
           },
@@ -14172,7 +14418,12 @@
               "type": "string"
             },
             "description": "List of files contained in the ZIP package",
-            "example": ["Summary_Report.pdf", "Drilldown.xlsx", "metadata.json", "README.txt"]
+            "example": [
+              "Summary_Report.pdf",
+              "Drilldown.xlsx",
+              "metadata.json",
+              "README.txt"
+            ]
           },
           "downloadInfo": {
             "nullable": true,
@@ -14180,7 +14431,18 @@
             "$ref": "#/components/schemas/DownloadInfoDTO"
           }
         },
-        "required": ["id", "instanceId", "instanceName", "status", "language", "startDate", "endDate", "requestedDate", "requestedBy", "retryCount"]
+        "required": [
+          "id",
+          "instanceId",
+          "instanceName",
+          "status",
+          "language",
+          "startDate",
+          "endDate",
+          "requestedDate",
+          "requestedBy",
+          "retryCount"
+        ]
       },
       "DownloadInfoDTO": {
         "type": "object",
@@ -14210,7 +14472,12 @@
             "example": "2024-01-15T15:30:00Z"
           }
         },
-        "required": ["downloadUrl", "fileName", "fileSizeBytes", "expiresAt"]
+        "required": [
+          "downloadUrl",
+          "fileName",
+          "fileSizeBytes",
+          "expiresAt"
+        ]
       },
       "ErrorResponse": {
         "type": "object",
@@ -14243,8 +14510,14 @@
             "example": "/api/reports/123/status"
           }
         },
-        "required": ["timestamp", "status", "error", "message", "path"]
+        "required": [
+          "timestamp",
+          "status",
+          "error",
+          "message",
+          "path"
+        ]
       }
     }
   }
-}  
+}

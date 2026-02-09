@@ -19,8 +19,6 @@ public class KpiC1AnalyticDrillDownExporter implements DrillDownExcelExporter<Io
 
     private final IoDrilldownRepository ioDrilldownRepository;
 
-    private static final DateTimeFormatter DATE_FORMATTER =
-        DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     @Override
     public String getSheetName() {
@@ -66,14 +64,12 @@ public class KpiC1AnalyticDrillDownExporter implements DrillDownExcelExporter<Io
         // ===== HEADER =====
         Row header = sheet.createRow(0);
         String[] columns = {
-            "Reference Date",
-            "Data",
+            "Analysis Date",
+            "Date",
             "CF Institution",
-            "CF Partner",
             "Positions Count",
             "Messages Count",
-            "Percentage",
-            "Meets Tolerance"
+            "Messages Percentage"
         };
 
         for (int i = 0; i < columns.length; i++) {
@@ -97,25 +93,13 @@ public class KpiC1AnalyticDrillDownExporter implements DrillDownExcelExporter<Io
         int rowIdx = 1;
         for (IoDrilldownDTO d : records) {
             Row row = sheet.createRow(rowIdx++);
-
-            row.createCell(0).setCellValue(
-                d.getReferenceDate() != null ? d.getReferenceDate().format(DATE_FORMATTER) : ""
-            );
-            row.createCell(1).setCellValue(
-                d.getDataDate() != null ? d.getDataDate().format(DATE_FORMATTER) : ""
-            );
-            row.createCell(2).setCellValue(d.getCfInstitution());
-            row.createCell(3).setCellValue(
-                d.getCfPartner() != null ? d.getCfPartner() : ""
-            );
-            row.createCell(4).setCellValue(d.getPositionsCount());
-            row.createCell(5).setCellValue(d.getMessagesCount());
-            row.createCell(6).setCellValue(
-                d.getPercentage() != null ? d.getPercentage() : 0.0
-            );
-            row.createCell(7).setCellValue(
-                d.getMeetsTolerance() != null && d.getMeetsTolerance() ? "YES" : "NO"
-            );
+            int count =0;
+            row.createCell(count++).setCellValue(d.getReferenceDate() != null ? d.getReferenceDate().format(dateFormatter) : "");
+            row.createCell(count++).setCellValue(d.getDataDate() != null ? d.getDataDate().format(dateFormatter) : "");
+            row.createCell(count++).setCellValue(d.getCfInstitution());
+            row.createCell(count++).setCellValue(d.getPositionsCount());
+            row.createCell(count++).setCellValue(d.getMessagesCount());
+            row.createCell(count++).setCellValue(d.getPercentage() != null ? d.getPercentage() +"%" : "0.0%");
         }
     }
 }

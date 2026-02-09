@@ -30,7 +30,7 @@ public class KpiB1PdfTableConfig extends CommonConfig {
             new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.totalTransactions"), "totalTransactions"),
             new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.transactionDifference"), "transactionDifference"),
             new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.transactionDiffPerc"), "transactionDifferencePercentage"),
-            new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.transactionOutcome"), "transactionOutcome")
+            new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.transactionOutcome"), "outcome")
         );
     }
 
@@ -64,12 +64,11 @@ public class KpiB1PdfTableConfig extends CommonConfig {
                     e.getTotalInstitutions() != null ? INT_FMT.format(e.getTotalInstitutions()) : "0");
 
                 row.put("institutionDifference",
-                    e.getInstitutionDifference() != null ? INT_FMT.format(e.getInstitutionDifference()) : "0");
+                    e.getInstitutionDifference() != null ? INT_FMT.format(e.getInstitutionDifference())  :   "0");
 
                 row.put("institutionDifferencePercentage",
                     e.getInstitutionDifferencePercentage() != null
-                        ? DEC_FMT.format(e.getInstitutionDifferencePercentage())
-                        : "0");
+                        ? DEC_FMT.format(e.getInstitutionDifferencePercentage()) + "%" :   PERCENTAGE_0);
 
                 row.put("institutionOutcome",
                     e.getInstitutionOutcome() != null ? e.getInstitutionOutcome().name() : "");
@@ -82,10 +81,9 @@ public class KpiB1PdfTableConfig extends CommonConfig {
 
                 row.put("transactionDifferencePercentage",
                     e.getTransactionDifferencePercentage() != null
-                        ? DEC_FMT.format(e.getTransactionDifferencePercentage())
-                        : "0");
+                        ? DEC_FMT.format(e.getTransactionDifferencePercentage())+ "%" :   PERCENTAGE_0);
 
-                row.put("transactionOutcome",
+                row.put("outcome",
                     e.getTransactionOutcome() != null ? e.getTransactionOutcome().name() : "");
 
                 return row;

@@ -62,7 +62,7 @@ public class KpiB8PdfTableConfig extends CommonConfig {
                     e.getReqKO() != null ? INT_FMT.format(e.getReqKO()) : "0");
 
                 row.put("perKO",
-                    e.getPerKO() != null ? PERC_FMT.format(e.getPerKO()) : "0");
+                    e.getPerKO() != null ? PERC_FMT.format(e.getPerKO()) + "%" :   PERCENTAGE_0);
 
                 row.put("outcome",
                     e.getOutcome() != null ? e.getOutcome().name() : "");
