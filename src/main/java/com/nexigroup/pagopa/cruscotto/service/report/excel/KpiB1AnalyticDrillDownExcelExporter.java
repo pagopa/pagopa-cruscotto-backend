@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @Order(3) // ordine nello sheet finale
 @AllArgsConstructor
 public class KpiB1AnalyticDrillDownExcelExporter
-    implements DrillDownExcelExporter<KpiB1AnalyticDrillDownDTO> {
+    implements DrillDownExcelExporter<KpiB1ResultReportExcelDTO> {
 
     QueryReportRepository queryReportRepository;
 
@@ -48,7 +48,7 @@ public class KpiB1AnalyticDrillDownExcelExporter
 
 
     @Override
-    public void writeSheet(Sheet sheet, List<KpiB1AnalyticDrillDownDTO> data) {
+    public void writeSheet(Sheet sheet, List<KpiB1ResultReportExcelDTO> data) {
 
         int rowIdx = 0;
 

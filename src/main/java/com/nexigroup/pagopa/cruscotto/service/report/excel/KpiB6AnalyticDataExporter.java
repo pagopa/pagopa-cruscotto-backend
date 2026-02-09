@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 @Component
 @AllArgsConstructor
-public class KpiB6AnalyticDataExporter implements DrillDownExcelExporter {
+public class KpiB6AnalyticDataExporter implements DrillDownExcelExporter<KpiAnalyticDataDTO> {
 
     private final KpiAnalyticDataRepository repository;
     private final ObjectMapper objectMapper;
@@ -77,7 +77,7 @@ public class KpiB6AnalyticDataExporter implements DrillDownExcelExporter {
     }
 
     @Override
-    public void writeSheet(Sheet sheet, List<?> data) {
+    public void writeSheet(Sheet sheet, List<KpiAnalyticDataDTO> data) {
         int rowIdx = 0;
         // ===== HEADER =====
 
