@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @Component
 @Order(1)
 @AllArgsConstructor
-public class KpiA1AnalyticDrillDownExporter implements DrillDownExcelExporter {
+public class KpiA1AnalyticDrillDownExporter implements DrillDownExcelExporter<KpiA1ResultReportExcelDTO> {
 
     QueryReportRepository queryReportRepository;
 
@@ -55,7 +55,7 @@ public class KpiA1AnalyticDrillDownExporter implements DrillDownExcelExporter {
     }
 
     @Override
-    public void writeSheet(Sheet sheet, List<?> data) {
+    public void writeSheet(Sheet sheet, List<KpiA1ResultReportExcelDTO> data) {
 
         int rowIdx = 0;
 

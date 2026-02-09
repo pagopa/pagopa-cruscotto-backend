@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @Order(2) // ordine nello sheet finale
 @AllArgsConstructor
 public class KpiA2AnalyticIncorrectTaxonomyDrillDownExporter
-    implements DrillDownExcelExporter<KpiA2AnalyticIncorrectTaxonomyDataDTO> {
+    implements DrillDownExcelExporter<KpiA2ResultReportExcelDTO> {
 
     QueryReportRepository queryReportRepository;
 
@@ -54,7 +54,7 @@ public class KpiA2AnalyticIncorrectTaxonomyDrillDownExporter
 
 
     @Override
-    public void writeSheet(Sheet sheet, List<KpiA2AnalyticIncorrectTaxonomyDataDTO> data) {
+    public void writeSheet(Sheet sheet, List<KpiA2ResultReportExcelDTO> data) {
 
         int rowIdx = 0;
 
