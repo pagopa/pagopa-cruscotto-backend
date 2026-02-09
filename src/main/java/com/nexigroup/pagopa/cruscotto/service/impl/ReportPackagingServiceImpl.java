@@ -48,7 +48,7 @@ public class ReportPackagingServiceImpl implements ReportPackagingService {
                         ? pdf.getName()
                         : "report_" + idx + ".pdf";
                     byte[] content = pdf != null && pdf.getContent() != null ? pdf.getContent() : new byte[0];
-                    addEntry(zip, baseFolder + PDF_NAME + filename, content);
+                    addEntry(zip, baseFolder + filename, content);
                     idx++;
                 }
             }
