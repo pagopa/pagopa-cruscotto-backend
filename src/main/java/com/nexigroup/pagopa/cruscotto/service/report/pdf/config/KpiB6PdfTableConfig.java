@@ -2,9 +2,8 @@ package com.nexigroup.pagopa.cruscotto.service.report.pdf.config;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nexigroup.pagopa.cruscotto.domain.KpiB5DetailResult;
 import com.nexigroup.pagopa.cruscotto.domain.KpiDetailResult;
-import com.nexigroup.pagopa.cruscotto.service.dto.KpiB6AdditionalDataDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.KpiB6AdditionalDetailDataDTO;
 import com.nexigroup.pagopa.cruscotto.service.report.pdf.model.PdfTableColumn;
 import org.springframework.context.MessageSource;
 
@@ -42,7 +41,7 @@ public class KpiB6PdfTableConfig extends CommonConfig {
             .sorted(Comparator.comparing(KpiDetailResult::getAnalysisDate))
             .map(kpiDetail -> {
 
-                KpiB6AdditionalDataDTO e =  readAdditionalData(kpiDetail.getAdditionalData(),objectMapper);
+                KpiB6AdditionalDetailDataDTO e =  readAdditionalData(kpiDetail.getAdditionalData(),objectMapper);
                 Map<String, Object> row = new HashMap<>();
 
                 row.put("evaluationType", e.getEvaluationType() != null ? e.getEvaluationType().name() : "");
@@ -63,9 +62,9 @@ public class KpiB6PdfTableConfig extends CommonConfig {
             })
             .toList();
     }
-    public static KpiB6AdditionalDataDTO readAdditionalData(String json,ObjectMapper objectMapper) {
+    public static KpiB6AdditionalDetailDataDTO readAdditionalData(String json, ObjectMapper objectMapper) {
         try {
-            return objectMapper.readValue(json, KpiB6AdditionalDataDTO.class);
+            return objectMapper.readValue(json, KpiB6AdditionalDetailDataDTO.class);
         } catch (JsonProcessingException e) {
             throw new IllegalStateException("Error deserializing B6 additionalData", e);
         }

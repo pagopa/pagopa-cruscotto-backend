@@ -72,7 +72,6 @@ public class KpiC2AnalyticDrillDownExporter implements DrillDownExcelExporter<Kp
         // Header
         Row header = sheet.createRow(rowIdx++);
         String[] columns = {
-            "Analysis Date",
             "Date",
             "CF Institution",
             "Total Payment",
@@ -96,7 +95,6 @@ public class KpiC2AnalyticDrillDownExporter implements DrillDownExcelExporter<Kp
         for (KpiC2AnalyticDrillDownDTO r : rows) {
             Row row = sheet.createRow(rowIdx++);
             int count =0;
-            row.createCell(count++).setCellValue(r.getAnalysisDate() != null ? r.getAnalysisDate().format(dateFormatter) : "");
             row.createCell(count++).setCellValue(r.getEvaluationDate() != null ? r.getEvaluationDate().format(dateFormatter) : "");
             row.createCell(count++).setCellValue(r.getInstitutionCf());
             row.createCell(count++).setCellValue(r.getNumPayment() != null ? r.getNumPayment() : 0);
