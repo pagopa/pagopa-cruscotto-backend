@@ -155,16 +155,18 @@ public class InstanceServiceImpl implements InstanceService {
 
         BooleanBuilder builder = new BooleanBuilder();
 
-        // IMPORTANT: Exclude deleted instances (status CANCELLATA) and archived instances (status ARCHIVIATA) by default
-        // Note: If filter.getStatus() is explicitly set to ARCHIVIATA, it will override this exclusion
+        // IMPORTANT: Always exclude deleted instances (status CANCELLATA)
         builder.and(QInstance.instance.status.ne(InstanceStatus.CANCELLATA));
-        builder.and(QInstance.instance.status.ne(InstanceStatus.ARCHIVIATA));
 
         if (StringUtils.isNotBlank(filter.getPartnerId())) {
             builder.and(QInstance.instance.partner.id.eq(Long.valueOf(filter.getPartnerId())));
         }
         if (filter.getStatus() != null) {
+            // If a specific status is requested, use it (allows querying for ARCHIVIATA explicitly)
             builder.and(QInstance.instance.status.eq(filter.getStatus()));
+        } else {
+            // Only exclude archived instances when no specific status is requested
+            builder.and(QInstance.instance.status.ne(InstanceStatus.ARCHIVIATA));
         }
 
         if (filter.getPredictedAnalysisStartDate() != null) {
