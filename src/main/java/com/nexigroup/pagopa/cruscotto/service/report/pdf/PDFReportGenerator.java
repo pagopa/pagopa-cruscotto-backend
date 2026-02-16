@@ -262,11 +262,13 @@ public class PDFReportGenerator {
 
 
         PdfKpiPageBuilder pageBuilder = new PdfKpiPageBuilder();
+        List<PdfKpiPage> kpiPages =
+            pageBuilder.buildPages(kpis, kpiTables);
         List<PdfKpiPage> negativeKpiPages =
             pageBuilder.buildPages(negativeKpis, kpiTables);
-
         List<PdfKpiPage> positiveKpiPages =
             pageBuilder.buildPages(positiveKpis, kpiTables);
+
 
         Hibernate.isInitialized(instance.getPartner());
         DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -285,11 +287,9 @@ public class PDFReportGenerator {
         baseVars.put("periodo", periodo);
         baseVars.put("reportName", "Report_INST-"+instanceId);
         baseVars.put("kpis", kpis);
+        baseVars.put("kpis", kpiPages);
         baseVars.put("negativeKpis", negativeKpis);
         baseVars.put("positiveKpis", positiveKpis);
-
-        ;
-        //   baseVars.put("kpiA1DrilldownTables", kpiA1DrilldownTables);
         baseVars.put("negativeKpiPages", negativeKpiPages);
         baseVars.put("positiveKpiPages", positiveKpiPages);
 
