@@ -287,7 +287,7 @@ public class PDFReportGenerator {
         baseVars.put("periodo", periodo);
         baseVars.put("reportName", "Report_INST-"+instanceId);
         baseVars.put("kpis", kpis);
-        baseVars.put("kpis", kpiPages);
+        baseVars.put("kpiPages", kpiPages);
         baseVars.put("negativeKpis", negativeKpis);
         baseVars.put("positiveKpis", positiveKpis);
         baseVars.put("negativeKpiPages", negativeKpiPages);

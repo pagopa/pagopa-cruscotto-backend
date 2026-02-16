@@ -15,7 +15,7 @@
 <!--<div class="page-break"></div> -->
 
 <!-- ALL KPIs -->
-<div th:each="k : ${kpis}">
+<div th:each="k : ${kpiPages}">
   <div th:replace="pdf/pages/kpi-detail :: page(${k})"></div>
 </div>
 

@@ -19,8 +19,8 @@
     </p>
 
     <div class="kpi-detail-outcome">
-        <span class="kpi-pill ko" th:if="${p.kpi.outcome == 'KO'}" th:text="#{pdf.kpi.notCompliant}">NON CONFORME</span>
-        <span class="kpi-pill ok" th:if="${p.kpi.outcome == 'OK'}" th:text="#{pdf.kpi.compliant}">CONFORME</span>
+        <span class="kpi-pill ko" th:if="${!p.kpi.compliant}" th:text="#{pdf.kpi.notCompliant}">NON CONFORME</span>
+        <span class="kpi-pill ok" th:if="${p.kpi.compliant}" th:text="#{pdf.kpi.compliant}">CONFORME</span>
     </div>
   </div>
 
