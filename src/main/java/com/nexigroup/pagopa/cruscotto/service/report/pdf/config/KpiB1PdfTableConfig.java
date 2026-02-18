@@ -23,13 +23,13 @@ public class KpiB1PdfTableConfig extends CommonConfig {
             new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.to"), "evaluationEndDate"),
 
             new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.totalInstitutions"), "totalInstitutions"),
-            new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.institutionDifference"), "institutionDifference"),
-            new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.institutionDiffPerc"), "institutionDifferencePercentage"),
+            //new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.institutionDifference"), "institutionDifference"),
+            //new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.institutionDiffPerc"), "institutionDifferencePercentage"),
             new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.institutionOutcome"), "institutionOutcome"),
 
             new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.totalTransactions"), "totalTransactions"),
-            new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.transactionDifference"), "transactionDifference"),
-            new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.transactionDiffPerc"), "transactionDifferencePercentage"),
+            //new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.transactionDifference"), "transactionDifference"),
+            //new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.transactionDiffPerc"), "transactionDifferencePercentage"),
             new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.transactionOutcome"), "outcome")
         );
     }
@@ -62,27 +62,27 @@ public class KpiB1PdfTableConfig extends CommonConfig {
 
                 row.put("totalInstitutions",
                     e.getTotalInstitutions() != null ? INT_FMT.format(e.getTotalInstitutions()) : "0");
-
+/*
                 row.put("institutionDifference",
                     e.getInstitutionDifference() != null ? INT_FMT.format(e.getInstitutionDifference())  :   "0");
 
                 row.put("institutionDifferencePercentage",
                     e.getInstitutionDifferencePercentage() != null
                         ? DEC_FMT.format(e.getInstitutionDifferencePercentage()) + "%" :   PERCENTAGE_0);
-
+*/
                 row.put("institutionOutcome",
                     e.getInstitutionOutcome() != null ? e.getInstitutionOutcome().name() : "");
 
                 row.put("totalTransactions",
                     e.getTotalTransactions() != null ? INT_FMT.format(e.getTotalTransactions()) : "0");
-
+/*
                 row.put("transactionDifference",
                     e.getTransactionDifference() != null ? INT_FMT.format(e.getTransactionDifference()) : "0");
 
                 row.put("transactionDifferencePercentage",
                     e.getTransactionDifferencePercentage() != null
                         ? DEC_FMT.format(e.getTransactionDifferencePercentage())+ "%" :   PERCENTAGE_0);
-
+*/
                 row.put("outcome",
                     e.getTransactionOutcome() != null ? e.getTransactionOutcome().name() : "");
 
