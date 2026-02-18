@@ -17,7 +17,7 @@
                 <td th:class="'col-' + ${col.field}"
                     th:each="col : ${kpiTable.columns}"
                     th:text="${row[col.field]}"
-                    th:classappend="${col.field == 'outcome'} ? (${row[col.field]} == 'OK' ? 'cell-ok' : 'cell-ko')">
+                    th:classappend="${col.field == 'outcome' || col.field == 'institutionOutcome'} ? (${row[col.field]} == 'OK' ? 'cell-ok' : 'cell-ko')">
                 </td>
             </tr>
         </tbody>

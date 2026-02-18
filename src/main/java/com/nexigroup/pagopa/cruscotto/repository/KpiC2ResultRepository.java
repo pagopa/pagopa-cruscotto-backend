@@ -1,6 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.repository;
 
 import com.nexigroup.pagopa.cruscotto.domain.Instance;
+import com.nexigroup.pagopa.cruscotto.domain.KpiC1Result;
 import com.nexigroup.pagopa.cruscotto.domain.KpiC2Result;
 import java.time.LocalDate;
 import java.util.List;
@@ -92,4 +93,10 @@ public interface KpiC2ResultRepository extends JpaRepository<KpiC2Result, Long> 
      * @return the list of KpiC2Result
      */
     List<KpiC2Result> findAllByInstanceModuleIdOrderByAnalysisDateDesc(Long instanceModuleId);
+
+    @Query("""
+    SELECT k
+    FROM KpiC2Result k
+    WHERE k.instance.id = :instanceId""")
+    List<KpiC2Result> findByInstanceId(@Param("instanceId") Long instanceId);
 }

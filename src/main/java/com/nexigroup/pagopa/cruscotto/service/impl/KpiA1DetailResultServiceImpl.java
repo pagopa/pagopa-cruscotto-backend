@@ -12,7 +12,6 @@ import com.nexigroup.pagopa.cruscotto.domain.Instance;
 import com.nexigroup.pagopa.cruscotto.domain.InstanceModule;
 import com.nexigroup.pagopa.cruscotto.domain.KpiA1DetailResult;
 import com.nexigroup.pagopa.cruscotto.domain.KpiA1Result;
-import com.nexigroup.pagopa.cruscotto.domain.QAnagStation;
 import com.nexigroup.pagopa.cruscotto.domain.QKpiA1DetailResult;
 import com.nexigroup.pagopa.cruscotto.repository.AnagStationRepository;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceModuleRepository;
@@ -120,7 +119,7 @@ public class KpiA1DetailResultServiceImpl implements KpiA1DetailResultService {
     @Override
     public List<KpiA1DetailResultDTO> findByResultId(long resultId) {
         final QKpiA1DetailResult qKpiA1DetailResult = QKpiA1DetailResult.kpiA1DetailResult;
-        
+
         JPQLQuery<KpiA1DetailResultDTO> query = queryBuilder
             .createQuery()
             .from(qKpiA1DetailResult)

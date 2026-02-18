@@ -22,7 +22,6 @@ import java.util.zip.ZipOutputStream;
 public class ReportPackagingServiceImpl implements ReportPackagingService {
 
     private static final String PDF_NAME = "report.pdf";
-    private static final String EXCEL_FOLDER = "excel/";
     private static final String METADATA_FILE = "metadata.json";
 
     private final ObjectMapper objectMapper;
@@ -36,7 +35,7 @@ public class ReportPackagingServiceImpl implements ReportPackagingService {
 
     @Override
     public byte[] createReportPackage(ReportGenerationContext context, List<WrapperPdfFiles> pdfFiles, ExcelFile excelFile) {
-        String baseFolder = "report_" + context.getReportId() + "/";
+        String baseFolder = "";
 
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
              ZipOutputStream zip = new ZipOutputStream(baos)) {
@@ -49,14 +48,14 @@ public class ReportPackagingServiceImpl implements ReportPackagingService {
                         ? pdf.getName()
                         : "report_" + idx + ".pdf";
                     byte[] content = pdf != null && pdf.getContent() != null ? pdf.getContent() : new byte[0];
-                    addEntry(zip, baseFolder + PDF_NAME + filename, content);
+                    addEntry(zip, baseFolder + filename, content);
                     idx++;
                 }
             }
 
             // 2️⃣ Excel file singolo
             if (excelFile != null) {
-                addEntry(zip, baseFolder + EXCEL_FOLDER + excelFile.getFileName(), excelFile.getContent());
+                addEntry(zip, baseFolder + excelFile.getFileName(), excelFile.getContent());
             }
 
             // 3️⃣ Metadata (JSON)

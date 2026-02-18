@@ -1,6 +1,5 @@
 package com.nexigroup.pagopa.cruscotto.repository;
 
-import com.nexigroup.pagopa.cruscotto.domain.KpiA2DetailResult;
 import com.nexigroup.pagopa.cruscotto.domain.KpiB2DetailResult;
 
 import java.util.List;

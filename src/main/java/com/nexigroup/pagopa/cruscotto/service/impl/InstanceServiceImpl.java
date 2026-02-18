@@ -8,9 +8,11 @@ import com.nexigroup.pagopa.cruscotto.domain.enumeration.AuthenticationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.InstanceStatus;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleStatus;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.ReportStatus;
 import com.nexigroup.pagopa.cruscotto.repository.AnagPartnerRepository;
 import com.nexigroup.pagopa.cruscotto.repository.InstanceRepository;
 import com.nexigroup.pagopa.cruscotto.repository.ModuleRepository;
+import com.nexigroup.pagopa.cruscotto.repository.ReportGenerationRepository;
 import com.nexigroup.pagopa.cruscotto.security.AuthoritiesConstants;
 import com.nexigroup.pagopa.cruscotto.security.SecurityUtils;
 import com.nexigroup.pagopa.cruscotto.service.AnagPartnerService;
@@ -18,8 +20,14 @@ import com.nexigroup.pagopa.cruscotto.service.AuthUserService;
 import com.nexigroup.pagopa.cruscotto.service.GenericServiceException;
 import com.nexigroup.pagopa.cruscotto.service.InstanceService;
 import com.nexigroup.pagopa.cruscotto.service.bean.InstanceRequestBean;
+import com.nexigroup.pagopa.cruscotto.service.dto.ArchiveRequestDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.ArchiveResponseDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.AuthUserDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.InstanceArchiveResult;
 import com.nexigroup.pagopa.cruscotto.service.dto.InstanceDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.InstanceRestoreResult;
+import com.nexigroup.pagopa.cruscotto.service.dto.RestoreRequestDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.RestoreResponseDTO;
 import com.nexigroup.pagopa.cruscotto.service.filter.InstanceFilter;
 import com.nexigroup.pagopa.cruscotto.service.mapper.InstanceMapper;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QdslUtility;
@@ -36,10 +44,14 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -106,6 +118,8 @@ public class InstanceServiceImpl implements InstanceService {
 
     private final AnagPartnerService anagPartnerService;
 
+    private final ReportGenerationRepository reportGenerationRepository;
+
     public InstanceServiceImpl(
         InstanceRepository instanceRepository,
         AnagPartnerRepository anagPartnerRepository,
@@ -114,7 +128,8 @@ public class InstanceServiceImpl implements InstanceService {
         QueryBuilder queryBuilder,
         UserUtils userUtils,
         AuthUserService authUserService,
-        AnagPartnerService anagPartnerService
+        AnagPartnerService anagPartnerService,
+        ReportGenerationRepository reportGenerationRepository
     ) {
         this.instanceRepository = instanceRepository;
         this.anagPartnerRepository = anagPartnerRepository;
@@ -124,6 +139,7 @@ public class InstanceServiceImpl implements InstanceService {
         this.userUtils = userUtils;
         this.authUserService = authUserService;
         this.anagPartnerService = anagPartnerService;
+        this.reportGenerationRepository = reportGenerationRepository;
     }
 
     /**
@@ -139,14 +155,18 @@ public class InstanceServiceImpl implements InstanceService {
 
         BooleanBuilder builder = new BooleanBuilder();
 
-        // IMPORTANT: Exclude deleted instances (status CANCELLATA)
+        // IMPORTANT: Always exclude deleted instances (status CANCELLATA)
         builder.and(QInstance.instance.status.ne(InstanceStatus.CANCELLATA));
 
         if (StringUtils.isNotBlank(filter.getPartnerId())) {
             builder.and(QInstance.instance.partner.id.eq(Long.valueOf(filter.getPartnerId())));
         }
         if (filter.getStatus() != null) {
+            // If a specific status is requested, use it (allows querying for ARCHIVIATA explicitly)
             builder.and(QInstance.instance.status.eq(filter.getStatus()));
+        } else {
+            // Only exclude archived instances when no specific status is requested
+            builder.and(QInstance.instance.status.ne(InstanceStatus.ARCHIVIATA));
         }
 
         if (filter.getPredictedAnalysisStartDate() != null) {
@@ -214,12 +234,30 @@ public class InstanceServiceImpl implements InstanceService {
 
         List<InstanceDTO> list = jpqlSelected.fetch();
 
+        // Populate latestRequestedReportId for each instance
+        list.forEach(this::populateLatestRequestedReportId);
+
         return new PageImpl<>(list, pageable, size);
     }
 
     @Override
     public Optional<InstanceDTO> findOne(Long id) {
-        return instanceRepository.findById(id).map(instanceMapper::toDto);
+        return instanceRepository.findById(id).map(instanceMapper::toDto).map(dto -> {
+            populateLatestRequestedReportId(dto);
+            return dto;
+        });
+    }
+
+    /**
+     * Populates the latestRequestedReportId field in the InstanceDTO.
+     * This is used by the frontend to enable the download button.
+     */
+    private void populateLatestRequestedReportId(InstanceDTO instanceDTO) {
+        if (instanceDTO != null && instanceDTO.getId() != null) {
+            Optional<Long> latestReportId = reportGenerationRepository
+                .findLatestRequestedReportIdByInstanceId(instanceDTO.getId());
+            latestReportId.ifPresent(instanceDTO::setLatestRequestedReportId);
+        }
     }
 
     /**
@@ -662,5 +700,162 @@ public class InstanceServiceImpl implements InstanceService {
         return instances.stream()
             .map(instanceMapper::toDto)
             .toList();
+    }
+
+    @Override
+    public ArchiveResponseDTO archiveInstances(ArchiveRequestDTO request) {
+        String currentUser = SecurityUtils.getCurrentUserLogin()
+            .orElseThrow(() -> new RuntimeException(CURRENT_USER_LOGIN_NOT_FOUND));
+        
+        LOGGER.info("Archive request received for {} instances by user: {}", request.getInstanceIds().size(), currentUser);
+
+        List<InstanceArchiveResult> results = new ArrayList<>();
+        int[] counters = new int[2]; // [successCount, failureCount]
+
+        // Fetch all instances in one query
+        List<Instance> instances = instanceRepository.findAllById(request.getInstanceIds());
+        Map<Long, Instance> instanceMap = instances.stream()
+            .collect(Collectors.toMap(Instance::getId, instance -> instance));
+
+        // Validate partner business rules
+        validateMostRecentInstancesForArchive(instances, results, counters);
+
+        // Process each instance individually
+        processArchiveRequests(request.getInstanceIds(), instanceMap, results, counters, currentUser);
+
+        LOGGER.info("Archive operation completed: {} success, {} failures", counters[0], counters[1]);
+        return new ArchiveResponseDTO(counters[0], counters[1], results);
+    }
+
+    private void validateMostRecentInstancesForArchive(List<Instance> instances, List<InstanceArchiveResult> results, int[] counters) {
+        Map<Long, List<Instance>> instancesByPartner = instances.stream()
+            .collect(Collectors.groupingBy(instance -> instance.getPartner().getId()));
+
+        for (Map.Entry<Long, List<Instance>> entry : instancesByPartner.entrySet()) {
+            Long partnerId = entry.getKey();
+            List<Instance> partnerInstances = entry.getValue();
+            
+            Long mostRecentInstanceId = instanceRepository.findMostRecentExecutedInstanceIdByPartnerId(partnerId, InstanceStatus.ESEGUITA);
+            
+            if (isTryingToArchiveMostRecent(mostRecentInstanceId, partnerInstances)) {
+                rejectPartnerInstances(mostRecentInstanceId, partnerId, partnerInstances, results, counters);
+            }
+        }
+    }
+
+    private boolean isTryingToArchiveMostRecent(Long mostRecentInstanceId, List<Instance> partnerInstances) {
+        return mostRecentInstanceId != null && partnerInstances.stream()
+            .anyMatch(instance -> instance.getId().equals(mostRecentInstanceId));
+    }
+
+    private void rejectPartnerInstances(Long mostRecentInstanceId, Long partnerId, List<Instance> partnerInstances, 
+                                       List<InstanceArchiveResult> results, int[] counters) {
+        String errorMsg = "Cannot archive the most recent executed instance (ID: " + mostRecentInstanceId + ") for partner " + partnerId;
+        LOGGER.warn("{} - rejecting {} instances", errorMsg, partnerInstances.size());
+        
+        for (Instance instance : partnerInstances) {
+            results.add(new InstanceArchiveResult(instance.getId(), false, errorMsg));
+            counters[1]++; // failureCount
+        }
+    }
+
+    private void processArchiveRequests(List<Long> instanceIds, Map<Long, Instance> instanceMap, 
+                                       List<InstanceArchiveResult> results, int[] counters, String currentUser) {
+        for (Long instanceId : instanceIds) {
+            boolean alreadyProcessed = results.stream().anyMatch(r -> r.getInstanceId().equals(instanceId));
+            
+            if (!alreadyProcessed) {
+                processArchiveSingleInstance(instanceId, instanceMap.get(instanceId), results, counters, currentUser);
+            }
+        }
+    }
+
+    private void processArchiveSingleInstance(Long instanceId, Instance instance, List<InstanceArchiveResult> results, 
+                                             int[] counters, String currentUser) {
+        try {
+            if (instance == null) {
+                handleArchiveError(instanceId, String.format(INSTANCE_ID_NOT_EXISTS, instanceId), results, counters);
+            } else if (instance.getStatus() != InstanceStatus.ESEGUITA) {
+                String errorMsg = "Instance " + instanceId + " must be in ESEGUITA status to be archived, current: " + instance.getStatus();
+                handleArchiveError(instanceId, errorMsg, results, counters);
+            } else {
+                archiveInstance(instance, currentUser);
+                results.add(new InstanceArchiveResult(instanceId, true));
+                counters[0]++; // successCount
+                LOGGER.debug("Instance {} archived successfully", instanceId);
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error archiving instance {}: {}", instanceId, e.getMessage(), e);
+            handleArchiveError(instanceId, "Unexpected error: " + e.getMessage(), results, counters);
+        }
+    }
+
+    private void handleArchiveError(Long instanceId, String errorMsg, List<InstanceArchiveResult> results, int[] counters) {
+        LOGGER.warn(errorMsg);
+        results.add(new InstanceArchiveResult(instanceId, false, errorMsg));
+        counters[1]++; // failureCount
+    }
+
+    private void archiveInstance(Instance instance, String currentUser) {
+        instance.setStatus(InstanceStatus.ARCHIVIATA);
+        instance.setArchivedDate(Instant.now());
+        instance.setArchivedBy(currentUser);
+        instance.setRestoredDate(null);
+        instance.setRestoredBy(null);
+        instanceRepository.save(instance);
+    }
+
+    @Override
+    public RestoreResponseDTO restoreInstances(RestoreRequestDTO request) {
+        String currentUser = SecurityUtils.getCurrentUserLogin()
+            .orElseThrow(() -> new RuntimeException(CURRENT_USER_LOGIN_NOT_FOUND));
+        
+        LOGGER.info("Restore request received for {} instances by user: {}", request.getInstanceIds().size(), currentUser);
+
+        List<InstanceRestoreResult> results = new ArrayList<>();
+        int successCount = 0;
+        int failureCount = 0;
+
+        // Fetch all instances in one query
+        List<Instance> instances = instanceRepository.findAllById(request.getInstanceIds());
+        Map<Long, Instance> instanceMap = instances.stream()
+            .collect(Collectors.toMap(Instance::getId, instance -> instance));
+
+        // Process each instance individually
+        for (Long instanceId : request.getInstanceIds()) {
+            try {
+                Instance instance = instanceMap.get(instanceId);
+                
+                if (instance == null) {
+                    String errorMsg = String.format(INSTANCE_ID_NOT_EXISTS, instanceId);
+                    LOGGER.warn(errorMsg);
+                    results.add(new InstanceRestoreResult(instanceId, false, errorMsg));
+                    failureCount++;
+                } else if (instance.getStatus() != InstanceStatus.ARCHIVIATA) {
+                    String errorMsg = "Instance " + instanceId + " must be in ARCHIVIATA status to be restored, current: " + instance.getStatus();
+                    LOGGER.warn(errorMsg);
+                    results.add(new InstanceRestoreResult(instanceId, false, errorMsg));
+                    failureCount++;
+                } else {
+                    // Restore the instance to ESEGUITA status
+                    instance.setStatus(InstanceStatus.ESEGUITA);
+                    instance.setRestoredDate(Instant.now());
+                    instance.setRestoredBy(currentUser);
+                    
+                    instanceRepository.save(instance);
+                    
+                    results.add(new InstanceRestoreResult(instanceId, true));
+                    successCount++;
+                    LOGGER.debug("Instance {} restored successfully", instanceId);
+                }
+            } catch (Exception e) {
+                LOGGER.error("Error restoring instance {}: {}", instanceId, e.getMessage(), e);
+                results.add(new InstanceRestoreResult(instanceId, false, "Unexpected error: " + e.getMessage()));
+                failureCount++;
+            }
+        }
+
+        LOGGER.info("Restore operation completed: {} success, {} failures", successCount, failureCount);
+        return new RestoreResponseDTO(successCount, failureCount, results);
     }
 }

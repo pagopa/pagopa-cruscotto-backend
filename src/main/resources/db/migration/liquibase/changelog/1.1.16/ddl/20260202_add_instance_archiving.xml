@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+  <changeSet id="20260202120000-1" author="system" context="ddl">
+    <addColumn tableName="INSTANCE">
+      <column name="DT_ARCHIVED_DATE" type="datetime">
+        <constraints nullable="true"/>
+      </column>
+      <column name="TE_ARCHIVED_BY" type="varchar(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="DT_RESTORED_DATE" type="datetime">
+        <constraints nullable="true"/>
+      </column>
+      <column name="TE_RESTORED_BY" type="varchar(50)">
+        <constraints nullable="true"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="20260202120000-2" author="system" context="ddl">
+    <createIndex indexName="IX${project_name}_INST_ARCH"
+                 tableName="INSTANCE">
+      <column name="TE_STATUS"/>
+      <column name="DT_ARCHIVED_DATE"/>
+    </createIndex>
+  </changeSet>
+
+</databaseChangeLog>

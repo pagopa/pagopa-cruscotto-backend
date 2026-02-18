@@ -1,8 +1,6 @@
 package com.nexigroup.pagopa.cruscotto.service.report.pdf;
 
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.springframework.stereotype.Service;

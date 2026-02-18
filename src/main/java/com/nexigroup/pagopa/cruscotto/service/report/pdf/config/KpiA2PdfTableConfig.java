@@ -46,7 +46,7 @@ public class KpiA2PdfTableConfig extends CommonConfig{
             row.put("totPayments", e.getTotPayments() != null ? INT_FMT.format(e.getTotPayments()) : "0");
             row.put("totIncorrectPayments", e.getTotIncorrectPayments() != null ? INT_FMT.format(e.getTotIncorrectPayments()) : "0");
             row.put("errorPercentage",
-                e.getErrorPercentage() != null ? PERC_FMT.format(e.getErrorPercentage()) + "%" : "");
+                e.getErrorPercentage() != null ? PERC_FMT.format(e.getErrorPercentage()) + "%" :   PERCENTAGE_0);
             row.put("outcome", e.getOutcome() != null ? e.getOutcome().name() : "");
             return row;
         }).toList();

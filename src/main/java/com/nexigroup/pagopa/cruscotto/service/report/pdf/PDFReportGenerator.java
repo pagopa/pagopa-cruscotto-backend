@@ -9,6 +9,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import com.nexigroup.pagopa.cruscotto.domain.*;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.repository.*;
 import com.nexigroup.pagopa.cruscotto.service.report.pdf.factory.PdfKpiTableFactory;
 import com.nexigroup.pagopa.cruscotto.service.report.pdf.model.PdfKpiPage;
@@ -18,6 +20,7 @@ import com.nexigroup.pagopa.cruscotto.service.report.pdf.model.PdfKpiTableDescri
 import com.nexigroup.pagopa.cruscotto.service.report.pdf.page.PdfKpiPageBuilder;
 import com.nexigroup.pagopa.cruscotto.service.report.pdf.wrapper.WrapperPdfFiles;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.AllArgsConstructor;
 import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.context.MessageSource;
 
 @Service
+@AllArgsConstructor
 public class PDFReportGenerator {
 
     private static final Logger log = LoggerFactory.getLogger(PDFReportGenerator.class);
@@ -43,55 +47,37 @@ public class PDFReportGenerator {
     private final KpiB3DetailResultRepository kpiB3DetailResultRepository;
     private final KpiB4DetailResultRepository kpiB4DetailResultRepository;
     private final KpiB5DetailResultRepository kpiB5DetailResultRepository;
+    private final KpiDetailResultRepository   kpiB6DetailResultRepository;
+
     private final KpiB8DetailResultRepository kpiB8DetailResultRepository;
     private final KpiB9DetailResultRepository kpiB9DetailResultRepository;
     private final KpiC1DetailResultRepository kpiC1DetailResultRepository;
     private final KpiC2DetailResultRepository kpiC2DetailResultRepository;
 
-    public PDFReportGenerator(
-        PdfGenerationService generationService,
-        PdfRendererService rendererService,
-        PdfKpiTableFactory pdfKpiTableFactory,
-        MessageSource messageSource,
-        InstanceRepository instanceRepository,
-        KpiA1DetailResultRepository kpiA1DetailResultRepository,
-        KpiA2DetailResultRepository kpiA2DetailResultRepository,
-        KpiB1DetailResultRepository kpiB1DetailResultRepository,
-        KpiB2DetailResultRepository kpiB2DetailResultRepository,
-        KpiB3DetailResultRepository kpiB3DetailResultRepository,
-        KpiB4DetailResultRepository kpiB4DetailResultRepository,
-        KpiB5DetailResultRepository kpiB5DetailResultRepository,
-        KpiB8DetailResultRepository kpiB8DetailResultRepository,
-        KpiB9DetailResultRepository kpiB9DetailResultRepository,
-        KpiC1DetailResultRepository kpiC1DetailResultRepository,
-        KpiC2DetailResultRepository kpiC2DetailResultRepository
-    )
-    {
-        this.generationService = generationService;
-        this.rendererService = rendererService;
-        this.pdfKpiTableFactory = pdfKpiTableFactory;
-        this.messageSource = messageSource;
-        this.instanceRepository = instanceRepository;
-        this.kpiA1DetailResultRepository = kpiA1DetailResultRepository;
-        this.kpiA2DetailResultRepository = kpiA2DetailResultRepository;
-        this.kpiB1DetailResultRepository = kpiB1DetailResultRepository;
-        this.kpiB2DetailResultRepository = kpiB2DetailResultRepository;
-        this.kpiB3DetailResultRepository = kpiB3DetailResultRepository;
-        this.kpiB4DetailResultRepository = kpiB4DetailResultRepository;
-        this.kpiB5DetailResultRepository = kpiB5DetailResultRepository;
-        this.kpiB8DetailResultRepository = kpiB8DetailResultRepository;
-        this.kpiB9DetailResultRepository = kpiB9DetailResultRepository;
-        this.kpiC1DetailResultRepository = kpiC1DetailResultRepository;
-        this.kpiC2DetailResultRepository = kpiC2DetailResultRepository;
-    }
+    private final KpiA1ResultRepository kpiA1ResultRepository;
+    private final KpiA2ResultRepository kpiA2ResultRepository;
+    private final KpiB1ResultRepository kpiB1ResultRepository;
+    private final KpiB2ResultRepository kpiB2ResultRepository;
+    private final KpiB3ResultRepository kpiB3ResultRepository;
+    private final KpiB4ResultRepository kpiB4ResultRepository;
+    private final KpiB5ResultRepository kpiB5ResultRepository;
+    private final KpiResultRepository   kpiB6ResultRepository;
+
+    private final KpiB8ResultRepository kpiB8ResultRepository;
+    private final KpiB9ResultRepository kpiB9ResultRepository;
+    private final KpiC1ResultRepository kpiC1ResultRepository;
+    private final KpiC2ResultRepository kpiC2ResultRepository;
+
+
+
 
     public List<WrapperPdfFiles> generatePDF(Locale locale, Long instanceId) throws Exception {
 
         // Temp WorkDir
         Path workDir = Files.createTempDirectory("pdf-preview-");
 
-        Map<String, Object> baseVars = new HashMap<>();
-        Map<String, List<PdfKpiTableDescriptor>> kpiTables = new HashMap<>();
+        Map<String, Object> baseVars = new LinkedHashMap<>();
+        Map<String, List<PdfKpiTableDescriptor>> kpiTables =  new LinkedHashMap<>();
         Instance instance = instanceRepository.findByIdWithPartner(instanceId);
         if(instance==null){
             throw new EntityNotFoundException();
@@ -116,7 +102,7 @@ public class PDFReportGenerator {
          * =========================
          */
 
-        List<PdfKpiSummaryItem> kpis = new ArrayList<>();
+        List<PdfKpiSummaryItem> kpis = new LinkedList<>();
 
 
         /* =========================
@@ -126,7 +112,7 @@ public class PDFReportGenerator {
         List<KpiA1DetailResult> a1 = kpiA1DetailResultRepository.findLatestByInstanceId(instanceId);
         List<PdfKpiTableDescriptor> kpiA1Tables = List.of();
         if (!a1.isEmpty()) {
-            kpis.add(buildFromOutcome("A.1", effectiveLocale, a1.stream().map(KpiA1DetailResult::getOutcome).toList()));
+            kpis.add(buildFromOutcome("A.1", effectiveLocale, kpiA1ResultRepository.findByInstanceId(instanceId).get(0).getOutcome()));
             baseVars.put("kpiA1Table", pdfKpiTableFactory.buildA1(a1, effectiveLocale));
             PdfKpiTableDescriptor rawTable = pdfKpiTableFactory.buildA1(a1, effectiveLocale);
             kpiTables.put("A.1", pdfKpiTableFactory.splitTable(rawTable));
@@ -139,7 +125,7 @@ public class PDFReportGenerator {
         List<KpiA2DetailResult> a2 = kpiA2DetailResultRepository.findLatestByInstanceId(instanceId);
         List<PdfKpiTableDescriptor> kpiA2Tables = List.of();
         if (!a2.isEmpty()) {
-            kpis.add(buildFromOutcome("A.2", effectiveLocale, a2.stream().map(KpiA2DetailResult::getOutcome).toList()));
+            kpis.add(buildFromOutcome("A.2", effectiveLocale,  kpiA2ResultRepository.findByInstanceId(instanceId).get(0).getOutcome()));
             baseVars.put("kpiA2Table", pdfKpiTableFactory.buildA2(a2, effectiveLocale));
             PdfKpiTableDescriptor rawTable = pdfKpiTableFactory.buildA2(a2, effectiveLocale);
             kpiTables.put("A.2", pdfKpiTableFactory.splitTable(rawTable));
@@ -153,7 +139,7 @@ public class PDFReportGenerator {
         ========================= */
         List<KpiB1DetailResult> b1 = kpiB1DetailResultRepository.findLatestByInstanceId(instanceId);
         if (!b1.isEmpty()) {
-            kpis.add(buildFromOutcome("B.1", effectiveLocale, b1.stream().map(KpiB1DetailResult::getInstitutionOutcome).toList()));
+            kpis.add(buildFromOutcome("B.1", effectiveLocale, kpiB1ResultRepository.findByInstanceId(instanceId).get(0).getOutcome()));
             baseVars.put("kpiB1Table", pdfKpiTableFactory.buildB1(b1, effectiveLocale));
             PdfKpiTableDescriptor rawTableB1 = pdfKpiTableFactory.buildB1(b1, effectiveLocale);
             kpiTables.put("B.1", pdfKpiTableFactory.splitTable(rawTableB1));
@@ -164,7 +150,7 @@ public class PDFReportGenerator {
 ========================= */
         List<KpiB2DetailResult> b2 = kpiB2DetailResultRepository.findLatestByInstanceId(instanceId);
         if (!b2.isEmpty()) {
-            kpis.add(buildFromOutcome("B.2", effectiveLocale, b2.stream().map(KpiB2DetailResult::getOutcome).toList()));
+            kpis.add(buildFromOutcome("B.2", effectiveLocale, kpiB2ResultRepository.findByInstanceId(instanceId).get(0).getOutcome()));
             baseVars.put("kpiB2Table", pdfKpiTableFactory.buildB2(b2, effectiveLocale));
             PdfKpiTableDescriptor rawTableB2 = pdfKpiTableFactory.buildB2(b2, effectiveLocale);
             kpiTables.put("B.2", pdfKpiTableFactory.splitTable(rawTableB2));
@@ -174,7 +160,7 @@ public class PDFReportGenerator {
            ========================= */
         List<KpiB3DetailResult> b3 = kpiB3DetailResultRepository.findLatestByInstanceId(instanceId);
         if (!b3.isEmpty()) {
-            kpis.add(buildFromOutcome("B.3", effectiveLocale, b3.stream().map(KpiB3DetailResult::getOutcome).toList()));
+            kpis.add(buildFromOutcome("B.3", effectiveLocale, kpiB3ResultRepository.findByInstanceId(instanceId).get(0).getOutcome()));
             baseVars.put("kpiB3Table", pdfKpiTableFactory.buildB3(b3, effectiveLocale));
             PdfKpiTableDescriptor rawTable = pdfKpiTableFactory.buildB3(b3, effectiveLocale);
             kpiTables.put("B.3", pdfKpiTableFactory.splitTable(rawTable));
@@ -185,7 +171,7 @@ public class PDFReportGenerator {
         ========================= */
         List<KpiB4DetailResult> b4 = kpiB4DetailResultRepository.findLatestByInstanceId(instanceId);
         if (!b4.isEmpty()) {
-            kpis.add(buildFromOutcome("B.4", effectiveLocale, b4.stream().map(KpiB4DetailResult::getOutcome).toList()));
+            kpis.add(buildFromOutcome("B.4", effectiveLocale, kpiB4ResultRepository.findByInstanceId(instanceId).get(0).getOutcome()));
             baseVars.put("kpiB4Table", pdfKpiTableFactory.buildB4(b4, effectiveLocale));
             PdfKpiTableDescriptor rawTableB4 = pdfKpiTableFactory.buildB4(b4, effectiveLocale);
             kpiTables.put("B.4", pdfKpiTableFactory.splitTable(rawTableB4));
@@ -196,18 +182,31 @@ public class PDFReportGenerator {
         ========================= */
         List<KpiB5DetailResult> b5 = kpiB5DetailResultRepository.findLatestByInstanceId(instanceId);
         if (!b5.isEmpty()) {
-            kpis.add(buildFromOutcome("B.5", effectiveLocale, b5.stream().map(KpiB5DetailResult::getOutcome).toList()));
+            kpis.add(buildFromOutcome("B.5", effectiveLocale, kpiB5ResultRepository.findByInstanceId(instanceId).get(0).getOutcome()));
             baseVars.put("kpiB5Table", pdfKpiTableFactory.buildB5(b5, effectiveLocale));
             PdfKpiTableDescriptor rawTableB5 = pdfKpiTableFactory.buildB5(b5, effectiveLocale);
             kpiTables.put("B.5", pdfKpiTableFactory.splitTable(rawTableB5));
         }
+
+
+                /* =========================
+               KPI B.6 DATA
+        ========================= */
+        List<KpiDetailResult> b6 = kpiB6DetailResultRepository.findLatestByInstanceIdAndModuleCode(instanceId, ModuleCode.B6);
+        if (!b6.isEmpty()) {
+            kpis.add(buildFromOutcome("B.6", effectiveLocale, kpiB6ResultRepository.findByInstanceId(instanceId, ModuleCode.B6).get(0).getOutcome()));
+            baseVars.put("kpiB6Table", pdfKpiTableFactory.buildB6(b6, effectiveLocale));
+            PdfKpiTableDescriptor rawTableB6 = pdfKpiTableFactory.buildB6(b6, effectiveLocale);
+            kpiTables.put("B.6", pdfKpiTableFactory.splitTable(rawTableB6));
+        }
+
 
         /* =========================
                KPI B.8 DATA
         ========================= */
         List<KpiB8DetailResult> b8 = kpiB8DetailResultRepository.findLatestByInstanceId(instanceId);
         if (!b8.isEmpty()) {
-            kpis.add(buildFromOutcome("B.8", effectiveLocale, b8.stream().map(KpiB8DetailResult::getOutcome).toList()));
+            kpis.add(buildFromOutcome("B.8", effectiveLocale, kpiB8ResultRepository.findByInstanceId(instanceId).get(0).getOutcome()));
             baseVars.put("kpiB8Table", pdfKpiTableFactory.buildB8(b8, effectiveLocale));
             PdfKpiTableDescriptor rawTableB8 = pdfKpiTableFactory.buildB8(b8, effectiveLocale);
             kpiTables.put("B.8", pdfKpiTableFactory.splitTable(rawTableB8));
@@ -218,7 +217,7 @@ public class PDFReportGenerator {
         ========================= */
         List<KpiB9DetailResult> b9 = kpiB9DetailResultRepository.findLatestByInstanceId(instanceId);
         if (!b9.isEmpty()) {
-            kpis.add(buildFromOutcome("B.9", effectiveLocale, b9.stream().map(KpiB9DetailResult::getOutcome).toList()));
+            kpis.add(buildFromOutcome("B.9", effectiveLocale, kpiB9ResultRepository.findByInstanceId(instanceId).get(0).getOutcome()));
             baseVars.put("kpiB9Table", pdfKpiTableFactory.buildB9(b9, effectiveLocale));
             PdfKpiTableDescriptor rawTableB9 = pdfKpiTableFactory.buildB9(b9, effectiveLocale);
             kpiTables.put("B.9", pdfKpiTableFactory.splitTable(rawTableB9));
@@ -229,7 +228,7 @@ public class PDFReportGenerator {
         ========================= */
         List<KpiC1DetailResult> c1 = kpiC1DetailResultRepository.findLatestByInstanceId(instanceId);
         if (!c1.isEmpty()) {
-            kpis.add(buildFromOutcome("C.1", effectiveLocale, c1.stream().map(KpiC1DetailResult::getOutcome).toList()));
+            kpis.add(buildFromOutcome("C.1", effectiveLocale, kpiC1ResultRepository.findByInstanceId(instanceId).get(0).getOutcome()));
             baseVars.put("kpiC1Table", pdfKpiTableFactory.buildC1(c1, effectiveLocale));
             PdfKpiTableDescriptor rawTableC1 = pdfKpiTableFactory.buildC1(c1, effectiveLocale);
             kpiTables.put("C.1", pdfKpiTableFactory.splitTable(rawTableC1));
@@ -240,7 +239,7 @@ public class PDFReportGenerator {
     ========================= */
         List<KpiC2DetailResult> c2 = kpiC2DetailResultRepository.findLatestByInstanceId(instanceId);
         if (!c2.isEmpty()) {
-            kpis.add(buildFromOutcome("C.2", effectiveLocale, c2.stream().map(KpiC2DetailResult::getOutcome).toList()));
+            kpis.add(buildFromOutcome("C.2", effectiveLocale, kpiC2ResultRepository.findByInstanceId(instanceId).get(0).getOutcome()));
             baseVars.put("kpiC2Table", pdfKpiTableFactory.buildC2(c2, effectiveLocale));
             PdfKpiTableDescriptor rawTableC2 = pdfKpiTableFactory.buildC2(c2, effectiveLocale);
             kpiTables.put("C.2", pdfKpiTableFactory.splitTable(rawTableC2));
@@ -263,11 +262,13 @@ public class PDFReportGenerator {
 
 
         PdfKpiPageBuilder pageBuilder = new PdfKpiPageBuilder();
+        List<PdfKpiPage> kpiPages =
+            pageBuilder.buildPages(kpis, kpiTables);
         List<PdfKpiPage> negativeKpiPages =
             pageBuilder.buildPages(negativeKpis, kpiTables);
-
         List<PdfKpiPage> positiveKpiPages =
             pageBuilder.buildPages(positiveKpis, kpiTables);
+
 
         Hibernate.isInitialized(instance.getPartner());
         DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -286,11 +287,9 @@ public class PDFReportGenerator {
         baseVars.put("periodo", periodo);
         baseVars.put("reportName", "Report_INST-"+instanceId);
         baseVars.put("kpis", kpis);
+        baseVars.put("kpiPages", kpiPages);
         baseVars.put("negativeKpis", negativeKpis);
         baseVars.put("positiveKpis", positiveKpis);
-
-        ;
-        //   baseVars.put("kpiA1DrilldownTables", kpiA1DrilldownTables);
         baseVars.put("negativeKpiPages", negativeKpiPages);
         baseVars.put("positiveKpiPages", positiveKpiPages);
 
@@ -299,13 +298,16 @@ public class PDFReportGenerator {
            ========================= */
 
 
-        List<WrapperPdfFiles> listPdfFiles = new ArrayList<>();
+        List<WrapperPdfFiles> listPdfFiles = new LinkedList<>();
+        
+        // Use instance identification for file names
+        String instanceName = instance.getInstanceIdentification();
 
         // 1) Summary
         String htmlSummary = generationService.render("pdf/layouts/summary-only", baseVars, effectiveLocale);
         listPdfFiles.add(WrapperPdfFiles.builder()
                 .content(rendererService.renderToBytes(htmlSummary, workDir))
-                .name("report-summary.pdf")
+                .name(instanceName + "_summary.pdf")
                 .build());
 
         // 2) Summary + Negativi
@@ -314,7 +316,7 @@ public class PDFReportGenerator {
         String htmlNeg = generationService.render("pdf/layouts/summary-plus-negative", baseVars, effectiveLocale);
         listPdfFiles.add(WrapperPdfFiles.builder()
             .content(rendererService.renderToBytes(htmlNeg, workDir))
-            .name("report-negative.pdf")
+            .name(instanceName + "_negative.pdf")
             .build());
 
 
@@ -322,7 +324,7 @@ public class PDFReportGenerator {
         String htmlFull = generationService.render("pdf/layouts/full-report", baseVars, effectiveLocale);
         listPdfFiles.add(WrapperPdfFiles.builder()
             .content(rendererService.renderToBytes(htmlFull, workDir))
-            .name("report-complete.pdf")
+            .name(instanceName + "_complete.pdf")
             .build());
 
 
@@ -336,12 +338,13 @@ public class PDFReportGenerator {
         }
     }
 
-    private PdfKpiSummaryItem buildFromOutcome(String code, Locale locale, List<?> outcomes) {
-        boolean compliant = outcomes.stream().allMatch(this::isCompliantOutcome);
+    private PdfKpiSummaryItem buildFromOutcome(String code, Locale locale, OutcomeStatus outcomes) {
+        boolean compliant = outcomes.equals(OutcomeStatus.OK);
 
-        String descriptionKey = "pdf.kpi." + code + ".shortDescription";
-        String fallbackKey = "pdf.kpi." + code + ".description";
-        String titleKey = "pdf.kpi." + code + ".title";
+        String pdfKpi = "pdf.kpi.";
+        String descriptionKey = pdfKpi + code + ".shortDescription";
+        String fallbackKey = pdfKpi + code + ".description";
+        String titleKey = pdfKpi + code + ".title";
 
         String title = msg(locale, titleKey, null);
         if (title == null || title.isBlank()) {
