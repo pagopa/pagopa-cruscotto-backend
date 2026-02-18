@@ -14,6 +14,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.stereotype.Component;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -92,7 +93,13 @@ public class KpiB6AnalyticDataExporter implements DrillDownExcelExporter<KpiAnal
             return;
         }
 
-        List<KpiAnalyticDataDTO> rows =(List<KpiAnalyticDataDTO>) data;
+        List<KpiAnalyticDataDTO> rows = data.stream()
+            .sorted(Comparator.comparing(r -> {
+                KpiB6AdditionalAnalyticDataDTO anal =
+                    readAdditionalData(r.getAnalyticData());
+                return anal.getStationCode();
+            }, Comparator.nullsLast(String::compareToIgnoreCase)))
+            .toList();
 
 
 
