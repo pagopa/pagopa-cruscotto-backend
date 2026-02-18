@@ -92,7 +92,7 @@ microservice-chart:
     AWS_ACCESS_KEY: 'cruscotto-aws-access-key'
     AWS_SECRET_KEY: 'cruscotto-aws-secret-key'
     AWS_SES_USER: 'cruscotto-aws-ses-user'
-    AZURE_BLOB_CONNECTION_STRING: 'azure-blob-storage-connection-string'
+    AZURE_BLOB_CONNECTION_STRING: 'crusc8besa-conn-string'
   keyvault:
     name: "pagopa-d-itn-crusc8-kv"
     tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
