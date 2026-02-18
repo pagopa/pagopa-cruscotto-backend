@@ -11,6 +11,8 @@ import com.nexigroup.pagopa.cruscotto.repository.AuthGroupRepository;
 import com.nexigroup.pagopa.cruscotto.repository.AuthUserRepository;
 import com.nexigroup.pagopa.cruscotto.service.AuthUserService;
 import java.util.Locale;
+
+import com.nexigroup.pagopa.cruscotto.service.AzureBlobStorageService;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +22,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -51,6 +54,9 @@ class DomainUserDetailsServiceIT {
     @Autowired
     @Qualifier("userDetailsService")
     private UserDetailsService domainUserDetailsService;
+
+    @MockitoBean
+    private AzureBlobStorageService azureBlobStorageService;
 
     private AuthGroup authGroup;
 

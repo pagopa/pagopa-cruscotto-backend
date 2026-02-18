@@ -4,7 +4,11 @@ import com.nexigroup.pagopa.cruscotto.domain.Instance;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisOutcome;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.service.bean.InstanceRequestBean;
+import com.nexigroup.pagopa.cruscotto.service.dto.ArchiveRequestDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.ArchiveResponseDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.InstanceDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.RestoreRequestDTO;
+import com.nexigroup.pagopa.cruscotto.service.dto.RestoreResponseDTO;
 import com.nexigroup.pagopa.cruscotto.service.filter.InstanceFilter;
 import java.time.Instant;
 import java.util.List;
@@ -57,4 +61,20 @@ public interface InstanceService {
      * Update instance status to error
      */
     void updateInstanceStatusError(Long id);
+
+    /**
+     * Archive instances
+     *
+     * @param request the archive request containing instance IDs
+     * @return the archive response with success/failure counts and detailed results
+     */
+    ArchiveResponseDTO archiveInstances(ArchiveRequestDTO request);
+
+    /**
+     * Restore archived instances
+     *
+     * @param request the restore request containing instance IDs
+     * @return the restore response with success/failure counts and detailed results
+     */
+    RestoreResponseDTO restoreInstances(RestoreRequestDTO request);
 }

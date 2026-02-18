@@ -1,6 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.repository;
 
 import com.nexigroup.pagopa.cruscotto.domain.KpiAnalyticData;
+import com.nexigroup.pagopa.cruscotto.domain.KpiDetailResult;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import java.time.LocalDate;
 import java.util.List;
@@ -42,4 +43,23 @@ public interface KpiAnalyticDataRepository extends JpaRepository<KpiAnalyticData
     @Modifying
     @Query("DELETE FROM KpiAnalyticData k WHERE k.moduleCode = :moduleCode AND k.instanceModuleId = :instanceModuleId")
     void deleteAllByModuleCodeAndInstanceModuleId(@Param("moduleCode") ModuleCode moduleCode, @Param("instanceModuleId") Long instanceModuleId);
+
+
+    @Query("""
+    SELECT d
+    FROM KpiAnalyticData d
+    WHERE d.instanceId = :instanceId
+      AND d.moduleCode = :moduleCode
+      AND d.analysisDate = (
+          SELECT MAX(dd.analysisDate)
+          FROM KpiAnalyticData dd
+          WHERE dd.instanceId = :instanceId
+            AND dd.moduleCode = :moduleCode
+      )
+    ORDER BY d.instanceModuleId ASC
+""")
+    List<KpiAnalyticData> findLatestByInstanceIdAndModuleCode(
+        @Param("instanceId") Long instanceId,
+        @Param("moduleCode") ModuleCode moduleCode
+    );
 }

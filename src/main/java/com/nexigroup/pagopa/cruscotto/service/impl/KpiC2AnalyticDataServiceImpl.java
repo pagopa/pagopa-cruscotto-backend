@@ -5,13 +5,11 @@ import com.nexigroup.pagopa.cruscotto.domain.KpiC2AnalyticData;
 import com.nexigroup.pagopa.cruscotto.repository.*;
 import com.nexigroup.pagopa.cruscotto.service.KpiC2AnalyticDataService;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiC2AnalyticDataDTO;
-import jakarta.persistence.Column;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;

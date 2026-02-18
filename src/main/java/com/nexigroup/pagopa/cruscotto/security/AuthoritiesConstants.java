@@ -115,6 +115,8 @@ public final class AuthoritiesConstants {
 
     public static final String INSTANCE_DELETION = "GTW.INSTANCE_DELETION";
 
+    public static final String INSTANCE_ARCHIVING = "GTW.INSTANCE_ARCHIVING";
+
     public static final String INSTANCE_MODULE_DETAIL = "GTW.INSTANCE_MODULE_DETAIL";
 
     public static final String INSTANCE_MODULE_MODIFICATION = "GTW.INSTANCE_MODULE_MODIFICATION";

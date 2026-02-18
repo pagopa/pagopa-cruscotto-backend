@@ -154,7 +154,59 @@ public class KpiB9Job extends QuartzJobBean {
                         AtomicReference<OutcomeStatus> kpiB9ResultFinalOutcome = new AtomicReference<>(OutcomeStatus.OK);
 
                         if (stations.isEmpty()) {
-                            LOGGER.info("No stations found for analysis");
+                            LOGGER.info("No stations found - creating empty detail results");
+                            
+                            // Create monthly detail results
+                            Map<YearMonth, LocalDate> monthlyStartDate = new HashMap<>();
+                            Map<YearMonth, LocalDate> monthlyEndDate = new HashMap<>();
+                            
+                            instanceDTO.getAnalysisPeriodStartDate()
+                                .datesUntil(instanceDTO.getAnalysisPeriodEndDate().plusDays(1))
+                                .forEach(date -> {
+                                    YearMonth yearMonth = YearMonth.from(date);
+                                    monthlyStartDate.putIfAbsent(yearMonth, 
+                                        date.equals(instanceDTO.getAnalysisPeriodStartDate()) 
+                                            ? instanceDTO.getAnalysisPeriodStartDate() 
+                                            : yearMonth.atDay(1));
+                                    monthlyEndDate.put(yearMonth, 
+                                        yearMonth.equals(YearMonth.from(instanceDTO.getAnalysisPeriodEndDate())) 
+                                            ? instanceDTO.getAnalysisPeriodEndDate() 
+                                            : yearMonth.atEndOfMonth());
+                                });
+                            
+                            // Create detail result for each month
+                            for (YearMonth yearMonth : monthlyStartDate.keySet()) {
+                                KpiB9DetailResultDTO monthlyDetail = new KpiB9DetailResultDTO();
+                                monthlyDetail.setInstanceId(instanceDTO.getId());
+                                monthlyDetail.setInstanceModuleId(instanceModuleDTO.getId());
+                                monthlyDetail.setAnalysisDate(LocalDate.now());
+                                monthlyDetail.setEvaluationType(EvaluationType.MESE);
+                                monthlyDetail.setEvaluationStartDate(monthlyStartDate.get(yearMonth));
+                                monthlyDetail.setEvaluationEndDate(monthlyEndDate.get(yearMonth));
+                                monthlyDetail.setTotRes(0L);
+                                monthlyDetail.setResKo(0L);
+                                monthlyDetail.setResKoPercentage(0.0);
+                                monthlyDetail.setKpiB9ResultId(kpiB9ResultRef.get().getId());
+                                monthlyDetail.setOutcome(OutcomeStatus.OK);
+                                
+                                kpiB9DetailResultService.save(monthlyDetail);
+                            }
+                            
+                            // Create empty detail result for TOTALE period
+                            KpiB9DetailResultDTO kpiB9DetailResultDTO = new KpiB9DetailResultDTO();
+                            kpiB9DetailResultDTO.setInstanceId(instanceDTO.getId());
+                            kpiB9DetailResultDTO.setInstanceModuleId(instanceModuleDTO.getId());
+                            kpiB9DetailResultDTO.setAnalysisDate(LocalDate.now());
+                            kpiB9DetailResultDTO.setEvaluationType(EvaluationType.TOTALE);
+                            kpiB9DetailResultDTO.setEvaluationStartDate(instanceDTO.getAnalysisPeriodStartDate());
+                            kpiB9DetailResultDTO.setEvaluationEndDate(instanceDTO.getAnalysisPeriodEndDate());
+                            kpiB9DetailResultDTO.setTotRes(0L);
+                            kpiB9DetailResultDTO.setResKo(0L);
+                            kpiB9DetailResultDTO.setResKoPercentage(0.0);
+                            kpiB9DetailResultDTO.setKpiB9ResultId(kpiB9ResultRef.get().getId());
+                            kpiB9DetailResultDTO.setOutcome(OutcomeStatus.OK);
+                            
+                            kpiB9DetailResultService.save(kpiB9DetailResultDTO);
                         } else {
                             // Batch collection for optimized drilldown processing
                             final List<PagoPaPaymentReceiptDrilldown> drilldownBatch = new ArrayList<>();
@@ -236,7 +288,7 @@ public class KpiB9Job extends QuartzJobBean {
                                                         );
                                                     return excludePlanned;
                                                 })
-                                                .anyMatch(Boolean::booleanValue);
+                                                .anyMatch(b->b);
 
                                             // Only count ResKo for KPI calculation if not in maintenance period
                                             if (!exclude) {

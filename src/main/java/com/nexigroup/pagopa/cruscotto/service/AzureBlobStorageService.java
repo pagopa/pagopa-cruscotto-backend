@@ -1,9 +1,13 @@
 package com.nexigroup.pagopa.cruscotto.service;
 
 import com.azure.storage.blob.*;
+import com.azure.storage.blob.sas.BlobSasPermission;
+import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.time.Duration;
+import java.time.OffsetDateTime;
 import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,4 +128,64 @@ public class AzureBlobStorageService {
     // public void upload(File file, String blobPath, String fileName) {
     //     // Implementation here
     // }
+
+    /**
+     * Generates a Shared Access Signature (SAS) URL for a blob.
+     * The SAS URL provides temporary access to download the blob without authentication.
+     *
+     * @param blobPath         The path (including folders) where the file is stored in the container.
+     * @param fileName         The name of the file.
+     * @param duration         The duration for which the SAS URL is valid.
+     * @param downloadFileName The friendly filename to set in Content-Disposition header.
+     * @return The SAS URL for downloading the blob.
+     * @throws IllegalArgumentException if blobPath or fileName is null or empty.
+     * @throws RuntimeException if SAS URL generation fails.
+     */
+    public String generateSasUrl(String blobPath, String fileName, Duration duration, String downloadFileName) {
+        if(blobPath == null || blobPath.trim().isEmpty()) {
+            throw new IllegalArgumentException("Blob path cannot be null or empty");
+        }
+        if(fileName == null || fileName.trim().isEmpty()) {
+            throw new IllegalArgumentException("File name cannot be null or empty");
+        }
+        if(duration == null) {
+            throw new IllegalArgumentException("Duration cannot be null");
+        }
+
+        String fullPath = blobPath.endsWith("/") ? blobPath + fileName : blobPath + "/" + fileName;
+        try {
+            BlobClient blobClient = containerClient.getBlobClient(fullPath);
+
+            if (!blobClient.exists()) {
+                log.error("File not found in Azure Blob Storage at path: {}", fullPath);
+                throw new RuntimeException("File not found: " + fullPath);
+            }
+
+            // Set permissions for the SAS (read only)
+            BlobSasPermission sasPermission = new BlobSasPermission().setReadPermission(true);
+
+            // Set expiry time
+            OffsetDateTime expiryTime = OffsetDateTime.now().plus(duration);
+
+            // Create SAS signature values with Content-Disposition header
+            BlobServiceSasSignatureValues sasValues = new BlobServiceSasSignatureValues(expiryTime, sasPermission);
+            
+            // Set Content-Disposition header to force download with friendly filename
+            if (downloadFileName != null && !downloadFileName.trim().isEmpty()) {
+                sasValues.setContentDisposition("attachment; filename=\"" + downloadFileName + "\"");
+            }
+
+            // Generate the SAS URL
+            String sasUrl = blobClient.generateSas(sasValues);
+            String fullSasUrl = blobClient.getBlobUrl() + "?" + sasUrl;
+
+            log.info("Generated SAS URL for blob at path: {}, expires at: {}, download as: {}", fullPath, expiryTime, downloadFileName);
+            return fullSasUrl;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("Failed to generate SAS URL for blob at path: {}", fullPath, e);
+            throw new RuntimeException("Failed to generate SAS URL", e);
+        }
+    }
 }

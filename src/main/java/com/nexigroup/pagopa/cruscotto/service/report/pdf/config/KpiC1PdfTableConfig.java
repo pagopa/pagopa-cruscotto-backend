@@ -22,13 +22,11 @@ public class KpiC1PdfTableConfig extends CommonConfig {
             new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.from"), "evaluationStartDate"),
             new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.to"), "evaluationEndDate"),
 
-            new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.cfInstitution"), "cfInstitution"),
+            new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.totalInstitutions"), "totalInstitutions"),
+            new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.compliantInstitutions"), "compliantInstitutions"),
+            new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.percentageCompliantInstitutions"), "percentageCompliantInstitutions"),
 
-            new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.totalPositions"), "totalPositions"),
-            new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.sentMessages"), "sentMessages"),
-            new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.sendingPercentage"), "sendingPercentage"),
-
-            new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.configuredThreshold"), "configuredThreshold"),
+            //new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.configuredThreshold"), "configuredThreshold"),
             new PdfTableColumn(msg(messageSource, locale, "pdf.kpi.table.outcome"), "outcome")
         );
     }
@@ -59,20 +57,17 @@ public class KpiC1PdfTableConfig extends CommonConfig {
                 row.put("evaluationEndDate",
                     e.getEvaluationEndDate() != null ? e.getEvaluationEndDate().format(df) : "");
 
-                row.put("cfInstitution",
-                    e.getCfInstitution() != null ? e.getCfInstitution() : "");
+                row.put("totalInstitutions",
+                    e.getTotalInstitutions() != null ? e.getTotalInstitutions() : "0");
 
-                row.put("totalPositions",
-                    e.getTotalPositions() != null ? INT_FMT.format(e.getTotalPositions()) : "0");
+                row.put("compliantInstitutions",
+                    e.getCompliantInstitutions() != null ? INT_FMT.format(e.getCompliantInstitutions()) : "0");
 
-                row.put("sentMessages",
-                    e.getSentMessages() != null ? INT_FMT.format(e.getSentMessages()) : "0");
+                row.put("percentageCompliantInstitutions",
+                    e.getPercentageCompliantInstitutions() != null ? DEC_FMT.format(e.getPercentageCompliantInstitutions()) + "%" :   PERCENTAGE_0);
 
-                row.put("sendingPercentage",
-                    e.getSendingPercentage() != null ? DEC_FMT.format(e.getSendingPercentage()) : "0,00");
 
-                row.put("configuredThreshold",
-                    e.getConfiguredThreshold() != null ? DEC_FMT.format(e.getConfiguredThreshold()) : "0,00");
+                //row.put("configuredThreshold",e.getConfiguredThreshold() != null ? DEC_FMT.format(e.getConfiguredThreshold()) : "0,00");
 
                 row.put("outcome",
                     e.getOutcome() != null ? e.getOutcome().name() : "");

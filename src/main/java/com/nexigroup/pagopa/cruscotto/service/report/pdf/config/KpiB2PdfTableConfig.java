@@ -62,7 +62,7 @@ public class KpiB2PdfTableConfig extends CommonConfig {
                     e.getAvgTime() != null ? DEC_FMT.format(e.getAvgTime()) : "0,00");
 
                 row.put("overTimeLimit",
-                    e.getOverTimeLimit() != null ? DEC_FMT.format(e.getOverTimeLimit()) : "0,00");
+                    e.getOverTimeLimit() != null ? DEC_FMT.format(e.getOverTimeLimit())  + "%" :   PERCENTAGE_0);
 
                 row.put("outcome",
                     e.getOutcome() != null ? e.getOutcome().name() : "");

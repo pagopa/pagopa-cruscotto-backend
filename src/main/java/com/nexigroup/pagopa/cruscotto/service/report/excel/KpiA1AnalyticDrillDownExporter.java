@@ -6,11 +6,15 @@ import com.nexigroup.pagopa.cruscotto.repository.KpiA1AnalyticDrillDownRepositor
 
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiA1AnalyticDrillDownDTO;
 import com.nexigroup.pagopa.cruscotto.service.report.excel.DrillDownExcelExporter;
+import com.nexigroup.pagopa.cruscotto.service.report.excel.dto.KpiA1ResultReportExcelDTO;
+import com.nexigroup.pagopa.cruscotto.service.report.repository.QueryReportRepository;
+import lombok.AllArgsConstructor;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -18,22 +22,17 @@ import java.util.stream.Collectors;
 
 @Component
 @Order(1)
-public class KpiA1AnalyticDrillDownExporter implements DrillDownExcelExporter {
+@AllArgsConstructor
+public class KpiA1AnalyticDrillDownExporter implements DrillDownExcelExporter<KpiA1ResultReportExcelDTO> {
 
-    private final KpiA1AnalyticDrillDownRepository drillDownRepository;
-    private final KpiA1AnalyticDataRepository analyticDataRepository;
+    QueryReportRepository queryReportRepository;
+
 
     private static final DateTimeFormatter HOUR_FMT =
-        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+        DateTimeFormatter.ofPattern("HH:mm")
             .withZone(ZoneId.systemDefault());
 
-    public KpiA1AnalyticDrillDownExporter(
-        KpiA1AnalyticDrillDownRepository drillDownRepository,
-        KpiA1AnalyticDataRepository analyticDataRepository
-    ) {
-        this.drillDownRepository = drillDownRepository;
-        this.analyticDataRepository = analyticDataRepository;
-    }
+
 
     @Override
     public String getSheetName() {
@@ -46,47 +45,28 @@ public class KpiA1AnalyticDrillDownExporter implements DrillDownExcelExporter {
     }
 
     @Override
-    public List<KpiA1AnalyticDrillDownDTO> loadData(String instanceCode) {
+    public List<KpiA1ResultReportExcelDTO> loadData(String instanceCode) {
 
         Long instanceId = Long.valueOf(instanceCode);
 
-        List<Long> latestAnalyticDataIdByInstanceId = analyticDataRepository.findLatestAnalyticDataIdByInstanceId(instanceId);
 
-        if (latestAnalyticDataIdByInstanceId == null || latestAnalyticDataIdByInstanceId .isEmpty()) {
-            return List.of();
-        }
+        return queryReportRepository.findKpiA1DrilldownForExcel(instanceId);
 
-        return drillDownRepository
-            .findByKpiA1AnalyticDataIdInOrderByFromHourAsc(latestAnalyticDataIdByInstanceId)
-            .stream()
-            .map(this::toDto)
-            .collect(Collectors.toList());
-    }
-
-    private KpiA1AnalyticDrillDownDTO toDto(KpiA1AnalyticDrillDown entity) {
-        KpiA1AnalyticDrillDownDTO dto = new KpiA1AnalyticDrillDownDTO();
-        dto.setId(entity.getId());
-        dto.setKpiA1AnalyticDataId(entity.getKpiA1AnalyticDataId());
-        dto.setFromHour(entity.getFromHour());
-        dto.setToHour(entity.getToHour());
-        dto.setTotalRequests(entity.getTotalRequests());
-        dto.setOkRequests(entity.getOkRequests());
-        dto.setReqTimeout(entity.getReqTimeout());
-        return dto;
     }
 
     @Override
-    public void writeSheet(Sheet sheet, List<?> data) {
+    public void writeSheet(Sheet sheet, List<KpiA1ResultReportExcelDTO> data) {
 
         int rowIdx = 0;
 
         // ===== HEADER =====
         Row header = sheet.createRow(rowIdx++);
-        header.createCell(0).setCellValue("From Hour");
-        header.createCell(1).setCellValue("To Hour");
-        header.createCell(2).setCellValue("Total Requests");
-        header.createCell(3).setCellValue("OK Requests");
-        header.createCell(4).setCellValue("Request Timeout");
+        header.createCell(0).setCellValue("Period");
+        header.createCell(1).setCellValue("From Hour");
+        header.createCell(2).setCellValue("To Hour");
+        header.createCell(3).setCellValue("Total Requests");
+        header.createCell(4).setCellValue("OK Requests");
+        header.createCell(5).setCellValue("Request Timeout");
 
         // ===== NO DATA FOUND =====
         if (data == null || data.isEmpty()) {
@@ -96,17 +76,21 @@ public class KpiA1AnalyticDrillDownExporter implements DrillDownExcelExporter {
         }
 
         @SuppressWarnings("unchecked")
-        List<KpiA1AnalyticDrillDownDTO> rows =
-            (List<KpiA1AnalyticDrillDownDTO>) data;
+        List<KpiA1ResultReportExcelDTO> rows =
+            (List<KpiA1ResultReportExcelDTO>) data;
 
         // ===== DATA =====
-        for (KpiA1AnalyticDrillDownDTO r : rows) {
+        for (KpiA1ResultReportExcelDTO r : rows) {
             Row row = sheet.createRow(rowIdx++);
-            row.createCell(0).setCellValue(HOUR_FMT.format(r.getFromHour()));
-            row.createCell(1).setCellValue(HOUR_FMT.format(r.getToHour()));
-            row.createCell(2).setCellValue(r.getTotalRequests());
-            row.createCell(3).setCellValue(r.getOkRequests());
-            row.createCell(4).setCellValue(r.getReqTimeout());
+            int count=0;
+
+            row.createCell(count++).setCellValue(DrillDownExcelExporter.formatDateFromInstant(r.getFromHour()));
+            row.createCell(count++).setCellValue(HOUR_FMT.format(r.getFromHour()));
+            row.createCell(count++).setCellValue(HOUR_FMT.format(r.getToHour()));
+            row.createCell(count++).setCellValue(r.getTotalRequests());
+            row.createCell(count++).setCellValue(r.getOkRequests());
+            row.createCell(count++).setCellValue(r.getReqTimeout());
         }
     }
+
 }

@@ -1,7 +1,5 @@
 package com.nexigroup.pagopa.cruscotto.service.dto;
 
-import com.nexigroup.pagopa.cruscotto.service.validation.ValidationGroups;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import java.io.Serializable;
 

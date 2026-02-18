@@ -1,6 +1,5 @@
 package com.nexigroup.pagopa.cruscotto.config;
 
-import com.nexigroup.pagopa.cruscotto.job.kpi.c2.KpiC2Job;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
