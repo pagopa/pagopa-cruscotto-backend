@@ -59,23 +59,23 @@ public class GrantAuthoritiesLoad {
                 .stream()
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Group is not defined"));
-            
+
             if(groupAuthority.getAuthority() != null && groupAuthority.getAuthority().compareTo(Constants.ROLE_PASSWORD_EXPIRED) == 0) {
             	grantedAuthoritiesConverted.add(new SimpleGrantedAuthority(AuthoritiesConstants.PASSWORD_MODIFICATION));
 			} else {
 
-	            Optional<AuthGroup> group = authGroupRepository.findOneByNome(groupAuthority.getAuthority());
-	
+	            Optional<AuthGroup> group = authGroupRepository.findOneByObjectId(groupAuthority.getAuthority());
+
 	            AuthGroup authGroup = group.orElseThrow(() -> new IllegalArgumentException("Group not found"));
-	
+
 	            List<AuthPermission> functions = authPermissionRepository.findAllPermissionsByGroupId(authGroup.getId());
-	
+
 	            grantedAuthoritiesConverted = functions
 	                .stream()
 	                .map(function -> new SimpleGrantedAuthority(function.getModulo() + "." + function.getNome()))
 	                .collect(Collectors.toSet());
 			}
-            
+
             cache.put(key, grantedAuthoritiesConverted);
         }
 

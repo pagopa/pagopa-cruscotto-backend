@@ -33,4 +33,9 @@ public interface AuthGroupRepository extends JpaRepository<AuthGroup, Long>, Jpa
 
     @Query("select authGroup from AuthGroup authGroup where authGroup.nome =:nome")
     Optional<AuthGroup> findOneByNome(@Param("nome") String nome);
+
+    @Query("select authGroup from AuthGroup authGroup where authGroup.objectId =:objectId")
+    Optional<AuthGroup> findOneByObjectId(@Param("objectId") String objectId);
+
+
 }
