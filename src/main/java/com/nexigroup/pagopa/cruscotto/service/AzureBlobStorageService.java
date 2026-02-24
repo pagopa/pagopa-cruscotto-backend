@@ -156,10 +156,10 @@ public class AzureBlobStorageService {
         try {
             BlobClient blobClient = containerClient.getBlobClient(fullPath);
 
-            if (!blobClient.exists()) {
-                log.error("File not found in Azure Blob Storage at path: {}", fullPath);
-                throw new RuntimeException("File not found: " + fullPath);
-            }
+            // if (!blobClient.exists()) {
+            //     log.error("File not found in Azure Blob Storage at path: {}", fullPath);
+            //     throw new RuntimeException("File not found: " + fullPath);
+            // }
 
             // Set permissions for the SAS (read only)
             BlobSasPermission sasPermission = new BlobSasPermission().setReadPermission(true);
