@@ -1,7 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.security.jwt;
 
+import static com.nexigroup.pagopa.cruscotto.config.SecurityJwtConfiguration.JWT_ALGORITHM;
 import static com.nexigroup.pagopa.cruscotto.security.SecurityUtils.AUTHORITIES_KEY;
-import static com.nexigroup.pagopa.cruscotto.security.SecurityUtils.JWT_ALGORITHM;
 
 import com.nexigroup.pagopa.cruscotto.config.Constants;
 import com.nexigroup.pagopa.cruscotto.security.GrantAuthoritiesLoad;
@@ -21,7 +21,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Component;
 
-@Component
+//@Component
 public class TokenProvider {
 
     private final Logger log = LoggerFactory.getLogger(TokenProvider.class);

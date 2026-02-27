@@ -54,30 +54,27 @@ public class GrantAuthoritiesLoad {
 
         if (grantedAuthoritiesConverted.isEmpty()) {
             //carico in cache le Authorities dell'utente
+            if (grantedAuthorities.isEmpty()){
+                throw new IllegalArgumentException("Group is not defined");
+            }
 
-            GrantedAuthority groupAuthority = grantedAuthorities
+            List<String> groupAuthority = grantedAuthorities
+                .stream().map(grantedAuthority -> grantedAuthority.getAuthority()).toList();
+
+
+            Optional<AuthGroup> group = authGroupRepository.findOneByObjectId(groupAuthority);
+
+            AuthGroup authGroup = group.orElseThrow(() -> new IllegalArgumentException("Group not found"));
+
+            List<AuthPermission> functions = authPermissionRepository.findAllPermissionsByGroupId(authGroup.getId());
+
+            grantedAuthoritiesConverted = functions
                 .stream()
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Group is not defined"));
-
-            if(groupAuthority.getAuthority() != null && groupAuthority.getAuthority().compareTo(Constants.ROLE_PASSWORD_EXPIRED) == 0) {
-            	grantedAuthoritiesConverted.add(new SimpleGrantedAuthority(AuthoritiesConstants.PASSWORD_MODIFICATION));
-			} else {
-
-	            Optional<AuthGroup> group = authGroupRepository.findOneByObjectId(groupAuthority.getAuthority());
-
-	            AuthGroup authGroup = group.orElseThrow(() -> new IllegalArgumentException("Group not found"));
-
-	            List<AuthPermission> functions = authPermissionRepository.findAllPermissionsByGroupId(authGroup.getId());
-
-	            grantedAuthoritiesConverted = functions
-	                .stream()
-	                .map(function -> new SimpleGrantedAuthority(function.getModulo() + "." + function.getNome()))
-	                .collect(Collectors.toSet());
-			}
+                .map(function -> new SimpleGrantedAuthority(function.getModulo() + "." + function.getNome()))
+                .collect(Collectors.toSet());
 
             cache.put(key, grantedAuthoritiesConverted);
-        }
+    }
 
         return grantedAuthoritiesConverted;
     }
