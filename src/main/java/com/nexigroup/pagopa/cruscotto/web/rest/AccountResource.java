@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,7 +38,9 @@ import com.nexigroup.pagopa.cruscotto.web.rest.vm.KeyAndPasswordVM;
 
 import java.security.Principal;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -98,52 +102,34 @@ public class AccountResource {
      */
     @GetMapping("/account")
     @SuppressWarnings("unchecked")
-    public ResponseEntity<AuthUserDTO> getAccount(HttpServletRequest request, HttpServletResponse response, Principal principal) {
-        //        if (principal instanceof JwtAuthenticationToken) {
-        //
-        //            Optional<AuthUserDTO> authUserDTO = authUserService.getUserWithAuthorities(AuthenticationType.OAUHT2);
-        //
-        //            String lang = "it";
-        //            if (authUserDTO.isPresent()) {
-        //                lang = authUserDTO.get().getLangKey();
-        //            }
-        //
-        //            CookieTranslateUtil.create(request,response, lang);
-        //
-        //            return new ResponseEntity<>(authUserDTO
-        //                .orElseThrow(() -> new AccountResourceException(USER_COULD_NOT_BE_FOUND)), HttpStatus.OK);
-        //        } else if (principal instanceof UsernamePasswordAuthenticationToken) {
-        String userLogin = SecurityUtils.getCurrentUserLogin()
-            .orElseThrow(() -> new AccountResourceException(CURRENT_USER_LOGIN_NOT_FOUND));
+    public ResponseEntity<AuthUserDTO> getAccount(
+        HttpServletRequest request,
+        HttpServletResponse response,
+        Principal principal
+    ) {
 
-        Optional<AuthUser> authUserOptional = authUserService.findUserByLogin(userLogin);
-
-        AuthUser authUser = authUserOptional.orElseThrow(() -> new AccountResourceException(USER_COULD_NOT_BE_FOUND));
-
-        AuthUserDTO authUserDTO = authUserService.getUserWithAuthorities(AuthenticationType.FORM_LOGIN).orElse(null);
-
-        boolean credentialNonExpired = PasswordExpiredUtils.isPasswordNonExpired(
-            authUser.getLastPasswordChangeDate(),
-            authUser.getPasswordExpiredDay()
-        );
-
-        if (!credentialNonExpired && authUserDTO != null) {
-            // cancello le autorizzazioni dell'utente e assegno
-            authUserDTO.getAuthorities().clear();
-
-            authUserDTO.getAuthorities().add(Constants.FUNCTION_CHANGE_PASSWORD_EXPIRED);
+        if (!(principal instanceof JwtAuthenticationToken jwtAuth)) {
+            throw new AccountResourceException("JWT principal not found");
         }
-        String lang = "it";
-        if (authUserDTO != null) {
-            authUserDTO.setPasswordExpiredDate(
-                PasswordExpiredUtils.getPasswordExpiredDate(authUser.getLastPasswordChangeDate(), authUser.getPasswordExpiredDay())
+
+        Jwt jwt = jwtAuth.getToken();
+
+
+        List<String> groupIds =
+            jwt.getClaimAsStringList("roles")
+                .stream()
+                .toList();
+
+        List<String> roles =
+            jwt.getClaimAsStringList("roles");
+
+        Set<String> dto =
+            authUserService.getUserWithAuthoritiesFromJwt(
+                groupIds,
+                roles
             );
-            lang = authUserDTO.getLangKey();
-        }
 
-        CookieTranslateUtil.create(request, response, lang);
-
-        return new ResponseEntity<>(authUserDTO, HttpStatus.OK);
+        return ResponseEntity.ok(authUserService.buildFromJwt(jwt,dto));
     }
 
     /**

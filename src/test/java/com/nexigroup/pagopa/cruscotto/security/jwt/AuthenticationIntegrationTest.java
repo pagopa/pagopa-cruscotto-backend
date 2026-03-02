@@ -8,7 +8,6 @@ import com.nexigroup.pagopa.cruscotto.management.SecurityMetersService;
 import com.nexigroup.pagopa.cruscotto.repository.AuthGroupRepository;
 import com.nexigroup.pagopa.cruscotto.repository.AuthPermissionRepository;
 import com.nexigroup.pagopa.cruscotto.security.GrantAuthoritiesLoad;
-import com.nexigroup.pagopa.cruscotto.web.rest.LoginController;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -30,8 +29,6 @@ import tech.jhipster.config.JHipsterProperties;
         CacheConfiguration.class,
         SecurityJwtConfiguration.class,
         SecurityMetersService.class,
-        LoginController.class,
-        JwtAuthenticationTestUtils.class,
         TokenProvider.class,
         GrantAuthoritiesLoad.class,
         AuthGroupRepository.class,

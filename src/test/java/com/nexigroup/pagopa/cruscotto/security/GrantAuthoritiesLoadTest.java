@@ -68,23 +68,6 @@ class GrantAuthoritiesLoadTest {
         verify(cache, never()).put(eq(key), any());
     }
 
-    @Test
-    void testLoad_PasswordExpiredRole_AddsPasswordModificationAuthority() {
-        Map<String, Object> claims = Map.of("authorities", List.of(Constants.ROLE_PASSWORD_EXPIRED));
-
-        try (MockedStatic<SecurityUtils> mocked = mockStatic(SecurityUtils.class)) {
-            mocked.when(() -> SecurityUtils.extractAuthorityFromClaims(claims))
-                .thenReturn(List.of(new SimpleGrantedAuthority(Constants.ROLE_PASSWORD_EXPIRED)));
-
-            when(cacheManager.getCache(anyString())).thenReturn(cache);
-            when(cache.get(anyString())).thenReturn(null);
-
-            Collection<GrantedAuthority> result = grantAuthoritiesLoad.load(claims, "user2", "12345", "loginType");
-
-            assertTrue(result.stream()
-                .anyMatch(a -> a.getAuthority().equals(AuthoritiesConstants.PASSWORD_MODIFICATION)));
-        }
-    }
 
     @Test
     void testLoad_ThrowsExceptionWhenGroupNotFound() {

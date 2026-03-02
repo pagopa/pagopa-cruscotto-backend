@@ -22,7 +22,9 @@ public class PreDecodeJwtDecoder implements JwtDecoder {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     // se true, ignora la verifica della firma per token non firmati
-    private boolean skipAuthenticationVerify = true;
+    private boolean skipAuthenticationVerify = false;
+    private boolean skipSignVerify = true;
+
 
     public PreDecodeJwtDecoder(JwtDecoder delegate) {
         this.delegate = delegate;
@@ -30,19 +32,16 @@ public class PreDecodeJwtDecoder implements JwtDecoder {
 
     @Override
     public Jwt decode(String token) throws JwtException {
-        try {
             // prova a parsare il token come JWS
-            JWSObject jws = JWSObject.parse(token);
-
-            if (jws.getState() == JWSObject.State.SIGNED) {
-                return delegate.decode(token);
-            } else {
+            if (skipSignVerify) {
                 return parseUnsignedToken(token);
+
+            } else {
+                return delegate.decode(token);
+
             }
 
-        } catch (Exception e) {
-            return delegate.decode(token);
-        }
+
     }
 
     private Jwt parseUnsignedToken(String token) {
