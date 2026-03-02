@@ -68,6 +68,27 @@ jobs:
           rm -rf liquibase-4.17.1.tar.gz
           ls -la liquibase-app
 
+      - name: Preflight DB writable check
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Checking target PostgreSQL is writable"
+          export PGPASSWORD="${{ secrets.POSTGRES_DB_PASSWORD }}"
+          HOST="${{ vars.POSTGRES_DB_HOST }}"
+          PORT="${{ vars.POSTGRES_DB_PORT }}"
+          DB="${{ vars.POSTGRES_DB_NAME }}"
+          USER="${{ vars.POSTGRES_DB_USERNAME }}"
+
+          # Returns 't' if in recovery or transaction_read_only is on
+          is_readonly=$(PGPASSWORD="$PGPASSWORD" psql "host=$HOST port=$PORT dbname=$DB user=$USER sslmode=require" -Atc "SELECT (pg_is_in_recovery() OR current_setting('transaction_read_only')='on')::text;")
+
+          if [ "$is_readonly" = "t" ]; then
+            echo "Target database appears read-only (pg_is_in_recovery or transaction_read_only)."
+            echo "Host: $HOST port: $PORT db: $DB user: $USER"
+            exit 1
+          fi
+          echo "Database is writable. Continuing."
+
       - name: Run liquibase::migrate
         shell: bash
         run: |
