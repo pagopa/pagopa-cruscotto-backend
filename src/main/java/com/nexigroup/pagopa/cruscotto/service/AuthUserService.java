@@ -497,7 +497,7 @@ public class AuthUserService {
         List<String> roles = jwt.getClaimAsStringList("roles");
 
         if (roles != null && !roles.isEmpty()) {
-            Optional<AuthGroup> groups = authGroupRepository.findOneByObjectId(roles);
+            List<AuthGroup> groups = authGroupRepository.findOneByObjectId(roles);
             dto.setGroupName( groups.stream()
                 .map(AuthGroup::getNome)
                 .collect(Collectors.joining(",")));

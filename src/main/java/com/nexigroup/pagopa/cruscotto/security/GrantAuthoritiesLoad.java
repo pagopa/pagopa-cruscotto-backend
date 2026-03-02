@@ -62,11 +62,12 @@ public class GrantAuthoritiesLoad {
                 .stream().map(grantedAuthority -> grantedAuthority.getAuthority()).toList();
 
 
-            Optional<AuthGroup> group = authGroupRepository.findOneByObjectId(groupAuthority);
+            List<AuthGroup> group = authGroupRepository.findOneByObjectId(groupAuthority);
+            if (group.isEmpty()){
+                throw  new IllegalArgumentException("Group not found");
+            }
 
-            AuthGroup authGroup = group.orElseThrow(() -> new IllegalArgumentException("Group not found"));
-
-            List<AuthPermission> functions = authPermissionRepository.findAllPermissionsByGroupId(authGroup.getId());
+            List<AuthPermission> functions = authPermissionRepository.findAllPermissionsByGroupIds(group.stream().map(AuthGroup::getId).toList());
 
             grantedAuthoritiesConverted = functions
                 .stream()

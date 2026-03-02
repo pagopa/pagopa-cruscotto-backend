@@ -39,7 +39,7 @@ public interface AuthGroupRepository extends JpaRepository<AuthGroup, Long>, Jpa
     from AuthGroup authGroup
     where authGroup.objectId in :objectIds
 """)
-    Optional<AuthGroup> findOneByObjectId(@Param("objectIds") List<String> objectIds);
+    List<AuthGroup> findOneByObjectId(@Param("objectIds") List<String> objectIds);
 
 
 }
