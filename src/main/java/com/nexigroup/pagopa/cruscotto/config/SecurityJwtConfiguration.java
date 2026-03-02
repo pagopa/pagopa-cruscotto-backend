@@ -33,7 +33,7 @@ import java.util.Map;
 public class SecurityJwtConfiguration {
 
     private static final Logger LOG = LoggerFactory.getLogger(SecurityJwtConfiguration.class);
-    public static final MacAlgorithm JWT_ALGORITHM = MacAlgorithm.HS512;
+    public static final MacAlgorithm JWT_ALGORITHM = MacAlgorithm.HS256;
     Boolean skipAuthenticationVerify =false;
 
     @Value("${jhipster.security.authentication.jwt.base64-secret}")

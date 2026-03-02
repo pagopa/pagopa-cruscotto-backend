@@ -1,7 +1,5 @@
 package com.nexigroup.pagopa.cruscotto.security.jwt;
 
-import static com.nexigroup.pagopa.cruscotto.security.jwt.JwtAuthenticationTestUtils.*;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.nexigroup.pagopa.cruscotto.IntegrationTest;
@@ -79,9 +77,4 @@ class TokenAuthenticationIT {
         mvc.perform(MockMvcRequestBuilders.get("/api/authenticate").cookie(CookieHelper.generateCookie(Constants.OIDC_ACCESS_TOKEN, token, Duration.ofHours(1)))).andExpect(status().isOk());
     }
 
-    private void expectUnauthorized(String token) throws Exception {
-        mvc
-            .perform(MockMvcRequestBuilders.get("/api/authenticate").header(AUTHORIZATION, BEARER + token))
-            .andExpect(status().isUnauthorized());
-    }
 }
