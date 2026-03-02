@@ -58,6 +58,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
 
+      - name: Print workflow inputs
+        shell: bash
+        run: |
+          echo "Workflow inputs:"
+          echo "  environment=${{ inputs.environment }}"
+          echo "  db_version=${{ inputs.db_version }}"
+
       - name: Install Liquibase
         shell: bash
         run: |
