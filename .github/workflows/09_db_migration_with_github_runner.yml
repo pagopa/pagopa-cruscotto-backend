@@ -36,6 +36,14 @@ jobs:
     outputs:
       runner_name: ${{ steps.create_github_runner.outputs.runner_name }}
     steps:
+      - name: Check PAT for runner registration
+        shell: bash
+        run: |
+          if [ -z "${{ secrets.BOT_TOKEN_GITHUB }}" ]; then
+            echo "ERROR: secrets.BOT_TOKEN_GITHUB is empty. Add the PAT to repository or environment secrets."
+            exit 1
+          fi
+
       - name: Create GitHub Runner
         id: create_github_runner
         # from https://github.com/pagopa/eng-github-actions-iac-template/tree/main/azure/github-self-hosted-runner-azure-create-action
@@ -57,6 +65,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+
+      - name: Print workflow inputs
+        shell: bash
+        run: |
+          echo "Workflow inputs:"
+          echo "  environment=${{ inputs.environment }}"
+          echo "  db_version=${{ inputs.db_version }}"
 
       - name: Install Liquibase
         shell: bash
