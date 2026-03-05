@@ -1,5 +1,6 @@
 package com.nexigroup.pagopa.cruscotto.service;
 
+import com.nexigroup.pagopa.cruscotto.domain.AuthGroup;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +10,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,11 +44,7 @@ import com.querydsl.jpa.JPQLQuery;
 
 import java.time.Instant;
 import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import tech.jhipster.security.RandomUtil;
@@ -433,6 +431,114 @@ public class AuthUserService {
 
             return new AuthUserDTO(authUser, grantedAuthorities);
         });
+    }
+
+    public AuthUserDTO buildFromJwt(
+        Jwt jwt,
+        Set<String> authoritiesFromDb
+    ) {
+
+        AuthUserDTO dto = new AuthUserDTO();
+
+        // =====================
+        // IDENTITÀ
+        // =====================
+
+        String username = jwt.getClaimAsString("preferred_username");
+        dto.setLogin(username);
+        dto.setEmail(username);
+
+        // =====================
+        // NAME SPLIT
+        // =====================
+
+        String fullName = jwt.getClaimAsString("name");
+
+        if (fullName != null) {
+            String cleaned = fullName.replaceAll("\\(.*\\)", "").trim();
+            String[] parts = cleaned.split(" ", 2);
+
+            dto.setFirstName(parts[0]);
+            if (parts.length > 1) {
+                dto.setLastName(parts[1]);
+            }
+        }
+
+        // =====================
+        // ID ESTERNO (OID)
+        // =====================
+
+        String oid = jwt.getClaimAsString("oid");
+
+        if (oid != null) {
+            dto.setId(Math.abs(oid.hashCode()) * 1L);
+        }
+
+        // =====================
+        // METADATA
+        // =====================
+
+        dto.setActivated(true);
+        dto.setLangKey("it");
+
+        dto.setCreatedBy("AZURE_AD");
+        dto.setLastModifiedBy("AZURE_AD");
+
+        Instant issuedAt = jwt.getIssuedAt();
+        dto.setCreatedDate(issuedAt);
+        dto.setLastModifiedDate(issuedAt);
+
+        dto.setAuthenticationType(AuthenticationType.OAUHT2);
+
+        dto.setBlocked(false);
+        dto.setDeleted(false);
+
+
+        List<String> roles = jwt.getClaimAsStringList("roles");
+
+        if (roles != null && !roles.isEmpty()) {
+            List<AuthGroup> groups = authGroupRepository.findOneByObjectId(roles);
+            dto.setGroupName( groups.stream()
+                .map(AuthGroup::getNome)
+                .collect(Collectors.joining(",")));
+        }
+
+        dto.setAuthorities(authoritiesFromDb);
+
+        return dto;
+    }
+
+    @Transactional(readOnly = true)
+    public Set<String>  getUserWithAuthoritiesFromJwt(
+        List<String> groupIds,
+        List<String> tokenRoles
+    ) {
+
+        if (groupIds == null || groupIds.isEmpty()) {
+            return  Collections.emptySet();
+        }
+
+        JPQLQuery<AuthFunctionDTO> jpql = queryBuilder
+            .createQuery()
+            .from(QAuthGroup.authGroup)
+            .join(QAuthGroup.authGroup.authFunctions, QAuthFunction.authFunction)
+            .select(
+                Projections.fields(
+                    AuthFunctionDTO.class,
+                    QAuthFunction.authFunction.nome.as("nome"),
+                    QAuthFunction.authFunction.modulo.as("modulo")
+                )
+            )
+            .where(QAuthGroup.authGroup.objectId.in(groupIds))
+            .distinct();
+
+        List<AuthFunctionDTO> functions = jpql.fetch();
+
+        Set<String> grantedAuthorities = functions.stream()
+            .map(f -> f.getModulo() + "." + f.getNome())
+            .collect(Collectors.toSet());
+
+        return  grantedAuthorities;
     }
 
     public void increaseFailedLoginAttempts(String username) {

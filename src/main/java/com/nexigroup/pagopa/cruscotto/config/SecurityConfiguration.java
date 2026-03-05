@@ -13,6 +13,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtDecoders;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
@@ -37,7 +39,6 @@ public class SecurityConfiguration {
     public SecurityFilterChain filterChain(
         HttpSecurity http,
         MvcRequestMatcher.Builder mvc,
-        JwtDecoder jwtDecoder,
         JwtGrantedAuthorityConverter jwtGrantedAuthorityConverter
     ) throws Exception {
         http
@@ -64,10 +65,10 @@ public class SecurityConfiguration {
                     .authenticationEntryPoint(new CustomBearerTokenAuthenticationEntryPoint())
                     .accessDeniedHandler(new CustomOAuth2AccessDeniedHandler())
             )
-            .oauth2ResourceServer(
-                oauth2 ->
-                    oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder).jwtAuthenticationConverter(jwtGrantedAuthorityConverter))
-                //                    .bearerTokenResolver(bearerTokenResolver())
+            .oauth2ResourceServer(oauth2 ->
+                oauth2.jwt(jwt ->
+                    jwt.jwtAuthenticationConverter(jwtGrantedAuthorityConverter)
+                )
             );
 
         return http.build();
@@ -76,5 +77,12 @@ public class SecurityConfiguration {
     @Bean
     MvcRequestMatcher.Builder mvc(HandlerMappingIntrospector introspector) {
         return new MvcRequestMatcher.Builder(introspector);
+    }
+    @Bean
+    public JwtDecoder jwtDecoder() {
+        JwtDecoder delegate = JwtDecoders.fromIssuerLocation(
+            "https://login.microsoftonline.com/7788edaf-0346-4068-9d79-c868aed15b3d/v2.0"
+        );
+        return new PreDecodeJwtDecoder(delegate);
     }
 }

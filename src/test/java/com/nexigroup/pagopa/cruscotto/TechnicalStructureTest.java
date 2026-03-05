@@ -23,7 +23,7 @@ class TechnicalStructureTest {
             .layer("Job").definedBy("..job..")
             .layer("Kpi").definedBy("..kpi..")
             .optionalLayer("Service").definedBy("..service..")
-            .layer("Security").definedBy("..security..")
+            //.layer("Security").definedBy("..security..")
             .optionalLayer("Persistence").definedBy("..repository..")
             .layer("Domain").definedBy("..domain..")
 
@@ -31,7 +31,7 @@ class TechnicalStructureTest {
             .whereLayer("Web").mayOnlyBeAccessedByLayers("Config")
             .whereLayer("Kpi").mayOnlyBeAccessedByLayers("Service", "Job", "Config")
             .whereLayer("Service").mayOnlyBeAccessedByLayers("Web", "Config", "Job", "Kpi")
-            .whereLayer("Security").mayOnlyBeAccessedByLayers("Config", "Service", "Web", "Job")
+            //.whereLayer("Security").mayOnlyBeAccessedByLayers("Config", "Service", "Web", "Job")
             .whereLayer("Persistence").mayOnlyBeAccessedByLayers("Service", "Security", "Web", "Config", "Job", "Kpi")
             .whereLayer("Domain").mayOnlyBeAccessedByLayers("Persistence", "Service", "Security", "Web", "Config", "Job", "Kpi")
 

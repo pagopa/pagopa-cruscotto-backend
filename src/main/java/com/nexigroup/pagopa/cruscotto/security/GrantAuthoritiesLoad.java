@@ -54,30 +54,28 @@ public class GrantAuthoritiesLoad {
 
         if (grantedAuthoritiesConverted.isEmpty()) {
             //carico in cache le Authorities dell'utente
+            if (grantedAuthorities.isEmpty()){
+                throw new IllegalArgumentException("Group is not defined");
+            }
 
-            GrantedAuthority groupAuthority = grantedAuthorities
+            List<String> groupAuthority = grantedAuthorities
+                .stream().map(grantedAuthority -> grantedAuthority.getAuthority()).toList();
+
+
+            List<AuthGroup> group = authGroupRepository.findOneByObjectId(groupAuthority);
+            if (group.isEmpty()){
+                throw  new IllegalArgumentException("Group not found");
+            }
+
+            List<AuthPermission> functions = authPermissionRepository.findAllPermissionsByGroupIds(group.stream().map(AuthGroup::getId).toList());
+
+            grantedAuthoritiesConverted = functions
                 .stream()
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Group is not defined"));
-            
-            if(groupAuthority.getAuthority() != null && groupAuthority.getAuthority().compareTo(Constants.ROLE_PASSWORD_EXPIRED) == 0) {
-            	grantedAuthoritiesConverted.add(new SimpleGrantedAuthority(AuthoritiesConstants.PASSWORD_MODIFICATION));
-			} else {
+                .map(function -> new SimpleGrantedAuthority(function.getModulo() + "." + function.getNome()))
+                .collect(Collectors.toSet());
 
-	            Optional<AuthGroup> group = authGroupRepository.findOneByNome(groupAuthority.getAuthority());
-	
-	            AuthGroup authGroup = group.orElseThrow(() -> new IllegalArgumentException("Group not found"));
-	
-	            List<AuthPermission> functions = authPermissionRepository.findAllPermissionsByGroupId(authGroup.getId());
-	
-	            grantedAuthoritiesConverted = functions
-	                .stream()
-	                .map(function -> new SimpleGrantedAuthority(function.getModulo() + "." + function.getNome()))
-	                .collect(Collectors.toSet());
-			}
-            
             cache.put(key, grantedAuthoritiesConverted);
-        }
+    }
 
         return grantedAuthoritiesConverted;
     }
