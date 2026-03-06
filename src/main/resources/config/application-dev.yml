@@ -56,7 +56,7 @@ spring:
       auto-commit: false
   liquibase:
     # Remove 'faker' if you do not want the sample data to be loaded automatically
-    contexts: ddl, dml
+    contexts: ddl, dml, dev
     enabled: true
   messages:
     cache-duration: PT1S # 1 second, see the ISO 8601 standard
@@ -220,7 +220,7 @@ application:
 
   liquibase:
     async-start: false
-    dbVersion: 1.1.16
+    dbVersion: 1.1.17
 
 decorator:
   datasource:
