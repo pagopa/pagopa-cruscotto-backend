@@ -23,7 +23,6 @@ public final class SecurityUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SecurityUtils.class);
 
-    public static final MacAlgorithm JWT_ALGORITHM = MacAlgorithm.HS512;
 
     public static final String AUTHORITIES_KEY = "roles";
 

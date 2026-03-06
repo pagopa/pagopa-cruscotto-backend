@@ -19,5 +19,7 @@
     <include file="1.1.16/ddl/20260202_add_instance_archiving.xml" relativeToChangelogFile="true"/>
     <include file="1.1.16/dml/20260202_add_instance_archiving_permission.xml" relativeToChangelogFile="true"/>
 
+    <!-- AuthGroup Enhancement -->
+    <include file="1.1.16/ddl/20260224_add_objectid_to_authgroup.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

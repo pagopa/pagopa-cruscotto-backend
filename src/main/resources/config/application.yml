@@ -159,11 +159,13 @@ spring:
       org.quartz.scheduler.batchTriggerAcquisitionMaxCount: 6
       org.quartz.jobStore.acquireTriggersWithinLock: true
 
+
   security:
     oauth2:
       resourceserver:
         jwt:
-          authority-prefix: ''
+          issuer-uri: https://login.microsoftonline.com/7788edaf-0346-4068-9d79-c868aed15b3d/v2.0
+          authority-prefix: ""
           authorities-claim-name: roles
   task:
     execution:

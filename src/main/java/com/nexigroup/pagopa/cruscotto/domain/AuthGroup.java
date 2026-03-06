@@ -41,6 +41,11 @@ public class AuthGroup implements Serializable {
     @Column(name = "TE_NOME", length = 50)
     private String nome;
 
+    @Size(min = 1, max = 100)
+    @Column(name = "TE_OBJECTID", length = 100)
+    private String objectId;
+
+
     @Size(min = 1, max = 200)
     @Column(name = "TE_DESCRIZIONE", length = 200)
     private String descrizione;
@@ -166,20 +171,14 @@ public class AuthGroup implements Serializable {
 
     @Override
     public String toString() {
-        return (
-            "AuthGroup{" +
-            "id=" +
-            getId() +
-            ", nome='" +
-            getNome() +
-            "'" +
-            ", descrizione='" +
-            getDescrizione() +
-            "'" +
-            ", livelloVisibilita=" +
-            getLivelloVisibilita() +
-            "'" +
-            "}"
-        );
+        return "AuthGroup{" +
+            "id=" + id +
+            ", nome='" + nome + '\'' +
+            ", objectId='" + objectId + '\'' +
+            ", descrizione='" + descrizione + '\'' +
+            ", livelloVisibilita=" + livelloVisibilita +
+            ", authFunctions=" + authFunctions +
+            ", authUsers=" + authUsers +
+            '}';
     }
 }
