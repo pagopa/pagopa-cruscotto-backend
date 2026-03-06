@@ -81,9 +81,5 @@ public class KpiB1AnalyticDrillDownExcelExporter
 
         }
 
-        // Autosize colonne
-        for (int i = 0; i <= 4; i++) {
-            sheet.autoSizeColumn(i);
-        }
     }
 }

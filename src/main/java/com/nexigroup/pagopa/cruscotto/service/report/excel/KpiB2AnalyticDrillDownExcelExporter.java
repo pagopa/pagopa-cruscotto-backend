@@ -85,9 +85,5 @@ public class KpiB2AnalyticDrillDownExcelExporter
             row.createCell(count++).setCellValue(r.getAverageTimeMs() != null ? r.getAverageTimeMs() : 0d);
         }
 
-        // Autosize colonne
-        for (int i = 0; i <= 4; i++) {
-            sheet.autoSizeColumn(i);
-        }
     }
 }
