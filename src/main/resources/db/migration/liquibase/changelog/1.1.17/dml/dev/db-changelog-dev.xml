@@ -23,6 +23,10 @@
       UPDATE ${database.defaultSchemaName}.AUTH_GROUP
         SET TE_NOME = 'pagopa-dadgroup-smo-kpi-prn-informativa', TE_DESCRIZIONE = 'Gruppo degli utenti con funzioni consultative', FL_LIVELLO_VISIBILITA = 4, TE_OBJECTID = 'eb4092d6-a58e-4bfc-af6c-cab2cab0d8c2'
         WHERE TE_NOME = 'PAGOPA_INFORMATIVA';
+      UPDATE ${database.defaultSchemaName}.AUTH_USER
+      SET CO_AUTH_GROUP_ID = (SELECT CO_ID FROM ${database.defaultSchemaName}.AUTH_GROUP
+      WHERE TE_NOME = 'NEXI') WHERE CO_AUTH_GROUP_ID = (SELECT CO_ID FROM ${database.defaultSchemaName}.AUTH_GROUP
+      WHERE TE_NOME = 'PAGOPA_AMMINISTRATIVA');
       DELETE FROM ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC
         WHERE CO_AUTH_GROUP_ID = (SELECT CO_ID FROM ${database.defaultSchemaName}.AUTH_GROUP WHERE TE_NOME = 'PAGOPA_AMMINISTRATIVA');
       DELETE FROM ${database.defaultSchemaName}.AUTH_GROUP WHERE TE_NOME = 'PAGOPA_AMMINISTRATIVA';
