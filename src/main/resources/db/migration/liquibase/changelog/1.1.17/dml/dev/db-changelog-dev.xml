@@ -14,6 +14,10 @@
       INSERT INTO ${database.defaultSchemaName}.auth_group (CO_ID, TE_NOME, TE_OBJECTID, FL_LIVELLO_VISIBILITA) VALUES (nextval('SQCRUSC8_AUTHGROU'), 'pagopa-dadgroup-smo-payments-amministrativa', '89e283cf-b495-47bf-8014-8382f38e936e', 1) ON CONFLICT DO NOTHING;
       INSERT INTO ${database.defaultSchemaName}.auth_group (CO_ID, TE_NOME, TE_OBJECTID, FL_LIVELLO_VISIBILITA) VALUES (nextval('SQCRUSC8_AUTHGROU'), 'pagopa-dadgroup-smo-payments-dispositiva', 'd1aa5fbf-d871-45fa-9b18-faf0af6e990b', 1) ON CONFLICT DO NOTHING;
       INSERT INTO ${database.defaultSchemaName}.auth_group (CO_ID, TE_NOME, TE_OBJECTID, FL_LIVELLO_VISIBILITA) VALUES (nextval('SQCRUSC8_AUTHGROU'), 'pagopa-dadgroup-smo-payments-informativa', '486a6735-9b48-4b4f-b1fd-0c7688c0a62d', 1) ON CONFLICT DO NOTHING;
+      UPDATE ${database.defaultSchemaName}.AUTH_USER
+      SET CO_AUTH_GROUP_ID = (SELECT CO_ID FROM ${database.defaultSchemaName}.AUTH_GROUP
+      WHERE TE_NOME = 'NEXI') WHERE CO_AUTH_GROUP_ID = (SELECT CO_ID FROM ${database.defaultSchemaName}.AUTH_GROUP
+      WHERE TE_NOME = 'PAGOPA_AMMINISTRATIVA');
       UPDATE ${database.defaultSchemaName}.AUTH_GROUP
         SET TE_NOME = 'pagopa-dadgroup-smo-kpi-prn-amministrativa', TE_DESCRIZIONE = 'Gruppo degli amministratori Pagopa', FL_LIVELLO_VISIBILITA = 2, TE_OBJECTID = '8d4836a1-fad2-4659-905f-d726a0d6a1b8'
         WHERE TE_NOME = 'NEXI';
@@ -23,10 +27,6 @@
       UPDATE ${database.defaultSchemaName}.AUTH_GROUP
         SET TE_NOME = 'pagopa-dadgroup-smo-kpi-prn-informativa', TE_DESCRIZIONE = 'Gruppo degli utenti con funzioni consultative', FL_LIVELLO_VISIBILITA = 4, TE_OBJECTID = 'eb4092d6-a58e-4bfc-af6c-cab2cab0d8c2'
         WHERE TE_NOME = 'PAGOPA_INFORMATIVA';
-      UPDATE ${database.defaultSchemaName}.AUTH_USER
-      SET CO_AUTH_GROUP_ID = (SELECT CO_ID FROM ${database.defaultSchemaName}.AUTH_GROUP
-      WHERE TE_NOME = 'NEXI') WHERE CO_AUTH_GROUP_ID = (SELECT CO_ID FROM ${database.defaultSchemaName}.AUTH_GROUP
-      WHERE TE_NOME = 'PAGOPA_AMMINISTRATIVA');
       DELETE FROM ${database.defaultSchemaName}.AUTH_GROUP_AUTH_FUNC
         WHERE CO_AUTH_GROUP_ID = (SELECT CO_ID FROM ${database.defaultSchemaName}.AUTH_GROUP WHERE TE_NOME = 'PAGOPA_AMMINISTRATIVA');
       DELETE FROM ${database.defaultSchemaName}.AUTH_GROUP WHERE TE_NOME = 'PAGOPA_AMMINISTRATIVA';

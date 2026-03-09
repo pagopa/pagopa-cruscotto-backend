@@ -14,6 +14,10 @@
       INSERT INTO ${database.defaultSchemaName}.auth_group (CO_ID, TE_NOME, TE_OBJECTID, FL_LIVELLO_VISIBILITA) VALUES (nextval('SQCRUSC8_AUTHGROU'), 'pagopa-dadgroup-smo-payments-amministrativa', '7269ed82-aa9e-434c-bccf-e57142ded6e', 1) ON CONFLICT DO NOTHING;
       INSERT INTO ${database.defaultSchemaName}.auth_group (CO_ID, TE_NOME, TE_OBJECTID, FL_LIVELLO_VISIBILITA) VALUES (nextval('SQCRUSC8_AUTHGROU'), 'pagopa-dadgroup-smo-payments-dispositiva', '78087db0-38d7-432f-835c-abe583f21919', 1) ON CONFLICT DO NOTHING;
       INSERT INTO ${database.defaultSchemaName}.auth_group (CO_ID, TE_NOME, TE_OBJECTID, FL_LIVELLO_VISIBILITA) VALUES (nextval('SQCRUSC8_AUTHGROU'), 'pagopa-dadgroup-smo-payments-informativa', 'ea116ec4-3f80-4bac-a99a-398d153261a3', 1) ON CONFLICT DO NOTHING;
+      UPDATE ${database.defaultSchemaName}.AUTH_USER
+      SET CO_AUTH_GROUP_ID = (SELECT CO_ID FROM ${database.defaultSchemaName}.AUTH_GROUP
+      WHERE TE_NOME = 'NEXI') WHERE CO_AUTH_GROUP_ID = (SELECT CO_ID FROM ${database.defaultSchemaName}.AUTH_GROUP
+      WHERE TE_NOME = 'PAGOPA_AMMINISTRATIVA');
       UPDATE ${database.defaultSchemaName}.AUTH_GROUP
         SET TE_NOME = 'pagopa-dadgroup-smo-kpi-prn-amministrativa', TE_DESCRIZIONE = 'Gruppo degli amministratori Pagopa', FL_LIVELLO_VISIBILITA = 2, TE_OBJECTID = '01e88978-9b30-4abe-b2a9-b76aa5b4594c'
         WHERE TE_NOME = 'NEXI';
