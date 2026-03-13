@@ -58,4 +58,7 @@ public interface AuthUserRepository extends JpaRepository<AuthUser, Long> {
     Optional<AuthUser> findOneWithAuthoritiesByLogin(String login);
 
     Page<AuthUser> findAllByLoginNot(Pageable pageable, String login);
+
+    @Query("Select u from AuthUser u where u.sub = :sub and u.deleted = false")
+    Optional<AuthUser> findOneBySub(@Param("sub") String sub);
 }

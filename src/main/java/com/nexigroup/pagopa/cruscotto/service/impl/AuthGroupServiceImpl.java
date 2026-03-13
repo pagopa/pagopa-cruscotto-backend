@@ -66,7 +66,6 @@ public class AuthGroupServiceImpl implements AuthGroupService {
         this.authGroupRepository = authGroupRepository;
         this.authGroupMapper = authGroupMapper;
     }
-
     /**
      * Save a authGroup.
      *
@@ -117,20 +116,13 @@ public class AuthGroupServiceImpl implements AuthGroupService {
     @Transactional(readOnly = true)
     public Page<AuthGroupDTO> findAll(AuthGroupFilter filter, Pageable pageable) {
         log.debug("Service to get all AuthGroups");
-        String userLogin = SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new RuntimeException("Current user login not found"));
 
         QAuthGroup qAuthGroup = QAuthGroup.authGroup;
         BooleanBuilder builder = new BooleanBuilder();
 
-        AuthenticationType authenticationType = SecurityUtils.getAuthenticationTypeUserLogin()
-            .orElseThrow(() -> new RuntimeException("Authentication Type not found"));
+        List<String> roles = SecurityUtils.getRolesFromJwt();
 
-        JPQLQuery<Integer> subQuery = JPAExpressions.select(QAuthGroup.authGroup.livelloVisibilita)
-            .from(QAuthGroup.authGroup)
-            .innerJoin(QAuthGroup.authGroup.authUsers, QAuthUser.authUser)
-            .where(QAuthUser.authUser.login.eq(userLogin).and(QAuthUser.authUser.authenticationType.eq(authenticationType)));
-
-        builder.and(qAuthGroup.livelloVisibilita.goe(subQuery));
+        builder.and(qAuthGroup.objectId.in(roles));
 
         if (StringUtils.isNotBlank(filter.getNome())) {
             builder.and(qAuthGroup.nome.containsIgnoreCase(filter.getNome()));
@@ -140,8 +132,9 @@ public class AuthGroupServiceImpl implements AuthGroupService {
             builder.and(qAuthGroup.descrizione.containsIgnoreCase(filter.getDescrizione()));
         }
 
-        JPQLQuery<AuthGroup> jpql = queryBuilder.<AuthGroup>createQuery().from(qAuthGroup).where(builder);
-
+        JPQLQuery<AuthGroup> jpql = queryBuilder.<AuthGroup>createQuery()
+            .from(qAuthGroup)
+            .where(builder);
         long size = jpql.fetchCount();
 
         JPQLQuery<AuthGroupDTO> jpqlSelected = jpql.select(
