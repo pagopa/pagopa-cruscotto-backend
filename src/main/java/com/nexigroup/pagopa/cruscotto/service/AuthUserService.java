@@ -489,10 +489,8 @@ public class AuthUserService {
         Instant now = Instant.now();
 
         if (userOpt.isPresent()) {
-
-            AuthUser user = userOpt.get();
+            AuthUser user = userOpt.orElseThrow();
             user.setLastLoginAt(now);
-
             return authUserRepository.save(user);
         }
 
