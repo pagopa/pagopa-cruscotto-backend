@@ -44,7 +44,7 @@ public class AuthUser extends AbstractAuditingEntity<Long> implements Serializab
     @JsonIgnore
     @NotNull
     @Size(min = 10, max = 60)
-    @Column(name = "TE_PASSWORD_HASH", length = 60, nullable = false)
+    @Column(name = "TE_PASSWORD_HASH", length = 60)
     private String password;
 
     @Size(max = 50)
@@ -117,6 +117,21 @@ public class AuthUser extends AbstractAuditingEntity<Long> implements Serializab
     @OneToMany(mappedBy = "authUser", fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<AuthUserHistory> authUserHistory = new HashSet<>();
+
+    @Size(max = 100)
+    @Column(name = "TE_SUB", length = 100, unique = true)
+    private String sub;
+
+    @Size(max = 100)
+    @Column(name = "TE_OID", length = 100)
+    private String oid;
+
+    @Size(max = 50)
+    @Column(name = "TE_SOURCE", length = 50)
+    private String source;
+
+    @Column(name = "DT_LAST_LOGIN_AT")
+    private Instant lastLoginAt;
 
     public Long getId() {
         return id;
@@ -283,6 +298,38 @@ public class AuthUser extends AbstractAuditingEntity<Long> implements Serializab
         this.authenticationType = authenticationType;
     }
 
+    public String getSub() {
+        return sub;
+    }
+
+    public void setSub(String sub) {
+        this.sub = sub;
+    }
+
+    public String getOid() {
+        return oid;
+    }
+
+    public void setOid(String oid) {
+        this.oid = oid;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    public Instant getLastLoginAt() {
+        return lastLoginAt;
+    }
+
+    public void setLastLoginAt(Instant lastLoginAt) {
+        this.lastLoginAt = lastLoginAt;
+    }
+
     public void setAuthUserHistory(Set<AuthUserHistory> authUserHistory) {
         this.authUserHistory = authUserHistory;
     }
@@ -305,36 +352,32 @@ public class AuthUser extends AbstractAuditingEntity<Long> implements Serializab
 
     @Override
     public String toString() {
-        return (
-            "User{" +
-            "login='" +
-            login +
-            '\'' +
-            ", firstName='" +
-            firstName +
-            '\'' +
-            ", lastName='" +
-            lastName +
-            '\'' +
-            ", email='" +
-            email +
-            '\'' +
-            ", imageUrl='" +
-            imageUrl +
-            '\'' +
-            ", activated='" +
-            activated +
-            '\'' +
-            ", langKey='" +
-            langKey +
-            '\'' +
-            ", group='" +
-            group +
-            '\'' +
-            ", activationKey='" +
-            activationKey +
-            '\'' +
-            "}"
-        );
+        return "AuthUser{" +
+            "id=" + id +
+            ", login='" + login + '\'' +
+            ", password='" + password + '\'' +
+            ", firstName='" + firstName + '\'' +
+            ", lastName='" + lastName + '\'' +
+            ", email='" + email + '\'' +
+            ", activated=" + activated +
+            ", langKey='" + langKey + '\'' +
+            ", imageUrl='" + imageUrl + '\'' +
+            ", activationKey='" + activationKey + '\'' +
+            ", resetKey='" + resetKey + '\'' +
+            ", resetDate=" + resetDate +
+            ", failedLoginAttempts=" + failedLoginAttempts +
+            ", lastPasswordChangeDate=" + lastPasswordChangeDate +
+            ", passwordExpiredDay=" + passwordExpiredDay +
+            ", blocked=" + blocked +
+            ", deleted=" + deleted +
+            ", deletedDate=" + deletedDate +
+            ", authenticationType=" + authenticationType +
+            ", group=" + group +
+            ", authUserHistory=" + authUserHistory +
+            ", sub='" + sub + '\'' +
+            ", oid='" + oid + '\'' +
+            ", source='" + source + '\'' +
+            ", lastLoginAt=" + lastLoginAt +
+            '}';
     }
 }

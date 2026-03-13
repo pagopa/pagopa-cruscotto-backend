@@ -438,57 +438,28 @@ public class AuthUserService {
         Set<String> authoritiesFromDb
     ) {
 
+        AuthUser user = syncUserFromJwt(jwt);
+
         AuthUserDTO dto = new AuthUserDTO();
 
-        // =====================
-        // IDENTITÀ
-        // =====================
+        dto.setLogin(user.getLogin());
+        dto.setEmail(user.getEmail());
+        dto.setFirstName(user.getFirstName());
+        dto.setLastName(user.getLastName());
 
-        String username = jwt.getClaimAsString("preferred_username");
-        dto.setLogin(username);
-        dto.setEmail(username);
-
-        // =====================
-        // NAME SPLIT
-        // =====================
-
-        String fullName = jwt.getClaimAsString("name");
-
-        if (fullName != null) {
-            String cleaned = fullName.replaceAll("\\(.*\\)", "").trim();
-            String[] parts = cleaned.split(" ", 2);
-
-            dto.setFirstName(parts[0]);
-            if (parts.length > 1) {
-                dto.setLastName(parts[1]);
-            }
-        }
-
-        // =====================
-        // ID ESTERNO (OID)
-        // =====================
-
-        String oid = jwt.getClaimAsString("oid");
-
-        if (oid != null) {
-            dto.setId(Math.abs(oid.hashCode()) * 1L);
-        }
-
-        // =====================
-        // METADATA
-        // =====================
+        dto.setId(user.getId());
 
         dto.setActivated(true);
         dto.setLangKey("it");
 
-        dto.setCreatedBy("AZURE_AD");
-        dto.setLastModifiedBy("AZURE_AD");
+        dto.setCreatedBy(user.getCreatedBy());
+        dto.setLastModifiedBy(user.getLastModifiedBy());
 
         Instant issuedAt = jwt.getIssuedAt();
         dto.setCreatedDate(issuedAt);
         dto.setLastModifiedDate(issuedAt);
 
-        dto.setAuthenticationType(AuthenticationType.OAUHT2);
+        dto.setAuthenticationType(user.getAuthenticationType());
 
         dto.setBlocked(false);
         dto.setDeleted(false);
@@ -507,6 +478,67 @@ public class AuthUserService {
 
         return dto;
     }
+
+    @Transactional
+    public AuthUser syncUserFromJwt(Jwt jwt) {
+
+        String sub = jwt.getClaimAsString("sub");
+
+        Optional<AuthUser> userOpt = authUserRepository.findOneBySub(sub);
+
+        Instant now = Instant.now();
+
+        if (userOpt.isPresent()) {
+
+            AuthUser user = userOpt.get();
+            user.setLastLoginAt(now);
+
+            return authUserRepository.save(user);
+        }
+
+        AuthUser user = new AuthUser();
+
+
+
+        user.setSub(sub);
+        user.setOid(jwt.getClaimAsString("oid"));
+
+        String username = jwt.getClaimAsString("preferred_username");
+
+        user.setLogin(username);
+        user.setPassword("***************");
+        user.setEmail(username);
+        String oid = jwt.getClaimAsString("oid");
+        if (oid != null) {
+            user.setOid(oid);
+        }
+
+        String fullName = jwt.getClaimAsString("name");
+
+        if (fullName != null) {
+            String cleaned = fullName.replaceAll("\\(.*\\)", "").trim();
+            String[] parts = cleaned.split(" ", 2);
+
+            user.setFirstName(parts[0]);
+
+            if (parts.length > 1) {
+                user.setLastName(parts[1]);
+            }
+        }
+
+
+        user.setSource("AZURE_AD");
+        user.setLastLoginAt(now);
+
+        user.setActivated(true);
+        user.setBlocked(false);
+        user.setDeleted(false);
+
+        user.setAuthenticationType(AuthenticationType.ENTRA_ID);
+
+        return authUserRepository.save(user);
+    }
+
 
     @Transactional(readOnly = true)
     public Set<String>  getUserWithAuthoritiesFromJwt(
@@ -549,8 +581,8 @@ public class AuthUserService {
         if (authUser != null) {
             if (
                 properties.getPassword().getFailedLoginAttempts() != null &&
-                authUser.getFailedLoginAttempts() != null &&
-                authUser.getFailedLoginAttempts() >= properties.getPassword().getFailedLoginAttempts()
+                    authUser.getFailedLoginAttempts() != null &&
+                    authUser.getFailedLoginAttempts() >= properties.getPassword().getFailedLoginAttempts()
             ) {
                 authUser.setBlocked(Boolean.TRUE);
             }
@@ -610,7 +642,7 @@ public class AuthUserService {
 
         if (!result) {
             BooleanBuilder builder = new BooleanBuilder();
-          //  BooleanBuilder builder3 = new BooleanBuilder();
+            //  BooleanBuilder builder3 = new BooleanBuilder();
 
             if (userId != null) builder.and(qAuthUser.id.eq(userId));
             else if (StringUtils.isNotBlank(userLogin)) builder.and(qAuthUser.login.eq(userLogin));
@@ -624,9 +656,9 @@ public class AuthUserService {
 
             builder.and(qAuthUser.group.livelloVisibilita.goe(livelloVisibilitaGruppoUtenteLoggato));
 
-          //  builder3.and(qAuthUser.createdBy.eq(userLoginUtenteLoggato));
+            //  builder3.and(qAuthUser.createdBy.eq(userLoginUtenteLoggato));
 
-        //    builder.and(builder3);
+            //    builder.and(builder3);
 
             jpql = queryBuilder
                 .createQuery()

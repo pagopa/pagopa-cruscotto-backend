@@ -201,7 +201,7 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
      */
     @Override
     public KpiConfigurationDTO saveNew(KpiConfigurationRequestBean kpiConfigurationToCreate) {
-        AuthUser loggedUser = userUtils.getLoggedUser();
+        //AuthUser loggedUser = userUtils.getLoggedUser();
 
         //Il codice deve corrispondere ad un modulo che esiste realmente
         Module module = moduleRepository
@@ -271,7 +271,7 @@ public class KpiConfigurationServiceImpl implements KpiConfigurationService {
 
         kpiConfiguration = kpiConfigurationRepository.save(kpiConfiguration);
 
-        LOGGER.info("Creation of kpi configuration with identification {} by user {}", kpiConfiguration.getId(), loggedUser.getLogin());
+        LOGGER.info("Creation of kpi configuration with identification {} by user {}", kpiConfiguration.getId(), SecurityUtils.getNameJwt());
 
         return kpiConfigurationMapper.toDto(kpiConfiguration);
     }

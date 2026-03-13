@@ -10,7 +10,7 @@ import com.nexigroup.pagopa.cruscotto.security.SecurityUtils;
 
 @Service
 public class UserUtils {
-	
+
     private final AuthUserRepository authUserRepository;
 
     public UserUtils(AuthUserRepository authUserRepository) {
@@ -18,9 +18,8 @@ public class UserUtils {
     }
 
 
-    public AuthUser getLoggedUser() {   
-    	String userLogin = SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new RuntimeException("Current user login not found"));
-        AuthenticationType authenticationType = SecurityUtils.getAuthenticationTypeUserLogin() .orElseThrow(() -> new RuntimeException("Authentication Type not found"));
-    	return authUserRepository.findOneByLoginAndNotDeleted(userLogin, authenticationType).orElseThrow(() -> new RuntimeException("Current logged user not found"));
+    public AuthUser getLoggedUser() {
+        String subJwt = SecurityUtils.getSubJwt();
+        return authUserRepository.findOneBySub(subJwt).orElseThrow(() -> new RuntimeException("Current user login not found"));
     }
 }
