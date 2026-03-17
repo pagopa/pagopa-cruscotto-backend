@@ -34,8 +34,7 @@ public final class SecurityUtils {
      * @return the login of the current user.
      */
     public static Optional<String> getCurrentUserLogin() {
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        return Optional.ofNullable(extractPrincipal(securityContext.getAuthentication()));
+        return Optional.of(getPreferredUserName());
     }
 
     private static String extractPrincipal(Authentication authentication) {
@@ -81,8 +80,7 @@ public final class SecurityUtils {
     }
 
     public static Optional<AuthenticationType> getAuthenticationTypeUserLogin() {
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        return Optional.ofNullable(extractPrincipalAuthenticationType(securityContext.getAuthentication()));
+            return Optional.of(AuthenticationType.ENTRA_ID);
     }
 
     private static AuthenticationType extractPrincipalAuthenticationType(Authentication authentication) {
@@ -205,6 +203,12 @@ public final class SecurityUtils {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Jwt jwt = (Jwt) authentication.getPrincipal();
         return jwt.getClaim("sub");
+    }
+
+    public static String getPreferredUserName() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+        return jwt.getClaim("preferred_username");
     }
 
 }
