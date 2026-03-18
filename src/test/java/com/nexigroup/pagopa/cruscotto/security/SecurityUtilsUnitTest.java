@@ -2,17 +2,20 @@ package com.nexigroup.pagopa.cruscotto.security;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Optional;
+import java.time.Instant;
+import java.util.*;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 /**
  * Test class for the {@link SecurityUtils} utility class.
@@ -27,11 +30,29 @@ class SecurityUtilsUnitTest {
 
     @Test
     void testGetCurrentUserLogin() {
-        SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
-        securityContext.setAuthentication(new UsernamePasswordAuthenticationToken("admin", "admin"));
-        SecurityContextHolder.setContext(securityContext);
+        createSecurityContext();
+
         Optional<String> login = SecurityUtils.getCurrentUserLogin();
         assertThat(login).contains("admin");
+    }
+
+    private static void createSecurityContext() {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("preferred_username", "admin");
+
+        Jwt jwt = new Jwt(
+            "token-value",
+            Instant.now(),
+            Instant.now().plusSeconds(60),
+            Map.of("alg", "none"),
+            claims
+        );
+
+        Authentication authentication = new JwtAuthenticationToken(jwt);
+
+        SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+        securityContext.setAuthentication(authentication);
+        SecurityContextHolder.setContext(securityContext);
     }
 
     @Test

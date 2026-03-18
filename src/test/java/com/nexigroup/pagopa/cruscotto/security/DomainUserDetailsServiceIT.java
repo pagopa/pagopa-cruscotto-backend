@@ -10,7 +10,11 @@ import com.nexigroup.pagopa.cruscotto.domain.enumeration.AuthenticationType;
 import com.nexigroup.pagopa.cruscotto.repository.AuthGroupRepository;
 import com.nexigroup.pagopa.cruscotto.repository.AuthUserRepository;
 import com.nexigroup.pagopa.cruscotto.service.AuthUserService;
+
+import java.time.Instant;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import com.nexigroup.pagopa.cruscotto.service.AzureBlobStorageService;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -19,9 +23,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,6 +69,24 @@ class DomainUserDetailsServiceIT {
 
     private AuthGroup authGroup;
 
+    private static void createSecurityContext() {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("preferred_username", "admin");
+
+        Jwt jwt = new Jwt(
+            "token-value",
+            Instant.now(),
+            Instant.now().plusSeconds(60),
+            Map.of("alg", "none"),
+            claims
+        );
+
+        Authentication authentication = new JwtAuthenticationToken(jwt);
+
+        SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+        securityContext.setAuthentication(authentication);
+        SecurityContextHolder.setContext(securityContext);
+    }
     public AuthUser getUserOne() {
         AuthUser userOne = new AuthUser();
         userOne.setAuthenticationType(AuthenticationType.FORM_LOGIN);
@@ -112,6 +139,7 @@ class DomainUserDetailsServiceIT {
 
     @BeforeEach
     public void init() {
+        createSecurityContext();
         authGroup = authGroupRepository.save(getAuthGroup());
         userRepository.save(getUserOne());
         userRepository.save(getUserTwo());
