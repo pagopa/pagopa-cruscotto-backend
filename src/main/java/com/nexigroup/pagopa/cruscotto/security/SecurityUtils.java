@@ -34,7 +34,7 @@ public final class SecurityUtils {
      * @return the login of the current user.
      */
     public static Optional<String> getCurrentUserLogin() {
-        return Optional.of(getPreferredUserName());
+        return Optional.ofNullable(getPreferredUserName());
     }
 
     private static String extractPrincipal(Authentication authentication) {
@@ -190,23 +190,35 @@ public final class SecurityUtils {
     public static List<String> getRolesFromJwt() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Jwt jwt = (Jwt) authentication.getPrincipal();
+        if (authentication == null) {
+            return null;
+        }
         return jwt.getClaimAsStringList("roles");
     }
 
     public static String getNameJwt() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Jwt jwt = (Jwt) authentication.getPrincipal();
+        if (authentication == null) {
+            return null;
+        }
         return jwt.getClaim("name");
     }
 
     public static String getSubJwt() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            return null;
+        }
         Jwt jwt = (Jwt) authentication.getPrincipal();
         return jwt.getClaim("sub");
     }
 
     public static String getPreferredUserName() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            return null;
+        }
         Jwt jwt = (Jwt) authentication.getPrincipal();
         return jwt.getClaim("preferred_username");
     }
