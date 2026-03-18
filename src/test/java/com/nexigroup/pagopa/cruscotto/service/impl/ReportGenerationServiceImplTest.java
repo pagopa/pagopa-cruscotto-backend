@@ -24,15 +24,23 @@ import com.nexigroup.pagopa.cruscotto.service.report.excel.ExcelReportGenerator;
 import com.nexigroup.pagopa.cruscotto.service.report.pdf.PDFReportGenerator;
 import com.nexigroup.pagopa.cruscotto.service.report.pdf.wrapper.WrapperPdfFiles;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 @ExtendWith(MockitoExtension.class)
 class ReportGenerationServiceImplTest {
@@ -140,7 +148,7 @@ class ReportGenerationServiceImplTest {
     void activeReportExistsForInstance_shouldReturnTrue_whenCompletedNotExpired() {
         Instance instance = buildInstance(1L, InstanceStatus.ESEGUITA);
         ReportGeneration completedReport = buildReport(10L, instance, ReportStatus.COMPLETED);
-        
+
         ReportFile reportFile = new ReportFile();
         reportFile.setExpiryDate(LocalDateTime.now().plusDays(15)); // Not expired (15 days remaining)
         completedReport.setReportFile(reportFile);
@@ -148,7 +156,7 @@ class ReportGenerationServiceImplTest {
         // First call for PENDING/IN_PROGRESS (empty)
         when(reportGenerationRepository.findByInstanceIdAndStatusIn(eq(1L), eq(List.of(ReportStatus.PENDING, ReportStatus.IN_PROGRESS))))
             .thenReturn(Optional.empty());
-        
+
         // Second call for COMPLETED (found)
         when(reportGenerationRepository.findByInstanceIdAndStatusIn(eq(1L), eq(List.of(ReportStatus.COMPLETED))))
             .thenReturn(Optional.of(completedReport));
@@ -162,7 +170,7 @@ class ReportGenerationServiceImplTest {
     void activeReportExistsForInstance_shouldReturnFalse_whenCompletedExpired() {
         Instance instance = buildInstance(1L, InstanceStatus.ESEGUITA);
         ReportGeneration completedReport = buildReport(10L, instance, ReportStatus.COMPLETED);
-        
+
         ReportFile reportFile = new ReportFile();
         reportFile.setExpiryDate(LocalDateTime.now().minusDays(1)); // Expired yesterday
         completedReport.setReportFile(reportFile);
@@ -170,7 +178,7 @@ class ReportGenerationServiceImplTest {
         // First call for PENDING/IN_PROGRESS (empty)
         when(reportGenerationRepository.findByInstanceIdAndStatusIn(eq(1L), eq(List.of(ReportStatus.PENDING, ReportStatus.IN_PROGRESS))))
             .thenReturn(Optional.empty());
-        
+
         // Second call for COMPLETED (found)
         when(reportGenerationRepository.findByInstanceIdAndStatusIn(eq(1L), eq(List.of(ReportStatus.COMPLETED))))
             .thenReturn(Optional.of(completedReport));
@@ -184,7 +192,7 @@ class ReportGenerationServiceImplTest {
     void activeReportExistsForInstance_shouldReturnTrue_whenCompletedWithNullExpiryDate() {
         Instance instance = buildInstance(1L, InstanceStatus.ESEGUITA);
         ReportGeneration completedReport = buildReport(10L, instance, ReportStatus.COMPLETED);
-        
+
         ReportFile reportFile = new ReportFile();
         reportFile.setExpiryDate(null); // No expiry date
         completedReport.setReportFile(reportFile);
@@ -192,7 +200,7 @@ class ReportGenerationServiceImplTest {
         // First call for PENDING/IN_PROGRESS (empty)
         when(reportGenerationRepository.findByInstanceIdAndStatusIn(eq(1L), eq(List.of(ReportStatus.PENDING, ReportStatus.IN_PROGRESS))))
             .thenReturn(Optional.empty());
-        
+
         // Second call for COMPLETED (found)
         when(reportGenerationRepository.findByInstanceIdAndStatusIn(eq(1L), eq(List.of(ReportStatus.COMPLETED))))
             .thenReturn(Optional.of(completedReport));
@@ -211,7 +219,7 @@ class ReportGenerationServiceImplTest {
         // First call for PENDING/IN_PROGRESS (empty)
         when(reportGenerationRepository.findByInstanceIdAndStatusIn(eq(1L), eq(List.of(ReportStatus.PENDING, ReportStatus.IN_PROGRESS))))
             .thenReturn(Optional.empty());
-        
+
         // Second call for COMPLETED (found)
         when(reportGenerationRepository.findByInstanceIdAndStatusIn(eq(1L), eq(List.of(ReportStatus.COMPLETED))))
             .thenReturn(Optional.of(completedReport));
@@ -267,7 +275,7 @@ class ReportGenerationServiceImplTest {
         ReportGenerationRequestDTO request = new ReportGenerationRequestDTO();
         request.setInstanceIds(List.of(1L));
         request.setLanguage("it");
-
+        createSecurityContext();
         List<ReportAsyncAcceptedDTO> result = service.scheduleAsyncReport(request);
 
         assertEquals(1, result.size());
@@ -289,25 +297,43 @@ class ReportGenerationServiceImplTest {
             () -> service.scheduleAsyncReport(request));
     }
 
+    private static void createSecurityContext() {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("preferred_username", "admin");
+
+        Jwt jwt = new Jwt(
+            "token-value",
+            Instant.now(),
+            Instant.now().plusSeconds(60),
+            Map.of("alg", "none"),
+            claims
+        );
+
+        Authentication authentication = new JwtAuthenticationToken(jwt);
+
+        SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+        securityContext.setAuthentication(authentication);
+        SecurityContextHolder.setContext(securityContext);
+    }
     @Test
     void scheduleAsyncReport_shouldAllowWhenCompletedReportExpired() {
         Instance instance = buildInstance(1L, InstanceStatus.ESEGUITA);
         ReportGeneration expiredReport = buildReport(10L, instance, ReportStatus.COMPLETED);
-        
+
         ReportFile reportFile = new ReportFile();
         reportFile.setExpiryDate(LocalDateTime.now().minusDays(5)); // Expired 5 days ago
         expiredReport.setReportFile(reportFile);
 
         when(instanceRepository.findById(1L)).thenReturn(Optional.of(instance));
-        
+
         // First call for PENDING/IN_PROGRESS (empty)
         when(reportGenerationRepository.findByInstanceIdAndStatusIn(eq(1L), eq(List.of(ReportStatus.PENDING, ReportStatus.IN_PROGRESS))))
             .thenReturn(Optional.empty());
-        
+
         // Second call for COMPLETED (found expired)
         when(reportGenerationRepository.findByInstanceIdAndStatusIn(eq(1L), eq(List.of(ReportStatus.COMPLETED))))
             .thenReturn(Optional.of(expiredReport));
-        
+
         when(reportGenerationRepository.save(any()))
             .thenAnswer(inv -> inv.getArgument(0));
 
@@ -316,7 +342,7 @@ class ReportGenerationServiceImplTest {
         request.setLanguage("it");
         request.setStartDate(LocalDate.now().minusDays(7));
         request.setEndDate(LocalDate.now());
-
+        createSecurityContext();
         List<ReportAsyncAcceptedDTO> result = service.scheduleAsyncReport(request);
 
         assertEquals(1, result.size());
@@ -328,17 +354,17 @@ class ReportGenerationServiceImplTest {
     void scheduleAsyncReport_shouldBlockWhenCompletedReportNotExpired() {
         Instance instance = buildInstance(1L, InstanceStatus.ESEGUITA);
         ReportGeneration activeReport = buildReport(10L, instance, ReportStatus.COMPLETED);
-        
+
         ReportFile reportFile = new ReportFile();
         reportFile.setExpiryDate(LocalDateTime.now().plusDays(20)); // Still valid for 20 days
         activeReport.setReportFile(reportFile);
 
         when(instanceRepository.findById(1L)).thenReturn(Optional.of(instance));
-        
+
         // First call for PENDING/IN_PROGRESS (empty)
         when(reportGenerationRepository.findByInstanceIdAndStatusIn(eq(1L), eq(List.of(ReportStatus.PENDING, ReportStatus.IN_PROGRESS))))
             .thenReturn(Optional.empty());
-        
+
         // Second call for COMPLETED (found not expired)
         when(reportGenerationRepository.findByInstanceIdAndStatusIn(eq(1L), eq(List.of(ReportStatus.COMPLETED))))
             .thenReturn(Optional.of(activeReport));
@@ -408,11 +434,7 @@ class ReportGenerationServiceImplTest {
         doThrow(new Exception("PDF error"))
             .when(pdfGenerator)
             .generatePDF(any(), anyLong());
-
-        assertThrows(
-            ReportGenerationException.class,
-            () -> service.executeAsyncGeneration(10L)
-        );
+        service.executeAsyncGeneration(10L);
 
         assertEquals(ReportStatus.FAILED, report.getStatus());
         assertEquals(1, report.getRetryCount());
