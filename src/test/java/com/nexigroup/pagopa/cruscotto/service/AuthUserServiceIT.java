@@ -10,9 +10,8 @@ import com.nexigroup.pagopa.cruscotto.repository.AuthUserRepository;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,6 +20,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.auditing.DateTimeProvider;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 import tech.jhipster.security.RandomUtil;
@@ -73,9 +77,29 @@ class AuthUserServiceIT {
         user.setLastName(DEFAULT_LASTNAME);
         user.setImageUrl(DEFAULT_IMAGEURL);
         user.setLangKey(DEFAULT_LANGKEY);
-
+        createSecurityContext();
         when(dateTimeProvider.getNow()).thenReturn(Optional.of(LocalDateTime.now()));
     }
+
+    private static void createSecurityContext() {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("preferred_username", "admin");
+
+        Jwt jwt = new Jwt(
+            "token-value",
+            Instant.now(),
+            Instant.now().plusSeconds(60),
+            Map.of("alg", "none"),
+            claims
+        );
+
+        Authentication authentication = new JwtAuthenticationToken(jwt);
+
+        SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+        securityContext.setAuthentication(authentication);
+        SecurityContextHolder.setContext(securityContext);
+    }
+
 
     @AfterEach
     public void cleanupAndCheck() {

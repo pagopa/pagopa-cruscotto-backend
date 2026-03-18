@@ -12,8 +12,13 @@ import com.nexigroup.pagopa.cruscotto.repository.AnagStationRepository;
 import com.nexigroup.pagopa.cruscotto.service.dto.AnagStationDTO;
 import com.nexigroup.pagopa.cruscotto.service.filter.AnagStationFilter;
 import com.nexigroup.pagopa.cruscotto.service.impl.AnagStationServiceImpl;
+
+import java.time.Instant;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,6 +27,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,6 +54,26 @@ class AnagStationServiceImplIT {
     @MockitoBean
     private AzureBlobStorageService azureBlobStorageService;
 
+    private static void createSecurityContext() {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("preferred_username", "admin");
+
+        Jwt jwt = new Jwt(
+            "token-value",
+            Instant.now(),
+            Instant.now().plusSeconds(60),
+            Map.of("alg", "none"),
+            claims
+        );
+
+        Authentication authentication = new JwtAuthenticationToken(jwt);
+
+        SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+        securityContext.setAuthentication(authentication);
+        SecurityContextHolder.setContext(securityContext);
+    }
+
+
     private AnagPartner testPartner1;
     private AnagPartner testPartner2;
     private AnagStation activeStation1;
@@ -54,6 +84,7 @@ class AnagStationServiceImplIT {
     @BeforeEach
     void setUp() {
         // Clean up any existing data
+        createSecurityContext();
         anagStationRepository.deleteAll();
         anagPartnerRepository.deleteAll();
 
