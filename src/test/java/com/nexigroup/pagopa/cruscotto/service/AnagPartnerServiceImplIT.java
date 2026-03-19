@@ -8,8 +8,11 @@ import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,6 +24,11 @@ import com.nexigroup.pagopa.cruscotto.domain.AnagPartner;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.PartnerStatus;
 import com.nexigroup.pagopa.cruscotto.repository.AnagPartnerRepository;
 import com.nexigroup.pagopa.cruscotto.service.dto.AnagPartnerDTO;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @IntegrationTest
@@ -34,6 +42,30 @@ public class AnagPartnerServiceImplIT {
 
     @MockitoBean
     private AzureBlobStorageService azureBlobStorageService;
+
+    @BeforeEach
+    public void setup() {
+        createSecurityContext();
+    }
+    private static void createSecurityContext() {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("preferred_username", "admin");
+
+        Jwt jwt = new Jwt(
+            "token-value",
+            Instant.now(),
+            Instant.now().plusSeconds(60),
+            Map.of("alg", "none"),
+            claims
+        );
+
+        Authentication authentication = new JwtAuthenticationToken(jwt);
+
+        SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+        securityContext.setAuthentication(authentication);
+        SecurityContextHolder.setContext(securityContext);
+    }
+
 
 	@Test
 	public void findAll_shouldReturnOne() {

@@ -20,4 +20,13 @@ public interface AuthPermissionRepository extends JpaRepository<AuthPermission, 
         "select authPermission from AuthPermission authPermission left join  authPermission.authFunctions authFunctions left join authFunctions.authGroups authGroups where authGroups.id =:idGruppo"
     )
     List<AuthPermission> findAllPermissionsByGroupId(@Param("idGruppo") Long idGroup);
+
+    @Query(
+        "select authPermission " +
+            "from AuthPermission authPermission " +
+            "left join authPermission.authFunctions authFunctions " +
+            "left join authFunctions.authGroups authGroups " +
+            "where authGroups.id in :idGruppi"
+    )
+    List<AuthPermission> findAllPermissionsByGroupIds(@Param("idGruppi") List<Long> idGruppi);
 }

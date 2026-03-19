@@ -1,7 +1,5 @@
 package com.nexigroup.pagopa.cruscotto.security.jwt;
 
-import static com.nexigroup.pagopa.cruscotto.security.jwt.JwtAuthenticationTestUtils.*;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 import io.micrometer.core.instrument.Counter;
@@ -78,9 +76,6 @@ class TokenAuthenticationSecurityMetersIT {
 //        assertThat(meterRegistry.get(INVALID_TOKENS_METER_EXPECTED_NAME).tag("cause", "malformed").counter().count()).isEqualTo(count + 1);
 //    }
 
-    private void tryToAuthenticate(String token) throws Exception {
-        mvc.perform(MockMvcRequestBuilders.get("/api/authenticate").header(AUTHORIZATION, BEARER + token));
-    }
 
     private double aggregate(Collection<Counter> counters) {
         return counters.stream().mapToDouble(Counter::count).sum();

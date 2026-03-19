@@ -23,7 +23,6 @@ public final class SecurityUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SecurityUtils.class);
 
-    public static final MacAlgorithm JWT_ALGORITHM = MacAlgorithm.HS512;
 
     public static final String AUTHORITIES_KEY = "roles";
 
@@ -35,8 +34,7 @@ public final class SecurityUtils {
      * @return the login of the current user.
      */
     public static Optional<String> getCurrentUserLogin() {
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        return Optional.ofNullable(extractPrincipal(securityContext.getAuthentication()));
+        return Optional.ofNullable(getPreferredUserName());
     }
 
     private static String extractPrincipal(Authentication authentication) {
@@ -82,8 +80,7 @@ public final class SecurityUtils {
     }
 
     public static Optional<AuthenticationType> getAuthenticationTypeUserLogin() {
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        return Optional.ofNullable(extractPrincipalAuthenticationType(securityContext.getAuthentication()));
+            return Optional.of(AuthenticationType.ENTRA_ID);
     }
 
     private static AuthenticationType extractPrincipalAuthenticationType(Authentication authentication) {
@@ -189,4 +186,41 @@ public final class SecurityUtils {
     public static boolean hasCurrentUserThisAuthority(String authority) {
         return hasCurrentUserAnyOfAuthorities(authority);
     }
+
+    public static List<String> getRolesFromJwt() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+        if (authentication == null) {
+            return null;
+        }
+        return jwt.getClaimAsStringList("roles");
+    }
+
+    public static String getNameJwt() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+        if (authentication == null) {
+            return null;
+        }
+        return jwt.getClaim("name");
+    }
+
+    public static String getSubJwt() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            return null;
+        }
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+        return jwt.getClaim("sub");
+    }
+
+    public static String getPreferredUserName() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            return null;
+        }
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+        return jwt.getClaim("preferred_username");
+    }
+
 }

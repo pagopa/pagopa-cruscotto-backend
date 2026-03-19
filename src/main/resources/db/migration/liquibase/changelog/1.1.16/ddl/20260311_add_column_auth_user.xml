@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                      http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+  <changeSet id="20260311100000-1" author="system" context="ddl">
+
+    <addColumn tableName="AUTH_USER">
+
+      <column name="TE_SUB" type="varchar(100)">
+        <constraints nullable="true"/>
+      </column>
+
+      <column name="TE_OID" type="varchar(100)">
+        <constraints nullable="true"/>
+      </column>
+
+      <column name="TE_SOURCE" type="varchar(50)">
+        <constraints nullable="true"/>
+      </column>
+
+      <column name="DT_LAST_LOGIN_AT" type="timestamp">
+        <constraints nullable="true"/>
+      </column>
+
+    </addColumn>
+
+    <rollback>
+      <dropColumn tableName="AUTH_USER" columnName="TE_SUB"/>
+      <dropColumn tableName="AUTH_USER" columnName="TE_OID"/>
+      <dropColumn tableName="AUTH_USER" columnName="TE_SOURCE"/>
+      <dropColumn tableName="AUTH_USER" columnName="DT_LAST_LOGIN_AT"/>
+    </rollback>
+
+  </changeSet>
+
+</databaseChangeLog>
