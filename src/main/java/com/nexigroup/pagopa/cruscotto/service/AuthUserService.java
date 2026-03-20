@@ -406,7 +406,7 @@ public class AuthUserService {
     public Optional<AuthUserDTO> getUserWithAuthorities(AuthenticationType authenticationType) {
         Optional<AuthUser> optionalAuthUser = SecurityUtils.getCurrentUserLogin()
             .flatMap(login -> authUserRepository.findOneByLoginAndNotDeleted(login, authenticationType));
-
+        List<String> roles = SecurityUtils.getRolesFromJwt();
         return optionalAuthUser.map(authUser -> {
             JPQLQuery<AuthFunctionDTO> jpql = queryBuilder
                 .createQuery()
@@ -419,7 +419,7 @@ public class AuthUserService {
                         QAuthFunction.authFunction.modulo.as("modulo")
                     )
                 )
-                .where(QAuthGroup.authGroup.id.eq(authUser.getGroup().getId()))
+                .where(QAuthGroup.authGroup.objectId.in(roles))
                 .distinct();
 
             List<AuthFunctionDTO> functions = jpql.fetch();
@@ -487,16 +487,11 @@ public class AuthUserService {
         Optional<AuthUser> userOpt = authUserRepository.findOneBySub(sub);
 
         Instant now = Instant.now();
-
-        if (userOpt.isPresent()) {
-            AuthUser user = userOpt.orElseThrow();
-            user.setLastLoginAt(now);
-            return authUserRepository.save(user);
-        }
-
         AuthUser user = new AuthUser();
-
-
+        if (userOpt.isPresent()) {
+            user = userOpt.orElseThrow();
+            user.setLastLoginAt(now);
+        }
 
         user.setSub(sub);
         user.setOid(jwt.getClaimAsString("oid"));
@@ -531,6 +526,15 @@ public class AuthUserService {
         user.setActivated(true);
         user.setBlocked(false);
         user.setDeleted(false);
+
+        List<String> roles = jwt.getClaimAsStringList("roles");
+
+        if (roles != null && !roles.isEmpty()) {
+            List<AuthGroup> groups = authGroupRepository.findOneByObjectId(roles);
+            user.setGroup(groups.stream()
+                .min(Comparator.comparing(AuthGroup::getLivelloVisibilita))
+                .orElse(null));
+        }
 
         user.setAuthenticationType(AuthenticationType.ENTRA_ID);
 

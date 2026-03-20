@@ -14,12 +14,19 @@ import com.nexigroup.pagopa.cruscotto.service.dto.InstanceDTO;
 import com.nexigroup.pagopa.cruscotto.service.mapper.InstanceMapper;
 import com.nexigroup.pagopa.cruscotto.service.qdsl.QueryBuilder;
 import com.nexigroup.pagopa.cruscotto.service.util.UserUtils;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -40,6 +47,30 @@ class InstanceServiceImplTest {
     @Mock private AnagPartnerService anagPartnerService;
 
     @InjectMocks private InstanceServiceImpl service;
+
+    @BeforeEach
+    public void setup() {
+        createSecurityContext() ;
+    }
+
+    private static void createSecurityContext() {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("preferred_username", "admin");
+
+        Jwt jwt = new Jwt(
+            "token-value",
+            Instant.now(),
+            Instant.now().plusSeconds(60),
+            Map.of("alg", "none"),
+            claims
+        );
+
+        Authentication authentication = new JwtAuthenticationToken(jwt);
+
+        SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+        securityContext.setAuthentication(authentication);
+        SecurityContextHolder.setContext(securityContext);
+    }
 
     @Test
     void saveNew_shouldCreateInstance_whenValid() {
@@ -131,4 +162,3 @@ class InstanceServiceImplTest {
         return instance;
     }
 }
- 
