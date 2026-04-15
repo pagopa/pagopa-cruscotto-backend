@@ -43,7 +43,6 @@ public class ReportGenerationJob extends QuartzJobBean {
         }
 
         try {
-            // Query PENDING reports
             LOGGER.info("Querying pending report instances");
 
             List<Long> pendingReportIds = queryPendingReports();
@@ -55,38 +54,26 @@ public class ReportGenerationJob extends QuartzJobBean {
 
             LOGGER.info("Found {} pending reports to process", pendingReportIds.size());
 
-            // Process reports in parallel using CompletableFuture
-            // Questo approccio rende ESPLICITO quando tutti i task paralleli sono completati
-            AtomicInteger successCount = new AtomicInteger(0);
-            AtomicInteger failureCount = new AtomicInteger(0);
+            int successCount = 0;
+            int failureCount = 0;
 
-            // Crea un CompletableFuture per ogni report ID
-            List<CompletableFuture<Void>> futures = pendingReportIds
-                .stream()
-                .map(reportId ->
-                    CompletableFuture.runAsync(() -> {
-                        try {
-                            processReport(reportId);
-                            successCount.incrementAndGet();
-                            LOGGER.info("Successfully processed report ID: {}", reportId);
-                        } catch (Exception e) {
-                            failureCount.incrementAndGet();
-                            LOGGER.error("Failed to process report ID: {}. Error: {}", reportId, e.getMessage(), e);
-                        }
-                    })
-                )
-                .toList();
-            // Aspetta ESPLICITAMENTE che TUTTI i CompletableFuture siano completati
-            CompletableFuture<Void> allOf = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-
-            // Blocca fino al completamento di tutti i task
-            allOf.join(); // ⬅️ QUESTO RENDE ESPLICITO: "Aspetto che tutti finiscano"
+            for (Long reportId : pendingReportIds) {
+                try {
+                    processReport(reportId);
+                    successCount++;
+                    LOGGER.info("Successfully processed report ID: {}", reportId);
+                } catch (Exception e) {
+                    failureCount++;
+                    LOGGER.error("Failed to process report ID: {}. Error: {}", reportId, e.getMessage(), e);
+                }
+            }
 
             LOGGER.info(
                 "Report Generation Job completed. Success: {}, Failures: {}",
-                successCount.get(),
-                failureCount.get()
+                successCount,
+                failureCount
             );
+
         } catch (Exception e) {
             LOGGER.error("Error during Report Generation Job execution: {}", e.getMessage(), e);
         }
@@ -107,7 +94,7 @@ public class ReportGenerationJob extends QuartzJobBean {
     }
 
 
-    protected void processReport(Long reportId) throws Exception {
+    protected void processReport(Long reportId)  {
         LOGGER.info("Processing report ID: {}", reportId);
         LOGGER.info("Chiamo il servizio executeAsyncGeneration");
         reportGenerationService.executeAsyncGeneration(reportId);
