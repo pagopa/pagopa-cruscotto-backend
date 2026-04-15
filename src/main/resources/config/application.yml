@@ -145,15 +145,16 @@ spring:
       enabled: true
   quartz:
     job-store-type: jdbc
+    startup-delay: 120
     jdbc:
       initialize-schema: never
     properties:
       org.quartz.scheduler.instanceName: PagoPaCruscottoScheduler
       org.quartz.scheduler.instanceId: AUTO
-      org.quartz.threadPool.threadCount: 10
+      org.quartz.threadPool.threadCount: 15
       org.quartz.jobStore.class: org.quartz.impl.jdbcjobstore.JobStoreTX
       org.quartz.jobStore.isClustered: true
-      org.quartz.jobStore.misfireThreshold: 180000  # 3 minutes - handles rolling update delays
+      org.quartz.jobStore.misfireThreshold: 600000  # 10 minutes - handles rolling update delays
       org.quartz.plugin.shutdownHook.class: org.quartz.plugins.management.ShutdownHookPlugin
       org.quartz.plugin.shutdownHook.cleanShutdown: true
       org.quartz.scheduler.batchTriggerAcquisitionMaxCount: 6
