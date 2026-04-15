@@ -1,10 +1,13 @@
 package com.nexigroup.pagopa.cruscotto.service.report.excel;
 
+import com.nexigroup.pagopa.cruscotto.job.report.ReportGenerationJob;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -12,9 +15,10 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 
-@Slf4j
 @Service
 public class ExcelReportGenerator {
+
+    private static final Logger log = LoggerFactory.getLogger(ExcelReportGenerator.class);
 
     private final List<DrillDownExcelExporter> exporters;
 
