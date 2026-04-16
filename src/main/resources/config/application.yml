@@ -146,6 +146,7 @@ spring:
   quartz:
     job-store-type: jdbc
     startup-delay: 120
+    overwrite-existing-jobs: true
     jdbc:
       initialize-schema: never
     properties:
