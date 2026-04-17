@@ -152,7 +152,7 @@ spring:
     properties:
       org.quartz.scheduler.instanceName: PagoPaCruscottoScheduler
       org.quartz.scheduler.instanceId: AUTO
-      org.quartz.threadPool.threadCount: 15
+      org.quartz.threadPool.threadCount: 1
       org.quartz.jobStore.class: org.quartz.impl.jdbcjobstore.JobStoreTX
       org.quartz.jobStore.isClustered: true
       org.quartz.jobStore.misfireThreshold: 600000  # 10 minutes - handles rolling update delays
