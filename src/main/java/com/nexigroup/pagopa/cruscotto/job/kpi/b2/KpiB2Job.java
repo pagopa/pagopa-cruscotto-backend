@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
+import com.nexigroup.pagopa.cruscotto.service.util.JobUtils;
 
 @Component
 @AllArgsConstructor
