@@ -2,6 +2,7 @@ package com.nexigroup.pagopa.cruscotto.job.kpi.b4;
 
 import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
 import com.nexigroup.pagopa.cruscotto.job.config.JobConstant;
+import com.nexigroup.pagopa.cruscotto.service.util.JobUtils;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.repository.PagopaApiLogRepository;
@@ -14,6 +15,7 @@ import com.nexigroup.pagopa.cruscotto.service.dto.InstanceModuleDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiConfigurationDTO;
 
 import java.time.LocalDate;
+import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,13 +49,13 @@ public class KpiB4Job extends QuartzJobBean {
     private final Scheduler scheduler;
 
     public KpiB4Job(
-        InstanceService instanceService,
-        InstanceModuleService instanceModuleService,
-        ApplicationProperties applicationProperties,
-        KpiConfigurationService kpiConfigurationService,
-        KpiB4DataService kpiB4DataService,
-        PagopaApiLogRepository pagopaApiLogRepository,
-        Scheduler scheduler) {
+            InstanceService instanceService,
+            InstanceModuleService instanceModuleService,
+            ApplicationProperties applicationProperties,
+            KpiConfigurationService kpiConfigurationService,
+            KpiB4DataService kpiB4DataService,
+            PagopaApiLogRepository pagopaApiLogRepository,
+            Scheduler scheduler) {
         this.instanceService = instanceService;
         this.instanceModuleService = instanceModuleService;
         this.applicationProperties = applicationProperties;
@@ -66,8 +68,10 @@ public class KpiB4Job extends QuartzJobBean {
     @Override
     @Transactional
     protected void executeInternal(@NonNull JobExecutionContext context) {
-        LOGGER.info("Start calculate kpi B.4");
-
+        Instant startTime = Instant.now();
+        int instanceDTOSize = -1;
+        LOGGER.info("Start calculate kpi B.4, profile: {}",
+                JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "START", null));
         try {
             if (!applicationProperties.getJob().getKpiB4Job().isEnabled()) {
                 LOGGER.info("Job calculate kpi B.4 disabled. Exit...");
@@ -75,9 +79,8 @@ public class KpiB4Job extends QuartzJobBean {
             }
 
             List<InstanceDTO> instanceDTOS = instanceService.findInstanceToCalculate(
-                ModuleCode.B4,
-                applicationProperties.getJob().getKpiB4Job().getLimit()
-            );
+                    ModuleCode.B4,
+                    applicationProperties.getJob().getKpiB4Job().getLimit());
 
             if (instanceDTOS.isEmpty()) {
                 LOGGER.info("No instances to calculate for kpi B.4");
@@ -86,23 +89,35 @@ public class KpiB4Job extends QuartzJobBean {
 
             LOGGER.info("Found {} instances to calculate for kpi B.4", instanceDTOS.size());
 
+            instanceDTOSize = instanceDTOS.size();
+
             KpiConfigurationDTO kpiConfigurationDTO = kpiConfigurationService
-                .findKpiConfigurationByCode(ModuleCode.B4.code)
-                .orElseThrow(() -> new RuntimeException("KPI Configuration not found for module B.4"));
+                    .findKpiConfigurationByCode(ModuleCode.B4.code)
+                    .orElseThrow(() -> new RuntimeException("KPI Configuration not found for module B.4"));
 
             for (InstanceDTO instanceDTO : instanceDTOS) {
                 try {
                     processInstance(instanceDTO, kpiConfigurationDTO);
                 } catch (Exception e) {
-                    LOGGER.error("Error processing instance {} for kpi B.4: {}", instanceDTO.getId(), e.getMessage(), e);
+                    LOGGER.error("Error processing instance {} for kpi B.4: {}", instanceDTO.getId(), e.getMessage(),
+                            e);
                 }
             }
 
         } catch (Exception e) {
-            LOGGER.error("Error in KPI B.4 job execution: {}", e.getMessage(), e);
+            LOGGER.error("Problem during calculate kpi B.4, {}",
+                    JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "GenericException",
+                            instanceDTOSize),
+                    e);
+        } catch (OutOfMemoryError oom) {
+            LOGGER.error(
+                    JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "OOM", instanceDTOSize),
+                    oom);
+            throw oom;
+        } finally {
+            LOGGER.info("End calculations for kpi B.4, profile: {}",
+                    JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "END", instanceDTOSize));
         }
-
-        LOGGER.info("End calculate kpi B.4");
     }
 
     private void processInstance(InstanceDTO instanceDTO, KpiConfigurationDTO kpiConfigurationDTO) {
@@ -111,8 +126,8 @@ public class KpiB4Job extends QuartzJobBean {
         try {
             // Find the instance module to update the status
             InstanceModuleDTO instanceModuleDTO = instanceModuleService
-                .findOne(instanceDTO.getId(), kpiConfigurationDTO.getModuleId())
-                .orElseThrow(() -> new RuntimeException("KPI B.4 InstanceModule not found"));
+                    .findOne(instanceDTO.getId(), kpiConfigurationDTO.getModuleId())
+                    .orElseThrow(() -> new RuntimeException("KPI B.4 InstanceModule not found"));
 
             processInstanceModule(instanceDTO, instanceModuleDTO, kpiConfigurationDTO);
 
@@ -121,107 +136,117 @@ public class KpiB4Job extends QuartzJobBean {
         }
     }
 
-    private void processInstanceModule(InstanceDTO instanceDTO, InstanceModuleDTO instanceModuleDTO, 
-                                     KpiConfigurationDTO kpiConfigurationDTO) {
+    private void processInstanceModule(InstanceDTO instanceDTO, InstanceModuleDTO instanceModuleDTO,
+            KpiConfigurationDTO kpiConfigurationDTO) {
         LOGGER.info("Processing instance module {} for KPI B.4", instanceModuleDTO.getId());
 
         try {
             // Update instance status from "planned" to "in progress"
             instanceService.updateInstanceStatusInProgress(instanceDTO.getId());
 
-            // REQUISITO: Verifica prerequisiti - controllo presenza dati API log per il periodo
+            // REQUISITO: Verifica prerequisiti - controllo presenza dati API log per il
+            // periodo
             if (!hasApiLogDataForPeriod(instanceDTO)) {
-                LOGGER.warn("SKIPPING KPI B.4 calculation for instance {} - No API log data for analysis period {} to {}", 
-                           instanceDTO.getId(), 
-                           instanceDTO.getAnalysisPeriodStartDate(),
-                           instanceDTO.getAnalysisPeriodEndDate());
-                
-                // Anche se non ci sono dati, dobbiamo impostare outcome KO e triggare il state calculation
+                LOGGER.warn(
+                        "SKIPPING KPI B.4 calculation for instance {} - No API log data for analysis period {} to {}",
+                        instanceDTO.getId(),
+                        instanceDTO.getAnalysisPeriodStartDate(),
+                        instanceDTO.getAnalysisPeriodEndDate());
+
+                // Anche se non ci sono dati, dobbiamo impostare outcome KO e triggare il state
+                // calculation
                 try {
                     LocalDate analysisDate = calculateAnalysisDate(instanceDTO, instanceModuleDTO);
-                    OutcomeStatus noDataOutcome = kpiB4DataService.saveKpiB4Results(instanceDTO, instanceModuleDTO, 
-                                                                                   kpiConfigurationDTO, analysisDate, OutcomeStatus.KO);
+                    OutcomeStatus noDataOutcome = kpiB4DataService.saveKpiB4Results(instanceDTO, instanceModuleDTO,
+                            kpiConfigurationDTO, analysisDate, OutcomeStatus.KO);
                     instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(), noDataOutcome);
-                    
+
                     // Trigger calculateStateInstanceJob anche per il caso no-data
-                    JobDetail job = scheduler.getJobDetail(JobKey.jobKey(JobConstant.CALCULATE_STATE_INSTANCE_JOB, "DEFAULT"));
+                    JobDetail job = scheduler
+                            .getJobDetail(JobKey.jobKey(JobConstant.CALCULATE_STATE_INSTANCE_JOB, "DEFAULT"));
                     Trigger trigger = TriggerBuilder.newTrigger()
-                        .usingJobData("instanceId", instanceDTO.getId())
-                        .withSchedule(SimpleScheduleBuilder.simpleSchedule()
-                            .withMisfireHandlingInstructionFireNow()
-                            .withRepeatCount(0))
-                        .forJob(job)
-                        .build();
+                            .usingJobData("instanceId", instanceDTO.getId())
+                            .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                                    .withMisfireHandlingInstructionFireNow()
+                                    .withRepeatCount(0))
+                            .forJob(job)
+                            .build();
                     scheduler.scheduleJob(trigger);
-                    
-                    LOGGER.info("No data case: set outcome KO and triggered calculateStateInstanceJob for instance: {}", instanceDTO.getId());
-                    
+
+                    LOGGER.info("No data case: set outcome KO and triggered calculateStateInstanceJob for instance: {}",
+                            instanceDTO.getId());
+
                 } catch (Exception e) {
-                    LOGGER.error("Error handling no-data case for instance {}: {}", instanceDTO.getId(), e.getMessage(), e);
+                    LOGGER.error("Error handling no-data case for instance {}: {}", instanceDTO.getId(), e.getMessage(),
+                            e);
                 }
-                
+
                 return; // Non eseguire l'analisi se non ci sono dati
             }
 
-            // Calcola la data di analisi basata sulla configurazione  
+            // Calcola la data di analisi basata sulla configurazione
             LocalDate analysisDate = calculateAnalysisDate(instanceDTO, instanceModuleDTO);
-            
-            LOGGER.info("Calculating KPI B.4 for instance {} on date {} (period: {} to {})", 
-                       instanceDTO.getId(), analysisDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                       instanceDTO.getAnalysisPeriodStartDate(), instanceDTO.getAnalysisPeriodEndDate());
+
+            LOGGER.info("Calculating KPI B.4 for instance {} on date {} (period: {} to {})",
+                    instanceDTO.getId(), analysisDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                    instanceDTO.getAnalysisPeriodStartDate(), instanceDTO.getAnalysisPeriodEndDate());
 
             // Implementazione logica KPI B.4 basata sull'analisi
             OutcomeStatus outcome = calculateKpiB4Outcome(instanceDTO, kpiConfigurationDTO);
 
-            LOGGER.info("KPI B.4 outcome for instance {}: {} (Partner: {})", 
-                       instanceDTO.getId(), outcome, instanceDTO.getPartnerFiscalCode());
+            LOGGER.info("KPI B.4 outcome for instance {}: {} (Partner: {})",
+                    instanceDTO.getId(), outcome, instanceDTO.getPartnerFiscalCode());
 
             // Salva i risultati tramite il service esistente
-            OutcomeStatus finalOutcome = kpiB4DataService.saveKpiB4Results(instanceDTO, instanceModuleDTO, 
-                                                                          kpiConfigurationDTO, analysisDate, outcome);
+            OutcomeStatus finalOutcome = kpiB4DataService.saveKpiB4Results(instanceDTO, instanceModuleDTO,
+                    kpiConfigurationDTO, analysisDate, outcome);
 
-            // Update automatic outcome of instance module with the final outcome (potentially corrected for monthly evaluation)
+            // Update automatic outcome of instance module with the final outcome
+            // (potentially corrected for monthly evaluation)
             instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(), finalOutcome);
 
             LOGGER.info("Instance module {} updated with final outcome: {}", instanceModuleDTO.getId(), finalOutcome);
 
-            // Trigger calculateStateInstanceJob immediately after outcome update (like B1, B2 jobs)
+            // Trigger calculateStateInstanceJob immediately after outcome update (like B1,
+            // B2 jobs)
             try {
-                JobDetail job = scheduler.getJobDetail(JobKey.jobKey(JobConstant.CALCULATE_STATE_INSTANCE_JOB, "DEFAULT"));
-                
+                JobDetail job = scheduler
+                        .getJobDetail(JobKey.jobKey(JobConstant.CALCULATE_STATE_INSTANCE_JOB, "DEFAULT"));
+
                 Trigger trigger = TriggerBuilder.newTrigger()
-                    .usingJobData("instanceId", instanceDTO.getId())
-                    .withSchedule(SimpleScheduleBuilder.simpleSchedule()
-                        .withMisfireHandlingInstructionFireNow()
-                        .withRepeatCount(0))
-                    .forJob(job)
-                    .build();
-                    
+                        .usingJobData("instanceId", instanceDTO.getId())
+                        .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                                .withMisfireHandlingInstructionFireNow()
+                                .withRepeatCount(0))
+                        .forJob(job)
+                        .build();
+
                 scheduler.scheduleJob(trigger);
-                
+
                 LOGGER.info("Triggered calculateStateInstanceJob for instance: {}", instanceDTO.getId());
-                
+
             } catch (Exception e) {
-                LOGGER.error("Error triggering calculateStateInstanceJob for instance {}: {}", 
-                           instanceDTO.getId(), e.getMessage(), e);
+                LOGGER.error("Error triggering calculateStateInstanceJob for instance {}: {}",
+                        instanceDTO.getId(), e.getMessage(), e);
                 // Non rethrow l'eccezione per non far fallire il job principale
             }
 
-            LOGGER.info("KPI B.4 calculation completed for instance module {} with final outcome: {}", 
-                       instanceModuleDTO.getId(), finalOutcome);
+            LOGGER.info("KPI B.4 calculation completed for instance module {} with final outcome: {}",
+                    instanceModuleDTO.getId(), finalOutcome);
 
         } catch (Exception e) {
-            LOGGER.error("Error processing instance module {} for KPI B.4: {}", 
-                        instanceModuleDTO.getId(), e.getMessage(), e);
-            
-            // In caso di errore, salva il risultato con outcome KO solo se il problema non è mancanza dati
+            LOGGER.error("Error processing instance module {} for KPI B.4: {}",
+                    instanceModuleDTO.getId(), e.getMessage(), e);
+
+            // In caso di errore, salva il risultato con outcome KO solo se il problema non
+            // è mancanza dati
             try {
                 LocalDate analysisDate = calculateAnalysisDate(instanceDTO, instanceModuleDTO);
-                kpiB4DataService.saveKpiB4Results(instanceDTO, instanceModuleDTO, 
-                                                kpiConfigurationDTO, analysisDate, OutcomeStatus.KO);
+                kpiB4DataService.saveKpiB4Results(instanceDTO, instanceModuleDTO,
+                        kpiConfigurationDTO, analysisDate, OutcomeStatus.KO);
             } catch (Exception saveException) {
-                LOGGER.error("Error saving error outcome for instance module {}: {}", 
-                           instanceModuleDTO.getId(), saveException.getMessage(), saveException);
+                LOGGER.error("Error saving error outcome for instance module {}: {}",
+                        instanceModuleDTO.getId(), saveException.getMessage(), saveException);
             }
         }
     }
@@ -232,13 +257,14 @@ public class KpiB4Job extends QuartzJobBean {
         if (analysisDate == null) {
             analysisDate = LocalDate.now();
         }
-        
+
         LOGGER.debug("Analysis date calculated for instance {}: {}", instanceDTO.getId(), analysisDate);
         return analysisDate;
     }
 
     /**
-     * Verifica se esistono dati nella tabella pagopa_apilog per il periodo dell'istanza.
+     * Verifica se esistono dati nella tabella pagopa_apilog per il periodo
+     * dell'istanza.
      * Se non esistono record per il periodo, l'analisi non deve essere effettuata.
      *
      * @param instanceDTO l'istanza da analizzare
@@ -247,29 +273,31 @@ public class KpiB4Job extends QuartzJobBean {
     private boolean hasApiLogDataForPeriod(InstanceDTO instanceDTO) {
         LocalDate periodStart = instanceDTO.getAnalysisPeriodStartDate();
         LocalDate periodEnd = instanceDTO.getAnalysisPeriodEndDate();
-        
+
         if (periodStart == null || periodEnd == null) {
-            LOGGER.warn("Analysis period not defined for instance {}: start={}, end={}", 
-                       instanceDTO.getId(), periodStart, periodEnd);
+            LOGGER.warn("Analysis period not defined for instance {}: start={}, end={}",
+                    instanceDTO.getId(), periodStart, periodEnd);
             return false;
         }
 
         boolean hasData = pagopaApiLogRepository.existsDataInPeriod(periodStart, periodEnd);
-        LOGGER.info("API log data check for period {} to {}: {}", 
-                   periodStart, periodEnd, hasData ? "DATA FOUND" : "NO DATA");
-        
+        LOGGER.info("API log data check for period {} to {}: {}",
+                periodStart, periodEnd, hasData ? "DATA FOUND" : "NO DATA");
+
         return hasData;
     }
 
     /**
      * Calcola l'outcome del KPI B.4 basato sulla logica dell'analisi.
      * Considera il tipo di valutazione configurata:
-     * - TOTALE: Verifica la percentuale di request "paCreate" rispetto a "GPD"/"ACA" sull'intero periodo
-     * - MESE: Se almeno un mese ha esito KO nei detail results, l'esito complessivo è KO
+     * - TOTALE: Verifica la percentuale di request "paCreate" rispetto a
+     * "GPD"/"ACA" sull'intero periodo
+     * - MESE: Se almeno un mese ha esito KO nei detail results, l'esito complessivo
+     * è KO
      */
     private OutcomeStatus calculateKpiB4Outcome(InstanceDTO instanceDTO, KpiConfigurationDTO kpiConfigurationDTO) {
-        LOGGER.info("Calculating KPI B.4 outcome for instance {} partner {} with evaluation type: {}", 
-                   instanceDTO.getId(), instanceDTO.getPartnerFiscalCode(), kpiConfigurationDTO.getEvaluationType());
+        LOGGER.info("Calculating KPI B.4 outcome for instance {} partner {} with evaluation type: {}",
+                instanceDTO.getId(), instanceDTO.getPartnerFiscalCode(), kpiConfigurationDTO.getEvaluationType());
 
         try {
             LocalDate periodStart = instanceDTO.getAnalysisPeriodStartDate();
@@ -278,25 +306,27 @@ public class KpiB4Job extends QuartzJobBean {
 
             LOGGER.info("Analysis period: {} to {} for partner: {}", periodStart, periodEnd, partnerFiscalCode);
 
-            // REQUISITO: Verifica prerequisiti - se non esistono dati nella tabella pagopa_apilog 
+            // REQUISITO: Verifica prerequisiti - se non esistono dati nella tabella
+            // pagopa_apilog
             // per il periodo dell'istanza, l'analisi non deve essere effettuata
             if (!hasApiLogDataForPeriod(instanceDTO)) {
-                LOGGER.warn("SKIPPING KPI B.4 analysis for instance {} - No API log data found for period {} to {}", 
-                           instanceDTO.getId(), periodStart, periodEnd);
+                LOGGER.warn("SKIPPING KPI B.4 analysis for instance {} - No API log data found for period {} to {}",
+                        instanceDTO.getId(), periodStart, periodEnd);
                 throw new RuntimeException("No API log data available for analysis period");
             }
 
             // Verifica il tipo di valutazione configurata
-            if (kpiConfigurationDTO.getEvaluationType() != null && 
-                kpiConfigurationDTO.getEvaluationType().toString().equals("MESE")) {
-                
-                LOGGER.info("Using MONTHLY evaluation type - outcome will be determined by checking detail results after saving");
-                
+            if (kpiConfigurationDTO.getEvaluationType() != null &&
+                    kpiConfigurationDTO.getEvaluationType().toString().equals("MESE")) {
+
+                LOGGER.info(
+                        "Using MONTHLY evaluation type - outcome will be determined by checking detail results after saving");
+
                 // Per la valutazione mensile, il calcolo iniziale restituisce sempre OK
-                // L'outcome finale sarà determinato dal KpiB4DataServiceImpl controllando 
+                // L'outcome finale sarà determinato dal KpiB4DataServiceImpl controllando
                 // se ci sono detail results mensili con outcome KO
                 return OutcomeStatus.OK;
-                
+
             } else {
                 // Valutazione TOTALE: usa la logica sui dati complessivi del periodo
                 LOGGER.info("Using TOTAL evaluation type - calculating outcome on entire period");
@@ -304,8 +334,8 @@ public class KpiB4Job extends QuartzJobBean {
             }
 
         } catch (Exception e) {
-            LOGGER.error("Error calculating KPI B.4 outcome for instance {}: {}", 
-                        instanceDTO.getId(), e.getMessage(), e);
+            LOGGER.error("Error calculating KPI B.4 outcome for instance {}: {}",
+                    instanceDTO.getId(), e.getMessage(), e);
             return OutcomeStatus.KO;
         }
     }
@@ -313,19 +343,23 @@ public class KpiB4Job extends QuartzJobBean {
     /**
      * Calcola l'outcome basato sui dati del periodo totale.
      */
-    private OutcomeStatus calculateTotalPeriodOutcome(String partnerFiscalCode, LocalDate periodStart, 
-                                                     LocalDate periodEnd, KpiConfigurationDTO kpiConfigurationDTO) {
-        
-        // Query per contare le request dalla tabella pagopa_apilog usando il repository
-        Long totalGpdAcaRequests = pagopaApiLogRepository.calculateTotalGpdAcaRequests(partnerFiscalCode, periodStart, periodEnd);
-        Long totalPaCreateRequests = pagopaApiLogRepository.calculateTotalPaCreateRequests(partnerFiscalCode, periodStart, periodEnd);
-        
-        // Gestione valori null (nel caso non ci siano dati)
-        if (totalGpdAcaRequests == null) totalGpdAcaRequests = 0L;
-        if (totalPaCreateRequests == null) totalPaCreateRequests = 0L;
+    private OutcomeStatus calculateTotalPeriodOutcome(String partnerFiscalCode, LocalDate periodStart,
+            LocalDate periodEnd, KpiConfigurationDTO kpiConfigurationDTO) {
 
-        LOGGER.info("API requests for partner {}: GPD/ACA={}, paCreate={}", 
-                   partnerFiscalCode, totalGpdAcaRequests, totalPaCreateRequests);
+        // Query per contare le request dalla tabella pagopa_apilog usando il repository
+        Long totalGpdAcaRequests = pagopaApiLogRepository.calculateTotalGpdAcaRequests(partnerFiscalCode, periodStart,
+                periodEnd);
+        Long totalPaCreateRequests = pagopaApiLogRepository.calculateTotalPaCreateRequests(partnerFiscalCode,
+                periodStart, periodEnd);
+
+        // Gestione valori null (nel caso non ci siano dati)
+        if (totalGpdAcaRequests == null)
+            totalGpdAcaRequests = 0L;
+        if (totalPaCreateRequests == null)
+            totalPaCreateRequests = 0L;
+
+        LOGGER.info("API requests for partner {}: GPD/ACA={}, paCreate={}",
+                partnerFiscalCode, totalGpdAcaRequests, totalPaCreateRequests);
 
         // Calcola la percentuale di paCreate rispetto al totale
         double paCreatePercentage = 0.0;
@@ -337,31 +371,33 @@ public class KpiB4Job extends QuartzJobBean {
         Double thresholdPercentage = kpiConfigurationDTO.getEligibilityThreshold();
         Double tolerancePercentage = kpiConfigurationDTO.getTolerance();
 
-        if (thresholdPercentage == null) thresholdPercentage = 0.0;
-        if (tolerancePercentage == null) tolerancePercentage = 0.0;
+        if (thresholdPercentage == null)
+            thresholdPercentage = 0.0;
+        if (tolerancePercentage == null)
+            tolerancePercentage = 0.0;
 
         double maxAllowedPercentage = thresholdPercentage + tolerancePercentage;
 
-        LOGGER.info("KPI B.4 calculation: paCreate {}%, threshold {}%, tolerance {}%, max allowed {}%", 
-                   paCreatePercentage, thresholdPercentage, tolerancePercentage, maxAllowedPercentage);
+        LOGGER.info("KPI B.4 calculation: paCreate {}%, threshold {}%, tolerance {}%, max allowed {}%",
+                paCreatePercentage, thresholdPercentage, tolerancePercentage, maxAllowedPercentage);
 
         // Se la percentuale di paCreate supera la soglia + tolleranza, il KPI è KO
         if (paCreatePercentage > maxAllowedPercentage) {
-            LOGGER.warn("KPI B.4 NON-COMPLIANT for partner {}: paCreate {}% exceeds max allowed {}%", 
-                       partnerFiscalCode, paCreatePercentage, maxAllowedPercentage);
+            LOGGER.warn("KPI B.4 NON-COMPLIANT for partner {}: paCreate {}% exceeds max allowed {}%",
+                    partnerFiscalCode, paCreatePercentage, maxAllowedPercentage);
             return OutcomeStatus.KO;
         } else {
-            LOGGER.info("KPI B.4 COMPLIANT for partner {}: paCreate {}% within allowed {}%", 
-                       partnerFiscalCode, paCreatePercentage, maxAllowedPercentage);
+            LOGGER.info("KPI B.4 COMPLIANT for partner {}: paCreate {}% within allowed {}%",
+                    partnerFiscalCode, paCreatePercentage, maxAllowedPercentage);
             return OutcomeStatus.OK;
         }
     }
 
     /**
      * Triggers the calculateStateInstanceJob after KPI B.4 processing completion.
-     * This ensures the instance state is updated after all transactions are committed.
+     * This ensures the instance state is updated after all transactions are
+     * committed.
      */
-
 
     /**
      * Schedules a job for a single instance calculation.
@@ -374,23 +410,23 @@ public class KpiB4Job extends QuartzJobBean {
 
         try {
             JobDetail jobDetail = org.quartz.JobBuilder.newJob(KpiB4Job.class)
-                .withIdentity("kpiB4Job-" + instanceIdentification + "-" + System.currentTimeMillis())
-                .build();
+                    .withIdentity("kpiB4Job-" + instanceIdentification + "-" + System.currentTimeMillis())
+                    .build();
 
             Trigger trigger = TriggerBuilder.newTrigger()
-                .withIdentity("kpiB4Trigger-" + instanceIdentification + "-" + System.currentTimeMillis())
-                .forJob(jobDetail)
-                .withSchedule(SimpleScheduleBuilder.simpleSchedule())
-                .startNow()
-                .build();
+                    .withIdentity("kpiB4Trigger-" + instanceIdentification + "-" + System.currentTimeMillis())
+                    .forJob(jobDetail)
+                    .withSchedule(SimpleScheduleBuilder.simpleSchedule())
+                    .startNow()
+                    .build();
 
             scheduler.scheduleJob(jobDetail, trigger);
 
             LOGGER.info("KPI B.4 job scheduled successfully for instance: {}", instanceIdentification);
 
         } catch (Exception e) {
-            LOGGER.error("Error scheduling KPI B.4 job for instance {}: {}", 
-                        instanceIdentification, e.getMessage(), e);
+            LOGGER.error("Error scheduling KPI B.4 job for instance {}: {}",
+                    instanceIdentification, e.getMessage(), e);
         }
     }
 }
