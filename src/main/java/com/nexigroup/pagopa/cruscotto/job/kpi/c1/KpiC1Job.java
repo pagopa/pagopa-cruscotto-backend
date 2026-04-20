@@ -4,6 +4,7 @@ import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.job.config.JobConstant;
+import com.nexigroup.pagopa.cruscotto.service.util.JobUtils;
 import com.nexigroup.pagopa.cruscotto.service.InstanceService;
 import com.nexigroup.pagopa.cruscotto.service.InstanceModuleService;
 import com.nexigroup.pagopa.cruscotto.service.KpiConfigurationService;
@@ -13,6 +14,7 @@ import com.nexigroup.pagopa.cruscotto.service.dto.InstanceModuleDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.KpiConfigurationDTO;
 
 import java.time.LocalDate;
+import java.time.Instant;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -47,8 +49,10 @@ public class KpiC1Job extends QuartzJobBean {
 
     @Override
     protected void executeInternal(@NonNull JobExecutionContext context) {
-        LOGGER.info("Start calculate kpi C.1");
-
+        Instant startTime = Instant.now();
+        int instanceDTOSize = -1;
+        LOGGER.info("Start calculate kpi C.1, profile: {}",
+                JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "START", null));
         try {
             if (!applicationProperties.getJob().getKpiC1Job().isEnabled()) {
                 LOGGER.info("Job calculate kpi C.1 disabled. Exit...");
@@ -56,52 +60,52 @@ public class KpiC1Job extends QuartzJobBean {
             }
 
             List<InstanceDTO> instanceDTOS = instanceService.findInstanceToCalculate(
-                ModuleCode.C1,
-                applicationProperties.getJob().getKpiC1Job().getLimit()
-            );
+                    ModuleCode.C1,
+                    applicationProperties.getJob().getKpiC1Job().getLimit());
+
+            instanceDTOSize = instanceDTOS.size();
 
             if (instanceDTOS.isEmpty()) {
                 LOGGER.info("No instance to calculate C.1. Exit....");
             } else {
                 KpiConfigurationDTO kpiConfigurationDTO = kpiConfigurationService
-                    .findKpiConfigurationByCode(ModuleCode.C1.code)
-                    .orElseThrow(() -> new NullPointerException("KPI C.1 Configuration not found"));
+                        .findKpiConfigurationByCode(ModuleCode.C1.code)
+                        .orElseThrow(() -> new NullPointerException("KPI C.1 Configuration not found"));
 
                 LOGGER.info("Kpi configuration {}", kpiConfigurationDTO);
 
                 instanceDTOS.forEach(instanceDTO -> {
                     try {
                         LOGGER.info(
-                            "Start elaboration instance {} for partner {} - {} with period {} - {}",
-                            instanceDTO.getInstanceIdentification(),
-                            instanceDTO.getPartnerFiscalCode(),
-                            instanceDTO.getPartnerName(),
-                            instanceDTO.getAnalysisPeriodStartDate(),
-                            instanceDTO.getAnalysisPeriodEndDate()
-                        );
+                                "Start elaboration instance {} for partner {} - {} with period {} - {}",
+                                instanceDTO.getInstanceIdentification(),
+                                instanceDTO.getPartnerFiscalCode(),
+                                instanceDTO.getPartnerName(),
+                                instanceDTO.getAnalysisPeriodStartDate(),
+                                instanceDTO.getAnalysisPeriodEndDate());
 
                         // Update instance status from "planned" to "in progress"
                         instanceService.updateInstanceStatusInProgress(instanceDTO.getId());
 
                         InstanceModuleDTO instanceModuleDTO = instanceModuleService
-                            .findOne(instanceDTO.getId(), kpiConfigurationDTO.getModuleId())
-                            .orElseThrow(() -> new NullPointerException("KPI C.1 InstanceModule not found"));
+                                .findOne(instanceDTO.getId(), kpiConfigurationDTO.getModuleId())
+                                .orElseThrow(() -> new NullPointerException("KPI C.1 InstanceModule not found"));
 
-                        LOGGER.info("Starting KPI C.1 calculation for instance module id: {}", instanceModuleDTO.getId());
+                        LOGGER.info("Starting KPI C.1 calculation for instance module id: {}",
+                                instanceModuleDTO.getId());
 
                         // Calculate analysis date
                         LocalDate analysisDate = LocalDate.now();
 
                         // Execute KPI C.1 calculation using the dedicated service
                         OutcomeStatus outcome = kpiC1DataService.executeKpiC1Calculation(
-                            instanceDTO,
-                            instanceModuleDTO,
-                            kpiConfigurationDTO,
-                            analysisDate
-                        );
-                        
-                        LOGGER.info("KPI C.1 calculation completed for instance: {} with outcome: {}", 
-                                  instanceDTO.getInstanceIdentification(), outcome);
+                                instanceDTO,
+                                instanceModuleDTO,
+                                kpiConfigurationDTO,
+                                analysisDate);
+
+                        LOGGER.info("KPI C.1 calculation completed for instance: {} with outcome: {}",
+                                instanceDTO.getInstanceIdentification(), outcome);
 
                         // Update automatic outcome of instance module
                         instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(), outcome);
@@ -109,38 +113,49 @@ public class KpiC1Job extends QuartzJobBean {
 
                         // Trigger calculateStateInstanceJob to update instance state
                         try {
-                            JobDetail job = scheduler.getJobDetail(JobKey.jobKey(JobConstant.CALCULATE_STATE_INSTANCE_JOB, "DEFAULT"));
+                            JobDetail job = scheduler
+                                    .getJobDetail(JobKey.jobKey(JobConstant.CALCULATE_STATE_INSTANCE_JOB, "DEFAULT"));
 
                             Trigger trigger = TriggerBuilder.newTrigger()
-                                .usingJobData("instanceId", instanceDTO.getId())
-                                .withSchedule(SimpleScheduleBuilder.simpleSchedule()
-                                    .withMisfireHandlingInstructionFireNow()
-                                    .withRepeatCount(0))
-                                .forJob(job)
-                                .build();
+                                    .usingJobData("instanceId", instanceDTO.getId())
+                                    .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                                            .withMisfireHandlingInstructionFireNow()
+                                            .withRepeatCount(0))
+                                    .forJob(job)
+                                    .build();
 
                             scheduler.scheduleJob(trigger);
-                            LOGGER.info("Successfully triggered calculateStateInstanceJob for instance: {}", instanceDTO.getId());
+                            LOGGER.info("Successfully triggered calculateStateInstanceJob for instance: {}",
+                                    instanceDTO.getId());
                         } catch (Exception e) {
-                            LOGGER.error("Error triggering calculateStateInstanceJob for instance: {}", instanceDTO.getId(), e);
+                            LOGGER.error("Error triggering calculateStateInstanceJob for instance: {}",
+                                    instanceDTO.getId(), e);
                         }
 
                     } catch (Exception e) {
                         LOGGER.error(
-                            "Exception during calculate kpi C.1 for instance {} - {}",
-                            instanceDTO.getInstanceIdentification(),
-                            instanceDTO.getPartnerName(),
-                            e
-                        );
+                                "Exception during calculate kpi C.1 for instance {} - {}",
+                                instanceDTO.getInstanceIdentification(),
+                                instanceDTO.getPartnerName(),
+                                e);
                     }
                 });
             }
 
         } catch (Exception exception) {
-            LOGGER.error("Problem during calculate kpi C.1", exception);
+            LOGGER.error("Problem during calculate kpi C.1, {}",
+                    JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "GenericException",
+                            instanceDTOSize),
+                    exception);
+        } catch (OutOfMemoryError oom) {
+            LOGGER.error(
+                    JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "OOM", instanceDTOSize),
+                    oom);
+            throw oom;
+        } finally {
+            LOGGER.info("End calculations for kpi C.1, profile: {}",
+                    JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "END", instanceDTOSize));
         }
-
-        LOGGER.info("End");
     }
 
     /**
@@ -150,21 +165,21 @@ public class KpiC1Job extends QuartzJobBean {
      */
     public void scheduleJobForSingleInstance(String instanceIdentification) throws Exception {
         LOGGER.info("Scheduling KpiC1Job for instance: {}", instanceIdentification);
-        
+
         // Create job detail for this specific instance
         JobDetail jobDetail = JobBuilder.newJob(KpiC1Job.class)
-            .withIdentity("KpiC1Job-" + instanceIdentification, "KPI_JOBS")
-            .usingJobData("instanceIdentification", instanceIdentification)
-            .build();
+                .withIdentity("KpiC1Job-" + instanceIdentification, "KPI_JOBS")
+                .usingJobData("instanceIdentification", instanceIdentification)
+                .build();
 
         // Create trigger to run immediately
         Trigger trigger = TriggerBuilder.newTrigger()
-            .withIdentity("KpiC1Trigger-" + instanceIdentification, "KPI_TRIGGERS")
-            .withSchedule(SimpleScheduleBuilder.simpleSchedule()
-                .withMisfireHandlingInstructionFireNow()
-                .withRepeatCount(0))
-            .forJob(jobDetail)
-            .build();
+                .withIdentity("KpiC1Trigger-" + instanceIdentification, "KPI_TRIGGERS")
+                .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                        .withMisfireHandlingInstructionFireNow()
+                        .withRepeatCount(0))
+                .forJob(jobDetail)
+                .build();
 
         // Schedule the job
         scheduler.scheduleJob(jobDetail, trigger);

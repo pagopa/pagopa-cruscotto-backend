@@ -10,7 +10,9 @@ import com.nexigroup.pagopa.cruscotto.service.dto.*;
 import lombok.AllArgsConstructor;
 
 import com.nexigroup.pagopa.cruscotto.job.config.JobConstant;
+import com.nexigroup.pagopa.cruscotto.service.util.JobUtils;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
@@ -310,8 +312,11 @@ public class KpiB1Job extends QuartzJobBean {
 
     @Override
     public void executeInternal(@NonNull JobExecutionContext context) {
-        LOGGER.info("Start calculate kpi B.1");
-
+        Instant startTime = Instant.now();
+        int instanceDTOSize = -1;
+        LOGGER.info("Start calculate kpi B.1, profile: {}",
+            JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "START", null));
+        try {
         if (!applicationProperties.getJob().getKpiB1Job().isEnabled()) {
             LOGGER.info("Job calculate kpi B.1 disabled. Exit...");
             return;
@@ -321,6 +326,8 @@ public class KpiB1Job extends QuartzJobBean {
                 ModuleCode.B1,
                 applicationProperties.getJob().getKpiB1Job().getLimit()
         );
+
+        instanceDTOSize = instanceDTOS.size();
 
         if (instanceDTOS.isEmpty()) {
             LOGGER.info("No instance to calculate B.1. Exit....");
@@ -496,7 +503,18 @@ public class KpiB1Job extends QuartzJobBean {
             errors.forEach(error -> sb.append(error).append("\n"));
             throw new RuntimeException(sb.toString());
         }
-
-        LOGGER.info("End");
+        } catch (Exception exception) {
+            LOGGER.error("Problem during calculate kpi B.1, {}",
+                JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "GenericException", instanceDTOSize),
+                exception);
+        } catch (OutOfMemoryError oom) {
+            LOGGER.error(
+                JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "OOM", instanceDTOSize),
+                oom);
+            throw oom;
+        } finally {
+            LOGGER.info("End calculations for kpi B.1, profile: {}",
+                JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "END", instanceDTOSize));
+        }
     }
 }

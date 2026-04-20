@@ -10,6 +10,7 @@ import com.nexigroup.pagopa.cruscotto.service.dto.*;
 import com.nexigroup.pagopa.cruscotto.service.util.TaxonomyValidationUtils;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,6 +33,7 @@ import org.quartz.TriggerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.quartz.QuartzJobBean;
+import com.nexigroup.pagopa.cruscotto.service.util.JobUtils;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -65,8 +67,10 @@ public class KpiA2Job extends QuartzJobBean {
 
     @Override
     protected void executeInternal(@NotNull JobExecutionContext context) {
-        LOGGER.info("Start calculate kpi A.2");
-
+        Instant startTime = Instant.now();
+        int instanceDTOSize = -1;
+        LOGGER.info("Start calculate kpi A.2, profile: {}",
+            JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "START", null));
         try {
             if (!applicationProperties.getJob().getKpiA2Job().isEnabled()) {
                 LOGGER.info("Job calculate kpi A.2 disabled. Exit...");
@@ -77,6 +81,8 @@ public class KpiA2Job extends QuartzJobBean {
                 ModuleCode.A2,
                 applicationProperties.getJob().getKpiA2Job().getLimit()
             );
+
+            instanceDTOSize = instanceDTOS.size();
 
             if (instanceDTOS.isEmpty()) {
                 LOGGER.info("No instance to calculate A.2. Exit....");
@@ -280,10 +286,18 @@ public class KpiA2Job extends QuartzJobBean {
                 }
             }
         } catch (Exception exception) {
-            LOGGER.error("Problem during calculate kpi A.2", exception);
+            LOGGER.error("Problem during calculate kpi A.2, {}",
+                JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "GenericException", instanceDTOSize),
+                exception);
+        } catch (OutOfMemoryError oom) {
+            LOGGER.error(
+                JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "OOM", instanceDTOSize),
+                oom);
+            throw oom;
+        } finally {
+            LOGGER.info("End calculations for kpi A.2, profile: {}",
+                JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "END", instanceDTOSize));
         }
-
-        LOGGER.info("End");
     }
 
     private static double roundToNDecimalPlaces(double value) {
