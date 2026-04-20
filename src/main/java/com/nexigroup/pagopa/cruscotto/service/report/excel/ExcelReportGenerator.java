@@ -96,7 +96,7 @@ public class ExcelReportGenerator {
         long max = rt.maxMemory() / (1024 * 1024);
 
         log.info(
-            "[MEMORY][{}] used={}MB free={}MB total={}MB max={}MB",
+            "MEMORY step = {} usedMb={} freeMb={} totalMb={} maxMb={}",
             step, used, free, total, max
         );
     }
