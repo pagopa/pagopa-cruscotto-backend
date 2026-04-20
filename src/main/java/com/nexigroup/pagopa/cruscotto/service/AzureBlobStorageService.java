@@ -65,6 +65,21 @@ public class AzureBlobStorageService {
         }
     }
 
+    public void uploadFromFile(String filePath, String blobPath, String fileName) {
+        if (filePath == null || filePath.isBlank()) {
+            throw new IllegalArgumentException("File path cannot be null or empty");
+        }
+        String fullPath = blobPath.endsWith("/") ? blobPath + fileName : blobPath + "/" + fileName;
+        try {
+            BlobClient blobClient = containerClient.getBlobClient(fullPath);
+            blobClient.uploadFromFile(filePath, true);
+            log.info("File uploaded to Azure Blob Storage at path: {}", fullPath);
+        } catch (Exception e) {
+            log.error("Failed to upload file to Azure Blob Storage", e);
+            throw new RuntimeException("Failed to upload file to Azure Blob Storage", e);
+        }
+    }
+
     /**
      * Downloads a file from Azure Blob Storage.
      *

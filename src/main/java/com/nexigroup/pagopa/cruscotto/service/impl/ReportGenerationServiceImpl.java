@@ -27,13 +27,19 @@ import com.nexigroup.pagopa.cruscotto.service.dto.ReportStatusEnum;
 import com.nexigroup.pagopa.cruscotto.service.exception.DuplicateReportException;
 import com.nexigroup.pagopa.cruscotto.service.exception.ReportGenerationException;
 import com.nexigroup.pagopa.cruscotto.service.exception.ReportNotFoundException;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -273,49 +279,48 @@ public class ReportGenerationServiceImpl implements ReportGenerationService {
             List<WrapperPdfFiles> pdfFiles = pdfGenerator.generatePDF(locale, context.getInstanceId());
             log.info("PDF generated successfully for report: {}, {} file(s)", reportId, pdfFiles.size());
 
-            // Generate all 3 Excel files (always)
+            // Generate Excel
             log.info("Generating Excel files for report: {}", reportId);
-
             byte[] drilldownExcel = excelGenerator.generateExcel(context.getInstanceId().toString());
-            log.info(
-                "Excel files generated successfully for report: {}, size: {} bytes",
-                reportId,
-                drilldownExcel.length
-            );
-
-            // Create ExcelFile objects
-            List<ExcelFile> excelFiles = new ArrayList<>();
+            log.info("Excel files generated successfully for report: {}, size: {} bytes", reportId, drilldownExcel.length);
 
             ExcelFile drilldownFile = new ExcelFile();
             drilldownFile.setFileName(context.getInstanceName() + ".xlsx");
             drilldownFile.setContent(drilldownExcel);
             drilldownFile.setDescription("Detailed drill-down data");
-            excelFiles.add(drilldownFile);
-
-            // Package into ZIP
-            log.debug("Packaging report: {}", reportId);
-            byte[] zipContent = packagingService.createReportPackage(context, pdfFiles, drilldownFile);
-            log.info("Report packaged successfully: {}, size: {} bytes", reportId, zipContent.length);
 
             // Generate blob name and file name
             String blobName = generateBlobName(report);
             String fileName = generateFileName(report);
 
-            // Extract blob path from blob name (remove filename)
             int lastSlashIndex = blobName.lastIndexOf('/');
             String blobPath = lastSlashIndex > 0 ? blobName.substring(0, lastSlashIndex) : "";
             String blobFileName = lastSlashIndex > 0 ? blobName.substring(lastSlashIndex + 1) : blobName;
 
-            // Upload to Azure Blob Storage
-            log.debug("Uploading report to Azure Blob Storage: {}", blobName);
-            blobStorageService.uploadFile(zipContent, blobPath, blobFileName);
-            log.info("Report uploaded successfully: {}", reportId);
+            // Stream ZIP to temp file; compute checksum inline; release PDF/Excel refs once written
+            String checksum;
+            long zipSizeBytes;
+            Path tempFile = Files.createTempFile("report-" + reportId + "-", ".zip");
+            try {
+                MessageDigest md = MessageDigest.getInstance("SHA-256");
+                try (OutputStream fos = Files.newOutputStream(tempFile);
+                     DigestOutputStream dos = new DigestOutputStream(fos, md)) {
+                    packagingService.writeReportPackage(context, pdfFiles, drilldownFile, dos);
+                }
+                pdfFiles = null;
+                drilldownExcel = null;
+                drilldownFile = null;
 
-            // Set retention policy
-            // blobStorageService.setRetentionPolicy(blobContainer, blobName, retentionDays);
+                checksum = HexFormat.of().formatHex(md.digest());
+                zipSizeBytes = Files.size(tempFile);
+                log.info("Report packaged successfully: {}, size: {} bytes", reportId, zipSizeBytes);
 
-            // Calculate checksum
-            String checksum = calculateChecksum(zipContent);
+                log.debug("Uploading report to Azure Blob Storage: {}", blobName);
+                blobStorageService.uploadFromFile(tempFile.toString(), blobPath, blobFileName);
+                log.info("Report uploaded successfully: {}", reportId);
+            } finally {
+                try { Files.deleteIfExists(tempFile); } catch (IOException ignored) { log.warn("Failed to delete temp file: {}", tempFile); }
+            }
 
             // Get package contents
             // List<String> packageContents = packagingService.getPackageContents(zipContent);
@@ -327,7 +332,7 @@ public class ReportGenerationServiceImpl implements ReportGenerationService {
             reportFile.setBlobContainer(blobContainer);
             reportFile.setFileName(fileName);
             reportFile.setContentType("application/zip");
-            reportFile.setFileSizeBytes((long) zipContent.length);
+            reportFile.setFileSizeBytes(zipSizeBytes);
             reportFile.setChecksum(checksum);
             reportFile.setUploadDate(LocalDateTime.now());
             reportFile.setExpiryDate(LocalDateTime.now().plusDays(retentionDays));
@@ -547,5 +552,20 @@ public class ReportGenerationServiceImpl implements ReportGenerationService {
         }
 
         return dto;
+    }
+}
+
+// Extract to a separate @Service bean so Spring can proxy it
+@Service
+public class ReportStatusUpdater {
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void markFailed(ReportGeneration report, String message) {
+        report.setStatus(ReportStatus.FAILED);
+        report.setGenerationEndDate(LocalDateTime.now());
+        report.setErrorMessage(message);
+        report.setRetryCount(report.getRetryCount() + 1);
+        report.setLastRetryDate(LocalDateTime.now());
+        reportGenerationRepository.save(report);
     }
 }

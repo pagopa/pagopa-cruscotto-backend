@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -72,6 +73,28 @@ public class ReportPackagingServiceImpl implements ReportPackagingService {
             log.error("Error creating report ZIP for reportId={}", context.getReportId(), e);
             throw new RuntimeException("Failed to create report package", e);
         }
+    }
+
+    @Override
+    public void writeReportPackage(ReportGenerationContext context, List<WrapperPdfFiles> pdfFiles, ExcelFile excelFile, OutputStream target) throws IOException {
+        ZipOutputStream zip = new ZipOutputStream(target);
+        if (pdfFiles != null && !pdfFiles.isEmpty()) {
+            int idx = 1;
+            for (WrapperPdfFiles pdf : pdfFiles) {
+                String filename = (pdf != null && pdf.getName() != null && !pdf.getName().isBlank())
+                    ? pdf.getName()
+                    : "report_" + idx + ".pdf";
+                byte[] content = pdf != null && pdf.getContent() != null ? pdf.getContent() : new byte[0];
+                addEntry(zip, filename, content);
+                idx++;
+            }
+        }
+        if (excelFile != null) {
+            addEntry(zip, excelFile.getFileName(), excelFile.getContent());
+        }
+        byte[] metadataBytes = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(context);
+        addEntry(zip, METADATA_FILE, metadataBytes);
+        zip.finish();
     }
 
     private void addEntry(ZipOutputStream zip, String name, byte[] content) throws IOException {

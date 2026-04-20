@@ -1,13 +1,8 @@
 package com.nexigroup.pagopa.cruscotto.service.report.excel;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Comparator;
-import java.util.List;
-
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -27,8 +22,8 @@ public class ExcelReportGenerator {
     public byte[] generateExcel(String instanceCode) {
         logMemory("START generateExcel instance=" + instanceCode);
 
-        try (Workbook workbook = new SXSSFWorkbook(100);
-             ByteArrayOutputStream out = new ByteArrayOutputStream(32 * 1024)) {
+        try (SXSSFWorkbook workbook = new SXSSFWorkbook(100);
+             ByteArrayOutputStream out = new ByteArrayOutputStream(8 * 1024 * 1024)) {
 
             logMemory("After workbook creation");
 
@@ -61,6 +56,7 @@ public class ExcelReportGenerator {
 
             logMemory("Before workbook.write");
             workbook.write(out);
+            workbook.dispose();
             logMemory("After workbook.write");
 
             byte[] result = out.toByteArray();
