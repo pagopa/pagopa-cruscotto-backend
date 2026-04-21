@@ -58,12 +58,6 @@ public class ExcelReportGenerator {
 
                 exporter.writeSheet(sheet, data);
                 logMemory("After writeSheet sheet=" + sheetName);
-
-                // rilascio memoria
-                data.clear();
-                data = null;
-
-                logMemory("After data clear sheet=" + sheetName);
             }
 
             logMemory("Before workbook.write");
