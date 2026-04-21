@@ -16,9 +16,9 @@ import org.springframework.stereotype.Service;
 public class ExcelReportGenerator {
 
     private static final Logger log = LoggerFactory.getLogger(ExcelReportGenerator.class);
-    private final List<DrillDownExcelExporter<?>> exporters;
+    private final List<DrillDownExcelExporter> exporters;
 
-    public ExcelReportGenerator(List<DrillDownExcelExporter<?>> exporters) {
+    public ExcelReportGenerator(List<DrillDownExcelExporter> exporters) {
         this.exporters = exporters.stream()
             .sorted(Comparator.comparingInt(DrillDownExcelExporter::getOrder))
             .toList();
@@ -32,7 +32,7 @@ public class ExcelReportGenerator {
 
             logMemory("After workbook creation");
 
-            for (DrillDownExcelExporter<?> exporter : exporters) {
+            for (DrillDownExcelExporter exporter : exporters) {
                 String sheetName = exporter.getSheetName();
                 log.info("Creating sheet {} for instance {}", sheetName, instanceCode);
 
