@@ -1,47 +1,43 @@
 package com.nexigroup.pagopa.cruscotto.service.report.excel;
 
-import com.nexigroup.pagopa.cruscotto.job.report.ReportGenerationJob;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
 @Service
 public class ExcelReportGenerator {
 
     private static final Logger log = LoggerFactory.getLogger(ExcelReportGenerator.class);
+    private final List<DrillDownExcelExporter<?>> exporters;
 
-    private final List<DrillDownExcelExporter> exporters;
-
-    public ExcelReportGenerator(List<DrillDownExcelExporter> exporters) {
+    public ExcelReportGenerator(List<DrillDownExcelExporter<?>> exporters) {
         this.exporters = exporters.stream()
             .sorted(Comparator.comparingInt(DrillDownExcelExporter::getOrder))
             .toList();
     }
 
     public byte[] generateExcel(String instanceCode) {
-
         logMemory("START generateExcel instance=" + instanceCode);
 
-        try (Workbook workbook = new XSSFWorkbook();
+        try (Workbook workbook = new SXSSFWorkbook(100);
              ByteArrayOutputStream out = new ByteArrayOutputStream(32 * 1024)) {
 
             logMemory("After workbook creation");
 
-            for (DrillDownExcelExporter exporter : exporters) {
+            for (DrillDownExcelExporter<?> exporter : exporters) {
                 String sheetName = exporter.getSheetName();
                 log.info("Creating sheet {} for instance {}", sheetName, instanceCode);
 
                 logMemory("Before loadData sheet=" + sheetName);
+
                 List<?> data = exporter.loadData(instanceCode);
                 logMemory(
                     "After loadData sheet=" + sheetName +
@@ -80,7 +76,6 @@ public class ExcelReportGenerator {
             throw new IllegalStateException("Errore generazione Excel", e);
         }
     }
-
 
     private void logMemory(String step) {
         Runtime rt = Runtime.getRuntime();
