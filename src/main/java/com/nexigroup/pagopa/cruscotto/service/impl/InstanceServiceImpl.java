@@ -220,13 +220,20 @@ public class InstanceServiceImpl implements InstanceService {
         jpqlSelected.offset(pageable.getOffset());
         jpqlSelected.limit(pageable.getPageSize());
 
+        Map<String, String> sortPropertyMapping = new HashMap<>();
+        sortPropertyMapping.put("predictedAnalysisStartDate", PREDICTED_DATE_ANALYSIS_FIELD);
+        sortPropertyMapping.put("predictedAnalysisEndDate", PREDICTED_DATE_ANALYSIS_FIELD);
+        sortPropertyMapping.put("analysisStartDate", ANALYSIS_PERIOD_START_DATE_FIELD);
+        sortPropertyMapping.put("analysisEndDate", ANALYSIS_PERIOD_END_DATE_FIELD);
+
         pageable
             .getSortOr(Sort.by(Sort.Direction.ASC, PREDICTED_DATE_ANALYSIS_FIELD))
             .forEach(order -> {
+                String property = sortPropertyMapping.getOrDefault(order.getProperty(), order.getProperty());
                 jpqlSelected.orderBy(
                     new OrderSpecifier<>(
                         order.isAscending() ? Order.ASC : Order.DESC,
-                        Expressions.stringPath(order.getProperty()),
+                        Expressions.stringPath(property),
                         QdslUtility.toQueryDslNullHandling(order.getNullHandling())
                     )
                 );
