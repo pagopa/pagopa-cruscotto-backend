@@ -14,6 +14,6 @@
     <!-- DML: Service Groups Data per Environment (context-filtered) -->
     <include context="dev" file="1.1.17/dml/dev/db-changelog-dev.xml" relativeToChangelogFile="true"/>
     <include context="uat" file="1.1.17/dml/uat/db.changelog-uat.xml" relativeToChangelogFile="true"/>
+    <include context="uat" file="1.1.17/dml/uat/db.changelog-uat-fix.xml" relativeToChangelogFile="true"/>
     <include context="prod" file="1.1.17/dml/prod/db.changelog-prod.xml" relativeToChangelogFile="true"/>
-
 </databaseChangeLog>
