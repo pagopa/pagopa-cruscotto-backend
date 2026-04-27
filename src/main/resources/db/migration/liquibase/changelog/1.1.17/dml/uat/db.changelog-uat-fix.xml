@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+
+
+  <changeSet id="20260427120001-fix-auth-groups" author="chatgpt">
+
+    <sql dbms="postgresql">
+
+      -- KPI PSP AMMINISTRATIVA
+      UPDATE ${database.defaultSchemaName}.auth_group
+      SET
+      TE_NOME = 'pagopa-u-adgroup-smo-kpi-psp-amministrativa',
+      TE_OBJECTID = '17732ca4-1d17-4849-aea9-17c72392ad74'
+      WHERE TE_NOME = 'pagopa-dadgroup-smo-kpi-psp-amministrativa'
+      OR TE_OBJECTID = '070c1205-c517-4fff-86cf-3b97ad772d62';
+
+      -- KPI PSP DISPOSITIVA
+      UPDATE ${database.defaultSchemaName}.auth_group
+      SET
+      TE_NOME = 'pagopa-u-adgroup-smo-kpi-psp-dispositiva',
+      TE_OBJECTID = '48379250-7a7e-46f2-9fb5-24a61171c102'
+      WHERE TE_NOME = 'pagopa-dadgroup-smo-kpi-psp-dispositiva'
+      OR TE_OBJECTID = '1d1b9ad1-6dd0-4896-9a4a-477d47e36e2f';
+
+      -- KPI PSP INFORMATIVA
+      UPDATE ${database.defaultSchemaName}.auth_group
+      SET
+      TE_NOME = 'pagopa-u-adgroup-smo-kpi-psp-informativa',
+      TE_OBJECTID = '69e4f502-3ff1-493d-810d-7ff546471c36'
+      WHERE TE_NOME = 'pagopa-dadgroup-smo-kpi-psp-informativa'
+      OR TE_OBJECTID = '9a7fcc61-d35f-4e1d-8423-3ab8acd6d33f';
+
+      -- PAYMENTS AMMINISTRATIVA
+      UPDATE ${database.defaultSchemaName}.auth_group
+      SET
+      TE_NOME = 'pagopa-u-adgroup-smo-payments-amministrativa',
+      TE_OBJECTID = '99bc2a48-6c18-4084-87ed-d776993cb9ca'
+      WHERE TE_NOME = 'pagopa-dadgroup-smo-payments-amministrativa'
+      OR TE_OBJECTID = '7269ed82-aa9e-434c-bccf-e57142ded6ea';
+
+      -- PAYMENTS DISPOSITIVA
+      UPDATE ${database.defaultSchemaName}.auth_group
+      SET
+      TE_NOME = 'pagopa-u-adgroup-smo-payments-dispositiva',
+      TE_OBJECTID = '5af1c525-d03f-4390-bf36-477fb5d5e559'
+      WHERE TE_NOME = 'pagopa-dadgroup-smo-payments-dispositiva'
+      OR TE_OBJECTID = '78087db0-38d7-432f-835c-abe583f21919';
+
+      -- PAYMENTS INFORMATIVA
+      UPDATE ${database.defaultSchemaName}.auth_group
+      SET
+      TE_NOME = 'pagopa-u-adgroup-smo-payments-informativa',
+      TE_OBJECTID = 'b9ce3bb0-691c-4f41-a24e-4025d68f09ec'
+      WHERE TE_NOME = 'pagopa-dadgroup-smo-payments-informativa'
+      OR TE_OBJECTID = 'ea116ec4-3f80-4bac-a99a-398d153261a3';
+
+    </sql>
+
+    <rollback>
+
+      -- rollback KPI PSP AMMINISTRATIVA
+      UPDATE ${database.defaultSchemaName}.auth_group
+      SET
+      TE_NOME = 'pagopa-dadgroup-smo-kpi-psp-amministrativa',
+      TE_OBJECTID = '070c1205-c517-4fff-86cf-3b97ad772d62'
+      WHERE TE_OBJECTID = '17732ca4-1d17-4849-aea9-17c72392ad74';
+
+      -- rollback KPI PSP DISPOSITIVA
+      UPDATE ${database.defaultSchemaName}.auth_group
+      SET
+      TE_NOME = 'pagopa-dadgroup-smo-kpi-psp-dispositiva',
+      TE_OBJECTID = '1d1b9ad1-6dd0-4896-9a4a-477d47e36e2f'
+      WHERE TE_OBJECTID = '48379250-7a7e-46f2-9fb5-24a61171c102';
+
+      -- rollback KPI PSP INFORMATIVA
+      UPDATE ${database.defaultSchemaName}.auth_group
+      SET
+      TE_NOME = 'pagopa-dadgroup-smo-kpi-psp-informativa',
+      TE_OBJECTID = '9a7fcc61-d35f-4e1d-8423-3ab8acd6d33f'
+      WHERE TE_OBJECTID = '69e4f502-3ff1-493d-810d-7ff546471c36';
+
+      -- rollback PAYMENTS AMMINISTRATIVA
+      UPDATE ${database.defaultSchemaName}.auth_group
+      SET
+      TE_NOME = 'pagopa-dadgroup-smo-payments-amministrativa',
+      TE_OBJECTID = '7269ed82-aa9e-434c-bccf-e57142ded6ea'
+      WHERE TE_OBJECTID = '99bc2a48-6c18-4084-87ed-d776993cb9ca';
+
+      -- rollback PAYMENTS DISPOSITIVA
+      UPDATE ${database.defaultSchemaName}.auth_group
+      SET
+      TE_NOME = 'pagopa-dadgroup-smo-payments-dispositiva',
+      TE_OBJECTID = '78087db0-38d7-432f-835c-abe583f21919'
+      WHERE TE_OBJECTID = '5af1c525-d03f-4390-bf36-477fb5d5e559';
+
+      -- rollback PAYMENTS INFORMATIVA
+      UPDATE ${database.defaultSchemaName}.auth_group
+      SET
+      TE_NOME = 'pagopa-dadgroup-smo-payments-informativa',
+      TE_OBJECTID = 'ea116ec4-3f80-4bac-a99a-398d153261a3'
+      WHERE TE_OBJECTID = 'b9ce3bb0-691c-4f41-a24e-4025d68f09ec';
+
+    </rollback>
+
+  </changeSet>
+
+</databaseChangeLog>
+
