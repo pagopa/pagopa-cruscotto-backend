@@ -508,6 +508,8 @@ public class ReportGenerationServiceImpl implements ReportGenerationService {
         dto.setRetryCount(report.getRetryCount());
         dto.setLastRetryDate(report.getLastRetryDate());
 
+        log.info("Mapping ReportGeneration to ResponseDTO for report id {} of instance with id {}, file: {}, status: {}", report.getId(), report.getInstance().getId(), report.getReportFile() != null ? report.getReportFile().getFileName() : "no file", report.getStatus().name());
+
         // Add file information if available
         if (report.getReportFile() != null) {
             ReportFile file = report.getReportFile();
@@ -517,6 +519,7 @@ public class ReportGenerationServiceImpl implements ReportGenerationService {
 
             // Generate download information if report is completed
             if (report.getStatus() == ReportStatus.COMPLETED) {
+
                 try {
                     Duration sasUrlValidity = Duration.ofHours(1);
 
@@ -540,6 +543,8 @@ public class ReportGenerationServiceImpl implements ReportGenerationService {
                         LocalDateTime.now().plus(sasUrlValidity)
                     );
                     dto.setDownloadInfo(downloadInfo);
+
+                    log.info("Download URL generated for report id {}: {}", report.getId(), downloadUrl);
                 } catch (Exception e) {
                     log.warn("Failed to generate download URL for report: {}", report.getId(), e);
                 }
