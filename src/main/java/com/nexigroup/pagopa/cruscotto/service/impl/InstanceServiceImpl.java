@@ -725,7 +725,7 @@ public class InstanceServiceImpl implements InstanceService {
             .collect(Collectors.toMap(Instance::getId, instance -> instance));
 
         // Validate partner business rules
-        validateMostRecentInstancesForArchive(instances, results, counters);
+        //validateMostRecentInstancesForArchive(instances, results, counters);
 
         // Process each instance individually
         processArchiveRequests(request.getInstanceIds(), instanceMap, results, counters, currentUser);
