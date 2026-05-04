@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+  <changeSet id="20260504120001-fix-uat-prn" author="system">
+    <sql dbms="postgresql">
+      UPDATE ${database.defaultSchemaName}.AUTH_GROUP
+      SET TE_OBJECTID = '96d5655a-700b-414b-83de-3f572487195b'
+      WHERE TE_OBJECTID = '01e88978-9b30-4abe-b2a9-b76aa5b4594c';
+
+      UPDATE ${database.defaultSchemaName}.AUTH_GROUP
+      SET TE_OBJECTID = '8c6452f9-801e-4c66-96f3-2a2026ff69f5'
+      WHERE TE_OBJECTID = 'e6425e9f-23eb-4b29-8ec7-9abc4248ff8f';
+
+      UPDATE ${database.defaultSchemaName}.AUTH_GROUP
+      SET TE_OBJECTID = 'a5f840cf-6f3f-4d03-8697-938b93006dd2'
+      WHERE TE_OBJECTID = 'a70cdde0-a88e-4dcd-941f-11a18af496e8';
+    </sql>
+
+    <rollback>
+      UPDATE ${database.defaultSchemaName}.AUTH_GROUP
+      SET TE_OBJECTID = '01e88978-9b30-4abe-b2a9-b76aa5b4594c'
+      WHERE TE_OBJECTID = '96d5655a-700b-414b-83de-3f572487195b';
+
+      UPDATE ${database.defaultSchemaName}.AUTH_GROUP
+      SET TE_OBJECTID = 'e6425e9f-23eb-4b29-8ec7-9abc4248ff8f'
+      WHERE TE_OBJECTID = '8c6452f9-801e-4c66-96f3-2a2026ff69f5';
+
+      UPDATE ${database.defaultSchemaName}.AUTH_GROUP
+      SET TE_OBJECTID = 'a70cdde0-a88e-4dcd-941f-11a18af496e8'
+      WHERE TE_OBJECTID = 'a5f840cf-6f3f-4d03-8697-938b93006dd2';
+    </rollback>
+  </changeSet>
+
+</databaseChangeLog>
+
