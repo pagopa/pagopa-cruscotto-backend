@@ -158,7 +158,8 @@ public class PagoPaRecordedTimeoutServiceImpl implements PagoPaRecordedTimeoutSe
         QPagoPaRecordedTimeout qPagoPaRecordedTimeout = QPagoPaRecordedTimeout.pagoPaRecordedTimeout;
 
         LocalDateTime startDateTime = startDate.atStartOfDay();
-        LocalDateTime endDateTime = endDate.atTime(23, 59, 59, 0);
+        LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay();
+
 
         List<Tuple> results = queryBuilder
             .createQueryFactory()
@@ -168,7 +169,7 @@ public class PagoPaRecordedTimeoutServiceImpl implements PagoPaRecordedTimeoutSe
                 qPagoPaRecordedTimeout.cfPartner
                     .eq(fiscalCodePartner)
                     .and(qPagoPaRecordedTimeout.startDate.goe(startDateTime.atZone(ZoneId.systemDefault()).toInstant()))
-                    .and(qPagoPaRecordedTimeout.endDate.loe(endDateTime.atZone(ZoneId.systemDefault()).toInstant()))
+                    .and(qPagoPaRecordedTimeout.startDate.lt(endDateTime.atZone(ZoneId.systemDefault()).toInstant()))
             )
             .groupBy(qPagoPaRecordedTimeout.station, qPagoPaRecordedTimeout.method)
             .orderBy(qPagoPaRecordedTimeout.station.asc(), qPagoPaRecordedTimeout.method.asc())
