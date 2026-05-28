@@ -105,8 +105,8 @@ public class KpiB3DataServiceImpl implements KpiB3DataService {
 
             // First delete previous results for this instanceModule
             pagopaNumeroStandinDrilldownService.deleteAllByInstanceModuleId(instanceModuleDTO.getId());
-            kpiB3DetailResultRepository.deleteAllByInstanceModuleId(instanceModuleDTO.getId());
             kpiB3AnalyticDataRepository.deleteAllByInstanceModuleId(instanceModuleDTO.getId());
+            kpiB3DetailResultRepository.deleteAllByInstanceModuleId(instanceModuleDTO.getId());
             kpiB3ResultRepository.deleteAllByInstanceModuleId(instanceModuleDTO.getId());
             // Load entities from database
             Instance instance = instanceRepository
