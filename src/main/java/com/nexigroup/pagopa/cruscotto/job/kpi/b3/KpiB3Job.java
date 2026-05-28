@@ -21,9 +21,12 @@ import com.nexigroup.pagopa.cruscotto.domain.enumeration.TypePlanned;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Instant;
+import java.time.YearMonth;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.quartz.DisallowConcurrentExecution;
@@ -401,9 +404,17 @@ public class KpiB3Job extends QuartzJobBean {
                 .mapToInt(PagopaNumeroStandin::getStandInCount)
                 .sum();
 
-            if (evaluationType.equals(EvaluationType.MESE)){
-                totalStandInEvents = filteredStandInData.stream()
-                    .mapToInt(PagopaNumeroStandin::getStandInCount)
+            if (evaluationType.equals(EvaluationType.MESE)) {
+                // KPI mensile: somma per mese e poi max tra le somme mensili
+                Map<YearMonth, Integer> monthlySumStandIn = filteredStandInData.stream()
+                    .filter(standIn -> standIn.getIntervalStart() != null)
+                    .collect(Collectors.groupingBy(
+                        standIn -> YearMonth.from(standIn.getIntervalStart()),
+                        Collectors.summingInt(PagopaNumeroStandin::getStandInCount)
+                    ));
+
+                totalStandInEvents = monthlySumStandIn.values().stream()
+                    .mapToInt(Integer::intValue)
                     .max()
                     .orElse(0);
             }
