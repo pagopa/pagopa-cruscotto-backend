@@ -21,7 +21,7 @@ import org.hibernate.type.SqlTypes;
  */
 @Entity
 @Table(name = "report_generation")
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+//@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class ReportGeneration implements Serializable {
 
     private static final long serialVersionUID = 1L;

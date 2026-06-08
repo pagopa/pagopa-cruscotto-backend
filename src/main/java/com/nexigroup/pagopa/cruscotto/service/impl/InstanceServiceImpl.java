@@ -220,13 +220,20 @@ public class InstanceServiceImpl implements InstanceService {
         jpqlSelected.offset(pageable.getOffset());
         jpqlSelected.limit(pageable.getPageSize());
 
+        Map<String, String> sortPropertyMapping = new HashMap<>();
+        sortPropertyMapping.put("predictedAnalysisStartDate", PREDICTED_DATE_ANALYSIS_FIELD);
+        sortPropertyMapping.put("predictedAnalysisEndDate", PREDICTED_DATE_ANALYSIS_FIELD);
+        sortPropertyMapping.put("analysisStartDate", ANALYSIS_PERIOD_START_DATE_FIELD);
+        sortPropertyMapping.put("analysisEndDate", ANALYSIS_PERIOD_END_DATE_FIELD);
+
         pageable
             .getSortOr(Sort.by(Sort.Direction.ASC, PREDICTED_DATE_ANALYSIS_FIELD))
             .forEach(order -> {
+                String property = sortPropertyMapping.getOrDefault(order.getProperty(), order.getProperty());
                 jpqlSelected.orderBy(
                     new OrderSpecifier<>(
                         order.isAscending() ? Order.ASC : Order.DESC,
-                        Expressions.stringPath(order.getProperty()),
+                        Expressions.stringPath(property),
                         QdslUtility.toQueryDslNullHandling(order.getNullHandling())
                     )
                 );
@@ -718,7 +725,7 @@ public class InstanceServiceImpl implements InstanceService {
             .collect(Collectors.toMap(Instance::getId, instance -> instance));
 
         // Validate partner business rules
-        validateMostRecentInstancesForArchive(instances, results, counters);
+        //validateMostRecentInstancesForArchive(instances, results, counters);
 
         // Process each instance individually
         processArchiveRequests(request.getInstanceIds(), instanceMap, results, counters, currentUser);
@@ -750,13 +757,16 @@ public class InstanceServiceImpl implements InstanceService {
 
     private void rejectPartnerInstances(Long mostRecentInstanceId, Long partnerId, List<Instance> partnerInstances, 
                                        List<InstanceArchiveResult> results, int[] counters) {
-        String errorMsg = "Cannot archive the most recent executed instance (ID: " + mostRecentInstanceId + ") for partner " + partnerId;
-        LOGGER.warn("{} - rejecting {} instances", errorMsg, partnerInstances.size());
-        
-        for (Instance instance : partnerInstances) {
-            results.add(new InstanceArchiveResult(instance.getId(), false, errorMsg));
-            counters[1]++; // failureCount
-        }
+        Instance mostRecentInstance = partnerInstances.stream()
+            .filter(i -> i.getId().equals(mostRecentInstanceId))
+            .findFirst()
+            .orElseThrow();
+        String instanceIdentification = mostRecentInstance.getInstanceIdentification();
+        String partnerName = mostRecentInstance.getPartner().getName();
+        LOGGER.warn("Cannot archive the most recent executed instance ({}) for partner {}", instanceIdentification, partnerName);
+        Map<String, String> params = Map.of("instanceIdentification", instanceIdentification, "partnerName", partnerName);
+        results.add(new InstanceArchiveResult(mostRecentInstanceId, false, "error.archive.mostRecentInstance", params));
+        counters[1]++; // failureCount
     }
 
     private void processArchiveRequests(List<Long> instanceIds, Map<Long, Instance> instanceMap, 
@@ -774,10 +784,10 @@ public class InstanceServiceImpl implements InstanceService {
                                              int[] counters, String currentUser) {
         try {
             if (instance == null) {
-                handleArchiveError(instanceId, String.format(INSTANCE_ID_NOT_EXISTS, instanceId), results, counters);
+                handleArchiveError(instanceId, "error.instance.notExists", Map.of("instanceId", instanceId.toString()), results, counters);
             } else if (instance.getStatus() != InstanceStatus.ESEGUITA) {
-                String errorMsg = "Instance " + instanceId + " must be in ESEGUITA status to be archived, current: " + instance.getStatus();
-                handleArchiveError(instanceId, errorMsg, results, counters);
+                Map<String, String> params = Map.of("instanceIdentification", instance.getInstanceIdentification(), "status", instance.getStatus().toString());
+                handleArchiveError(instanceId, "error.archive.wrongStatus", params, results, counters);
             } else {
                 archiveInstance(instance, currentUser);
                 results.add(new InstanceArchiveResult(instanceId, true));
@@ -786,13 +796,13 @@ public class InstanceServiceImpl implements InstanceService {
             }
         } catch (Exception e) {
             LOGGER.error("Error archiving instance {}: {}", instanceId, e.getMessage(), e);
-            handleArchiveError(instanceId, "Unexpected error: " + e.getMessage(), results, counters);
+            handleArchiveError(instanceId, "error.archive.unexpectedError", Map.of(), results, counters);
         }
     }
 
-    private void handleArchiveError(Long instanceId, String errorMsg, List<InstanceArchiveResult> results, int[] counters) {
-        LOGGER.warn(errorMsg);
-        results.add(new InstanceArchiveResult(instanceId, false, errorMsg));
+    private void handleArchiveError(Long instanceId, String errorKey, Map<String, String> params, List<InstanceArchiveResult> results, int[] counters) {
+        LOGGER.warn("Archive error for instance {}: {}", instanceId, errorKey);
+        results.add(new InstanceArchiveResult(instanceId, false, errorKey, params));
         counters[1]++; // failureCount
     }
 
@@ -827,14 +837,13 @@ public class InstanceServiceImpl implements InstanceService {
                 Instance instance = instanceMap.get(instanceId);
                 
                 if (instance == null) {
-                    String errorMsg = String.format(INSTANCE_ID_NOT_EXISTS, instanceId);
-                    LOGGER.warn(errorMsg);
-                    results.add(new InstanceRestoreResult(instanceId, false, errorMsg));
+                    LOGGER.warn("Instance with id {} does not exist", instanceId);
+                    results.add(new InstanceRestoreResult(instanceId, false, "error.instance.notExists", Map.of("instanceId", instanceId.toString())));
                     failureCount++;
                 } else if (instance.getStatus() != InstanceStatus.ARCHIVIATA) {
-                    String errorMsg = "Instance " + instanceId + " must be in ARCHIVIATA status to be restored, current: " + instance.getStatus();
-                    LOGGER.warn(errorMsg);
-                    results.add(new InstanceRestoreResult(instanceId, false, errorMsg));
+                    Map<String, String> params = Map.of("instanceIdentification", instance.getInstanceIdentification(), "status", instance.getStatus().toString());
+                    LOGGER.warn("Instance {} must be in ARCHIVIATA status to be restored, current: {}", instance.getInstanceIdentification(), instance.getStatus());
+                    results.add(new InstanceRestoreResult(instanceId, false, "error.restore.wrongStatus", params));
                     failureCount++;
                 } else {
                     // Restore the instance to ESEGUITA status
@@ -850,7 +859,7 @@ public class InstanceServiceImpl implements InstanceService {
                 }
             } catch (Exception e) {
                 LOGGER.error("Error restoring instance {}: {}", instanceId, e.getMessage(), e);
-                results.add(new InstanceRestoreResult(instanceId, false, "Unexpected error: " + e.getMessage()));
+                results.add(new InstanceRestoreResult(instanceId, false, "error.restore.unexpectedError", Map.of()));
                 failureCount++;
             }
         }

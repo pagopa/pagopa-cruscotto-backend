@@ -15,8 +15,8 @@ import lombok.Setter;
 @ValidRangeDate.List(
     {
         @ValidRangeDate(
-            minDate = " predictedAnalysisStartDate",
-            maxDate = " predictedAnalysisEndDate",
+            minDate = "predictedAnalysisStartDate",
+            maxDate = "predictedAnalysisEndDate",
             pattern = "dd/MM/yyyy",
             field = "FIELD@predictedAnalysisStartDateEndDate"
         ),

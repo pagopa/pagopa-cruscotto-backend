@@ -52,11 +52,11 @@ public class RangeDateValidator implements ConstraintValidator<ValidRangeDate, O
             return result;
         }
         catch(ParseException parseException) {
-            logger.error("Problemi formattazione date");
+            logger.error("Problemi formattazione date", parseException);
 
             return true;
         }  catch(Exception exception) {
-            logger.error("Problemi validazione date");
+            logger.error("Problemi validazione date", exception);
 
             return true;
         }

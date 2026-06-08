@@ -92,7 +92,7 @@ public interface PagopaSendRepository extends JpaRepository<PagopaSend, Long>, J
     );
 
     @Query("""
-    SELECT SUM(DISTINCT p.notificationNumber)
+    SELECT SUM( p.notificationNumber)
     FROM PagopaSend p
     WHERE (COALESCE(:listInstitutionFiscalCode, NULL) IS NULL OR p.cfInstitution IN :listInstitutionFiscalCode)
       AND p.date BETWEEN :startDate AND :endDate

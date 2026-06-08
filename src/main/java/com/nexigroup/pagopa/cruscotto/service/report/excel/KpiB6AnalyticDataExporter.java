@@ -33,7 +33,7 @@ public class KpiB6AnalyticDataExporter implements DrillDownExcelExporter<KpiAnal
 
     @Override
     public int getOrder() {
-        return 7;
+        return 8;
     }
 
     @Override

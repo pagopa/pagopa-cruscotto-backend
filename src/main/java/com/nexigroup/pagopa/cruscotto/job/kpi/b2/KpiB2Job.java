@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
+import com.nexigroup.pagopa.cruscotto.service.util.JobUtils;
 
 @Component
 @AllArgsConstructor
@@ -268,7 +269,11 @@ public class KpiB2Job extends QuartzJobBean {
 
     @Override
     protected void executeInternal(@NotNull JobExecutionContext context) {
-        LOGGER.info("Start calculate kpi B.2");
+        Instant startTime = Instant.now();
+        int instanceDTOSize = -1;
+        LOGGER.info("Start calculate kpi B.2, profile: {}",
+            JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "START", null));
+        try {
         if (!applicationProperties.getJob().getKpiB2Job().isEnabled()) {
             LOGGER.info("Job calculate kpi B.2 disabled. Exit...");
             return;
@@ -277,6 +282,7 @@ public class KpiB2Job extends QuartzJobBean {
             ModuleCode.B2,
             applicationProperties.getJob().getKpiB2Job().getLimit()
         );
+        instanceDTOSize = instanceDTOS.size();
         if (instanceDTOS.isEmpty()) {
             LOGGER.info("No instance to calculate B.2. Exit....");
             return;
@@ -465,7 +471,19 @@ public class KpiB2Job extends QuartzJobBean {
             errors.forEach(error -> sb.append(error).append("\n"));
             throw new RuntimeException(sb.toString());
         }
-        LOGGER.info("End");
+        } catch (Exception exception) {
+            LOGGER.error("Problem during calculate kpi B.2, {}",
+                JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "GenericException", instanceDTOSize),
+                exception);
+        } catch (OutOfMemoryError oom) {
+            LOGGER.error(
+                JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "OOM", instanceDTOSize),
+                oom);
+            throw oom;
+        } finally {
+            LOGGER.info("End calculations for kpi B.2, profile: {}",
+                JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "END", instanceDTOSize));
+        }
     }
 
     private static double roundToNDecimalPlaces(double value) {

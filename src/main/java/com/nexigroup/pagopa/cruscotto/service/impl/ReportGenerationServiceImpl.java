@@ -44,6 +44,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -273,7 +274,7 @@ public class ReportGenerationServiceImpl implements ReportGenerationService {
             log.info("PDF generated successfully for report: {}, {} file(s)", reportId, pdfFiles.size());
 
             // Generate all 3 Excel files (always)
-            log.debug("Generating Excel files for report: {}", reportId);
+            log.info("Generating Excel files for report: {}", reportId);
 
             byte[] drilldownExcel = excelGenerator.generateExcel(context.getInstanceId().toString());
             log.info(
@@ -347,17 +348,24 @@ public class ReportGenerationServiceImpl implements ReportGenerationService {
             log.info("Report generation completed successfully: {}", reportId);
         } catch (Exception e) {
             log.error("Failed to generate report: {}", reportId, e);
-
-            // Update status to FAILED
-            report.setStatus(ReportStatus.FAILED);
-            report.setGenerationEndDate(LocalDateTime.now());
-            report.setErrorMessage(e.getMessage());
-            report.setRetryCount(report.getRetryCount() + 1);
-            report.setLastRetryDate(LocalDateTime.now());
-            reportGenerationRepository.save(report);
-
-            //throw new ReportGenerationException("Failed to generate report: " + reportId, e);
+            reportStatusToFailed(report, e.getMessage());
+        }catch (OutOfMemoryError oom) {
+            log.error("Failed to generate report: {}", reportId, oom);
+            reportStatusToFailed(report, oom.getMessage());
+            throw oom;
         }
+    }
+
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    private void reportStatusToFailed(ReportGeneration report, String e) {
+        // Update status to FAILED
+        report.setStatus(ReportStatus.FAILED);
+        report.setGenerationEndDate(LocalDateTime.now());
+        report.setErrorMessage(e);
+        report.setRetryCount(report.getRetryCount() + 1);
+        report.setLastRetryDate(LocalDateTime.now());
+        reportGenerationRepository.save(report);
     }
 
     @Override
@@ -500,6 +508,8 @@ public class ReportGenerationServiceImpl implements ReportGenerationService {
         dto.setRetryCount(report.getRetryCount());
         dto.setLastRetryDate(report.getLastRetryDate());
 
+        log.info("Mapping ReportGeneration to ResponseDTO for report id {} of instance with id {}, file: {}, status: {}", report.getId(), report.getInstance().getId(), report.getReportFile() != null ? report.getReportFile().getFileName() : "no file", report.getStatus().name());
+
         // Add file information if available
         if (report.getReportFile() != null) {
             ReportFile file = report.getReportFile();
@@ -509,6 +519,7 @@ public class ReportGenerationServiceImpl implements ReportGenerationService {
 
             // Generate download information if report is completed
             if (report.getStatus() == ReportStatus.COMPLETED) {
+
                 try {
                     Duration sasUrlValidity = Duration.ofHours(1);
 
@@ -532,6 +543,8 @@ public class ReportGenerationServiceImpl implements ReportGenerationService {
                         LocalDateTime.now().plus(sasUrlValidity)
                     );
                     dto.setDownloadInfo(downloadInfo);
+
+                    log.info("Download URL generated for report id {}: {}", report.getId(), downloadUrl);
                 } catch (Exception e) {
                     log.warn("Failed to generate download URL for report: {}", report.getId(), e);
                 }

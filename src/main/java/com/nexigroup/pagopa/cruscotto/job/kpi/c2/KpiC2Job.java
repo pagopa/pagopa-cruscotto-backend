@@ -4,6 +4,7 @@ import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.job.config.JobConstant;
+import com.nexigroup.pagopa.cruscotto.service.util.JobUtils;
 import com.nexigroup.pagopa.cruscotto.repository.PagopaApiLogRepository;
 import com.nexigroup.pagopa.cruscotto.repository.PagopaSendRepository;
 import com.nexigroup.pagopa.cruscotto.service.*;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -44,13 +46,14 @@ public class KpiC2Job extends QuartzJobBean {
     private final PagopaSendRepository pagopaSendRepository;
 
     public KpiC2Job(
-        InstanceService instanceService,
-        InstanceModuleService instanceModuleService,
-        ApplicationProperties applicationProperties,
-        KpiConfigurationService kpiConfigurationService,
-        KpiC2DataService kpiC2DataService,
-        PagopaApiLogRepository pagopaApiLogRepository,
-        Scheduler scheduler, AnagInstitutionService anagInstitutionService, PagopaSendRepository pagopaSendRepository) {
+            InstanceService instanceService,
+            InstanceModuleService instanceModuleService,
+            ApplicationProperties applicationProperties,
+            KpiConfigurationService kpiConfigurationService,
+            KpiC2DataService kpiC2DataService,
+            PagopaApiLogRepository pagopaApiLogRepository,
+            Scheduler scheduler, AnagInstitutionService anagInstitutionService,
+            PagopaSendRepository pagopaSendRepository) {
         this.instanceService = instanceService;
         this.instanceModuleService = instanceModuleService;
         this.applicationProperties = applicationProperties;
@@ -64,8 +67,10 @@ public class KpiC2Job extends QuartzJobBean {
     @Override
     @Transactional
     protected void executeInternal(@NonNull JobExecutionContext context) {
-        LOGGER.info("Start calculate kpi C.2");
-
+        Instant startTime = Instant.now();
+        int instanceDTOSize = -1;
+        LOGGER.info("Start calculate kpi C.2, profile: {}",
+                JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "START", null));
         try {
             if (!applicationProperties.getJob().getKpiC2Job().isEnabled()) {
                 LOGGER.info("Job calculate kpi C.2 disabled. Exit...");
@@ -73,9 +78,8 @@ public class KpiC2Job extends QuartzJobBean {
             }
 
             List<InstanceDTO> instanceDTOS = instanceService.findInstanceToCalculate(
-                ModuleCode.C2,
-                applicationProperties.getJob().getKpiC2Job().getLimit()
-            );
+                    ModuleCode.C2,
+                    applicationProperties.getJob().getKpiC2Job().getLimit());
 
             if (instanceDTOS.isEmpty()) {
                 LOGGER.info("No instances to calculate for kpi C.2");
@@ -84,23 +88,35 @@ public class KpiC2Job extends QuartzJobBean {
 
             LOGGER.info("Found {} instances to calculate for kpi C.2", instanceDTOS.size());
 
+            instanceDTOSize = instanceDTOS.size();
+
             KpiConfigurationDTO kpiConfigurationDTO = kpiConfigurationService
-                .findKpiConfigurationByCode(ModuleCode.C2.code)
-                .orElseThrow(() -> new RuntimeException("KPI Configuration not found for module C.2"));
+                    .findKpiConfigurationByCode(ModuleCode.C2.code)
+                    .orElseThrow(() -> new RuntimeException("KPI Configuration not found for module C.2"));
 
             for (InstanceDTO instanceDTO : instanceDTOS) {
                 try {
                     processInstance(instanceDTO, kpiConfigurationDTO);
                 } catch (Exception e) {
-                    LOGGER.error("Error processing instance {} for kpi C.2: {}", instanceDTO.getId(), e.getMessage(), e);
+                    LOGGER.error("Error processing instance {} for kpi C.2: {}", instanceDTO.getId(), e.getMessage(),
+                            e);
                 }
             }
 
         } catch (Exception e) {
-            LOGGER.error("Error in KPI C.2 job execution: {}", e.getMessage(), e);
+            LOGGER.error("Problem during calculate kpi C.2, {}",
+                    JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "GenericException",
+                            instanceDTOSize),
+                    e);
+        } catch (OutOfMemoryError oom) {
+            LOGGER.error(
+                    JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "OOM", instanceDTOSize),
+                    oom);
+            throw oom;
+        } finally {
+            LOGGER.info("End calculations for kpi C.2, profile: {}",
+                    JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "END", instanceDTOSize));
         }
-
-        LOGGER.info("End calculate kpi C.2");
     }
 
     private void processInstance(InstanceDTO instanceDTO, KpiConfigurationDTO kpiConfigurationDTO) {
@@ -109,8 +125,8 @@ public class KpiC2Job extends QuartzJobBean {
         try {
             // Find the instance module to update the status
             InstanceModuleDTO instanceModuleDTO = instanceModuleService
-                .findOne(instanceDTO.getId(), kpiConfigurationDTO.getModuleId())
-                .orElseThrow(() -> new RuntimeException("KPI C.2 InstanceModule not found"));
+                    .findOne(instanceDTO.getId(), kpiConfigurationDTO.getModuleId())
+                    .orElseThrow(() -> new RuntimeException("KPI C.2 InstanceModule not found"));
 
             processInstanceModule(instanceDTO, instanceModuleDTO, kpiConfigurationDTO);
 
@@ -120,7 +136,7 @@ public class KpiC2Job extends QuartzJobBean {
     }
 
     private void processInstanceModule(InstanceDTO instanceDTO, InstanceModuleDTO instanceModuleDTO,
-                                       KpiConfigurationDTO kpiConfigurationDTO) {
+            KpiConfigurationDTO kpiConfigurationDTO) {
         LOGGER.info("Processing instance module {} for KPI C.2", instanceModuleDTO.getId());
 
         try {
@@ -128,37 +144,42 @@ public class KpiC2Job extends QuartzJobBean {
             filter.setPartnerId(instanceDTO.getPartnerId());
             List<AnagInstitutionDTO> inistutionListPartner = anagInstitutionService.findAllNoPaging(filter);
             List<String> listInstitutionFiscalCode = inistutionListPartner.stream()
-                .map(anagInstitutionDTO -> anagInstitutionDTO.getInstitutionIdentification().getFiscalCode())
-                .distinct() // <-- rimuove i duplicati
-                .toList();
+                    .map(anagInstitutionDTO -> anagInstitutionDTO.getInstitutionIdentification().getFiscalCode())
+                    .distinct() // <-- rimuove i duplicati
+                    .toList();
 
-            // REQUISITO: Verifica prerequisiti - controllo presenza dati API log per il periodo
-            if (!hasPagoPaSendDataForPeriod(instanceDTO,listInstitutionFiscalCode)) {
-                LOGGER.warn("SKIPPING KPI C.2 calculation for instance {} - No API log data for analysis period {} to {}",
-                    instanceDTO.getId(),
-                    instanceDTO.getAnalysisPeriodStartDate(),
-                    instanceDTO.getAnalysisPeriodEndDate());
+            // REQUISITO: Verifica prerequisiti - controllo presenza dati API log per il
+            // periodo
+            if (!hasPagoPaSendDataForPeriod(instanceDTO, listInstitutionFiscalCode)) {
+                LOGGER.warn(
+                        "SKIPPING KPI C.2 calculation for instance {} - No API log data for analysis period {} to {}",
+                        instanceDTO.getId(),
+                        instanceDTO.getAnalysisPeriodStartDate(),
+                        instanceDTO.getAnalysisPeriodEndDate());
                 try {
                     LocalDate analysisDate = calculateAnalysisDate(instanceDTO, instanceModuleDTO);
                     OutcomeStatus noDataOutcome = kpiC2DataService.saveKpiC2Results(instanceDTO, instanceModuleDTO,
-                        kpiConfigurationDTO, analysisDate, OutcomeStatus.OK);
+                            kpiConfigurationDTO, analysisDate, OutcomeStatus.OK);
                     instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(), noDataOutcome);
 
                     // Trigger calculateStateInstanceJob anche per il caso no-data
-                    JobDetail job = scheduler.getJobDetail(JobKey.jobKey(JobConstant.CALCULATE_STATE_INSTANCE_JOB, "DEFAULT"));
+                    JobDetail job = scheduler
+                            .getJobDetail(JobKey.jobKey(JobConstant.CALCULATE_STATE_INSTANCE_JOB, "DEFAULT"));
                     Trigger trigger = TriggerBuilder.newTrigger()
-                        .usingJobData("instanceId", instanceDTO.getId())
-                        .withSchedule(SimpleScheduleBuilder.simpleSchedule()
-                            .withMisfireHandlingInstructionFireNow()
-                            .withRepeatCount(0))
-                        .forJob(job)
-                        .build();
+                            .usingJobData("instanceId", instanceDTO.getId())
+                            .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                                    .withMisfireHandlingInstructionFireNow()
+                                    .withRepeatCount(0))
+                            .forJob(job)
+                            .build();
                     scheduler.scheduleJob(trigger);
 
-                    LOGGER.info("No data case: set outcome OK and triggered calculateStateInstanceJob for instance: {}", instanceDTO.getId());
+                    LOGGER.info("No data case: set outcome OK and triggered calculateStateInstanceJob for instance: {}",
+                            instanceDTO.getId());
 
                 } catch (Exception e) {
-                    LOGGER.error("Error handling no-data case for instance {}: {}", instanceDTO.getId(), e.getMessage(), e);
+                    LOGGER.error("Error handling no-data case for instance {}: {}", instanceDTO.getId(), e.getMessage(),
+                            e);
                 }
 
                 return; // Non eseguire l'analisi se non ci sono dati
@@ -171,33 +192,36 @@ public class KpiC2Job extends QuartzJobBean {
             LocalDate analysisDate = calculateAnalysisDate(instanceDTO, instanceModuleDTO);
 
             LOGGER.info("Calculating KPI C.2 for instance {} on date {} (period: {} to {})",
-                instanceDTO.getId(), analysisDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                instanceDTO.getAnalysisPeriodStartDate(), instanceDTO.getAnalysisPeriodEndDate());
+                    instanceDTO.getId(), analysisDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                    instanceDTO.getAnalysisPeriodStartDate(), instanceDTO.getAnalysisPeriodEndDate());
 
             // Implementazione logica KPI C.2 basata sull'analisi
             OutcomeStatus outcome = calculateKpiC2Outcome(instanceDTO, kpiConfigurationDTO, listInstitutionFiscalCode);
 
             LOGGER.info("KPI C.2 outcome for instance {}: {} (Partner: {})",
-                instanceDTO.getId(), outcome, instanceDTO.getPartnerFiscalCode());
+                    instanceDTO.getId(), outcome, instanceDTO.getPartnerFiscalCode());
 
             // Salva i risultati tramite il service esistente
             OutcomeStatus finalOutcome = kpiC2DataService.saveKpiC2Results(instanceDTO, instanceModuleDTO,
-                kpiConfigurationDTO, analysisDate, outcome);
+                    kpiConfigurationDTO, analysisDate, outcome);
 
-            // Update automatic outcome of instance module with the final outcome (potentially corrected for monthly evaluation)
+            // Update automatic outcome of instance module with the final outcome
+            // (potentially corrected for monthly evaluation)
             instanceModuleService.updateAutomaticOutcome(instanceModuleDTO.getId(), finalOutcome);
 
             LOGGER.info("Instance module {} updated with final outcome: {}", instanceModuleDTO.getId(), finalOutcome);
 
             // Trigger calculateStateInstanceJob to update instance state
             try {
-                JobDetail job = scheduler.getJobDetail(JobKey.jobKey(JobConstant.CALCULATE_STATE_INSTANCE_JOB, "DEFAULT"));
+                JobDetail job = scheduler
+                        .getJobDetail(JobKey.jobKey(JobConstant.CALCULATE_STATE_INSTANCE_JOB, "DEFAULT"));
 
                 Trigger trigger = TriggerBuilder.newTrigger()
-                    .usingJobData("instanceId", instanceDTO.getId())
-                    .withSchedule(SimpleScheduleBuilder.simpleSchedule().withMisfireHandlingInstructionFireNow().withRepeatCount(0))
-                    .forJob(job)
-                    .build();
+                        .usingJobData("instanceId", instanceDTO.getId())
+                        .withSchedule(SimpleScheduleBuilder.simpleSchedule().withMisfireHandlingInstructionFireNow()
+                                .withRepeatCount(0))
+                        .forJob(job)
+                        .build();
 
                 scheduler.scheduleJob(trigger);
 
@@ -205,24 +229,25 @@ public class KpiC2Job extends QuartzJobBean {
 
             } catch (Exception e) {
                 LOGGER.error("Error triggering calculateStateInstanceJob for instance {}: {}",
-                    instanceDTO.getId(), e.getMessage(), e);
+                        instanceDTO.getId(), e.getMessage(), e);
             }
 
             LOGGER.info("KPI C.2 calculation completed for instance module {} with final outcome: {}",
-                instanceModuleDTO.getId(), finalOutcome);
+                    instanceModuleDTO.getId(), finalOutcome);
 
         } catch (Exception e) {
             LOGGER.error("Error processing instance module {} for KPI C.2: {}",
-                instanceModuleDTO.getId(), e.getMessage(), e);
+                    instanceModuleDTO.getId(), e.getMessage(), e);
 
-            // In caso di errore, salva il risultato con outcome KO solo se il problema non è mancanza dati
+            // In caso di errore, salva il risultato con outcome KO solo se il problema non
+            // è mancanza dati
             try {
                 LocalDate analysisDate = calculateAnalysisDate(instanceDTO, instanceModuleDTO);
                 kpiC2DataService.saveKpiC2Results(instanceDTO, instanceModuleDTO,
-                    kpiConfigurationDTO, analysisDate, OutcomeStatus.KO);
+                        kpiConfigurationDTO, analysisDate, OutcomeStatus.KO);
             } catch (Exception saveException) {
                 LOGGER.error("Error saving error outcome for instance module {}: {}",
-                    instanceModuleDTO.getId(), saveException.getMessage(), saveException);
+                        instanceModuleDTO.getId(), saveException.getMessage(), saveException);
             }
         }
     }
@@ -239,7 +264,8 @@ public class KpiC2Job extends QuartzJobBean {
     }
 
     /**
-     * Verifica se esistono dati nella tabella pagopa_apilog per il periodo dell'istanza.
+     * Verifica se esistono dati nella tabella pagopa_apilog per il periodo
+     * dell'istanza.
      * Se non esistono record per il periodo, l'analisi non deve essere effettuata.
      *
      * @param instanceDTO               l'istanza da analizzare
@@ -252,29 +278,35 @@ public class KpiC2Job extends QuartzJobBean {
         // aaaaaa
         if (periodStart == null || periodEnd == null) {
             LOGGER.warn("Analysis period not defined for instance {}: start={}, end={}",
-                instanceDTO.getId(), periodStart, periodEnd);
+                    instanceDTO.getId(), periodStart, periodEnd);
             return false;
         }
 
-        Long numberInstitutionSend = pagopaSendRepository.calculateTotalNumberInstitutionSend(null, listInstitutionFiscalCode, periodStart.atStartOfDay(), endOfDay(periodEnd));
-        Boolean hasData = numberInstitutionSend>0 ? true : false;
+        Long numberInstitutionSend = pagopaSendRepository.calculateTotalNumberInstitutionSend(null,
+                listInstitutionFiscalCode, periodStart.atStartOfDay(), endOfDay(periodEnd));
+        Boolean hasData = numberInstitutionSend > 0 ? true : false;
         LOGGER.info("API log data check for period {} to {}: {}",
-            periodStart, periodEnd, hasData ? "DATA FOUND" : "NO DATA");
+                periodStart, periodEnd, hasData ? "DATA FOUND" : "NO DATA");
 
         return hasData;
     }
-    private LocalDateTime endOfDay(LocalDate date){
+
+    private LocalDateTime endOfDay(LocalDate date) {
         return LocalDateTime.of(date, LocalTime.MAX);
     }
+
     /**
      * Calcola l'outcome del KPI C.2 basato sulla logica dell'analisi.
      * Considera il tipo di valutazione configurata:
-     * - TOTALE: Verifica la percentuale di request "paCreate" rispetto a "GPD"/"ACA" sull'intero periodo
-     * - MESE: Se almeno un mese ha esito KO nei detail results, l'esito complessivo è KO
+     * - TOTALE: Verifica la percentuale di request "paCreate" rispetto a
+     * "GPD"/"ACA" sull'intero periodo
+     * - MESE: Se almeno un mese ha esito KO nei detail results, l'esito complessivo
+     * è KO
      */
-    private OutcomeStatus calculateKpiC2Outcome(InstanceDTO instanceDTO, KpiConfigurationDTO kpiConfigurationDTO, List<String> inistutionListPartner) {
+    private OutcomeStatus calculateKpiC2Outcome(InstanceDTO instanceDTO, KpiConfigurationDTO kpiConfigurationDTO,
+            List<String> inistutionListPartner) {
         LOGGER.info("Calculating KPI C.2 outcome for instance {} partner {} with evaluation type: {}",
-            instanceDTO.getId(), instanceDTO.getPartnerFiscalCode(), kpiConfigurationDTO.getEvaluationType());
+                instanceDTO.getId(), instanceDTO.getPartnerFiscalCode(), kpiConfigurationDTO.getEvaluationType());
 
         try {
             LocalDate periodStart = instanceDTO.getAnalysisPeriodStartDate();
@@ -283,19 +315,21 @@ public class KpiC2Job extends QuartzJobBean {
 
             LOGGER.info("Analysis period: {} to {} for partner: {}", periodStart, periodEnd, partnerFiscalCode);
 
-            // REQUISITO: Verifica prerequisiti - se non esistono dati nella tabella pagopa_apilog
+            // REQUISITO: Verifica prerequisiti - se non esistono dati nella tabella
+            // pagopa_apilog
             // per il periodo dell'istanza, l'analisi non deve essere effettuata
-            if (!hasPagoPaSendDataForPeriod(instanceDTO,inistutionListPartner)) {
+            if (!hasPagoPaSendDataForPeriod(instanceDTO, inistutionListPartner)) {
                 LOGGER.warn("SKIPPING KPI C.2 analysis for instance {} - No API log data found for period {} to {}",
-                    instanceDTO.getId(), periodStart, periodEnd);
+                        instanceDTO.getId(), periodStart, periodEnd);
                 throw new RuntimeException("No API log data available for analysis period");
             }
 
             // Verifica il tipo di valutazione configurata
             if (kpiConfigurationDTO.getEvaluationType() != null &&
-                kpiConfigurationDTO.getEvaluationType().toString().equals("MESE")) {
+                    kpiConfigurationDTO.getEvaluationType().toString().equals("MESE")) {
 
-                LOGGER.info("Using MONTHLY evaluation type - outcome will be determined by checking detail results after saving");
+                LOGGER.info(
+                        "Using MONTHLY evaluation type - outcome will be determined by checking detail results after saving");
 
                 // Per la valutazione mensile, il calcolo iniziale restituisce sempre OK
                 // L'outcome finale sarà determinato dal KpiC2DataServiceImpl controllando
@@ -305,12 +339,13 @@ public class KpiC2Job extends QuartzJobBean {
             } else {
                 // Valutazione TOTALE: usa la logica sui dati complessivi del periodo
                 LOGGER.info("Using TOTAL evaluation type - calculating outcome on entire period");
-                return calculateTotalPeriodOutcome(partnerFiscalCode, periodStart, periodEnd, kpiConfigurationDTO, inistutionListPartner);
+                return calculateTotalPeriodOutcome(partnerFiscalCode, periodStart, periodEnd, kpiConfigurationDTO,
+                        inistutionListPartner);
             }
 
         } catch (Exception e) {
             LOGGER.error("Error calculating KPI C.2 outcome for instance {}: {}",
-                instanceDTO.getId(), e.getMessage(), e);
+                    instanceDTO.getId(), e.getMessage(), e);
             return OutcomeStatus.KO;
         }
     }
@@ -319,28 +354,39 @@ public class KpiC2Job extends QuartzJobBean {
      * Calcola l'outcome basato sui dati del periodo totale.
      */
     private OutcomeStatus calculateTotalPeriodOutcome(String partnerFiscalCode, LocalDate periodStart,
-                                                      LocalDate periodEnd, KpiConfigurationDTO kpiConfigurationDTO, List<String> inistutionListPartner) {
+            LocalDate periodEnd, KpiConfigurationDTO kpiConfigurationDTO, List<String> inistutionListPartner) {
 
         // Query per contare le request dalla tabella pagopa_apilog usando il repository
-        Long totalNumebrInstitution = inistutionListPartner != null ? inistutionListPartner.size() : 0L;//pagopaSendRepository.calculateTotalNumberInsitution(null,  inistutionListPartner);
-        Long totalNumebrInstitutionSend = pagopaSendRepository.calculateTotalNumberInstitutionSend(null, inistutionListPartner ,periodStart.atStartOfDay(), endOfDay(periodEnd));
-        BigDecimal percentageInstitution = KpiC2ServiceImpl.getPercentagePeriodInstitution(totalNumebrInstitution, totalNumebrInstitutionSend);
+        Long totalNumebrInstitution = inistutionListPartner != null ? inistutionListPartner.size() : 0L;// pagopaSendRepository.calculateTotalNumberInsitution(null,
+                                                                                                        // inistutionListPartner);
+        Long totalNumebrInstitutionSend = pagopaSendRepository.calculateTotalNumberInstitutionSend(null,
+                inistutionListPartner, periodStart.atStartOfDay(), endOfDay(periodEnd));
+        BigDecimal percentageInstitution = KpiC2ServiceImpl.getPercentagePeriodInstitution(totalNumebrInstitution,
+                totalNumebrInstitutionSend);
 
-        Long totalNumberPayment = pagopaSendRepository.calculateTotalNumberPayment(partnerFiscalCode, inistutionListPartner,periodStart.atStartOfDay(), endOfDay(periodEnd));
-        Long totalNumberNotification = pagopaSendRepository.calculateTotalNumberNotification(partnerFiscalCode, inistutionListPartner,periodStart.atStartOfDay(), endOfDay(periodEnd));
-        BigDecimal percentageNotification = KpiC2ServiceImpl.getPercentagePeriodNotification(totalNumberPayment, totalNumberNotification);
+        Long totalNumberPayment = pagopaSendRepository.calculateTotalNumberPayment(partnerFiscalCode,
+                inistutionListPartner, periodStart.atStartOfDay(), endOfDay(periodEnd));
+        Long totalNumberNotification = pagopaSendRepository.calculateTotalNumberNotification(partnerFiscalCode,
+                inistutionListPartner, periodStart.atStartOfDay(), endOfDay(periodEnd));
+        BigDecimal percentageNotification = KpiC2ServiceImpl.getPercentagePeriodNotification(totalNumberPayment,
+                totalNumberNotification);
 
         // Gestione valori null (nel caso non ci siano dati)
-        if (totalNumebrInstitution == null) totalNumebrInstitution = 0L;
-        if (totalNumebrInstitutionSend == null) totalNumebrInstitutionSend = 0L;
+        if (totalNumebrInstitution == null)
+            totalNumebrInstitution = 0L;
+        if (totalNumebrInstitutionSend == null)
+            totalNumebrInstitutionSend = 0L;
 
         LOGGER.info("API requests for partner {}: TOT  GPD/ACA={}, KO GPD/ACA={}",
-            partnerFiscalCode, totalNumebrInstitution, totalNumebrInstitutionSend);
-
+                partnerFiscalCode, totalNumebrInstitution, totalNumebrInstitutionSend);
 
         // Recupera soglia e tolleranza dalla configurazione
-        Double institutionTolerance = kpiConfigurationDTO.getInstitutionTolerance() !=null ? kpiConfigurationDTO.getInstitutionTolerance().doubleValue():0.0;
-        Double notificationTolerance = kpiConfigurationDTO.getNotificationTolerance()!=null ? kpiConfigurationDTO.getNotificationTolerance().doubleValue():0.0;
+        Double institutionTolerance = kpiConfigurationDTO.getInstitutionTolerance() != null
+                ? kpiConfigurationDTO.getInstitutionTolerance().doubleValue()
+                : 0.0;
+        Double notificationTolerance = kpiConfigurationDTO.getNotificationTolerance() != null
+                ? kpiConfigurationDTO.getNotificationTolerance().doubleValue()
+                : 0.0;
 
         BigDecimal toleranceInstitutionBD = BigDecimal.valueOf(institutionTolerance);
         BigDecimal toleranceNotificationBD = BigDecimal.valueOf(notificationTolerance);
@@ -355,7 +401,7 @@ public class KpiC2Job extends QuartzJobBean {
                 "percentageInstitution={}%, percentageNotification={}%" +
                 ", toleranceInstitution={}%, toleranceNotification={}%, " +
                 "outcome={}",
-            percentageInstitution, percentageNotification, institutionTolerance, notificationTolerance, outcome);
+                percentageInstitution, percentageNotification, institutionTolerance, notificationTolerance, outcome);
         return outcome;
     }
 
@@ -370,15 +416,15 @@ public class KpiC2Job extends QuartzJobBean {
 
         try {
             JobDetail jobDetail = org.quartz.JobBuilder.newJob(KpiC2Job.class)
-                .withIdentity("kpiC2Job-" + instanceIdentification + "-" + System.currentTimeMillis())
-                .build();
+                    .withIdentity("kpiC2Job-" + instanceIdentification + "-" + System.currentTimeMillis())
+                    .build();
 
             Trigger trigger = TriggerBuilder.newTrigger()
-                .withIdentity("kpiC2Trigger-" + instanceIdentification + "-" + System.currentTimeMillis())
-                .forJob(jobDetail)
-                .withSchedule(SimpleScheduleBuilder.simpleSchedule())
-                .startNow()
-                .build();
+                    .withIdentity("kpiC2Trigger-" + instanceIdentification + "-" + System.currentTimeMillis())
+                    .forJob(jobDetail)
+                    .withSchedule(SimpleScheduleBuilder.simpleSchedule())
+                    .startNow()
+                    .build();
 
             scheduler.scheduleJob(jobDetail, trigger);
 
@@ -386,7 +432,7 @@ public class KpiC2Job extends QuartzJobBean {
 
         } catch (Exception e) {
             LOGGER.error("Error scheduling KPI C.2 job for instance {}: {}",
-                instanceIdentification, e.getMessage(), e);
+                    instanceIdentification, e.getMessage(), e);
         }
     }
 }
