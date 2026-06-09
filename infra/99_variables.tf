@@ -48,3 +48,9 @@ variable "hostname" {
   default     = null
   description = "Hostname for the API"
 }
+
+variable "crusc8_aud" {
+  type = string
+  default     = null
+  description = "audience claim for JWT validation" # azure app service principal audience, used in JWT validation
+}
