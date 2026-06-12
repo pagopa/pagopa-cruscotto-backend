@@ -39,21 +39,29 @@ public final class TaxonomyValidationUtils {
 
         String taxonomyTakingsIdentifier;
         try {
-            // Ensure transferCategory ends with "/"
-            if (!transferCategory.endsWith("/")) {
-                transferCategory = transferCategory + "/";
-            }
-
-            // Extract takingsIdentifier according to PagoPa logic
             if (transferCategory.startsWith("9/")) {
-                taxonomyTakingsIdentifier = transferCategory.substring(0, 12);
+                // Already starts with 9/, just ensure trailing slash
+                taxonomyTakingsIdentifier = transferCategory.endsWith("/") 
+                    ? transferCategory 
+                    : transferCategory + "/";
+            } else if (transferCategory.startsWith("6/")) {
+                // Replace 6/ with 9/, preserving trailing slash
+                String withoutPrefix = transferCategory.substring(2);  // Remove "6/"
+                String withSlash = withoutPrefix.endsWith("/") 
+                    ? withoutPrefix 
+                    : withoutPrefix + "/";
+                taxonomyTakingsIdentifier = "9/" + withSlash;
             } else {
-                taxonomyTakingsIdentifier = "9/" + transferCategory.substring(0, 10);
+                // For other cases, prepend 9/ and ensure trailing slash
+                String withSlash = transferCategory.endsWith("/") 
+                    ? transferCategory 
+                    : transferCategory + "/";
+                taxonomyTakingsIdentifier = "9/" + withSlash;
             }
         } catch (Exception e) {
             LOGGER.error("Error in parsing transferCategory {}", transferCategory, e);
             return false;
-        }
+        } 
 
         // Use cache to avoid repeated lookups
         return transferCategoryMap.computeIfAbsent(taxonomyTakingsIdentifier, taxonomyTakingsIdentifierSet::contains);
