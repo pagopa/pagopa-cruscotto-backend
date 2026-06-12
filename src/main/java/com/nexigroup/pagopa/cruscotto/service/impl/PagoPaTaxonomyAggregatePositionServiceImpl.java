@@ -69,9 +69,6 @@ public class PagoPaTaxonomyAggregatePositionServiceImpl implements PagoPaTaxonom
         LocalDateTime startDateTime = day.atStartOfDay();
         LocalDateTime endDateTime = day.atTime(23, 59, 59, 0);
 
-        LOGGER.info(startDateTime.toString());
-        LOGGER.info(endDateTime.toString());
-
         return queryBuilder
             .createQueryFactory()
             .select(

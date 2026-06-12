@@ -319,8 +319,6 @@ public class KpiA1Job extends QuartzJobBean {
                                             .getAnalysisPeriodEndDate()
                                             .plusDays(1))
                                         .forEach(date -> {
-                                            LOGGER.info("Date {}",
-                                                date);
 
                                             Month currentMonth = date
                                                 .getMonth();
