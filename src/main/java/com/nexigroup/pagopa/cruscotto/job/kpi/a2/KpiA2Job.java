@@ -156,7 +156,6 @@ public class KpiA2Job extends QuartzJobBean {
                                 .getAnalysisPeriodStartDate()
                                 .datesUntil(instanceDTO.getAnalysisPeriodEndDate().plusDays(1))
                                 .forEach(date -> {
-                                    LOGGER.info("Date {}", date);
 
                                     List<PagoPaTaxonomyAggregatePositionDTO> pagoPaTaxonomyAggregatePositionDTOS =
                                         pagoPaTaxonomyAggregatePositionService.findAllRecordIntoDayForPartner(
