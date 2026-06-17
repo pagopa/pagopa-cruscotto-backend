@@ -22,48 +22,70 @@ public final class TaxonomyValidationUtils {
 
     /**
      * Determines if a payment has a correct taxonomic code.
-     * 
+     *
      * @param transferCategory the transfer category to validate
      * @param taxonomyTakingsIdentifierSet the set of valid takingsIdentifiers from taxonomy
      * @param transferCategoryMap cache to avoid repeated calculations
      * @return true if the taxonomic code is correct, false otherwise
      */
+
     public static boolean isCorrectPayment(
         String transferCategory,
         Set<String> taxonomyTakingsIdentifierSet,
-        Map<String, Boolean> transferCategoryMap
-    ) {
-        if (StringUtils.isBlank(transferCategory) || CollectionUtils.isEmpty(taxonomyTakingsIdentifierSet)) {
+        Map<String, Boolean> transferCategoryMap) {
+
+        if (StringUtils.isBlank(transferCategory)
+            || CollectionUtils.isEmpty(taxonomyTakingsIdentifierSet)) {
             return false;
         }
 
-        String taxonomyTakingsIdentifier;
         try {
-            if (transferCategory.startsWith("9/")) {
-                // Already starts with 9/, just ensure trailing slash
-                taxonomyTakingsIdentifier = transferCategory.endsWith("/") 
-                    ? transferCategory 
-                    : transferCategory + "/";
-            } else if (transferCategory.startsWith("6/")) {
-                // Replace 6/ with 9/, preserving trailing slash
-                String withoutPrefix = transferCategory.substring(2);  // Remove "6/"
-                String withSlash = withoutPrefix.endsWith("/") 
-                    ? withoutPrefix 
-                    : withoutPrefix + "/";
-                taxonomyTakingsIdentifier = "9/" + withSlash;
-            } else {
-                // For other cases, prepend 9/ and ensure trailing slash
-                String withSlash = transferCategory.endsWith("/") 
-                    ? transferCategory 
-                    : transferCategory + "/";
-                taxonomyTakingsIdentifier = "9/" + withSlash;
-            }
-        } catch (Exception e) {
-            LOGGER.error("Error in parsing transferCategory {}", transferCategory, e);
-            return false;
-        } 
+            String taxonomyTakingsIdentifier =
+                extractTaxonomyTakingsIdentifier(transferCategory);
 
-        // Use cache to avoid repeated lookups
-        return transferCategoryMap.computeIfAbsent(taxonomyTakingsIdentifier, taxonomyTakingsIdentifierSet::contains);
+            return transferCategoryMap.computeIfAbsent(
+                taxonomyTakingsIdentifier,
+                key -> taxonomyTakingsIdentifierSet.stream()
+                    .anyMatch(value -> value.contains(key))
+            );
+
+        } catch (Exception e) {
+            LOGGER.error(
+                "Error in parsing transferCategory {}",
+                transferCategory,
+                e);
+
+            return false;
+        }
     }
+
+    public static String extractTaxonomyTakingsIdentifier(String transferCategory) {
+
+        if (StringUtils.isBlank(transferCategory)) {
+            return null;
+        }
+
+        String value = transferCategory.trim();
+
+        int firstSlash = value.indexOf('/');
+
+        if (firstSlash < 0) {
+            return value;
+        }
+
+        int secondSlash = value.indexOf('/', firstSlash + 1);
+
+        if (secondSlash < 0) {
+            return value;
+        }
+
+        // se termina proprio con il secondo slash
+        if (secondSlash == value.length() - 1) {
+            return value;
+        }
+
+        return value.substring(0, secondSlash);
+    }
+
+
 }
