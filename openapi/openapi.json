@@ -9587,6 +9587,109 @@
           }
         }
       }
+    },
+    "/api/reports/{id}/download": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "Download a completed report file",
+        "description": "Downloads a completed report file directly from private Azure Blob Storage. The backend acts as a proxy, authenticating with Azure and streaming the file to the client. This approach works with private blob storage where clients cannot access blobs directly.",
+        "operationId": "downloadReport",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Report ID",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "example": 123
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "File downloaded successfully",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            },
+            "headers": {
+              "Content-Disposition": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Attachment with filename",
+                "example": "attachment; filename=\"Report_INST_06457411004_20260610_180651396.zip\""
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "File size in bytes",
+                "example": "15728640"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Report is not completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-08T15:30:00Z",
+                  "status": 400,
+                  "error": "Bad Request",
+                  "message": "Report is not completed, current status: IN_PROGRESS",
+                  "path": "/api/reports/123/download"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Report not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-08T15:30:00Z",
+                  "status": 404,
+                  "error": "Not Found",
+                  "message": "Report not found: 123",
+                  "path": "/api/reports/123/download"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error - Failed to download from blob storage",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-08T15:30:00Z",
+                  "status": 500,
+                  "error": "Internal Server Error",
+                  "message": "Failed to download report file: File not found in Azure Blob Storage",
+                  "path": "/api/reports/123/download"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {

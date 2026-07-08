@@ -553,4 +553,37 @@ public class ReportGenerationServiceImpl implements ReportGenerationService {
 
         return dto;
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public byte[] downloadReportFile(Long reportId) throws ReportNotFoundException, ReportGenerationException {
+        log.debug("Downloading report file for report: {}", reportId);
+        
+        ReportGeneration report = reportGenerationRepository.findById(reportId)
+            .orElseThrow(() -> new ReportNotFoundException("Report not found: " + reportId));
+        
+        if (report.getStatus() != ReportStatus.COMPLETED) {
+            throw new ReportGenerationException("Report is not completed, current status: " + report.getStatus());
+        }
+        
+        ReportFile reportFile = report.getReportFile();
+        if (reportFile == null) {
+            throw new ReportGenerationException("Report file not found for report: " + reportId);
+        }
+        
+        try {
+            // Extract blob path and filename from blobName
+            String blobName = reportFile.getBlobName();
+            int lastSlashIndex = blobName.lastIndexOf('/');
+            String blobPath = lastSlashIndex > 0 ? blobName.substring(0, lastSlashIndex) : "";
+            String blobFileName = lastSlashIndex > 0 ? blobName.substring(lastSlashIndex + 1) : blobName;
+            
+            byte[] fileContent = blobStorageService.download(blobPath, blobFileName);
+            log.info("Report file downloaded successfully for report id: {}, size: {} bytes", reportId, fileContent.length);
+            return fileContent;
+        } catch (Exception e) {
+            log.error("Failed to download report file for report: {}", reportId, e);
+            throw new ReportGenerationException("Failed to download report file: " + e.getMessage(), e);
+        }
+    }
 }
