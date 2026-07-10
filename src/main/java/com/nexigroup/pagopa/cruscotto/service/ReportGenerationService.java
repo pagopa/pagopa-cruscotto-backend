@@ -5,6 +5,8 @@ import com.nexigroup.pagopa.cruscotto.service.dto.ReportGenerationRequestDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.ReportGenerationResponseDTO;
 import com.nexigroup.pagopa.cruscotto.service.exception.DuplicateReportException;
 import com.nexigroup.pagopa.cruscotto.service.exception.ReportGenerationException;
+import com.nexigroup.pagopa.cruscotto.service.exception.ReportNotFoundException;
+
 import java.util.List;
 
 /**
