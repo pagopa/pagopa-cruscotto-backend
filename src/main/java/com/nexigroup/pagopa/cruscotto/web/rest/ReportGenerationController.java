@@ -78,4 +78,30 @@ public class ReportGenerationController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
         }
     }
+
+    @GetMapping("/{id}/download")
+    public ResponseEntity<byte[]> downloadReport(@PathVariable Long id) {
+        try {
+            ReportGenerationResponseDTO report = reportService.getReportStatus(id);
+            
+            if (report == null) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Report not found");
+            }
+            
+            if (!"COMPLETED".equals(report.getStatus())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+                    "Report is not completed, current status: " + report.getStatus());
+            }
+            
+            byte[] fileContent = reportService.downloadReportFile(id);
+            
+            return ResponseEntity.ok()
+                .header("Content-Disposition", "attachment; filename=\"" + report.getFileName() + "\"")
+                .header("Content-Type", "application/octet-stream")
+                .header("Content-Length", String.valueOf(fileContent.length))
+                .body(fileContent);
+        } catch (ReportGenerationException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
+        }
+    }
 }

@@ -5,6 +5,8 @@ import com.nexigroup.pagopa.cruscotto.service.dto.ReportGenerationRequestDTO;
 import com.nexigroup.pagopa.cruscotto.service.dto.ReportGenerationResponseDTO;
 import com.nexigroup.pagopa.cruscotto.service.exception.DuplicateReportException;
 import com.nexigroup.pagopa.cruscotto.service.exception.ReportGenerationException;
+import com.nexigroup.pagopa.cruscotto.service.exception.ReportNotFoundException;
+
 import java.util.List;
 
 /**
@@ -63,6 +65,17 @@ public interface ReportGenerationService {
      * @return the report status
      */
     ReportGenerationResponseDTO getReportStatus(Long reportId);
+
+    /**
+     * Download a report file directly from blob storage.
+     * Used when blob storage is private and cannot be accessed directly by the client.
+     *
+     * @param reportId the report ID
+     * @return the file content as byte array
+     * @throws ReportNotFoundException if report not found
+     * @throws ReportGenerationException if report is not completed or download fails
+     */
+    byte[] downloadReportFile(Long reportId) throws ReportNotFoundException, ReportGenerationException;
 
     /**
      * Get the download URL for a report.
