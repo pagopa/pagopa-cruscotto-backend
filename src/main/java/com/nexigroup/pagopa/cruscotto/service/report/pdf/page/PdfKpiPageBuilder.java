@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.service.report.pdf.model.PdfKpiPage;
 import com.nexigroup.pagopa.cruscotto.service.report.pdf.model.PdfKpiSummaryItem;
 import com.nexigroup.pagopa.cruscotto.service.report.pdf.model.PdfKpiTableDescriptor;
@@ -26,7 +27,9 @@ public class PdfKpiPageBuilder {
             if (tables != null && !tables.isEmpty()) {
                 addPagesWithTables(pages, kpi, tables);
             } else {
-                pages.add(new PdfKpiPage(kpi, null, true, true));
+                if (!kpi.getCode().equals(ModuleCode.B7.code.toString())){
+                    pages.add(new PdfKpiPage(kpi, null, true, true));
+                }
             }
         }
 
