@@ -9,6 +9,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import com.nexigroup.pagopa.cruscotto.domain.*;
+import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisOutcome;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.repository.*;
@@ -68,6 +69,7 @@ public class PDFReportGenerator {
     private final KpiC1ResultRepository kpiC1ResultRepository;
     private final KpiC2ResultRepository kpiC2ResultRepository;
 
+    private final InstanceModuleRepository instanceModuleRepository;
 
 
 
@@ -202,6 +204,18 @@ public class PDFReportGenerator {
 
 
         /* =========================
+               KPI B.7 DATA
+        ========================= */
+        InstanceModule byInstanceAndModuleCode = instanceModuleRepository
+            .findByInstanceAndModuleCode(instanceId, ModuleCode.B7.code.toString());
+        if (byInstanceAndModuleCode !=null){
+            AnalysisOutcome manualOutcome = byInstanceAndModuleCode.getManualOutcome();
+            OutcomeStatus outcomes =transformToOutcomeStatus(manualOutcome);
+            kpis.add(buildFromOutcome("B.7", effectiveLocale, outcomes));
+
+        }
+
+        /* =========================
                KPI B.8 DATA
         ========================= */
         List<KpiB8DetailResult> b8 = kpiB8DetailResultRepository.findLatestByInstanceId(instanceId);
@@ -299,7 +313,7 @@ public class PDFReportGenerator {
 
 
         List<WrapperPdfFiles> listPdfFiles = new LinkedList<>();
-        
+
         // Use instance identification for file names
         String instanceName = instance.getInstanceIdentification();
 
@@ -330,6 +344,12 @@ public class PDFReportGenerator {
 
         log.info("Set PDF generato in {}", workDir.toAbsolutePath());
         return listPdfFiles;
+    }
+
+    private OutcomeStatus transformToOutcomeStatus(AnalysisOutcome manualOutcome) {
+        if (manualOutcome.equals(AnalysisOutcome.KO)) return OutcomeStatus.KO;
+        if (manualOutcome.equals(AnalysisOutcome.OK)) return OutcomeStatus.OK;
+        return OutcomeStatus.STANDBY;
     }
 
     private void copy(String classpath, Path target) throws IOException {
