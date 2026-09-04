@@ -671,7 +671,7 @@
               <include>**/*IT*</include>
               <include>**/*IntTest*</include>
             </includes>
-            <argLine>@{argLine} -Dspring.profiles.active=${profile.test}</argLine>
+            <argLine>@{argLine} -Dspring.profiles.active=${profile.test} -Djdk.internal.platform.UseCgroupV2=false</argLine>
           </configuration>
           <executions>
             <execution>
