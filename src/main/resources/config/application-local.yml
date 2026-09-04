@@ -49,8 +49,8 @@ spring:
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     url: jdbc:postgresql://10.8.79.25:3306/qualification_dashboard
-    username: qualification_dashboard
-    password: qualification_dashboard
+    username: ${ENV_DATASOURCE_USERNAME:qualification_dashboard}
+    password: ${ENV_DATASOURCE_PASSWORD:qualification_dashboard}
     hikari:
       poolName: Hikari
       auto-commit: false
@@ -69,8 +69,8 @@ spring:
       org.quartz.dataSource.cruscotto.provider: hikaricp
       org.quartz.dataSource.cruscotto.driver: org.postgresql.Driver
       org.quartz.dataSource.cruscotto.URL: jdbc:postgresql://10.8.79.25:3306/qualification_dashboard
-      org.quartz.dataSource.cruscotto.user: qualification_dashboard
-      org.quartz.dataSource.cruscotto.password: qualification_dashboard
+      org.quartz.dataSource.cruscotto.user:  ${ENV_DATASOURCE_USERNAME:qualification_dashboard}
+      org.quartz.dataSource.cruscotto.password: ${ENV_DATASOURCE_PASSWORD:qualification_dashboard}
       org.quartz.dataSource.cruscotto.validationQuery: select 1
       org.quartz.dataSource.cruscotto.maxConnections: 10
 server:
