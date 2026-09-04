@@ -10,7 +10,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
+import org.quartz.JobKey;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,6 +32,9 @@ class KpiB5JobTest {
     @Mock
     private JobExecutionContext jobExecutionContext;
 
+    @Mock
+    private JobDetail jobDetail;
+
     @InjectMocks
     private KpiB5Job kpiB5Job;
 
@@ -46,6 +51,8 @@ class KpiB5JobTest {
         jobConfig.setKpiB5Job(kpiB5JobConfig);
 
         lenient().when(applicationProperties.getJob()).thenReturn(jobConfig);
+        lenient().when(jobExecutionContext.getJobDetail()).thenReturn(jobDetail);
+        lenient().when(jobDetail.getKey()).thenReturn(new JobKey("kpi-b5", "test"));
     }
 
     @Test

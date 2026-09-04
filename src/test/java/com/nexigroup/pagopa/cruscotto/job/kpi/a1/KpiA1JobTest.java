@@ -5,9 +5,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -25,7 +23,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
+import org.quartz.JobKey;
 import org.quartz.Scheduler;
 
 import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
@@ -100,6 +100,9 @@ class KpiA1JobTest {
     private JobExecutionContext jobExecutionContext;
 
     @Mock
+    private JobDetail jobDetail;
+
+    @Mock
     private ApplicationProperties.Job jobConfig;
 
     @Mock
@@ -151,6 +154,8 @@ class KpiA1JobTest {
         // Setup application properties chain
         when(applicationProperties.getJob()).thenReturn(jobConfig);
         when(jobConfig.getKpiA1Job()).thenReturn(kpiA1JobConfig);
+        lenient().when(jobExecutionContext.getJobDetail()).thenReturn(jobDetail);
+        lenient().when(jobDetail.getKey()).thenReturn(new JobKey("kpi-a1", "test"));
     }
 
     @Nested
@@ -246,15 +251,15 @@ class KpiA1JobTest {
             // Given
             when(instanceModuleService.findOne(testInstance.getId(), testKpiConfiguration.getModuleId()))
                 .thenReturn(Optional.of(testInstanceModule));
-            
+
             // Mock findByInstanceModuleId which is called before delete
             when(kpiA1AnalyticDataService.findByInstanceModuleId(testInstanceModule.getId()))
                 .thenReturn(Collections.emptyList());
-            
+
             when(kpiA1AnalyticDataService.deleteAllByInstanceModule(testInstanceModule.getId())).thenReturn(1);
             when(kpiA1DetailResultService.deleteAllByInstanceModule(testInstanceModule.getId())).thenReturn(1);
             when(kpiA1ResultService.deleteAllByInstanceModule(testInstanceModule.getId())).thenReturn(1);
-            
+
             // No stations found
             when(pagoPaRecordedTimeoutService.findAllStationAndMethodIntoPeriodForPartner(
                 testInstance.getPartnerFiscalCode(),
@@ -284,11 +289,11 @@ class KpiA1JobTest {
             // Given
             when(instanceModuleService.findOne(testInstance.getId(), testKpiConfiguration.getModuleId()))
                 .thenReturn(Optional.of(testInstanceModule));
-            
+
             // Mock findByInstanceModuleId which is called before delete
             when(kpiA1AnalyticDataService.findByInstanceModuleId(testInstanceModule.getId()))
                 .thenReturn(Collections.emptyList());
-            
+
             when(kpiA1AnalyticDataService.deleteAllByInstanceModule(testInstanceModule.getId())).thenReturn(1);
             when(kpiA1DetailResultService.deleteAllByInstanceModule(testInstanceModule.getId())).thenReturn(1);
             when(kpiA1ResultService.deleteAllByInstanceModule(testInstanceModule.getId())).thenReturn(1);
@@ -329,14 +334,14 @@ class KpiA1JobTest {
         void shouldHandlePlannedShutdownExclusion() {
             // Given
             testKpiConfiguration.setExcludePlannedShutdown(true);
-            
+
             when(instanceModuleService.findOne(testInstance.getId(), testKpiConfiguration.getModuleId()))
                 .thenReturn(Optional.of(testInstanceModule));
-            
+
             // Mock findByInstanceModuleId which is called before delete
             when(kpiA1AnalyticDataService.findByInstanceModuleId(testInstanceModule.getId()))
                 .thenReturn(Collections.emptyList());
-            
+
             when(kpiA1AnalyticDataService.deleteAllByInstanceModule(testInstanceModule.getId())).thenReturn(1);
             when(kpiA1DetailResultService.deleteAllByInstanceModule(testInstanceModule.getId())).thenReturn(1);
             when(kpiA1ResultService.deleteAllByInstanceModule(testInstanceModule.getId())).thenReturn(1);
@@ -385,14 +390,14 @@ class KpiA1JobTest {
         void shouldHandleUnplannedShutdownExclusion() {
             // Given
             testKpiConfiguration.setExcludeUnplannedShutdown(true);
-            
+
             when(instanceModuleService.findOne(testInstance.getId(), testKpiConfiguration.getModuleId()))
                 .thenReturn(Optional.of(testInstanceModule));
-            
+
             // Mock findByInstanceModuleId which is called before delete
             when(kpiA1AnalyticDataService.findByInstanceModuleId(testInstanceModule.getId()))
                 .thenReturn(Collections.emptyList());
-            
+
             when(kpiA1AnalyticDataService.deleteAllByInstanceModule(testInstanceModule.getId())).thenReturn(1);
             when(kpiA1DetailResultService.deleteAllByInstanceModule(testInstanceModule.getId())).thenReturn(1);
             when(kpiA1ResultService.deleteAllByInstanceModule(testInstanceModule.getId())).thenReturn(1);
@@ -438,14 +443,14 @@ class KpiA1JobTest {
         void shouldHandleMonthlyEvaluationType() {
             // Given
             testKpiConfiguration.setEvaluationType(EvaluationType.MESE);
-            
+
             when(instanceModuleService.findOne(testInstance.getId(), testKpiConfiguration.getModuleId()))
                 .thenReturn(Optional.of(testInstanceModule));
-            
+
             // Mock findByInstanceModuleId which is called before delete
             when(kpiA1AnalyticDataService.findByInstanceModuleId(testInstanceModule.getId()))
                 .thenReturn(Collections.emptyList());
-            
+
             when(kpiA1AnalyticDataService.deleteAllByInstanceModule(testInstanceModule.getId())).thenReturn(1);
             when(kpiA1DetailResultService.deleteAllByInstanceModule(testInstanceModule.getId())).thenReturn(1);
             when(kpiA1ResultService.deleteAllByInstanceModule(testInstanceModule.getId())).thenReturn(1);
