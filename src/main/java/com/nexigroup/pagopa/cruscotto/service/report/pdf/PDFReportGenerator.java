@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -76,8 +78,16 @@ public class PDFReportGenerator {
     public List<WrapperPdfFiles> generatePDF(Locale locale, Long instanceId) throws Exception {
 
         // Temp WorkDir
-        Path workDir = Files.createTempDirectory("pdf-preview-");
+        Set<PosixFilePermission> permissions = Set.of(
+            PosixFilePermission.OWNER_READ,
+            PosixFilePermission.OWNER_WRITE,
+            PosixFilePermission.OWNER_EXECUTE
+        );
 
+        Path workDir = Files.createTempDirectory(
+            "pdf-preview-",
+            PosixFilePermissions.asFileAttribute(permissions)
+        );
         Map<String, Object> baseVars = new LinkedHashMap<>();
         Map<String, List<PdfKpiTableDescriptor>> kpiTables =  new LinkedHashMap<>();
         Instance instance = instanceRepository.findByIdWithPartner(instanceId);

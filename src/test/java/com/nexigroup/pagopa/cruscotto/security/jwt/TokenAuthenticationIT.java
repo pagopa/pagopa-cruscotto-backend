@@ -6,7 +6,7 @@ import com.nexigroup.pagopa.cruscotto.IntegrationTest;
 import com.nexigroup.pagopa.cruscotto.config.Constants;
 import com.nexigroup.pagopa.cruscotto.domain.AuthGroup;
 import com.nexigroup.pagopa.cruscotto.repository.AuthGroupRepository;
-import com.nexigroup.pagopa.cruscotto.security.helper.CookieHelper;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -73,8 +73,6 @@ class TokenAuthenticationIT {
 //        expectUnauthorized(createExpiredToken(jwtKey));
 //    }
 
-    private void expectOk(String token) throws Exception {
-        mvc.perform(MockMvcRequestBuilders.get("/api/authenticate").cookie(CookieHelper.generateCookie(Constants.OIDC_ACCESS_TOKEN, token, Duration.ofHours(1)))).andExpect(status().isOk());
-    }
+
 
 }

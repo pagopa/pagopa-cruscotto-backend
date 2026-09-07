@@ -16,7 +16,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
+import org.quartz.JobKey;
 import org.quartz.Scheduler;
 
 import java.util.Arrays;
@@ -57,6 +59,9 @@ class KpiB4JobTest {
     private JobExecutionContext jobExecutionContext;
 
     @Mock
+    private JobDetail jobDetail;
+
+    @Mock
     private com.nexigroup.pagopa.cruscotto.repository.PagopaApiLogRepository pagopaApiLogRepository;
 
     @InjectMocks
@@ -74,6 +79,8 @@ class KpiB4JobTest {
         jobConfig.setKpiB4Job(kpiB4JobConfig);
 
         lenient().when(applicationProperties.getJob()).thenReturn(jobConfig);
+        lenient().when(jobExecutionContext.getJobDetail()).thenReturn(jobDetail);
+        lenient().when(jobDetail.getKey()).thenReturn(new JobKey("kpi-b4", "test"));
     }
 
     @Test

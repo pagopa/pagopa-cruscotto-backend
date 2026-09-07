@@ -15,7 +15,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
+import org.quartz.JobKey;
 import org.quartz.Scheduler;
 
 import java.time.LocalDate;
@@ -54,6 +56,9 @@ class KpiC1JobTest {
     @Mock
     private JobExecutionContext jobExecutionContext;
 
+    @Mock
+    private JobDetail jobDetail;
+
     @InjectMocks
     private KpiC1Job kpiC1Job;
 
@@ -70,6 +75,8 @@ class KpiC1JobTest {
         jobConfig.setKpiC1Job(kpiC1JobConfig);
 
         lenient().when(applicationProperties.getJob()).thenReturn(jobConfig);
+        lenient().when(jobExecutionContext.getJobDetail()).thenReturn(jobDetail);
+        lenient().when(jobDetail.getKey()).thenReturn(new JobKey("kpi-c1", "test"));
     }
 
     @Test
