@@ -17,7 +17,7 @@ on:
   workflow_dispatch:
 
 env:
-  PROJECT_KEY: pagopa_pagopa-cruscotto-backend
+  PROJECT_KEY: pagopa_pagopa-cruscotto-backend2
 
 permissions:
   id-token: write
