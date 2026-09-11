@@ -96,7 +96,7 @@ jhipster:
     authentication:
       jwt:
         # This token must be encoded using Base64 and be at least 256 bits long (you can type `openssl rand -base64 64` on your command line to generate a 512 bits one)
-        base64-secret: H0yzX/OFWdXBNaWy8b7Q9ZgZA1vTtJSbtuDZlD7tDNCBVRtXuubLzVSVV+B8wUA5p2w3pQ33YNRpHE/SENWqO0F9koHqYcRcN10oj9XSf6jYE5F71PoNJhZEgoLFhsHB2pMqrlUfrIGwotMUKTCDCydsa70BbGBL9JlsREXBKAg=
+        base64-secret:  ${ENV_JWT_KEY:key}
         # Token is valid 24 hours
         token-validity-in-seconds: 86400
         token-validity-in-seconds-for-remember-me: 2592000
@@ -123,19 +123,19 @@ application:
     proxy-host:
     proxy-port:
     taxonomy:
-      url: https://api.platform.pagopa.it/taxonomy/service/v1
+      url: ${ENV_TAXONOMY_URL:http://localhost:8080/taxonomy/v1}
     back-office:
-      url: https://api.dev.platform.pagopa.it/backoffice/helpdesk/v1
-      api-key-name: ocp-apim-subscription-key
-      api-key-value: df10628ae8044fdfabd6bbbdc71bdc26
+      url: ${ENV_BACK_OFFICE_URL:http://localhost:8080/back-office/v1}
+      api-key-name: ${ENV_BACK_OFFICE_API_KEY_NAME:api-key-name}
+      api-key-value: ${ENV_BACK_OFFICE_API_KEY_VALUE:api-key-value}
     cache:
-      url: https://api.dev.platform.pagopa.it/api-config-cache/p/v1
-      api-key-name: ocp-apim-subscription-key
-      api-key-value: 52f2f22cf8f94544baf9bfd2760f3dbd
+      url: ${ENV_CACHE_URL:http://localhost:8080/back-office/v1}
+      api-key-name: ${ENV_CACHE_API_KEY_NAME:api-key-name}
+      api-key-value: ${ENV_CACHE_API_KEY_VALUE:api-key-value}
     stand-in:
-      url: https://api.uat.platform.pagopa.it/technical-support/stand-in/api/v1
-      api-key-name: ocp-apim-subscription-key
-      api-key-value: b514df56c9c943bba6cbcf778d698dce #71bce556ab0d4017828fabfe262b8178
+      url: ${ENV_STAND_IN_URL:http://localhost:8080/technical-support/stand-in/api/v1}
+      api-key-name: ${ENV_STAND_IN_API_KEY_NAME:api-key-name}
+      api-key-value: ${ENV_STAND_IN_API_KEY_VALUE:api-key-value}
   auth-group:
     super-admin: NEXI
   job:
