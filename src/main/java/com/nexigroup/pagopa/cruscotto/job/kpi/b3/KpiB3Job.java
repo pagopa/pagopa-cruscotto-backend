@@ -1,6 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.job.kpi.b3;
 
 import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
+import com.nexigroup.pagopa.cruscotto.job.kpi.KpiJobLogContext;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
@@ -92,7 +93,7 @@ public class KpiB3Job extends QuartzJobBean {
                 LOGGER.info("Kpi configuration {}", kpiConfigurationDTO);
 
                 instanceDTOS.forEach(instanceDTO -> {
-                    try {
+                    try (KpiJobLogContext ignored = KpiJobLogContext.open("KPIB3", instanceDTO)) {
                         LOGGER.info(
                             "Start elaboration instance {} for partner {} - {} with period {} - {}",
                             instanceDTO.getInstanceIdentification(),

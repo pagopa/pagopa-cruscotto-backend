@@ -87,7 +87,7 @@ public class GenericKpiJob extends QuartzJobBean {
 
     private void processInstances(String moduleCode, KpiConfigurationDTO kpiConfiguration, List<InstanceDTO> instances) {
         for (InstanceDTO instance : instances) {
-            try {
+            try (KpiJobLogContext ignored = KpiJobLogContext.open("KPI" + moduleCode.replace(".", "").replace("_", ""), instance)) {
                 processInstance(moduleCode, kpiConfiguration, instance);
             } catch (Exception e) {
                 LOGGER.error("Error processing instance {} for KPI {}: {}", 

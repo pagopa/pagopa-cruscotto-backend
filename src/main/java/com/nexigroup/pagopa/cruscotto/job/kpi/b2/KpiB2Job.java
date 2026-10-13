@@ -1,6 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.job.kpi.b2;
 
 import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
+import com.nexigroup.pagopa.cruscotto.job.kpi.KpiJobLogContext;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.*;
 import com.nexigroup.pagopa.cruscotto.job.config.JobConstant;
 import com.nexigroup.pagopa.cruscotto.service.*;
@@ -294,7 +295,7 @@ public class KpiB2Job extends QuartzJobBean {
         List<String> errors = new ArrayList<>();
         for (InstanceDTO instanceDTO : instanceDTOS) {
             AtomicReference<OutcomeStatus> kpiB2ResultFinalOutcome = new AtomicReference<>(OutcomeStatus.OK);
-            try {
+            try (KpiJobLogContext ignored = KpiJobLogContext.open("KPIB2", instanceDTO)) {
                 LOGGER.info(
                     "Start elaboration instance {} for partner {} - {} with period {} - {}",
                     instanceDTO.getInstanceIdentification(),

@@ -8,19 +8,15 @@
 
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
-    <springProfile name="dev">
-      <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
-    </springProfile>
+    <springProperty scope="context" name="service.name" source="spring.application.name" defaultValue="pagopa-cruscotto-backend" />
+    <springProperty scope="context" name="environment" source="spring.profiles.active" defaultValue="unknown" />
 
-    <springProfile name="local">
-      <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
-    </springProfile>
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+      <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+        <layout class="com.nexigroup.pagopa.cruscotto.config.EcsJsonLayout" />
+      </encoder>
+    </appender>
 
-    <springProfile name="devpagopa">
-      <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
-      </appender>
-    </springProfile>
 
     <logger name="com.nexigroup.pagopa.cruscotto" level="INFO"/>
 

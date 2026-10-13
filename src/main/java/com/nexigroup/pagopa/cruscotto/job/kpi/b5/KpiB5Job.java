@@ -1,6 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.job.kpi.b5;
 
 import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
+import com.nexigroup.pagopa.cruscotto.job.kpi.KpiJobLogContext;
 import com.nexigroup.pagopa.cruscotto.job.config.JobConstant;
 import com.nexigroup.pagopa.cruscotto.service.util.JobUtils;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
@@ -76,7 +77,7 @@ public class KpiB5Job extends QuartzJobBean {
                     .orElseThrow(() -> new RuntimeException("KPI Configuration not found for module B.5"));
 
             for (InstanceDTO instanceDTO : instanceDTOS) {
-                try {
+                try (KpiJobLogContext ignored = KpiJobLogContext.open("KPIB5", instanceDTO)) {
                     processInstance(instanceDTO, kpiConfigurationDTO);
                 } catch (Exception e) {
                     LOGGER.error("Error processing instance {} for kpi B.5: {}", instanceDTO.getId(), e.getMessage(),

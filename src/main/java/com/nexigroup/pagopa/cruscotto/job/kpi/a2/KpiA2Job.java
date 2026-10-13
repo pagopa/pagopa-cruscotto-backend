@@ -1,6 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.job.kpi.a2;
 
 import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
+import com.nexigroup.pagopa.cruscotto.job.kpi.KpiJobLogContext;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.AnalysisType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
@@ -102,7 +103,7 @@ public class KpiA2Job extends QuartzJobBean {
                     LOGGER.warn("Taxonomy table data not updated as of today, the kpi A.2 cannot be calculated. Exit...");
                 } else {
                     instanceDTOS.forEach(instanceDTO -> {
-                        try {
+                        try (KpiJobLogContext ignored = KpiJobLogContext.open("KPIA2", instanceDTO)) {
                             LOGGER.info(
                                 "Start elaboration instance {} for partner {} - {} with period {} - {}",
                                 instanceDTO.getInstanceIdentification(),

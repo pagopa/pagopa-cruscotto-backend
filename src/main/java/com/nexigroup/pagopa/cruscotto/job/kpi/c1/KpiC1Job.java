@@ -1,6 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.job.kpi.c1;
 
 import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
+import com.nexigroup.pagopa.cruscotto.job.kpi.KpiJobLogContext;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.job.config.JobConstant;
@@ -75,7 +76,7 @@ public class KpiC1Job extends QuartzJobBean {
                 LOGGER.info("Kpi configuration {}", kpiConfigurationDTO);
 
                 instanceDTOS.forEach(instanceDTO -> {
-                    try {
+                    try (KpiJobLogContext ignored = KpiJobLogContext.open("KPIC1", instanceDTO)) {
                         LOGGER.info(
                                 "Start elaboration instance {} for partner {} - {} with period {} - {}",
                                 instanceDTO.getInstanceIdentification(),
