@@ -8,6 +8,7 @@ import ch.qos.logback.core.LayoutBase;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -57,8 +58,21 @@ public class EcsJsonLayout extends LayoutBase<ILoggingEvent> {
     }
 
     private Object structuredField(String name, String value) {
-        if (!"request".equals(name) && !"response".equals(name)) {
+        if (!"request".equals(name) && !"response".equals(name) && !"ctx_details".equals(name)) {
             return value;
+        }
+
+        if ("ctx_details".equals(name)) {
+            try {
+                JsonNode json = objectMapper.readTree(value);
+                if (json != null && json.isObject() && "JOB_PROFILING".equals(json.path("type").asText())) {
+                    return json;
+                }
+            } catch (JsonProcessingException exception) {
+                return parseContextDetails(value);
+            }
+
+            return parseContextDetails(value);
         }
 
         try {
@@ -67,6 +81,19 @@ public class EcsJsonLayout extends LayoutBase<ILoggingEvent> {
         } catch (JsonProcessingException exception) {
             return value;
         }
+    }
+
+    private Object parseContextDetails(String value) {
+        ObjectNode contextDetails = objectMapper.createObjectNode();
+        String[] entries = value.split(";", -1);
+        for (String entry : entries) {
+            int separator = entry.indexOf('=');
+            if (separator <= 0) {
+                return value;
+            }
+            contextDetails.put(entry.substring(0, separator), entry.substring(separator + 1));
+        }
+        return contextDetails;
     }
 
     private void addErrorFields(IThrowableProxy throwable, Map<String, Object> fields) {
