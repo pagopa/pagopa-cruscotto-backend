@@ -25,7 +25,11 @@ public final class KpiJobLogContext implements AutoCloseable {
         contextDetails.add("instanceNumber=" + instance.getInstanceIdentification());
         contextDetails.add("analysisPeriodStart=" + instance.getAnalysisPeriodStartDate());
         contextDetails.add("analysisPeriodEnd=" + instance.getAnalysisPeriodEndDate());
-        return new KpiJobLogContext(eventAction, contextDetails.toString());
+        return open(eventAction, contextDetails.toString());
+    }
+
+    public static KpiJobLogContext open(String eventAction, String contextDetails) {
+        return new KpiJobLogContext(eventAction, contextDetails);
     }
 
     @Override

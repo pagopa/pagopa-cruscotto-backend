@@ -52,8 +52,10 @@ public class KpiC1Job extends QuartzJobBean {
     protected void executeInternal(@NonNull JobExecutionContext context) {
         Instant startTime = Instant.now();
         int instanceDTOSize = -1;
-        LOGGER.info("Start calculate kpi C.1, profile: {}",
-                JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "START", null));
+                        try (KpiJobLogContext ignored = KpiJobLogContext.open("KPIC1",
+                                JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "START", null))) {
+                                LOGGER.info("Start calculate kpi C.1");
+                        }
         try {
             if (!applicationProperties.getJob().getKpiC1Job().isEnabled()) {
                 LOGGER.info("Job calculate kpi C.1 disabled. Exit...");
@@ -144,18 +146,22 @@ public class KpiC1Job extends QuartzJobBean {
             }
 
         } catch (Exception exception) {
-            LOGGER.error("Problem during calculate kpi C.1, {}",
+            try (KpiJobLogContext ignored = KpiJobLogContext.open("KPIC1",
                     JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "GenericException",
-                            instanceDTOSize),
-                    exception);
+                            instanceDTOSize))) {
+                LOGGER.error("Problem during calculate kpi C.1", exception);
+            }
         } catch (OutOfMemoryError oom) {
-            LOGGER.error(
-                    JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "OOM", instanceDTOSize),
-                    oom);
+            try (KpiJobLogContext ignored = KpiJobLogContext.open("KPIC1",
+                    JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "OOM", instanceDTOSize))) {
+                LOGGER.error("Out of memory during calculate kpi C.1", oom);
+            }
             throw oom;
         } finally {
-            LOGGER.info("End calculations for kpi C.1, profile: {}",
-                    JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "END", instanceDTOSize));
+            try (KpiJobLogContext ignored = KpiJobLogContext.open("KPIC1",
+                    JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "END", instanceDTOSize))) {
+                LOGGER.info("End calculations for kpi C.1");
+            }
         }
     }
 
