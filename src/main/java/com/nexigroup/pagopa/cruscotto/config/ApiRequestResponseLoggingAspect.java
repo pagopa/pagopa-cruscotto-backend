@@ -46,8 +46,8 @@ public class ApiRequestResponseLoggingAspect {
     }
 
     @Around(
-        "execution(public * com.nexigroup.pagopa.cruscotto.sert.web.rest.auth..*Resource.*(..)) || " +
-        "execution(public * com.nexigroup.pagopa.cruscotto.sert.web.rest.sertSearch..*Resource.*(..))"
+        "execution(public * com.nexigroup.pagopa.cruscotto.web.rest.auth..*Resource.*(..)) || " +
+        "execution(public * com.nexigroup.pagopa.cruscotto.web.rest.sertSearch..*Resource.*(..))"
     )
     public Object logApiRequestAndResponse(ProceedingJoinPoint joinPoint) throws Throwable {
         long startNanos = System.nanoTime();
