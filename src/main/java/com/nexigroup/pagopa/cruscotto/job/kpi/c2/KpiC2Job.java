@@ -1,6 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.job.kpi.c2;
 
 import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
+import com.nexigroup.pagopa.cruscotto.job.kpi.KpiJobLogContext;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
 import com.nexigroup.pagopa.cruscotto.job.config.JobConstant;
@@ -69,8 +70,10 @@ public class KpiC2Job extends QuartzJobBean {
     protected void executeInternal(@NonNull JobExecutionContext context) {
         Instant startTime = Instant.now();
         int instanceDTOSize = -1;
-        LOGGER.info("Start calculate kpi C.2, profile: {}",
-                JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "START", null));
+                        try (KpiJobLogContext ignored = KpiJobLogContext.open("KPIC2",
+                                JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "START", null))) {
+                                LOGGER.info("Start calculate kpi C.2");
+                        }
         try {
             if (!applicationProperties.getJob().getKpiC2Job().isEnabled()) {
                 LOGGER.info("Job calculate kpi C.2 disabled. Exit...");
@@ -95,7 +98,7 @@ public class KpiC2Job extends QuartzJobBean {
                     .orElseThrow(() -> new RuntimeException("KPI Configuration not found for module C.2"));
 
             for (InstanceDTO instanceDTO : instanceDTOS) {
-                try {
+                try (KpiJobLogContext ignored = KpiJobLogContext.open("KPIC2", instanceDTO)) {
                     processInstance(instanceDTO, kpiConfigurationDTO);
                 } catch (Exception e) {
                     LOGGER.error("Error processing instance {} for kpi C.2: {}", instanceDTO.getId(), e.getMessage(),
@@ -104,18 +107,22 @@ public class KpiC2Job extends QuartzJobBean {
             }
 
         } catch (Exception e) {
-            LOGGER.error("Problem during calculate kpi C.2, {}",
+            try (KpiJobLogContext ignored = KpiJobLogContext.open("KPIC2",
                     JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "GenericException",
-                            instanceDTOSize),
-                    e);
+                            instanceDTOSize))) {
+                LOGGER.error("Problem during calculate kpi C.2", e);
+            }
         } catch (OutOfMemoryError oom) {
-            LOGGER.error(
-                    JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "OOM", instanceDTOSize),
-                    oom);
+            try (KpiJobLogContext ignored = KpiJobLogContext.open("KPIC2",
+                    JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "OOM", instanceDTOSize))) {
+                LOGGER.error("Out of memory during calculate kpi C.2", oom);
+            }
             throw oom;
         } finally {
-            LOGGER.info("End calculations for kpi C.2, profile: {}",
-                    JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "END", instanceDTOSize));
+            try (KpiJobLogContext ignored = KpiJobLogContext.open("KPIC2",
+                    JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "END", instanceDTOSize))) {
+                LOGGER.info("End calculations for kpi C.2");
+            }
         }
     }
 

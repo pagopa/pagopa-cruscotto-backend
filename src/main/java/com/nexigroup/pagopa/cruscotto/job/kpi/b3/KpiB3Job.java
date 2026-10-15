@@ -1,6 +1,7 @@
 package com.nexigroup.pagopa.cruscotto.job.kpi.b3;
 
 import com.nexigroup.pagopa.cruscotto.config.ApplicationProperties;
+import com.nexigroup.pagopa.cruscotto.job.kpi.KpiJobLogContext;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.EvaluationType;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.ModuleCode;
 import com.nexigroup.pagopa.cruscotto.domain.enumeration.OutcomeStatus;
@@ -67,8 +68,10 @@ public class KpiB3Job extends QuartzJobBean {
     protected void executeInternal(@NonNull JobExecutionContext context) {
         Instant startTime = Instant.now();
         int instanceDTOSize = -1;
-        LOGGER.info("Start calculate kpi B.3, profile: {}",
-            JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "START", null));
+        try (KpiJobLogContext ignored = KpiJobLogContext.open("KPIB3",
+            JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "START", null))) {
+            LOGGER.info("Start calculate kpi B.3");
+        }
         try {
             if (!applicationProperties.getJob().getKpiB3Job().isEnabled()) {
                 LOGGER.info("Job calculate kpi B.3 disabled. Exit...");
@@ -92,7 +95,7 @@ public class KpiB3Job extends QuartzJobBean {
                 LOGGER.info("Kpi configuration {}", kpiConfigurationDTO);
 
                 instanceDTOS.forEach(instanceDTO -> {
-                    try {
+                    try (KpiJobLogContext ignored = KpiJobLogContext.open("KPIB3", instanceDTO)) {
                         LOGGER.info(
                             "Start elaboration instance {} for partner {} - {} with period {} - {}",
                             instanceDTO.getInstanceIdentification(),
@@ -271,17 +274,21 @@ public class KpiB3Job extends QuartzJobBean {
                 });
             }
         } catch (Exception exception) {
-            LOGGER.error("Problem during calculate kpi B.3, {}",
-                JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "GenericException", instanceDTOSize),
-                exception);
+            try (KpiJobLogContext ignored = KpiJobLogContext.open("KPIB3",
+                JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "GenericException", instanceDTOSize))) {
+                LOGGER.error("Problem during calculate kpi B.3", exception);
+            }
         } catch (OutOfMemoryError oom) {
-            LOGGER.error(
-                JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "OOM", instanceDTOSize),
-                oom);
+            try (KpiJobLogContext ignored = KpiJobLogContext.open("KPIB3",
+                JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "OOM", instanceDTOSize))) {
+                LOGGER.error("Out of memory during calculate kpi B.3", oom);
+            }
             throw oom;
         } finally {
-            LOGGER.info("End calculations for kpi B.3, profile: {}",
-                JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "END", instanceDTOSize));
+            try (KpiJobLogContext ignored = KpiJobLogContext.open("KPIB3",
+                JobUtils.buildJobProfilingLogOneLine(context, startTime, Instant.now(), "END", instanceDTOSize))) {
+                LOGGER.info("End calculations for kpi B.3");
+            }
         }
     }
 

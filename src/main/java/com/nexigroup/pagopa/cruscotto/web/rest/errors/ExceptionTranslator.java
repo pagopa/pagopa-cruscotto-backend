@@ -19,6 +19,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.ConcurrencyFailureException;
@@ -136,6 +137,10 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
             MESSAGE_KEY,
             getMappedMessageKey(err) != null ? getMappedMessageKey(err) : "error.http." + problem.getStatus()
         );
+
+        String correlationId = MDC.get(com.nexigroup.pagopa.cruscotto.config.RequestLoggingFilter.CORRELATION_ID_MDC_KEY);
+
+        if (correlationId != null) problem.setProperty("correlationId", correlationId);
 
         if (problemProperties == null || !problemProperties.containsKey(PATH_KEY)) problem.setProperty(PATH_KEY, getPathValue(request));
 
