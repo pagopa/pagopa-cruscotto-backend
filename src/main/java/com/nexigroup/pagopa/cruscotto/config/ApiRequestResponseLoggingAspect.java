@@ -46,7 +46,9 @@ public class ApiRequestResponseLoggingAspect {
     }
 
     @Around(
-        "execution(public * com.nexigroup.pagopa.cruscotto.web.rest..*Resource.*(..))"
+        "within(com.nexigroup.pagopa.cruscotto.web.rest..*) && " +
+        "within(@org.springframework.web.bind.annotation.RestController *) && " +
+        "execution(public * *(..))"
     )
     public Object logApiRequestAndResponse(ProceedingJoinPoint joinPoint) throws Throwable {
         long startNanos = System.nanoTime();
