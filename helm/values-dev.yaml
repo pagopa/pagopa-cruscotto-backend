@@ -64,6 +64,7 @@ microservice-chart:
           type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
           value: "75"
   envConfig:
+    JAVA_OPTS: "-XX:-UseBASE64Intrinsics"
     SPRING_PROFILES_ACTIVE: 'devpagopa'
     ASPNETCORE_URLS: "http://*:8080"
     WEBSITE_SITE_NAME: "pagopacruscottobackend" # required to show cloud role name in application insights
