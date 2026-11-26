@@ -389,49 +389,53 @@ public class KpiB2Job extends QuartzJobBean {
                         kpiB2ResultRef,
                         filteredPeriodRecords,
                         kpiB2ResultFinalOutcome);
+
                 for (KpiB2DetailResultDTO detailResult : detailResults) {
                     AtomicReference<KpiB2DetailResultDTO> kpiB2DetailResultRef = new AtomicReference<>(kpiB2DetailResultService.save(detailResult));
 
                     if (detailResult.getEvaluationType() == EvaluationType.MESE) {
 
-
-                    // --- Aggregation: KpiB2AnalyticData ---
-                    List<KpiB2AnalyticDataDTO> analyticDataList = aggregateKpiB2AnalyticData(
+                        if (detailResult.getOutcome().equals(OutcomeStatus.KO)){
+                            kpiB2ResultFinalOutcome.set(OutcomeStatus.KO);
+                        }
+                        // --- Aggregation: KpiB2AnalyticData ---
+                        List<KpiB2AnalyticDataDTO> analyticDataList = aggregateKpiB2AnalyticData(
                             instanceDTO,
                             instanceModuleDTO,
                             kpiB2ResultDTO.getAverageTimeLimit(),
                             kpiB2DetailResultRef,
                             filteredPeriodRecords.stream()
-                                    .filter(record -> {
-                                        LocalDate recordDate = record.getStartDate().atZone(ZoneId.systemDefault())
-                                                .toLocalDate();
-                                        return !recordDate.isBefore(detailResult.getEvaluationStartDate())
-                                                && !recordDate.isAfter(detailResult.getEvaluationEndDate());
-                                    })
-                                    .toList(),
+                                .filter(record -> {
+                                    LocalDate recordDate = record.getStartDate().atZone(ZoneId.systemDefault())
+                                        .toLocalDate();
+                                    return !recordDate.isBefore(detailResult.getEvaluationStartDate())
+                                        && !recordDate.isAfter(detailResult.getEvaluationEndDate());
+                                })
+                                .toList(),
                             detailResult.getEvaluationStartDate(),
                             detailResult.getEvaluationEndDate());
 
 
-                    for (KpiB2AnalyticDataDTO analyticData : analyticDataList) {
-                         AtomicReference<KpiB2AnalyticDataDTO> kpiB2AnalyticDataRef = new AtomicReference<>(kpiB2AnalyticDataService.save(analyticData));
+                        for (KpiB2AnalyticDataDTO analyticData : analyticDataList) {
+                            AtomicReference<KpiB2AnalyticDataDTO> kpiB2AnalyticDataRef = new AtomicReference<>(kpiB2AnalyticDataService.save(analyticData));
 
-                         // --- Aggregation: DrillDown ---
-                        List<KpiB2AnalyticDrillDownDTO> drillDowns = aggregateKpiB2AnalyticDataDrillDown(
-                            kpiB2AnalyticDataRef,
-                            filteredPeriodRecords.stream()
-                                .filter(record ->
-                                    record.getStartDate().atZone(ZoneId.systemDefault()).toLocalDate().isEqual(analyticData.getEvaluationDate()) &&
-                                    record.getStation().equals(analyticData.getStationName()) &&
-                                    record.getMethod().equals(analyticData.getMethod())
-                                )
-                                .toList(),
-                            detailResult.getEvaluationStartDate(),
-                            detailResult.getEvaluationEndDate()
-                        );
-                        kpiB2AnalyticDrillDownService.saveAll(drillDowns);
+                            // --- Aggregation: DrillDown ---
+                            List<KpiB2AnalyticDrillDownDTO> drillDowns = aggregateKpiB2AnalyticDataDrillDown(
+                                kpiB2AnalyticDataRef,
+                                filteredPeriodRecords.stream()
+                                    .filter(record ->
+                                        record.getStartDate().atZone(ZoneId.systemDefault()).toLocalDate().isEqual(analyticData.getEvaluationDate()) &&
+                                            record.getStation().equals(analyticData.getStationName()) &&
+                                            record.getMethod().equals(analyticData.getMethod())
+                                    )
+                                    .toList(),
+                                detailResult.getEvaluationStartDate(),
+                                detailResult.getEvaluationEndDate()
+                            );
+                            kpiB2AnalyticDrillDownService.saveAll(drillDowns);
+                        }
                     }
-                }}
+                }
 
                 // Final outcome update
                 LOGGER.info("Final outcome {}", kpiB2ResultFinalOutcome.get());
